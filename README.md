@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="Images/logo.png" alt="SpotDeck Logo" width="290"/>
+</p>
+
 # 🎵 SpotDeck: Spotify Now Playing Dashboard
 
 **SpotDeck** is a sleek, animated "Now Playing" dashboard inspired by the concept of a dedicated media display (like the discontinued Spotify Car Thing). It transforms any spare device—a tablet, a secondary monitor, or a spare phone—into a beautiful, interactive music display with real-time album art ambience and playback controls.
@@ -11,6 +15,12 @@
   * **Fullscreen Mode:** Dedicated fullscreen button and keyboard shortcut (`F` or `f`).
   * **Keyboard Shortcuts:** Control playback with the spacebar, and toggle fullscreen with `F`.
   * **Secure PKCE Authentication:** Uses modern, secure Proof Key for Code Exchange (PKCE) for Spotify authorization without exposing a client secret.
+
+## 👀 Preview
+
+![SpotDeck Preview1](Images/preview1.png)
+
+![SpotDeck Preview2](Images/preview2.png)
 
 ## 🛠️ Setup Instructions (GitHub Pages & Private Repo)
 
