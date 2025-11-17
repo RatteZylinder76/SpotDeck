@@ -90,3 +90,10 @@ To enable GitHub Pages on a **private** repository, you must use a specific setu
 
   * **Spotify Premium:** Playback control functions (Play/Pause, Skip, Volume) require a **Spotify Premium** subscription due to Spotify API restrictions.
   * **Active Device:** You must have Spotify actively playing on another device (like your phone or computer) for SpotDeck to display playback data and allow controls.
+
+## 📃 License
+
+MIT License © 2025 Sayan Sarkar
+
+## 🤝 Contributions 
+Special Thanks To [Shitij](https://github.com/ShitijHalder) For The Overall Help.
