@@ -1,175 +1,12 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#07100e">
-  <title>SpotDeck Car Thing</title>
-  <style>
-    :root{
-      --bg:#07100e;
-      --glass:rgba(10,18,17,.42);
-      --glass2:rgba(7,12,12,.66);
-      --line:rgba(255,255,255,.72);
-      --text:#f4f7f6;
-      --muted:rgba(244,247,246,.70);
-      --faint:rgba(244,247,246,.42);
-      --accent:#1ed760;
-      --safe-l:env(safe-area-inset-left,0px);
-      --safe-r:env(safe-area-inset-right,0px);
-      --safe-t:env(safe-area-inset-top,0px);
-      --safe-b:env(safe-area-inset-bottom,0px);
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;width:100%;height:100%;background:#000;color:var(--text);overflow:hidden}
-    body{
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      touch-action:manipulation;
-      overscroll-behavior:none;
-    }
-    button,input{font:inherit}
-    button{border:0}
-    .app{
-      position:fixed;inset:0;
-      min-width:100vw;min-height:100dvh;
-      background:var(--bg);
-      overflow:hidden;
-      isolation:isolate;
-    }
-    .bg{
-      position:absolute;inset:-8%;
-      background-position:center;background-size:cover;
-      filter:blur(55px) saturate(.9) brightness(.56);
-      transform:scale(1.13);
-      opacity:.85;
-      transition:background-image .7s ease, opacity .4s ease;
-      z-index:-3;
-    }
-    .tint{
-      position:absolute;inset:0;z-index:-2;
-      background:
-        radial-gradient(circle at 18% 20%,rgba(74,129,112,.28),transparent 44%),
-        linear-gradient(90deg,rgba(7,17,15,.50),rgba(12,24,22,.58) 54%,rgba(6,12,12,.78));
-    }
-    .shade{
-      position:absolute;inset:0;z-index:-1;
-      background:linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.12) 62%,rgba(0,0,0,.36));
-    }
-    .shell{
-      width:100%;height:100%;
-      display:grid;
-      grid-template-rows:minmax(0,1fr) auto;
-      padding-top:var(--safe-t);
-      padding-left:var(--safe-l);
-      padding-right:var(--safe-r);
-      padding-bottom:var(--safe-b);
-    }
-    .now{
-      min-height:0;
-      display:grid;
-      grid-template-columns:minmax(118px,28vh) minmax(0,1fr);
-      align-items:center;
-      gap:clamp(16px,3vw,44px);
-      padding:clamp(14px,3vh,34px) clamp(18px,4vw,58px) clamp(10px,2vh,20px);
-    }
-    .art-wrap{
-      width:min(28vh,29vw);
-      min-width:116px;
-      max-width:320px;
-      aspect-ratio:1;
-      align-self:center;
-      filter:drop-shadow(0 12px 24px rgba(0,0,0,.20));
-    }
-    #art{
-      width:100%;height:100%;
-      object-fit:cover;
-      display:block;
-      border-radius:clamp(3px,.7vw,8px);
-      background:#0b0d0d;
-      transition:opacity .25s ease,transform .35s ease;
-    }
-    .meta{min-width:0;align-self:center}
-    .context{
-      display:flex;align-items:center;gap:8px;
-      margin:0 0 clamp(5px,1vh,11px);
-      color:var(--muted);
-      font-size:clamp(12px,1.8vw,20px);
-      font-weight:650;
-      line-height:1.2;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .context svg{width:1em;height:1em;opacity:.9;flex:0 0 auto}
-    #title{
-      margin:0;
-      max-width:100%;
-      color:var(--text);
-      font-size:clamp(31px,6vw,78px);
-      line-height:.98;
-      letter-spacing:-.045em;
-      font-weight:760;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      text-shadow:0 2px 12px rgba(0,0,0,.14);
-    }
-    #artists{
-      margin:clamp(6px,1.2vh,14px) 0 0;
-      color:var(--muted);
-      font-size:clamp(15px,2.5vw,32px);
-      line-height:1.12;
-      font-weight:500;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .timeline{
-      grid-column:1/-1;
-      align-self:end;
-      padding:0 clamp(18px,4vw,58px) clamp(7px,1.2vh,12px);
-    }
-    .track{
-      position:relative;width:100%;
-      height:clamp(2px,.45vh,5px);
-      border-radius:999px;
-      background:rgba(255,255,255,.25);
-      overflow:hidden;
-      cursor:pointer;
-    }
-    #barInner{
-      height:100%;width:0;
-      border-radius:999px;
-      background:rgba(255,255,255,.88);
-      transition:width .12s linear;
-    }
-    .times{
-      height:0;overflow:hidden;opacity:0;
-      display:flex;justify-content:space-between;
-      font-size:10px;color:var(--faint);
-    }
-    .controls{
-      position:relative;
-      min-height:clamp(72px,18vh,136px);
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      align-items:center;
-      padding:0 clamp(12px,2.5vw,34px);
-      background:linear-gradient(180deg,rgba(6,16,15,.44),rgba(3,8,8,.68));
-      border-top:1px solid rgba(255,255,255,.14);
-      backdrop-filter:blur(20px) saturate(1.05);
-      -webkit-backdrop-filter:blur(20px) saturate(1.05);
-    }
-    .ctrl{
-      justify-self:center;
-      width:clamp(50px,10vh,84px);
-      height:clamp(50px,10vh,84px);
-      border-radius:50%;
-      display:grid;place-items:center;
-      color:rgba(255,255,255,.86);
-      background:transparent;
-      cursor:pointer;
-      transition:transform .12s ease,color .15s ease,background .15s ease;
-    }
-    .ctrl:active{transform:scale(.88);background:rgba(255,255,255,.08)}
-    .ctrl svg{width:clamp(22px,4.8vh,39px);height:clamp(22px,4.8vh,39px)}
-    .ctrl.active{color:var(--accent)}
-    .ctrl.primary svg{width:clamp(24px,5.2vh,42px);height:clamp(24px,5.2vh,42px)}
-    .mini-actions{
+from pathlib import Path
+import re
+
+src = Path("/mnt/data/index-carthing.html")
+html = src.read_text(encoding="utf-8")
+
+# 1) Make the top-right action buttons clearly visible.
+html = html.replace(
+"""    .mini-actions{
       position:fixed;
       top:calc(var(--safe-t) + 9px);
       right:calc(var(--safe-r) + 10px);
@@ -181,550 +18,564 @@
     .mini-actions:hover,.mini-actions:focus-within{opacity:.95}
     .mini{
       width:34px;height:34px;border-radius:50%;
-      display:grid;place-items:center;
-      color:white;background:rgba(0,0,0,.38);
-      border:1px solid rgba(255,255,255,.10);
-      backdrop-filter:blur(12px);
-      cursor:pointer;
+""",
+"""    .mini-actions{
+      position:fixed;
+      top:calc(var(--safe-t) + 10px);
+      right:calc(var(--safe-r) + 12px);
+      z-index:40;
+      display:flex;gap:8px;
+      opacity:.96;
+      transition:opacity .18s ease;
     }
-    .mini svg{width:17px;height:17px}
-    #connect{
-      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-      z-index:50;
+    .mini-actions:hover,.mini-actions:focus-within{opacity:1}
+    .mini{
+      width:42px;height:42px;border-radius:50%;
+""")
+
+html = html.replace(
+"""      color:white;background:rgba(0,0,0,.38);
+      border:1px solid rgba(255,255,255,.10);
+""",
+"""      color:white;background:rgba(0,0,0,.52);
+      border:1px solid rgba(255,255,255,.18);
+""", 1)
+
+html = html.replace(
+"""    .mini svg{width:17px;height:17px}
+""",
+"""    .mini svg{width:20px;height:20px}
+    .mini:active{transform:scale(.92);background:rgba(255,255,255,.12)}
+""")
+
+# 2) Add the library UI styles before the settings styles.
+library_css = r'''
+    .library{
+      position:fixed;inset:0;z-index:55;
       display:none;
-      padding:15px 24px;border-radius:999px;
-      color:#000;background:var(--accent);
-      font-weight:800;font-size:16px;
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
+      background:
+        radial-gradient(circle at 20% 10%,rgba(35,92,75,.28),transparent 34%),
+        linear-gradient(180deg,rgba(8,15,14,.98),rgba(4,8,8,.995));
+      color:white;
+    }
+    .library.open{display:grid;grid-template-rows:auto minmax(0,1fr)}
+    .library-top{
+      display:grid;grid-template-columns:auto 1fr auto;
+      align-items:center;gap:12px;
+      padding:calc(var(--safe-t) + 12px) calc(var(--safe-r) + 16px) 12px calc(var(--safe-l) + 16px);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background:rgba(7,12,12,.76);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    .library-title{
+      margin:0;
+      font-size:clamp(20px,3.2vw,32px);
+      letter-spacing:-.03em;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .round-action{
+      width:42px;height:42px;border-radius:50%;
+      display:grid;place-items:center;
+      color:white;background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
       cursor:pointer;
     }
-    .disconnected #connect{display:block}
-    .disconnected .now,.disconnected .timeline,.disconnected .controls{filter:brightness(.42)}
-    .settings{
-      position:fixed;inset:0;z-index:60;
-      display:none;align-items:center;justify-content:center;
-      padding:20px;
-      background:rgba(0,0,0,.64);
-      backdrop-filter:blur(16px);
+    .round-action:active{transform:scale(.92)}
+    .round-action svg{width:20px;height:20px}
+    .library-scroll{
+      min-height:0;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      touch-action:pan-y;
+      overscroll-behavior:contain;
+      padding:18px max(calc(var(--safe-r) + 18px),18px) calc(var(--safe-b) + 28px) max(calc(var(--safe-l) + 18px),18px);
     }
-    .settings.open{display:flex}
-    .panel{
-      width:min(480px,92vw);
-      padding:22px;border-radius:24px;
-      background:rgba(18,22,22,.96);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow:0 30px 90px rgba(0,0,0,.45);
+    .library-section-title{
+      margin:24px 0 12px;
+      font-size:clamp(15px,2.1vw,20px);
+      color:rgba(255,255,255,.76);
+      font-weight:750;
     }
-    .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-    .panel h2{font-size:20px;margin:0}
-    .close{background:transparent;color:white;font-size:28px;cursor:pointer}
-    .label{font-size:12px;color:var(--faint);margin-bottom:7px}
-    .device{font-size:15px;margin-bottom:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .vol-row{display:flex;align-items:center;gap:12px}
-    #volumeSlider{width:100%;accent-color:var(--accent)}
-    #volumeValue{font-size:13px;color:var(--muted);min-width:38px;text-align:right}
-    .danger{
-      width:100%;margin-top:22px;padding:12px;border-radius:14px;
-      background:#2a1818;color:#ffb7b7;cursor:pointer;
+    .liked-hero{
+      width:100%;
+      display:grid;
+      grid-template-columns:clamp(74px,13vw,130px) minmax(0,1fr) auto;
+      gap:clamp(14px,2.5vw,26px);
+      align-items:center;
+      padding:clamp(14px,2.5vw,24px);
+      border-radius:22px;
+      color:white;
+      background:
+        radial-gradient(circle at 15% 20%,rgba(92,75,255,.75),transparent 38%),
+        linear-gradient(125deg,#3427a8,#5c57db 58%,#7e79e6);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 16px 44px rgba(0,0,0,.22);
+      cursor:pointer;
+      text-align:left;
     }
-    .status-pill{
-      position:fixed;left:calc(var(--safe-l) + 10px);top:calc(var(--safe-t) + 8px);
-      z-index:15;
-      display:flex;align-items:center;gap:7px;
-      color:rgba(255,255,255,.45);
-      font-size:11px;
-      opacity:.15;
-      pointer-events:none;
+    .liked-icon{
+      aspect-ratio:1;border-radius:10px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,#3c2dd6,#a8d8c6);
+      box-shadow:0 8px 24px rgba(0,0,0,.22);
     }
-    .dot{width:6px;height:6px;border-radius:50%;background:#888}
-    .dot.online{background:var(--accent)}
-    .toast{
-      position:fixed;left:50%;bottom:calc(var(--safe-b) + 20px);
-      transform:translate(-50%,20px);
-      z-index:90;
-      padding:9px 14px;border-radius:999px;
-      background:rgba(0,0,0,.74);color:white;
-      font-size:12px;opacity:0;pointer-events:none;
-      transition:.2s ease;
-      border:1px solid rgba(255,255,255,.10);
+    .liked-icon svg{width:45%;height:45%}
+    .liked-copy{min-width:0}
+    .liked-copy strong{
+      display:block;font-size:clamp(24px,4.2vw,46px);letter-spacing:-.04em;line-height:1;
     }
-    .toast.show{opacity:1;transform:translate(-50%,0)}
-    @media (orientation:portrait){
-      .now{
-        grid-template-columns:1fr;
-        grid-template-rows:auto auto;
-        justify-items:center;
-        align-content:center;
-        text-align:center;
-      }
-      .art-wrap{width:min(48vw,30vh)}
-      .context{justify-content:center}
-      #title{font-size:clamp(32px,9vw,62px)}
-      #artists{font-size:clamp(16px,4.5vw,28px)}
-      .timeline{padding-bottom:8px}
+    .liked-copy span{
+      display:block;margin-top:7px;color:rgba(255,255,255,.76);
+      font-size:clamp(12px,1.8vw,17px);
     }
-    @media (max-height:420px) and (orientation:landscape){
-      .now{grid-template-columns:minmax(104px,27vh) minmax(0,1fr);padding-top:8px;padding-bottom:4px}
-      .art-wrap{min-width:104px}
-      #title{font-size:clamp(28px,6vw,58px)}
-      #artists{font-size:clamp(14px,2.4vw,25px)}
-      .controls{min-height:68px}
-      .ctrl{width:48px;height:48px}
+    .play-bubble{
+      width:clamp(48px,7vw,64px);height:clamp(48px,7vw,64px);border-radius:50%;
+      display:grid;place-items:center;background:white;color:black;flex:0 0 auto;
     }
-  </style>
-</head>
-<body>
-<div class="app disconnected" id="app">
-  <div class="bg" id="bg"></div>
-  <div class="tint"></div>
-  <div class="shade"></div>
+    .play-bubble svg{width:45%;height:45%;margin-left:4%}
+    .playlist-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+      gap:14px;
+    }
+    .playlist-card{
+      min-width:0;
+      border-radius:18px;
+      background:rgba(255,255,255,.055);
+      border:1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform .12s ease,background .12s ease;
+    }
+    .playlist-card:active{transform:scale(.975);background:rgba(255,255,255,.09)}
+    .playlist-cover{
+      width:100%;aspect-ratio:1;display:block;object-fit:cover;background:#141818;
+    }
+    .playlist-placeholder{
+      width:100%;aspect-ratio:1;display:grid;place-items:center;
+      background:linear-gradient(135deg,#182723,#0a1110);color:rgba(255,255,255,.5);
+    }
+    .playlist-placeholder svg{width:34%;height:34%}
+    .playlist-info{padding:11px 12px 12px}
+    .playlist-name{
+      font-size:14px;font-weight:750;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .playlist-sub{
+      display:flex;justify-content:space-between;gap:8px;align-items:center;
+      margin-top:5px;color:rgba(255,255,255,.46);font-size:11px;
+      white-space:nowrap;overflow:hidden;
+    }
+    .playlist-sub span{overflow:hidden;text-overflow:ellipsis}
+    .spotify-link{
+      color:rgba(255,255,255,.55);
+      text-decoration:none;
+      flex:0 0 auto;
+    }
+    .spotify-link:hover{color:white}
+    .track-list{display:grid;gap:7px}
+    .lib-track{
+      display:grid;
+      grid-template-columns:50px minmax(0,1fr) auto;
+      gap:11px;align-items:center;
+      padding:7px 9px;border-radius:13px;
+      background:rgba(255,255,255,.035);
+      border:1px solid transparent;
+      cursor:pointer;
+    }
+    .lib-track:active{background:rgba(255,255,255,.08)}
+    .lib-track img{
+      width:50px;height:50px;object-fit:cover;border-radius:5px;background:#111;
+    }
+    .lib-track-copy{min-width:0}
+    .lib-track-title{
+      font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .lib-track-artist{
+      margin-top:3px;font-size:12px;color:rgba(255,255,255,.48);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .lib-track-link{
+      width:36px;height:36px;border-radius:50%;
+      display:grid;place-items:center;color:rgba(255,255,255,.50);text-decoration:none;
+    }
+    .lib-track-link svg{width:17px;height:17px}
+    .library-state{
+      min-height:140px;display:grid;place-items:center;
+      color:rgba(255,255,255,.56);font-size:14px;text-align:center;
+    }
+    @media (max-height:430px) and (orientation:landscape){
+      .library-scroll{padding-top:12px}
+      .liked-hero{grid-template-columns:72px minmax(0,1fr) 48px;padding:11px 14px;border-radius:16px}
+      .liked-copy strong{font-size:28px}
+      .playlist-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+    }
+'''
+html = html.replace("    .settings{\n", library_css + "\n    .settings{\n")
 
-  <div class="status-pill">
-    <span class="dot" id="dot"></span>
-    <span id="device">Spotify</span>
-  </div>
-
-  <div class="mini-actions">
-    <button class="mini" id="settingsBtn" aria-label="Einstellungen" title="Einstellungen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.16.38.43.72.78.96.32.23.7.37 1.1.4h.1v4h-.1A1.7 1.7 0 0 0 19.4 15Z"/></svg>
+# 3) Add library button before settings button.
+library_button = r'''    <button class="mini" id="libraryBtn" aria-label="Bibliothek" title="Bibliothek">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 5h12M4 10h12M4 15h8"/><path d="M18 14v6"/><path d="M15 17h6"/>
+      </svg>
     </button>
-    <button class="mini" id="fsBtn" aria-label="Vollbild" title="Vollbild">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-    </button>
-  </div>
+'''
+html = html.replace('  <div class="mini-actions">\n    <button class="mini" id="settingsBtn"', '  <div class="mini-actions">\n' + library_button + '    <button class="mini" id="settingsBtn"')
 
-  <button id="connect">Mit Spotify verbinden</button>
-
-  <div class="shell">
-    <div style="min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto">
-      <main class="now">
-        <div class="art-wrap">
-          <img id="art" alt="Albumcover" src="">
-        </div>
-        <div class="meta">
-          <div class="context">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <span id="album">Spotify</span>
-          </div>
-          <h1 id="title">SpotDeck</h1>
-          <p id="artists">Verbinde dein Spotify-Konto</p>
-        </div>
-      </main>
-
-      <div class="timeline" id="progress">
-        <div class="track" id="track">
-          <div id="barInner"></div>
-        </div>
-        <div class="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div>
-      </div>
-    </div>
-
-    <footer class="controls">
-      <button class="ctrl" id="shuffleBtn" aria-label="Shuffle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 3h5v5"/><path d="m21 3-7 7"/><path d="M4 7h3.5c2 0 3.1.8 4.5 2.6l4 5.1c1.2 1.5 2.3 2.3 4 2.3H21"/><path d="M16 21h5v-5"/><path d="m21 21-3.2-3.2"/><path d="M4 17h3.5c1.6 0 2.7-.5 3.8-1.7"/>
+# 4) Add full library overlay before settings.
+library_html = r'''
+  <div class="library" id="library">
+    <div class="library-top">
+      <button class="round-action" id="closeLibrary" aria-label="Zurück" title="Zurück">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
         </svg>
       </button>
-      <button class="ctrl" id="prevBtn" aria-label="Vorheriger Titel">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM18 5v14l-9-7 9-7z"/></svg>
+      <h2 class="library-title">Deine Bibliothek</h2>
+      <button class="round-action" id="refreshLibrary" aria-label="Neu laden" title="Neu laden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 8M5.5 15A7 7 0 0 0 18 17.5l2-1.5"/>
+        </svg>
       </button>
-      <button class="ctrl primary" id="playPauseBtn" aria-label="Play/Pause">
-        <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+    </div>
+    <div class="library-scroll">
+      <button class="liked-hero" id="playLiked">
+        <span class="liked-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </span>
+        <span class="liked-copy">
+          <strong>Lieblingssongs</strong>
+          <span id="likedCount">Wird geladen …</span>
+        </span>
+        <span class="play-bubble">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </span>
       </button>
-      <button class="ctrl" id="nextBtn" aria-label="Nächster Titel">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM6 5v14l9-7-9-7z"/></svg>
-      </button>
-      <button class="ctrl" id="likeBtn" aria-label="Titel speichern">
-        <svg id="heartOutline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-        <svg id="heartFill" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-      </button>
-    </footer>
-  </div>
 
-  <div class="settings" id="settings">
-    <div class="panel">
-      <div class="panel-head"><h2>Einstellungen</h2><button class="close" id="closeSettings" aria-label="Schließen">×</button></div>
-      <div class="label">Aktives Gerät</div>
-      <div class="device" id="settingsDevice">—</div>
-      <div class="label">Lautstärke</div>
-      <div class="vol-row">
-        <input id="volumeSlider" type="range" min="0" max="100" value="50">
-        <span id="volumeValue">50%</span>
+      <h3 class="library-section-title">Playlists</h3>
+      <div id="playlistGrid" class="playlist-grid">
+        <div class="library-state">Playlists werden geladen …</div>
       </div>
-      <button class="danger" id="logoutBtn">Spotify trennen</button>
+
+      <h3 class="library-section-title">Zuletzt gespeicherte Songs</h3>
+      <div id="likedList" class="track-list">
+        <div class="library-state">Songs werden geladen …</div>
+      </div>
     </div>
   </div>
+'''
+html = html.replace('  <div class="settings" id="settings">', library_html + '\n  <div class="settings" id="settings">')
 
-  <div class="toast" id="toast"></div>
-</div>
-
-<script>
-  // Deine bereits verwendete Spotify-App.
-  const SPOTIFY_CLIENT_ID = "952ebc1821154410a1f1106ff0f66e60";
-
-  // Bleibt bei GitHub Pages automatisch https://rattezylinder76.github.io/SpotDeck/
-  const REDIRECT_URI = location.origin + location.pathname.replace(/[^/]*$/, "");
-
-  const SCOPES = [
-    "user-read-currently-playing",
-    "user-read-playback-state",
-    "user-modify-playback-state",
-    "user-library-read",
+# 5) Add scopes for playlist library.
+html = html.replace(
+'''    "user-library-read",
     "user-library-modify"
-  ];
+''',
+'''    "user-library-read",
+    "user-library-modify",
+    "playlist-read-private",
+    "playlist-read-collaborative"
+''')
 
-  const $ = id => document.getElementById(id);
-  const app = $("app"), art = $("art"), bg = $("bg"), title = $("title"), artists = $("artists"), album = $("album");
-  const bar = $("barInner"), elapsed = $("elapsed"), duration = $("duration"), dot = $("dot"), device = $("device");
-  const connect = $("connect"), playPauseBtn = $("playPauseBtn"), playIcon = $("playIcon"), pauseIcon = $("pauseIcon");
-  const prevBtn = $("prevBtn"), nextBtn = $("nextBtn"), shuffleBtn = $("shuffleBtn"), likeBtn = $("likeBtn");
-  const heartOutline = $("heartOutline"), heartFill = $("heartFill");
-  const settings = $("settings"), settingsBtn = $("settingsBtn"), closeSettings = $("closeSettings");
-  const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
-  const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");
+# 6) Add AUTH_VERSION to force a one-time reconnect after this upgrade.
+html = html.replace(
+'  const SCOPES = [',
+'  const AUTH_VERSION = 2;\n\n  const SCOPES = ['
+)
 
-  let playback = null;
-  let lastTrackId = null;
-  let pollTimer = null;
-  let animFrame = null;
-  let lastPollAt = performance.now();
-  let isLiked = false;
-  let toastTimer = null;
-
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>toast.classList.remove("show"),1800);
-  }
-
-  function msToTime(ms){
-    const s = Math.max(0,Math.floor(ms/1000));
-    return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
-  }
-
-  function saveSession(s){ localStorage.setItem("spotdeck.session",JSON.stringify(s)); }
-  function loadSession(){ try{return JSON.parse(localStorage.getItem("spotdeck.session")||"null")}catch{return null} }
-  function clearSession(){ localStorage.removeItem("spotdeck.session"); }
-
-  async function sha256(text){
-    return crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));
-  }
-  function b64url(buf){
-    return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-  }
-  function randomString(len=64){
-    const a=new Uint8Array(len);crypto.getRandomValues(a);
-    return Array.from(a,x=>(x%36).toString(36)).join("");
-  }
-
-  async function beginAuth(){
-    const verifier=randomString();
-    sessionStorage.setItem("spotdeck.verifier",verifier);
-    const challenge=b64url(await sha256(verifier));
-    const u=new URL("https://accounts.spotify.com/authorize");
-    u.searchParams.set("response_type","code");
-    u.searchParams.set("client_id",SPOTIFY_CLIENT_ID);
-    u.searchParams.set("redirect_uri",REDIRECT_URI);
-    u.searchParams.set("scope",SCOPES.join(" "));
-    u.searchParams.set("code_challenge_method","S256");
-    u.searchParams.set("code_challenge",challenge);
-    u.searchParams.set("show_dialog","true");
-    location.href=u.toString();
-  }
-
-  async function exchangeCode(code){
-    const verifier=sessionStorage.getItem("spotdeck.verifier");
-    if(!verifier) throw new Error("PKCE-Verifier fehlt");
-    const body=new URLSearchParams({
-      client_id:SPOTIFY_CLIENT_ID,
-      grant_type:"authorization_code",
-      code,
-      redirect_uri:REDIRECT_URI,
-      code_verifier:verifier
-    });
-    const r=await fetch("https://accounts.spotify.com/api/token",{
-      method:"POST",
-      headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body
-    });
-    if(!r.ok) throw new Error("Spotify-Anmeldung fehlgeschlagen");
-    const d=await r.json();
-    saveSession({
+# 7) Store auth version.
+html = html.replace(
+'''    saveSession({
       access_token:d.access_token,
       refresh_token:d.refresh_token,
       expires_at:Date.now()+(d.expires_in-60)*1000
-    });
-    sessionStorage.removeItem("spotdeck.verifier");
-    history.replaceState({},document.title,REDIRECT_URI);
-  }
+    });''',
+'''    saveSession({
+      access_token:d.access_token,
+      refresh_token:d.refresh_token,
+      expires_at:Date.now()+(d.expires_in-60)*1000,
+      auth_version:AUTH_VERSION
+    });'''
+)
 
-  async function refreshIfNeeded(){
-    const s=loadSession();
-    if(!s) return false;
-    if(Date.now()<s.expires_at) return true;
-    const body=new URLSearchParams({
-      client_id:SPOTIFY_CLIENT_ID,
-      grant_type:"refresh_token",
-      refresh_token:s.refresh_token
-    });
-    const r=await fetch("https://accounts.spotify.com/api/token",{
-      method:"POST",
-      headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body
-    });
-    if(!r.ok){ clearSession(); return false; }
-    const d=await r.json();
-    s.access_token=d.access_token;
-    if(d.refresh_token) s.refresh_token=d.refresh_token;
-    s.expires_at=Date.now()+(d.expires_in-60)*1000;
-    saveSession(s);
-    return true;
-  }
+# 8) Extend element references.
+html = html.replace(
+'''  const settings = $("settings"), settingsBtn = $("settingsBtn"), closeSettings = $("closeSettings");
+  const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
+  const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");''',
+'''  const settings = $("settings"), settingsBtn = $("settingsBtn"), closeSettings = $("closeSettings");
+  const library = $("library"), libraryBtn = $("libraryBtn"), closeLibrary = $("closeLibrary"), refreshLibrary = $("refreshLibrary");
+  const playlistGrid = $("playlistGrid"), likedList = $("likedList"), playLiked = $("playLiked"), likedCount = $("likedCount");
+  const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
+  const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");'''
+)
 
-  async function api(path,options={}){
-    if(!await refreshIfNeeded()) throw new Error("NO_SESSION");
-    const s=loadSession();
-    const r=await fetch(`https://api.spotify.com/v1${path}`,{
-      ...options,
-      headers:{...(options.headers||{}),Authorization:`Bearer ${s.access_token}`}
-    });
-    if(r.status===401){clearSession();setDisconnected();throw new Error("SESSION_EXPIRED")}
-    return r;
-  }
+html = html.replace(
+'''  let isLiked = false;
+  let toastTimer = null;''',
+'''  let isLiked = false;
+  let toastTimer = null;
+  let libraryLoaded = false;
+  let libraryPlaylists = [];
+  let libraryTracks = [];'''
+)
 
-  function setDisconnected(){
-    app.classList.add("disconnected");
-    dot.classList.remove("online");
-    device.textContent="Spotify";
-    clearInterval(pollTimer);
-    cancelAnimationFrame(animFrame);
-  }
-
-  function setConnected(){
-    app.classList.remove("disconnected");
-  }
-
-  function getArt(item){
-    const imgs=item?.album?.images || item?.show?.images || item?.images || [];
-    return imgs[0]?.url || "";
-  }
-
-  function getArtists(item){
-    if(item?.artists?.length) return item.artists.map(a=>a.name).join(", ");
-    if(item?.show?.publisher) return item.show.publisher;
-    return "—";
-  }
-
-  function updateLikeVisual(){
-    likeBtn.classList.toggle("active",isLiked);
-    heartOutline.style.display=isLiked?"none":"block";
-    heartFill.style.display=isLiked?"block":"none";
-  }
-
-  async function checkLiked(trackId){
+# 9) Replace old saved-track check with the Feb 2026 generic library endpoint.
+html = re.sub(
+r'''  async function checkLiked\(trackId\)\{.*?  \}\n\n  function renderPlayback''',
+r'''  async function checkLiked(trackId){
     if(!trackId){isLiked=false;updateLikeVisual();return}
     try{
-      const r=await api(`/me/tracks/contains?ids=${encodeURIComponent(trackId)}`);
-      if(r.ok){const d=await r.json();isLiked=!!d[0];updateLikeVisual()}
+      const uri=`spotify:track:${trackId}`;
+      const r=await api(`/me/library/contains?uris=${encodeURIComponent(uri)}`);
+      if(r.ok){
+        const d=await r.json();
+        isLiked=!!d[0];
+        updateLikeVisual();
+      }
     }catch{}
   }
 
-  function renderPlayback(data){
-    playback=data;
-    lastPollAt=performance.now();
-    const item=data?.item;
-    const trackId=item?.type==="track"?item.id:null;
-    const image=getArt(item);
+  function renderPlayback''',
+html,
+flags=re.S
+)
 
-    title.textContent=item?.name || "Nichts wird abgespielt";
-    artists.textContent=item?getArtists(item):"Starte Spotify auf deinem Wiedergabegerät";
-    album.textContent=item?.album?.name || item?.show?.name || "Spotify";
-    device.textContent=data?.device?.name || "Kein aktives Gerät";
-    settingsDevice.textContent=data?.device?.name || "Kein aktives Gerät";
-    dot.classList.toggle("online",!!data?.device);
-
-    if(image && art.dataset.src!==image){
-      art.dataset.src=image;
-      art.style.opacity=".55";
-      const img=new Image();
-      img.onload=()=>{
-        art.src=image;
-        bg.style.backgroundImage=`url("${image}")`;
-        art.style.opacity="1";
-      };
-      img.src=image;
-    }
-
-    const dur=item?.duration_ms||0;
-    const pos=data?.progress_ms||0;
-    duration.textContent=msToTime(dur);
-    elapsed.textContent=msToTime(pos);
-    bar.style.width=dur?`${Math.min(100,pos/dur*100)}%`:"0%";
-
-    if(data?.is_playing){
-      playIcon.style.display="none";
-      pauseIcon.style.display="block";
-    }else{
-      playIcon.style.display="block";
-      pauseIcon.style.display="none";
-    }
-
-    shuffleBtn.classList.toggle("active",!!data?.shuffle_state);
-
-    if(data?.device?.volume_percent!=null){
-      volumeSlider.value=data.device.volume_percent;
-      volumeValue.textContent=`${data.device.volume_percent}%`;
-    }
-
-    if(trackId!==lastTrackId){
-      lastTrackId=trackId;
-      checkLiked(trackId);
-    }
-
-    startProgressAnimation();
-  }
-
-  function startProgressAnimation(){
-    cancelAnimationFrame(animFrame);
-    function tick(){
-      if(!playback) return;
-      const dur=playback.item?.duration_ms||0;
-      let pos=playback.progress_ms||0;
-      if(playback.is_playing) pos += performance.now()-lastPollAt;
-      pos=Math.min(pos,dur);
-      elapsed.textContent=msToTime(pos);
-      bar.style.width=dur?`${pos/dur*100}%`:"0%";
-      animFrame=requestAnimationFrame(tick);
-    }
-    animFrame=requestAnimationFrame(tick);
-  }
-
-  async function poll(){
-    try{
-      const r=await api("/me/player?additional_types=track,episode");
-      setConnected();
-      if(r.status===204){
-        playback=null;
-        title.textContent="Nichts wird abgespielt";
-        artists.textContent="Starte Spotify auf deinem PC, Handy oder Lautsprecher";
-        album.textContent="Spotify";
-        dot.classList.remove("online");
-        device.textContent="Kein aktives Gerät";
-        return;
-      }
-      if(!r.ok) return;
-      renderPlayback(await r.json());
-    }catch(e){
-      if(e.message==="NO_SESSION"||e.message==="SESSION_EXPIRED") setDisconnected();
-    }
-  }
-
-  async function playPause(){
-    if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
-    const endpoint=playback.is_playing?"/me/player/pause":"/me/player/play";
-    const r=await api(endpoint,{method:"PUT"});
-    if(r.ok||r.status===204){
-      playback.is_playing=!playback.is_playing;
-      renderPlayback(playback);
-      setTimeout(poll,250);
-    }else showToast("Steuerung nicht möglich");
-  }
-
-  async function skip(path){
-    if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
-    const r=await api(`/me/player/${path}`,{method:"POST"});
-    if(r.ok||r.status===204) setTimeout(poll,250);
-    else showToast("Steuerung nicht möglich");
-  }
-
-  async function toggleShuffle(){
-    if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
-    const next=!playback.shuffle_state;
-    const r=await api(`/me/player/shuffle?state=${next}`,{method:"PUT"});
-    if(r.ok||r.status===204){
-      playback.shuffle_state=next;
-      shuffleBtn.classList.toggle("active",next);
-    }else showToast("Shuffle nicht verfügbar");
-  }
-
-  async function toggleLike(){
+# 10) Replace toggleLike with new generic save/remove endpoint and better errors.
+html = re.sub(
+r'''  async function toggleLike\(\)\{.*?  \}\n\n  async function setVolume''',
+r'''  async function toggleLike(){
     const item=playback?.item;
     if(item?.type!=="track"||!item.id){showToast("Nur bei Musiktiteln verfügbar");return}
+    const uri=item.uri || `spotify:track:${item.id}`;
     const method=isLiked?"DELETE":"PUT";
-    const r=await api(`/me/tracks?ids=${encodeURIComponent(item.id)}`,{method});
+    const r=await api(`/me/library?uris=${encodeURIComponent(uri)}`,{method});
     if(r.ok||r.status===204){
       isLiked=!isLiked;
       updateLikeVisual();
+      libraryLoaded=false;
       showToast(isLiked?"Zu Lieblingssongs hinzugefügt":"Aus Lieblingssongs entfernt");
-    }else showToast("Speichern nicht möglich");
+    }else{
+      let reason="";
+      try{
+        const e=await r.json();
+        reason=e?.error?.message || e?.message || "";
+      }catch{}
+      showToast(reason ? `Speichern: ${reason}` : `Speichern nicht möglich (${r.status})`);
+    }
   }
 
-  async function setVolume(v){
-    if(!playback?.device) return;
-    await api(`/me/player/volume?volume_percent=${Math.round(v)}`,{method:"PUT"});
+  async function setVolume''',
+html,
+flags=re.S
+)
+
+# 11) Insert library functions before setVolume.
+library_js = r'''
+  function esc(text){
+    return String(text ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   }
 
-  connect.addEventListener("click",beginAuth);
-  playPauseBtn.addEventListener("click",playPause);
-  prevBtn.addEventListener("click",()=>skip("previous"));
-  nextBtn.addEventListener("click",()=>skip("next"));
-  shuffleBtn.addEventListener("click",toggleShuffle);
-  likeBtn.addEventListener("click",toggleLike);
+  function spotifyLogoSvg(){
+    return `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.58 14.42a.75.75 0 0 1-1.03.25c-2.82-1.72-6.37-2.11-10.55-1.16a.75.75 0 1 1-.33-1.46c4.57-1.04 8.5-.59 11.66 1.34.35.21.46.67.25 1.03Zm1.47-3.26a.94.94 0 0 1-1.29.31c-3.23-1.98-8.16-2.55-11.98-1.39a.94.94 0 1 1-.55-1.79c4.37-1.32 9.8-.69 13.51 1.58.44.27.58.85.31 1.29Zm.13-3.39C14.3 7.47 7.9 7.25 4.2 8.37a1.12 1.12 0 1 1-.65-2.14c4.24-1.29 11.3-1.02 15.78 1.63a1.12 1.12 0 0 1-1.15 1.91Z"/></svg>`;
+  }
+
+  async function playContext(uri){
+    if(!playback?.device){showToast("Starte Spotify zuerst auf einem Wiedergabegerät");return}
+    const r=await api("/me/player/play",{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({context_uri:uri})
+    });
+    if(r.ok||r.status===204){
+      library.classList.remove("open");
+      showToast("Wiedergabe gestartet");
+      setTimeout(poll,300);
+    }else showToast(`Start nicht möglich (${r.status})`);
+  }
+
+  async function playUris(uris){
+    if(!playback?.device){showToast("Starte Spotify zuerst auf einem Wiedergabegerät");return}
+    const clean=uris.filter(Boolean).slice(0,50);
+    if(!clean.length){showToast("Keine Songs gefunden");return}
+    const r=await api("/me/player/play",{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({uris:clean})
+    });
+    if(r.ok||r.status===204){
+      library.classList.remove("open");
+      showToast("Wiedergabe gestartet");
+      setTimeout(poll,300);
+    }else showToast(`Start nicht möglich (${r.status})`);
+  }
+
+  function renderPlaylists(items){
+    libraryPlaylists=items || [];
+    if(!libraryPlaylists.length){
+      playlistGrid.innerHTML='<div class="library-state">Keine Playlists gefunden.</div>';
+      return;
+    }
+    playlistGrid.innerHTML=libraryPlaylists.map((p,i)=>{
+      const image=p?.images?.[0]?.url;
+      const owner=p?.owner?.display_name || "Spotify";
+      const link=p?.external_urls?.spotify || "#";
+      const cover=image
+        ? `<img class="playlist-cover" src="${esc(image)}" alt="">`
+        : `<div class="playlist-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h10M4 11h10M4 16h7"/><circle cx="17" cy="17" r="3"/><path d="M20 17V8l-6 2v7"/></svg></div>`;
+      return `<div class="playlist-card" data-playlist="${i}">
+        ${cover}
+        <div class="playlist-info">
+          <div class="playlist-name">${esc(p?.name || "Playlist")}</div>
+          <div class="playlist-sub">
+            <span>${esc(owner)}</span>
+            <a class="spotify-link" href="${esc(link)}" target="_blank" rel="noopener" data-stop>Spotify ↗</a>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+    playlistGrid.querySelectorAll("[data-playlist]").forEach(card=>{
+      card.addEventListener("click",e=>{
+        if(e.target.closest("[data-stop]")) return;
+        const p=libraryPlaylists[Number(card.dataset.playlist)];
+        if(p?.uri) playContext(p.uri);
+      });
+    });
+  }
+
+  function renderLikedTracks(items,total){
+    libraryTracks=(items || []).map(x=>x?.track).filter(Boolean);
+    likedCount.textContent=`${total ?? libraryTracks.length} gespeicherte Songs`;
+    if(!libraryTracks.length){
+      likedList.innerHTML='<div class="library-state">Noch keine gespeicherten Songs gefunden.</div>';
+      return;
+    }
+    likedList.innerHTML=libraryTracks.map((t,i)=>{
+      const image=t?.album?.images?.[t.album.images.length-1]?.url || t?.album?.images?.[0]?.url || "";
+      const artist=(t?.artists||[]).map(a=>a.name).join(", ");
+      const link=t?.external_urls?.spotify || "#";
+      return `<div class="lib-track" data-track="${i}">
+        <img src="${esc(image)}" alt="">
+        <div class="lib-track-copy">
+          <div class="lib-track-title">${esc(t?.name || "Song")}</div>
+          <div class="lib-track-artist">${esc(artist)}</div>
+        </div>
+        <a class="lib-track-link" href="${esc(link)}" target="_blank" rel="noopener" aria-label="In Spotify öffnen" data-stop>${spotifyLogoSvg()}</a>
+      </div>`;
+    }).join("");
+    likedList.querySelectorAll("[data-track]").forEach(row=>{
+      row.addEventListener("click",e=>{
+        if(e.target.closest("[data-stop]")) return;
+        const idx=Number(row.dataset.track);
+        const ordered=[...libraryTracks.slice(idx),...libraryTracks.slice(0,idx)].map(t=>t.uri);
+        playUris(ordered);
+      });
+    });
+  }
+
+  async function loadLibrary(force=false){
+    if(libraryLoaded && !force) return;
+    playlistGrid.innerHTML='<div class="library-state">Playlists werden geladen …</div>';
+    likedList.innerHTML='<div class="library-state">Songs werden geladen …</div>';
+    likedCount.textContent="Wird geladen …";
+    try{
+      const [pRes,tRes]=await Promise.all([
+        api("/me/playlists?limit=30"),
+        api("/me/tracks?limit=40")
+      ]);
+
+      if(pRes.status===403 || tRes.status===403){
+        playlistGrid.innerHTML='<div class="library-state">Für die Bibliothek musst du Spotify einmal neu verbinden.</div>';
+        likedList.innerHTML="";
+        likedCount.textContent="Neue Berechtigung erforderlich";
+        return;
+      }
+
+      if(!pRes.ok || !tRes.ok){
+        throw new Error(`Spotify API: ${pRes.status}/${tRes.status}`);
+      }
+
+      const pData=await pRes.json();
+      const tData=await tRes.json();
+      renderPlaylists(pData?.items || []);
+      renderLikedTracks(tData?.items || [],tData?.total);
+      libraryLoaded=true;
+    }catch(e){
+      playlistGrid.innerHTML=`<div class="library-state">${esc(e.message || "Bibliothek konnte nicht geladen werden.")}</div>`;
+      likedList.innerHTML="";
+      likedCount.textContent="Fehler beim Laden";
+    }
+  }
+
+  async function openLibrary(){
+    library.classList.add("open");
+    await loadLibrary(false);
+  }
+
+'''
+html = html.replace("  async function setVolume(v){", library_js + "  async function setVolume(v){")
+
+# 12) Add library event listeners and better fullscreen fallback.
+html = html.replace(
+'''  settingsBtn.addEventListener("click",()=>settings.classList.add("open"));
+  closeSettings.addEventListener("click",()=>settings.classList.remove("open"));''',
+'''  libraryBtn.addEventListener("click",openLibrary);
+  closeLibrary.addEventListener("click",()=>library.classList.remove("open"));
+  refreshLibrary.addEventListener("click",()=>loadLibrary(true));
+  playLiked.addEventListener("click",()=>playUris(libraryTracks.map(t=>t.uri)));
 
   settingsBtn.addEventListener("click",()=>settings.classList.add("open"));
-  closeSettings.addEventListener("click",()=>settings.classList.remove("open"));
-  settings.addEventListener("click",e=>{if(e.target===settings)settings.classList.remove("open")});
+  closeSettings.addEventListener("click",()=>settings.classList.remove("open"));'''
+)
 
-  volumeSlider.addEventListener("input",()=>{
-    volumeValue.textContent=`${volumeSlider.value}%`;
-  });
-  let volTimer;
-  volumeSlider.addEventListener("change",()=>{
-    clearTimeout(volTimer);
-    volTimer=setTimeout(()=>setVolume(Number(volumeSlider.value)),120);
-  });
-
-  logoutBtn.addEventListener("click",()=>{
-    clearSession();
-    settings.classList.remove("open");
-    setDisconnected();
-  });
-
-  fsBtn.addEventListener("click",async()=>{
+html = re.sub(
+r'''  fsBtn\.addEventListener\("click",async\(\)=>\{.*?  \}\);\n\n  track\.addEventListener''',
+r'''  fsBtn.addEventListener("click",async()=>{
     try{
-      if(!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      else await document.exitFullscreen();
-    }catch{}
-  });
-
-  track.addEventListener("click",async e=>{
-    if(!playback?.item?.duration_ms||!playback?.device) return;
-    const rect=track.getBoundingClientRect();
-    const ratio=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
-    const ms=Math.round(playback.item.duration_ms*ratio);
-    const r=await api(`/me/player/seek?position_ms=${ms}`,{method:"PUT"});
-    if(r.ok||r.status===204){playback.progress_ms=ms;lastPollAt=performance.now();renderPlayback(playback)}
-  });
-
-  document.addEventListener("keydown",e=>{
-    if(e.code==="Space"){e.preventDefault();playPause()}
-    if(e.key==="ArrowRight")skip("next");
-    if(e.key==="ArrowLeft")skip("previous");
-    if(e.key.toLowerCase()==="f")fsBtn.click();
-    if(e.key==="Escape")settings.classList.remove("open");
-  });
-
-  async function boot(){
-    const q=new URLSearchParams(location.search);
-    if(q.get("error")){
-      history.replaceState({},document.title,REDIRECT_URI);
-      showToast(`Spotify: ${q.get("error")}`);
+      const active=document.fullscreenElement || document.webkitFullscreenElement;
+      if(!active){
+        const el=document.documentElement;
+        if(el.requestFullscreen) await el.requestFullscreen();
+        else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      }else{
+        if(document.exitFullscreen) await document.exitFullscreen();
+        else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }catch{
+      showToast("Vollbild wird von diesem Browser nicht unterstützt");
     }
-    if(q.get("code")){
-      try{await exchangeCode(q.get("code"))}
-      catch(e){clearSession();showToast(e.message)}
+  });
+
+  track.addEventListener''',
+html,
+flags=re.S
+)
+
+# 13) Escape closes either overlay.
+html = html.replace(
+'''    if(e.key==="Escape")settings.classList.remove("open");''',
+'''    if(e.key==="Escape"){
+      settings.classList.remove("open");
+      library.classList.remove("open");
+    }'''
+)
+
+# 14) Force one-time reconnect after adding new scopes.
+html = html.replace(
+'''    if(loadSession()){
+      setConnected();
+      await poll();
+      pollTimer=setInterval(poll,2000);
+    }else{
+      setDisconnected();
+    }''',
+'''    const existing=loadSession();
+    if(existing && existing.auth_version!==AUTH_VERSION){
+      clearSession();
+      setDisconnected();
+      showToast("Einmal neu mit Spotify verbinden");
+      return;
     }
 
     if(loadSession()){
@@ -733,10 +584,9 @@
       pollTimer=setInterval(poll,2000);
     }else{
       setDisconnected();
-    }
-  }
+    }'''
+)
 
-  boot();
-</script>
-</body>
-</html>
+out = Path("/mnt/data/SpotDeck-CarThing-v2.html")
+out.write_text(html, encoding="utf-8")
+print(f"Fertig: {out.name} – {out.stat().st_size/1024:.1f} KB")
