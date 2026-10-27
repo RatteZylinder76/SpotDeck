@@ -133,32 +133,22 @@
       pointer-events:none;
     }
     .vibe-face{
-      --beat-scale:1;
-      --beat-rotate:0deg;
-      --bounce-y:0px;
-      --sway-x:0px;
-      --sway-back-x:0px;
+      --motion-x:0px;
+      --motion-y:0px;
+      --motion-rotate:0deg;
+      --motion-scale-x:1;
+      --motion-scale-y:1;
       width:min(34vh,28vw);
       min-width:170px;
       max-width:390px;
       aspect-ratio:1;
       position:relative;
-      transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
-      transition:transform .16s ease, filter .16s ease, opacity .16s ease;
+      transform:translate3d(var(--motion-x),var(--motion-y),0) rotate(var(--motion-rotate)) scale(var(--motion-scale-x),var(--motion-scale-y));
+      transform-origin:50% 64%;
+      transition:filter .22s ease, opacity .22s ease;
+      will-change:transform;
       filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
       opacity:.95;
-      animation:faceFloat 3.1s ease-in-out infinite;
-    }
-    .vibe-face.playing{animation-duration:2.2s}
-    .vibe-face.beat{
-      --beat-scale:1.05;
-      filter:drop-shadow(0 14px 34px rgba(0,0,0,.32));
-    }
-    @keyframes faceFloat{
-      0%,100%{transform:translate(0,0) rotate(0deg) scale(var(--beat-scale))}
-      30%{transform:translate(var(--sway-back-x),-3px) rotate(calc(var(--beat-rotate) * -.45)) scale(var(--beat-scale))}
-      58%{transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
-      82%{transform:translate(var(--sway-back-x),-2px) rotate(calc(var(--beat-rotate) * .35)) scale(var(--beat-scale))}
     }
     .face-orb{
       position:absolute;
@@ -171,9 +161,9 @@
       filter:blur(12px);
       transition:opacity .18s ease, transform .18s ease;
     }
-    .vibe-face.beat .face-orb{
+    .vibe-face.playing .face-orb{
       opacity:.5;
-      transform:scale(1.02);
+      transform:scale(1.025);
     }
     .face-eye{
       position:absolute;
@@ -212,15 +202,8 @@
       stroke-linecap:round;
       stroke-linejoin:round;
     }
-    .vibe-face.singing .face-mouth{
-      animation:vocalMouth .46s ease-in-out infinite alternate;
-    }
-    @keyframes vocalMouth{
-      from{transform:translateX(-3px) scale(1,.94)}
-      to{transform:translateX(3px) scale(.80,1.18)}
-    }
+    .vibe-face.singing .face-orb{opacity:.58}
     .vibe-face.paused{
-      animation-duration:5s;
       opacity:.82;
     }
     .vibe-face.paused .face-orb{opacity:.24}
@@ -656,32 +639,22 @@
       pointer-events:none;
     }
     .vibe-face{
-      --beat-scale:1;
-      --beat-rotate:0deg;
-      --bounce-y:0px;
-      --sway-x:0px;
-      --sway-back-x:0px;
+      --motion-x:0px;
+      --motion-y:0px;
+      --motion-rotate:0deg;
+      --motion-scale-x:1;
+      --motion-scale-y:1;
       width:min(34vh,28vw);
       min-width:170px;
       max-width:390px;
       aspect-ratio:1;
       position:relative;
-      transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
-      transition:transform .16s ease, filter .16s ease, opacity .16s ease;
+      transform:translate3d(var(--motion-x),var(--motion-y),0) rotate(var(--motion-rotate)) scale(var(--motion-scale-x),var(--motion-scale-y));
+      transform-origin:50% 64%;
+      transition:filter .22s ease, opacity .22s ease;
+      will-change:transform;
       filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
       opacity:.95;
-      animation:faceFloat 3.1s ease-in-out infinite;
-    }
-    .vibe-face.playing{animation-duration:2.2s}
-    .vibe-face.beat{
-      --beat-scale:1.05;
-      filter:drop-shadow(0 14px 34px rgba(0,0,0,.32));
-    }
-    @keyframes faceFloat{
-      0%,100%{transform:translate(0,0) rotate(0deg) scale(var(--beat-scale))}
-      30%{transform:translate(var(--sway-back-x),-3px) rotate(calc(var(--beat-rotate) * -.45)) scale(var(--beat-scale))}
-      58%{transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
-      82%{transform:translate(var(--sway-back-x),-2px) rotate(calc(var(--beat-rotate) * .35)) scale(var(--beat-scale))}
     }
     .face-orb{
       position:absolute;
@@ -694,9 +667,9 @@
       filter:blur(12px);
       transition:opacity .18s ease, transform .18s ease;
     }
-    .vibe-face.beat .face-orb{
+    .vibe-face.playing .face-orb{
       opacity:.5;
-      transform:scale(1.02);
+      transform:scale(1.025);
     }
     .face-eye{
       position:absolute;
@@ -735,15 +708,8 @@
       stroke-linecap:round;
       stroke-linejoin:round;
     }
-    .vibe-face.singing .face-mouth{
-      animation:vocalMouth .46s ease-in-out infinite alternate;
-    }
-    @keyframes vocalMouth{
-      from{transform:translateX(-3px) scale(1,.94)}
-      to{transform:translateX(3px) scale(.80,1.18)}
-    }
+    .vibe-face.singing .face-orb{opacity:.58}
     .vibe-face.paused{
-      animation-duration:5s;
       opacity:.82;
     }
     .vibe-face.paused .face-orb{opacity:.24}
@@ -814,7 +780,7 @@
             <div class="face-eye left" id="faceEyeLeft"></div>
             <div class="face-eye right" id="faceEyeRight"></div>
             <svg class="face-mouth" id="faceMouth" viewBox="0 0 100 50" aria-hidden="true">
-              <path d="M 8 8 C 18 42 82 42 92 8"></path>
+              <path id="faceMouthPath" d="M 8 8 C 18 42 82 42 92 8"></path>
             </svg>
           </div>
         </aside>
@@ -964,7 +930,7 @@
   const lyricsBody = $("lyricsBody"), lyricsTitle = $("lyricsTitle"), lyricsArtist = $("lyricsArtist");
   const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
   const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");
-  const vibeFace = $("vibeFace");
+  const vibeFace = $("vibeFace"), faceMouth = $("faceMouth"), faceMouthPath = $("faceMouthPath");
 
   let playback = null;
   let lastTrackId = null;
@@ -983,12 +949,14 @@
   let lyricsAbort = null;
   let wakeLock = null;
   let wakeWanted = true;
-  let vibeBeatTimer = null;
   let vibeBlinkTimer = null;
   let vibeAudioCache = {};
   let vibeTempoMs = 620;
   let vibeEnergy = 0.55;
   let lastVibeTrackId = null;
+  let vibeMotionLast = performance.now();
+  let vibeMouthBlend = 0;
+  const vibeMotion = {x:0,y:0,rotate:0,scaleX:1,scaleY:1};
 
   function showToast(msg){
     toast.textContent = msg;
@@ -1212,6 +1180,7 @@
       elapsed.textContent=msToTime(pos);
       bar.style.width=dur?`${pos/dur*100}%`:"0%";
       updateVibeVocalReaction(pos);
+      updateVibeMotion(pos);
       updateLyricsPosition(pos);
       animFrame=requestAnimationFrame(tick);
     }
@@ -1728,60 +1697,103 @@
 
 
 
-  function clearVibeTimers(){
-    if(vibeBeatTimer){ clearInterval(vibeBeatTimer); vibeBeatTimer=null; }
-    if(vibeBlinkTimer){ clearTimeout(vibeBlinkTimer); vibeBlinkTimer=null; }
-  }
-
-  function triggerBeat(){
-    if(!vibeFace || !playback?.is_playing) return;
-    vibeFace.classList.remove("paused");
-    vibeFace.classList.add("playing");
-    const rotate = (Math.random()*2.2 - 1.1) * (0.45 + vibeEnergy*0.65);
-    const bounce = Math.max(3, Math.round(3 + vibeEnergy*7));
-    const sway = (Math.random()>.5 ? 1 : -1) * Math.max(3,Math.round(2+vibeEnergy*6));
-    vibeFace.style.setProperty("--beat-rotate", `${rotate.toFixed(2)}deg`);
-    vibeFace.style.setProperty("--bounce-y", `${-bounce}px`);
-    vibeFace.style.setProperty("--sway-x", `${sway}px`);
-    vibeFace.style.setProperty("--sway-back-x", `${Math.round(sway*-.45)}px`);
-    vibeFace.classList.add("beat");
-    setTimeout(()=>{
-      vibeFace.classList.remove("beat");
-      vibeFace.style.setProperty("--bounce-y","0px");
-      vibeFace.style.setProperty("--beat-rotate","0deg");
-      vibeFace.style.setProperty("--sway-x","0px");
-      vibeFace.style.setProperty("--sway-back-x","0px");
-    }, Math.max(120, Math.min(230, vibeTempoMs * 0.33)));
-  }
-
   function scheduleBlink(){
-    if(vibeBlinkTimer) clearTimeout(vibeBlinkTimer);
-    const delay = Math.round(2000 + Math.random()*3500);
+    if(!vibeFace || vibeBlinkTimer) return;
+    const delay = Math.round(1800 + Math.random()*3800);
     vibeBlinkTimer = setTimeout(()=>{
-      if(!vibeFace) return;
-      vibeFace.classList.add("blink");
-      setTimeout(()=>vibeFace.classList.remove("blink"), 170);
+      vibeBlinkTimer=null;
+      const blink=()=>{
+        vibeFace.classList.add("blink");
+        setTimeout(()=>vibeFace.classList.remove("blink"),120+Math.random()*55);
+      };
+      blink();
+      if(Math.random()<.22) setTimeout(blink,230+Math.random()*70);
       scheduleBlink();
     }, delay);
   }
 
+  function updateVibeMotion(positionMs=0){
+    if(!vibeFace || !faceMouthPath) return;
+    const now=performance.now();
+    const dt=Math.min(50,Math.max(8,now-vibeMotionLast));
+    vibeMotionLast=now;
+    const playing=!!playback?.is_playing;
+    const singing=playing && vibeFace.classList.contains("singing");
+    let targetX=0, targetY=0, targetRotate=0, targetScaleX=1, targetScaleY=1;
+
+    if(playing){
+      const beat=Math.max(320,vibeTempoMs);
+      const beatPosition=positionMs/beat;
+      const phase=beatPosition-Math.floor(beatPosition);
+      const arc=Math.pow(Math.max(0,Math.sin(Math.PI*phase)),1.75);
+      const landing=Math.exp(-phase*16)+Math.exp(-(1-phase)*16);
+      const swayPhase=beatPosition*Math.PI*.82;
+      targetX=Math.sin(swayPhase)*(2.2+vibeEnergy*5.2)+Math.sin(now/1450)*1.1;
+      targetY=-(3.5+vibeEnergy*8.5)*arc+Math.sin(now/980)*.7;
+      targetRotate=Math.sin(swayPhase-.55)*(1.0+vibeEnergy*1.9)+Math.sin(now/1750)*.55;
+      targetScaleX=1+landing*(.018+vibeEnergy*.016)-arc*.006;
+      targetScaleY=1-landing*(.016+vibeEnergy*.013)+arc*(.012+vibeEnergy*.009);
+      if(singing){
+        targetX+=Math.sin(now/175)*2.4;
+        targetRotate+=Math.sin(now/230)*1.15;
+      }
+    }else{
+      targetX=Math.sin(now/1700)*1.1;
+      targetY=-1.1+Math.sin(now/1250)*1.1;
+      targetRotate=Math.sin(now/2100)*.42;
+      targetScaleX=1+Math.sin(now/1450)*.003;
+      targetScaleY=1-Math.sin(now/1450)*.003;
+    }
+
+    const ease=1-Math.exp(-dt/(playing?82:180));
+    vibeMotion.x+=(targetX-vibeMotion.x)*ease;
+    vibeMotion.y+=(targetY-vibeMotion.y)*ease;
+    vibeMotion.rotate+=(targetRotate-vibeMotion.rotate)*ease;
+    vibeMotion.scaleX+=(targetScaleX-vibeMotion.scaleX)*ease;
+    vibeMotion.scaleY+=(targetScaleY-vibeMotion.scaleY)*ease;
+
+    vibeFace.style.setProperty("--motion-x",`${vibeMotion.x.toFixed(2)}px`);
+    vibeFace.style.setProperty("--motion-y",`${vibeMotion.y.toFixed(2)}px`);
+    vibeFace.style.setProperty("--motion-rotate",`${vibeMotion.rotate.toFixed(2)}deg`);
+    vibeFace.style.setProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
+    vibeFace.style.setProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
+
+    const mouthEase=1-Math.exp(-dt/105);
+    vibeMouthBlend+=((singing?1:0)-vibeMouthBlend)*mouthEase;
+    const vocalWave=.5+.32*Math.sin(now/92)+.18*Math.sin(now/57);
+    const breathe=.65*Math.sin(now/720);
+    const inset=vibeMouthBlend*(2.4+vocalWave*3.5);
+    const endY=8+vibeMouthBlend*(1.5+vocalWave*2.8);
+    const depth=42+breathe+vibeMouthBlend*(4.5+vocalWave*6.5);
+    faceMouthPath.setAttribute("d",`M ${(8+inset).toFixed(2)} ${endY.toFixed(2)} C ${(18+inset*.55).toFixed(2)} ${depth.toFixed(2)} ${(82-inset*.55).toFixed(2)} ${depth.toFixed(2)} ${(92-inset).toFixed(2)} ${endY.toFixed(2)}`);
+    if(faceMouth){
+      const mouthX=vibeMouthBlend*Math.sin(now/155)*2.2;
+      const mouthRotate=vibeMouthBlend*Math.sin(now/240)*1.3;
+      faceMouth.style.transform=`translateX(${mouthX.toFixed(2)}px) rotate(${mouthRotate.toFixed(2)}deg)`;
+    }
+  }
+
   function startVibeFace(){
-    clearVibeTimers();
     if(!vibeFace) return;
 
     if(playback?.is_playing){
       vibeFace.classList.remove("paused");
       vibeFace.classList.add("playing");
-      vibeBeatTimer = setInterval(triggerBeat, vibeTempoMs);
-      triggerBeat();
     }else{
       vibeFace.classList.add("paused");
-      vibeFace.classList.remove("playing","beat","singing");
+      vibeFace.classList.remove("playing","singing");
       vibeLyricIndex=-2;
-      vibeFace.style.setProperty("--bounce-y","0px");
-      vibeFace.style.setProperty("--beat-rotate","0deg");
-      vibeFace.style.setProperty("--sway-x","0px");
-      vibeFace.style.setProperty("--sway-back-x","0px");
+      if(!playback){
+        Object.assign(vibeMotion,{x:0,y:0,rotate:0,scaleX:1,scaleY:1});
+        vibeMouthBlend=0;
+        vibeFace.style.setProperty("--motion-x","0px");
+        vibeFace.style.setProperty("--motion-y","0px");
+        vibeFace.style.setProperty("--motion-rotate","0deg");
+        vibeFace.style.setProperty("--motion-scale-x","1");
+        vibeFace.style.setProperty("--motion-scale-y","1");
+        faceMouthPath?.setAttribute("d","M 8 8 C 18 42 82 42 92 8");
+        if(faceMouth) faceMouth.style.transform="none";
+      }
     }
     scheduleBlink();
   }
