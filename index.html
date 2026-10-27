@@ -725,6 +725,24 @@
       #artists{font-size:clamp(13px,1.9vw,18px)}
       .vibe-face{width:min(31vh,24vw);min-width:136px}
     }
+    .face-mouth ellipse{fill:rgba(255,255,255,.94);stroke:none}
+    .face-scene{position:absolute;inset:-12%;pointer-events:none;opacity:0;transition:opacity .65s ease;z-index:3}
+    .face-scene.visible{opacity:1}
+    .scene-prop{position:absolute;font-size:clamp(20px,4.5vh,46px);filter:drop-shadow(0 3px 8px #0003);animation:propDrift 5s ease-in-out infinite}
+    .scene-prop.small{font-size:clamp(14px,2.5vh,26px)}
+    .scene-prop:nth-child(2){animation-delay:-1.7s}.scene-prop:nth-child(3){animation-delay:-3.2s}
+    .scene-sun{left:0;top:8%;animation:sunFly 6.5s ease-in-out both;font-size:clamp(28px,6vh,60px)}
+    .scene-rain{animation:rainFall 1.6s linear infinite;color:#92d9ff}
+    .scene-rise{animation:bubbleRise 3s ease-in-out infinite}
+    .scene-gear{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .5s ease;z-index:2}
+    .vibe-face[data-scene="water"] .scene-gear{opacity:1}
+    .vibe-face[data-scene="love"] .face-eye{box-shadow:0 0 18px #ff9abf70}
+    .face-scene.paused *, .vibe-face.paused .scene-gear{animation-play-state:paused}
+    @keyframes propDrift{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(8px,-12px) rotate(10deg)}}
+    @keyframes sunFly{0%{transform:translate(-10px,28px) rotate(-25deg);opacity:0}15%{opacity:1}50%{transform:translate(80px,-20px) rotate(10deg)}85%{opacity:1}100%{transform:translate(190px,20px) rotate(40deg);opacity:0}}
+    @keyframes bubbleRise{0%{transform:translateY(25px) scale(.6);opacity:0}20%,70%{opacity:.9}100%{transform:translate(10px,-70px) scale(1.2);opacity:0}}
+    @keyframes rainFall{0%{transform:translate(0,-20px);opacity:0}20%,80%{opacity:.8}100%{transform:translate(-15px,70px);opacity:0}}
+    @media(prefers-reduced-motion:reduce){.scene-prop{animation:none}.face-scene{transition:none}.vibe-face{will-change:auto}}
   </style>
 </head>
 <body>
@@ -781,7 +799,14 @@
             <div class="face-eye right" id="faceEyeRight"></div>
             <svg class="face-mouth" id="faceMouth" viewBox="0 0 100 50" aria-hidden="true">
               <path id="faceMouthPath" d="M 8 8 C 18 42 82 42 92 8"></path>
+              <ellipse id="faceMouthOpen" cx="50" cy="22" rx="16" ry="1" opacity="0"></ellipse>
             </svg>
+            <svg class="scene-gear" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M 19 38 H 25 M 75 38 H 81" fill="none" stroke="#5bd8d6" stroke-width="2.5" stroke-linecap="round"/>
+              <rect x="22" y="32" width="56" height="20" rx="8" fill="#53c8e61c" stroke="#70e3df" stroke-width="3"/>
+              <path d="M 74 65 Q 87 69 88 57 V 19 Q 88 15 92 15 H 95" fill="none" stroke="#ffc771" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <div class="face-scene" id="faceScene" aria-hidden="true"></div>
           </div>
         </aside>
       </main>
@@ -931,6 +956,8 @@
   const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
   const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");
   const vibeFace = $("vibeFace"), faceMouth = $("faceMouth"), faceMouthPath = $("faceMouthPath");
+  const faceMouthOpen=$("faceMouthOpen"), faceScene=$("faceScene");
+  const reducedFaceMotion=matchMedia("(prefers-reduced-motion: reduce)");
 
   let playback = null;
   let lastTrackId = null;
@@ -956,7 +983,25 @@
   let lastVibeTrackId = null;
   let vibeMotionLast = performance.now();
   let vibeMouthBlend = 0;
+  let vibeMouthRound = 0;
   const vibeMotion = {x:0,y:0,rotate:0,scaleX:1,scaleY:1};
+  let vibeSpeech={open:0,round:0,long:false};
+  let vibeSpeechPlan=[];
+  let vibeSpeechTrack=null;
+  let vibeSceneStart=-Infinity, vibeSceneUntil=-Infinity, vibeSceneLastPosition=0;
+  let vibeSceneKey="", vibeSceneWord=-1;
+  const vibeThemes=[
+    {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves|wellen)$/i,props:["🫧","🫧","🐠"],kind:"scene-rise"},
+    {key:"sun",words:/^(sun|sunshine|sunlight|sonne|sonnenschein|summer|sommer)$/i,props:["☀️","✨","✨"],kind:""},
+    {key:"rain",words:/^(rain|raining|regen|regnet|storm|sturm|thunder|gewitter|tears|tränen)$/i,props:["🌧️","💧","💧"],kind:"scene-rain"},
+    {key:"love",words:/^(love|loving|liebe|lieben|liebst|heart|hearts|herz|herzen|kiss|kisses|kuss|küssen)$/i,props:["💕","💗","💖"],kind:"scene-rise"},
+    {key:"fire",words:/^(fire|flame|flames|feuer|flammen|burn|burning|brennen|brennt)$/i,props:["🔥","✨","🔥"],kind:"scene-rise"},
+    {key:"night",words:/^(moon|moonlight|mond|night|nacht|stars|star|sterne|stern|dream|dreams|träume|traum)$/i,props:["🌙","⭐","✨"],kind:""},
+    {key:"snow",words:/^(snow|snowing|schnee|schneit|winter|ice|eis|frozen|gefroren)$/i,props:["❄️","❄️","❄️"],kind:"scene-rain"},
+    {key:"nature",words:/^(flower|flowers|blume|blumen|bloom|blossom|spring|frühling|butterfly|schmetterling|garden|garten)$/i,props:["🦋","🌸","🌼"],kind:""},
+    {key:"fly",words:/^(fly|flying|fliegen|flieg|fliegst|sky|himmel|cloud|clouds|wolken|wings|flügel)$/i,props:["☁️","🕊️","☁️"],kind:""},
+    {key:"party",words:/^(dance|dancing|tanzen|tanz|party|celebrate|feiern|music|musik)$/i,props:["🎵","🎶","✨"],kind:"scene-rise"}
+  ];
 
   function showToast(msg){
     toast.textContent = msg;
@@ -1426,6 +1471,7 @@
     syncedLyrics=lines;
     currentLyricIndex=-1;
     vibeLyricIndex=-2;
+    vibeSpeechPlan=[];
     lyricsBody.innerHTML=`<div class="lyrics-lines">${lines.map((l,i)=>
       `<p class="lyric-line" data-lyric-index="${i}">${esc(l.text)}</p>`
     ).join("")}</div><div class="lyrics-credit">Lyrics via LRCLIB</div>`;
@@ -1446,6 +1492,7 @@
 
   function renderPlainLyrics(text){
     syncedLyrics=[];
+    resetVibeLyrics();
     currentLyricIndex=-1;
     vibeLyricIndex=-2;
     vibeFace?.classList.remove("singing");
@@ -1454,6 +1501,7 @@
 
   function renderLyricsState(message){
     syncedLyrics=[];
+    resetVibeLyrics();
     currentLyricIndex=-1;
     vibeLyricIndex=-2;
     vibeFace?.classList.remove("singing");
@@ -1477,18 +1525,96 @@
     return found;
   }
 
+  function resetVibeLyrics(){
+    vibeSpeech={open:0,round:0,long:false};
+    vibeSpeechPlan=[];
+    vibeLyricIndex=-2;
+    vibeSceneStart=-Infinity;
+    vibeSceneUntil=-Infinity;
+    vibeSceneKey="";
+    vibeSceneWord=-1;
+    vibeFace?.classList.remove("singing");
+    if(vibeFace) delete vibeFace.dataset.scene;
+    faceScene?.classList.remove("visible");
+  }
+
+  // LRC supplies line times. Word and vowel timing is an approximation, not audio analysis.
+  function buildVibeSpeechPlan(idx){
+    const row=syncedLyrics[idx];
+    if(!row) return [];
+    const words=[...row.text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)].map(m=>m[0]);
+    if(!words.length || /^\s*[\[(].*[\])]\s*$/.test(row.text)) return [];
+    const weights=words.map(word=>Math.max(1,Math.min(12,word.length)));
+    const weight=weights.reduce((a,b)=>a+b,0);
+    const next=syncedLyrics[idx+1]?.time ?? playback?.item?.duration_ms ?? row.time+5000;
+    const span=Math.max(0,Math.min(next-row.time,Math.max(1000,Math.min(8500,weight*125))));
+    let cursor=row.time;
+    return words.map((word,i)=>{
+      const duration=span*weights[i]/weight;
+      const token={word,start:cursor,end:cursor+duration,index:i};
+      cursor+=duration;
+      return token;
+    });
+  }
+
+  function showVibeScene(theme,positionMs){
+    if(!faceScene) return;
+    vibeSceneKey=theme.key;
+    vibeSceneStart=positionMs;
+    vibeSceneUntil=positionMs+6500;
+    const positions=[[9,15],[76,11],[83,65]];
+    faceScene.innerHTML=theme.props.map((prop,i)=>{
+      const kind=theme.key==="sun" && i===0 ? "scene-sun" : `${theme.kind} ${i ? "small" : ""}`;
+      return `<span class="scene-prop ${kind}" style="left:${positions[i][0]}%;top:${positions[i][1]}%">${prop}</span>`;
+    }).join("");
+    vibeFace.dataset.scene=theme.key;
+    faceScene.classList.add("visible");
+  }
+
   function updateVibeVocalReaction(positionMs=getCurrentPositionMs()){
-    if(!vibeFace || !playback?.is_playing || !syncedLyrics.length){
-      vibeFace?.classList.remove("singing");
-      vibeLyricIndex=-2;
+    if(!vibeFace) return;
+    const trackId=playback?.item?.id || null;
+    if(trackId!==vibeSpeechTrack || Math.abs(positionMs-vibeSceneLastPosition)>1800){
+      resetVibeLyrics();
+      vibeSpeechTrack=trackId;
+    }
+    vibeSceneLastPosition=positionMs;
+    const playing=!!playback?.is_playing;
+    faceScene?.classList.toggle("paused",!playing);
+    if(positionMs>=vibeSceneUntil){
+      faceScene?.classList.remove("visible");
+      delete vibeFace.dataset.scene;
+    }
+    vibeSpeech={open:0,round:0,long:false};
+    if(!playing || !syncedLyrics.length){
+      vibeFace.classList.remove("singing");
       return;
     }
     const idx=getSyncedLyricIndex(positionMs);
-    if(idx===vibeLyricIndex) return;
-    vibeLyricIndex=idx;
-    const line=idx>=0 ? syncedLyrics[idx]?.text || "" : "";
-    const hasLongVocal=/(?:^|\s)(?:u{2,}h*|o{2,}h*|a{2,}h*|u+h+|o+h+|a+h+|wo+h+)(?=\s|[!?.,…-]|$)/i.test(line);
-    vibeFace.classList.toggle("singing",hasLongVocal);
+    if(idx!==vibeLyricIndex){
+      vibeLyricIndex=idx;
+      vibeSpeechPlan=buildVibeSpeechPlan(idx);
+      vibeSceneWord=-1;
+    }
+    const token=vibeSpeechPlan.find(word=>positionMs>=word.start && positionMs<word.end);
+    if(token){
+      const progress=(positionMs-token.start)/Math.max(1,token.end-token.start);
+      const letters=Array.from(token.word.toLowerCase());
+      const char=letters[Math.min(letters.length-1,Math.floor(progress*letters.length))];
+      const long=/^(?:u{2,}h*|o{2,}h*|a{2,}h*|u+h+|o+h+|a+h+|wo+h+)$/i.test(token.word);
+      const envelope=Math.pow(Math.sin(Math.PI*progress),.45);
+      const vowel=/[aeiouyäöü]/i.test(char);
+      const closed=/[bmp]/i.test(char);
+      vibeSpeech={open:envelope*(long ? .86 : vowel ? .76 : closed ? .05 : .32),round:/[ouöüw]/i.test(char)?1:.12,long};
+      if(token.index!==vibeSceneWord){
+        vibeSceneWord=token.index;
+        if(positionMs-vibeSceneStart>=8000){
+          const theme=vibeThemes.find(theme=>theme.words.test(token.word));
+          if(theme) showVibeScene(theme,positionMs);
+        }
+      }
+    }
+    vibeFace.classList.toggle("singing",vibeSpeech.open>.08);
   }
 
   function updateLyricsPosition(positionMs=getCurrentPositionMs(),forceScroll=false){
@@ -1718,7 +1844,7 @@
     const dt=Math.min(50,Math.max(8,now-vibeMotionLast));
     vibeMotionLast=now;
     const playing=!!playback?.is_playing;
-    const singing=playing && vibeFace.classList.contains("singing");
+    const singing=playing && vibeSpeech.long;
     let targetX=0, targetY=0, targetRotate=0, targetScaleX=1, targetScaleY=1;
 
     if(playing){
@@ -1746,6 +1872,9 @@
     }
 
     const ease=1-Math.exp(-dt/(playing?82:180));
+    if(reducedFaceMotion.matches){
+      targetX=0;targetY=0;targetRotate=0;targetScaleX=1;targetScaleY=1;
+    }
     vibeMotion.x+=(targetX-vibeMotion.x)*ease;
     vibeMotion.y+=(targetY-vibeMotion.y)*ease;
     vibeMotion.rotate+=(targetRotate-vibeMotion.rotate)*ease;
@@ -1758,14 +1887,21 @@
     vibeFace.style.setProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
     vibeFace.style.setProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
 
-    const mouthEase=1-Math.exp(-dt/105);
-    vibeMouthBlend+=((singing?1:0)-vibeMouthBlend)*mouthEase;
-    const vocalWave=.5+.32*Math.sin(now/92)+.18*Math.sin(now/57);
+    const mouthEase=1-Math.exp(-dt/65);
+    vibeMouthBlend+=((playing?vibeSpeech.open:0)-vibeMouthBlend)*mouthEase;
+    vibeMouthRound+=(vibeSpeech.round-vibeMouthRound)*mouthEase;
     const breathe=.65*Math.sin(now/720);
-    const inset=vibeMouthBlend*(2.4+vocalWave*3.5);
-    const endY=8+vibeMouthBlend*(1.5+vocalWave*2.8);
-    const depth=42+breathe+vibeMouthBlend*(4.5+vocalWave*6.5);
+    const inset=vibeMouthBlend*(3+vibeMouthRound*6);
+    const endY=8+vibeMouthBlend*5;
+    const depth=42+breathe+vibeMouthBlend*7;
     faceMouthPath.setAttribute("d",`M ${(8+inset).toFixed(2)} ${endY.toFixed(2)} C ${(18+inset*.55).toFixed(2)} ${depth.toFixed(2)} ${(82-inset*.55).toFixed(2)} ${depth.toFixed(2)} ${(92-inset).toFixed(2)} ${endY.toFixed(2)}`);
+    const opening=Math.max(0,Math.min(1,(vibeMouthBlend-.15)/.48));
+    faceMouthPath.style.opacity=(1-opening*.94).toFixed(3);
+    if(faceMouthOpen){
+      faceMouthOpen.setAttribute("rx",(23-vibeMouthRound*10).toFixed(2));
+      faceMouthOpen.setAttribute("ry",(2+vibeMouthBlend*15).toFixed(2));
+      faceMouthOpen.setAttribute("opacity",opening.toFixed(3));
+    }
     if(faceMouth){
       const mouthX=vibeMouthBlend*Math.sin(now/155)*2.2;
       const mouthRotate=vibeMouthBlend*Math.sin(now/240)*1.3;
@@ -1786,12 +1922,16 @@
       if(!playback){
         Object.assign(vibeMotion,{x:0,y:0,rotate:0,scaleX:1,scaleY:1});
         vibeMouthBlend=0;
+        vibeMouthRound=0;
+        resetVibeLyrics();
         vibeFace.style.setProperty("--motion-x","0px");
         vibeFace.style.setProperty("--motion-y","0px");
         vibeFace.style.setProperty("--motion-rotate","0deg");
         vibeFace.style.setProperty("--motion-scale-x","1");
         vibeFace.style.setProperty("--motion-scale-y","1");
         faceMouthPath?.setAttribute("d","M 8 8 C 18 42 82 42 92 8");
+        if(faceMouthPath) faceMouthPath.style.opacity="1";
+        faceMouthOpen?.setAttribute("opacity","0");
         if(faceMouth) faceMouth.style.transform="none";
       }
     }
