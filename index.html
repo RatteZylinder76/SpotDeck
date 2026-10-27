@@ -727,6 +727,14 @@
       .vibe-face{width:min(31vh,24vw);min-width:136px}
     }
     .vibe-face{flex:0 0 auto}
+    #vibeFace{pointer-events:auto;cursor:pointer;touch-action:manipulation;outline:none}
+    #vibeFace:focus-visible{outline:2px solid #9fe7cb;outline-offset:8px;border-radius:24px}
+    .face-easteregg{position:absolute;inset:-18%;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .45s ease;z-index:5}
+    .vibe-face.easteregg .face-easteregg{opacity:1;visibility:visible}
+    .egg-confetti{position:absolute;left:var(--egg-x);top:12%;font-size:clamp(14px,3vh,28px);animation:eggConfetti 2.8s ease-out infinite;animation-delay:var(--egg-delay)}
+    .egg-caption{position:absolute;top:80%;left:0;width:100%;text-align:center;font-size:clamp(10px,1.6vh,15px);font-weight:800;letter-spacing:.13em;color:#e8d4ff;text-shadow:0 0 14px #c38af0}
+    @keyframes eggConfetti{0%{transform:translate(0,-12px) rotate(-20deg) scale(.7);opacity:0}15%,65%{opacity:.95}100%{transform:translate(var(--egg-drift),120px) rotate(190deg) scale(1);opacity:0}}
+    @media(prefers-reduced-motion:reduce){.egg-confetti{animation:none;top:var(--egg-x)}}
     .vibe-face .face-eye{height:auto;aspect-ratio:1;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--eye-open,1));transition:transform .12s ease}
     .vibe-face .face-eye.left{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--left-eye-open,var(--eye-open,1)))}
     .vibe-face.blink .face-eye{top:35%;height:auto;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scaleY(.08)}
@@ -811,7 +819,7 @@
         </div>
 
         <aside class="face-panel" aria-label="Vibe Face">
-          <div class="vibe-face paused" id="vibeFace">
+          <div class="vibe-face paused" id="vibeFace" role="button" tabindex="0" aria-label="Animiertes Musikgesicht">
             <div class="face-orb" aria-hidden="true"></div>
             <div class="face-eye left" id="faceEyeLeft"></div>
             <div class="face-eye right" id="faceEyeRight"></div>
@@ -829,6 +837,7 @@
               <path d="M 29 37 L 36 37 M 60 37 L 67 37" stroke="#adceef" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
             </svg>
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
+            <div class="face-easteregg" id="faceEasteregg" aria-hidden="true"></div>
             <svg class="expression-props" viewBox="0 0 100 100" aria-hidden="true">
               <g class="prop-coffee">
                 <path d="M 71 66 H 77 Q 84 66 83 72 Q 82 78 75 76" fill="none" stroke="#d7bfa6" stroke-width="2.5"/>
@@ -1029,6 +1038,8 @@
   let vibeExpression="", vibeExpressionStart=0, vibeExpressionEnd=0;
   let vibeNextExpression=performance.now()+6000;
   const vibeExpressionPose={x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0};
+  let vibeEggUntil=0, vibeEggCooldown=0, vibeEggFrame=null;
+  let vibeEggTaps=[], vibeEggPointer=null;
   const vibeThemes=[
     {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves?|wellen|beach|strand)$/i,props:["🫧","🐠","🌊","🐬","🐚","🪸","🐟"],kind:"scene-rise"},
     {key:"sun",words:/^(sun|sunshine|sunlight|sonne|sonnenschein|summer|sommer|sunset|sonnenuntergang)$/i,props:["☀️","🌤️","🌅","🌻","✨","🏖️"],kind:""},
@@ -1630,6 +1641,7 @@
   }
 
   function showVibeScene(theme,positionMs,triggerWord=""){
+    if(performance.now()<vibeEggUntil) return;
     if(!faceScene) return;
     vibeSceneKey=theme.key;
     vibeSceneStart=positionMs;
@@ -1983,7 +1995,69 @@
     }, delay);
   }
 
+  function triggerVibeEasteregg(){
+    const now=performance.now();
+    if(now<vibeEggCooldown) return;
+    vibeEggUntil=now+7000;
+    vibeEggCooldown=vibeEggUntil+3000;
+    vibeEggTaps=[];
+    const layer=$("faceEasteregg");
+    if(layer){
+      const confetti=["✨","🎵","🎉","💜","🎶","⭐","🎊","💚","✨","🪩"];
+      layer.innerHTML=confetti.map((icon,i)=>`<span class="egg-confetti" style="--egg-x:${7+i*9}%;--egg-delay:${(-i*.31).toFixed(2)}s;--egg-drift:${i%2 ? 20 : -20}px">${icon}</span>`).join("")+`<span class="egg-caption">VIBE OVERDRIVE</span>`;
+    }
+    delete vibeFace.dataset.accessory;
+    faceScene?.classList.remove("visible");
+    vibeFace.classList.add("easteregg");
+    startVibeExpression("party",7000);
+    const tick=()=>{
+      if(performance.now()>=vibeEggUntil){
+        vibeFace.classList.remove("easteregg");
+        vibeEggFrame=null;
+        if(!playback){
+          Object.assign(vibeMotion,{x:0,y:0,rotate:0,scaleX:1,scaleY:1});
+          Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0});
+          updateVibeMotion(0);
+        }
+        return;
+      }
+      // Playback already has its own animation loop. Also work when Spotify is idle.
+      if(!playback) updateVibeMotion(0);
+      vibeEggFrame=requestAnimationFrame(tick);
+    };
+    if(vibeEggFrame!==null) cancelAnimationFrame(vibeEggFrame);
+    vibeEggFrame=requestAnimationFrame(tick);
+  }
+
+  function registerVibeTap(){
+    const now=performance.now();
+    if(now<vibeEggCooldown) return;
+    if(vibeEggTaps.length && now-vibeEggTaps[vibeEggTaps.length-1]>500) vibeEggTaps=[];
+    vibeEggTaps=vibeEggTaps.filter(time=>now-time<=1800);
+    vibeEggTaps.push(now);
+    if(vibeEggTaps.length>=5) triggerVibeEasteregg();
+  }
+
+  vibeFace?.addEventListener("pointerdown",event=>{
+    if(event.button!==0 || !event.isPrimary) return;
+    vibeEggPointer={id:event.pointerId,x:event.clientX,y:event.clientY,time:performance.now()};
+  });
+  vibeFace?.addEventListener("pointerup",event=>{
+    const down=vibeEggPointer;
+    vibeEggPointer=null;
+    if(!down || down.id!==event.pointerId || !event.isPrimary) return;
+    if(performance.now()-down.time>650 || Math.hypot(event.clientX-down.x,event.clientY-down.y)>16) return;
+    registerVibeTap();
+  });
+  vibeFace?.addEventListener("pointercancel",()=>{vibeEggPointer=null});
+  vibeFace?.addEventListener("keydown",event=>{
+    if(event.code!=="Space" && event.key!=="Enter") return;
+    event.preventDefault();event.stopPropagation();
+    if(!event.repeat) registerVibeTap();
+  });
+
   function startVibeExpression(name,duration=3000){
+    if(performance.now()<vibeEggUntil && name!=="party") return;
     if(reducedFaceMotion.matches) return;
     vibeExpression=name;
     vibeExpressionStart=performance.now();
@@ -1993,6 +2067,12 @@
   }
 
   function updateVibeExpression(now,dt,playing){
+    if(now<vibeEggUntil && !reducedFaceMotion.matches){
+      vibeExpression="party";
+      vibeExpressionStart=vibeEggUntil-7000;
+      vibeExpressionEnd=vibeEggUntil;
+      vibeFace.dataset.expression="party";
+    }
     if(reducedFaceMotion.matches || now>=vibeExpressionEnd){
       vibeExpression="";
       delete vibeFace.dataset.expression;
@@ -2060,6 +2140,13 @@
     }
 
     const ease=1-Math.exp(-dt/(playing?82:180));
+    if(now<vibeEggUntil){
+      const eggBeat=now/210;
+      const eggEnvelope=Math.min(1,(vibeEggUntil-now)/900,(now-(vibeEggUntil-7000))/650);
+      targetX+=Math.sin(eggBeat)*7*eggEnvelope;
+      targetY-=Math.abs(Math.sin(eggBeat))*9*eggEnvelope;
+      targetRotate+=Math.sin(eggBeat*.5)*8*eggEnvelope;
+    }
     targetRotate+=vibeExpressionPose.tilt;
     if(reducedFaceMotion.matches){
       targetX=0;targetY=0;targetRotate=0;targetScaleX=1;targetScaleY=1;
