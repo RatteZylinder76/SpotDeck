@@ -625,6 +625,7 @@
       .context{justify-content:center}
       #title{font-size:clamp(28px,8vw,48px)}
       #artists{font-size:clamp(15px,4vw,24px)}
+    }
   
 
     .face-panel{
@@ -725,6 +726,9 @@
       #artists{font-size:clamp(13px,1.9vw,18px)}
       .vibe-face{width:min(31vh,24vw);min-width:136px}
     }
+    .vibe-face{flex:0 0 auto}
+    .vibe-face .face-eye{height:auto;aspect-ratio:1}
+    .vibe-face.blink .face-eye{top:35%;height:auto;transform:scaleY(.08)}
     #faceMouthPath{fill:rgba(255,255,255,.94)}
     .face-scene{position:absolute;inset:-12%;pointer-events:none;opacity:0;transition:opacity .65s ease;z-index:3}
     .face-scene.visible{opacity:1}
@@ -734,9 +738,9 @@
     .scene-sun{left:0;top:8%;animation:sunFly 6.5s ease-in-out both;font-size:clamp(28px,6vh,60px)}
     .scene-rain{animation:rainFall 1.6s linear infinite;color:#92d9ff}
     .scene-rise{animation:bubbleRise 3s ease-in-out infinite}
-    .scene-gear{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .5s ease;z-index:2}
-    .vibe-face[data-accessory="snorkel"] .scene-snorkel{opacity:1}
-    .vibe-face[data-accessory="shades"] .scene-shades{opacity:1}
+    .scene-gear{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;visibility:hidden;transition:opacity .3s ease;z-index:2}
+    .vibe-face[data-accessory="snorkel"] .scene-snorkel{opacity:1;visibility:visible}
+    .vibe-face[data-accessory="shades"] .scene-shades{opacity:1;visibility:visible}
     .vibe-face[data-scene="love"] .face-eye{box-shadow:0 0 18px #ff9abf70}
     .face-scene.paused *, .vibe-face.paused .scene-gear{animation-play-state:paused}
     @keyframes propDrift{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(8px,-12px) rotate(10deg)}}
