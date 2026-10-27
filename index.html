@@ -727,8 +727,21 @@
       .vibe-face{width:min(31vh,24vw);min-width:136px}
     }
     .vibe-face{flex:0 0 auto}
-    .vibe-face .face-eye{height:auto;aspect-ratio:1}
-    .vibe-face.blink .face-eye{top:35%;height:auto;transform:scaleY(.08)}
+    .vibe-face .face-eye{height:auto;aspect-ratio:1;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--eye-open,1));transition:transform .12s ease}
+    .vibe-face .face-eye.left{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--left-eye-open,var(--eye-open,1)))}
+    .vibe-face.blink .face-eye{top:35%;height:auto;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scaleY(.08)}
+    .expression-props{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:4}
+    .expression-props > g{opacity:0;visibility:hidden;transition:opacity .3s ease}
+    .vibe-face[data-expression="coffee"] .prop-coffee,
+    .vibe-face[data-expression="party"] .prop-party,
+    .vibe-face[data-expression="sweat"] .prop-sweat{opacity:1;visibility:visible}
+    .prop-coffee{transform-origin:66px 68px;animation:coffeeSip 3.8s ease-in-out infinite}
+    .prop-steam{animation:steamFloat 1.8s ease-in-out infinite}
+    .prop-sweat{animation:sweatSlide 2s ease-in-out infinite}
+    @keyframes coffeeSip{0%,100%{transform:translate(5px,9px) rotate(0deg)}35%,65%{transform:translate(-6px,-1px) rotate(-12deg)}}
+    @keyframes steamFloat{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:.7;transform:translateY(-3px)}}
+    @keyframes sweatSlide{0%,100%{transform:translateY(0)}60%{transform:translateY(5px)}}
+    @media(prefers-reduced-motion:reduce){.expression-props g{animation:none}}
     #faceMouthPath{fill:rgba(255,255,255,.94)}
     .face-scene{position:absolute;inset:-12%;pointer-events:none;opacity:0;transition:opacity .65s ease;z-index:3}
     .face-scene.visible{opacity:1}
@@ -816,6 +829,16 @@
               <path d="M 29 37 L 36 37 M 60 37 L 67 37" stroke="#adceef" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
             </svg>
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
+            <svg class="expression-props" viewBox="0 0 100 100" aria-hidden="true">
+              <g class="prop-coffee">
+                <path d="M 71 66 H 77 Q 84 66 83 72 Q 82 78 75 76" fill="none" stroke="#d7bfa6" stroke-width="2.5"/>
+                <path d="M 57 64 H 76 L 74 80 Q 66 85 59 80 Z" fill="#f4e6d4" stroke="#d7bfa6" stroke-width="1.3"/>
+                <ellipse cx="66.5" cy="64" rx="9.5" ry="2" fill="#664333"/>
+                <g class="prop-steam" fill="none" stroke="#f4e6d4" stroke-width="1.2" stroke-linecap="round"><path d="M 63 59 Q 60 56 63 53 M 69 59 Q 72 56 69 52"/></g>
+              </g>
+              <g class="prop-party"><path d="M 33 25 L 51 -3 L 64 27 Z" fill="#bb85e8" stroke="#dfb4ff" stroke-width="1.2"/><path d="M 40 16 L 60 20 M 46 6 L 55 9" stroke="#ffe18a" stroke-width="3"/><circle cx="51" cy="-3" r="3" fill="#ffe18a"/></g>
+              <g class="prop-sweat"><path d="M 81 26 Q 71 38 78 41 Q 89 44 81 26" fill="#9bdff7"/></g>
+            </svg>
           </div>
         </aside>
       </main>
@@ -1003,6 +1026,9 @@
   let vibeAccessoryTimer=null, vibeSceneTimer=null;
   const vibeThemeLastUsed=new Map();
   const vibeThemeLastProps=new Map();
+  let vibeExpression="", vibeExpressionStart=0, vibeExpressionEnd=0;
+  let vibeNextExpression=performance.now()+6000;
+  const vibeExpressionPose={x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0};
   const vibeThemes=[
     {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves?|wellen|beach|strand)$/i,props:["🫧","🐠","🌊","🐬","🐚","🪸","🐟"],kind:"scene-rise"},
     {key:"sun",words:/^(sun|sunshine|sunlight|sonne|sonnenschein|summer|sommer|sunset|sonnenuntergang)$/i,props:["☀️","🌤️","🌅","🌻","✨","🏖️"],kind:""},
@@ -1568,6 +1594,17 @@
     vibeAccessoryTimer=null;
     vibeSceneTimer=null;
     vibeThemeLastUsed.clear();
+    vibeExpression="";
+    vibeExpressionEnd=0;
+    vibeNextExpression=performance.now()+6000;
+    Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0});
+    if(vibeFace){
+      delete vibeFace.dataset.expression;
+      vibeFace.style.setProperty("--gaze-x","0px");
+      vibeFace.style.setProperty("--gaze-y","0px");
+      vibeFace.style.setProperty("--eye-open","1");
+      vibeFace.style.setProperty("--left-eye-open","1");
+    }
     vibeFace?.classList.remove("singing");
     if(vibeFace){delete vibeFace.dataset.scene;delete vibeFace.dataset.accessory}
     faceScene?.classList.remove("visible");
@@ -1631,6 +1668,9 @@
       vibeFace.dataset.accessory=theme.key==="water" ? "snorkel" : "shades";
       vibeAccessoryTimer=setTimeout(()=>{delete vibeFace.dataset.accessory;vibeAccessoryTimer=null},theme.key==="water" ? 2600 : 4200);
     }
+    const sceneExpressions={sun:"sweat",snow:"lookUp",love:"grin",party:"party",magic:"surprise",fly:"lookUp",sad:"sleepy",happy:"grin",rap:"skeptic"};
+    if(theme.key==="food" && /^(coffee|kaffee|tea|tee)$/i.test(triggerWord)) startVibeExpression("coffee",4200);
+    else if(sceneExpressions[theme.key]) startVibeExpression(sceneExpressions[theme.key],theme.key==="party" ? 4500 : 3200);
     vibeSceneTimer=setTimeout(()=>{
       faceScene.classList.remove("visible");
       delete vibeFace.dataset.scene;
@@ -1943,12 +1983,55 @@
     }, delay);
   }
 
+  function startVibeExpression(name,duration=3000){
+    if(reducedFaceMotion.matches) return;
+    vibeExpression=name;
+    vibeExpressionStart=performance.now();
+    vibeExpressionEnd=vibeExpressionStart+duration;
+    vibeNextExpression=vibeExpressionEnd+7000+Math.random()*6500;
+    if(vibeFace) vibeFace.dataset.expression=name;
+  }
+
+  function updateVibeExpression(now,dt,playing){
+    if(reducedFaceMotion.matches || now>=vibeExpressionEnd){
+      vibeExpression="";
+      delete vibeFace.dataset.expression;
+    }
+    if(!vibeExpression && now>=vibeNextExpression && !reducedFaceMotion.matches){
+      const gestures=playing ? ["sideLeft","sideRight","wink","grin","skeptic","surprise"] : ["sleepy","sideLeft","sideRight","wink"];
+      startVibeExpression(gestures[Math.floor(Math.random()*gestures.length)],2800+Math.random()*1000);
+    }
+    const progress=Math.max(0,Math.min(1,(now-vibeExpressionStart)/Math.max(1,vibeExpressionEnd-vibeExpressionStart)));
+    const envelope=vibeExpression ? Math.pow(Math.max(0,Math.sin(Math.PI*progress)),.5) : 0;
+    let x=0,y=0,eye=1,left=1,tilt=0,smile=0,open=0;
+    switch(vibeExpression){
+      case "sideLeft":x=-4*envelope;tilt=-2*envelope;break;
+      case "sideRight":x=4*envelope;tilt=2*envelope;break;
+      case "lookUp":case "sweat":y=-3.2*envelope;x=Math.sin(progress*Math.PI*2)*2*envelope;break;
+      case "wink":left=1-.94*Math.exp(-Math.pow((progress-.45)/.13,2));tilt=-1.5*envelope;smile=3*envelope;break;
+      case "skeptic":eye=1-.23*envelope;left=1-.62*envelope;x=2.8*envelope;tilt=2*envelope;smile=-8*envelope;break;
+      case "sleepy":eye=left=1-.64*envelope;y=1.5*envelope;tilt=-1.5*envelope;break;
+      case "grin":eye=left=1-.48*envelope;smile=5*envelope;break;
+      case "surprise":y=-1.6*envelope;open=.55*envelope;tilt=-1.2*envelope;break;
+      case "coffee":eye=left=1-.35*envelope;y=1.5*envelope;tilt=-2.8*envelope;break;
+      case "party":eye=left=1-.2*envelope;tilt=Math.sin(now/190)*2*envelope;smile=4*envelope;break;
+    }
+    const ease=1-Math.exp(-dt/95);
+    const target={x,y,eye,left,tilt,smile,open};
+    for(const key of Object.keys(target)) vibeExpressionPose[key]+=(target[key]-vibeExpressionPose[key])*ease;
+    vibeFace.style.setProperty("--gaze-x",`${vibeExpressionPose.x.toFixed(2)}px`);
+    vibeFace.style.setProperty("--gaze-y",`${vibeExpressionPose.y.toFixed(2)}px`);
+    vibeFace.style.setProperty("--eye-open",vibeExpressionPose.eye.toFixed(3));
+    vibeFace.style.setProperty("--left-eye-open",vibeExpressionPose.left.toFixed(3));
+  }
+
   function updateVibeMotion(positionMs=0){
     if(!vibeFace || !faceMouthPath) return;
     const now=performance.now();
     const dt=Math.min(50,Math.max(8,now-vibeMotionLast));
     vibeMotionLast=now;
     const playing=!!playback?.is_playing;
+    updateVibeExpression(now,dt,playing);
     const singing=playing && vibeSpeech.long;
     let targetX=0, targetY=0, targetRotate=0, targetScaleX=1, targetScaleY=1;
 
@@ -1977,6 +2060,7 @@
     }
 
     const ease=1-Math.exp(-dt/(playing?82:180));
+    targetRotate+=vibeExpressionPose.tilt;
     if(reducedFaceMotion.matches){
       targetX=0;targetY=0;targetRotate=0;targetScaleX=1;targetScaleY=1;
     }
@@ -1993,7 +2077,7 @@
     vibeFace.style.setProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
 
     const mouthEase=1-Math.exp(-dt/105);
-    vibeMouthBlend+=((playing?vibeSpeech.open:0)-vibeMouthBlend)*mouthEase;
+    vibeMouthBlend+=(Math.max(playing?vibeSpeech.open:0,vibeExpressionPose.open)-vibeMouthBlend)*mouthEase;
     vibeMouthRound+=(vibeSpeech.round-vibeMouthRound)*mouthEase;
     const breathe=.65*Math.sin(now/720);
     // One closed contour: its two curves coincide at rest, then stretch apart.
@@ -2004,7 +2088,7 @@
     const endY=8+morph*14;
     const controlLeft=18+(left-18)*morph;
     const controlRight=100-controlLeft;
-    const smileDepth=42+breathe;
+    const smileDepth=42+breathe+vibeExpressionPose.smile;
     const halfHeight=10+vibeMouthRound*5;
     const upper=smileDepth*(1-morph)+(endY-halfHeight*4/3)*morph;
     const lower=smileDepth*(1-morph)+(endY+halfHeight*4/3)*morph;
