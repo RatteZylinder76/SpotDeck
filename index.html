@@ -725,7 +725,7 @@
       #artists{font-size:clamp(13px,1.9vw,18px)}
       .vibe-face{width:min(31vh,24vw);min-width:136px}
     }
-    .face-mouth ellipse{fill:rgba(255,255,255,.94);stroke:none}
+    #faceMouthPath{fill:rgba(255,255,255,.94)}
     .face-scene{position:absolute;inset:-12%;pointer-events:none;opacity:0;transition:opacity .65s ease;z-index:3}
     .face-scene.visible{opacity:1}
     .scene-prop{position:absolute;font-size:clamp(20px,4.5vh,46px);filter:drop-shadow(0 3px 8px #0003);animation:propDrift 5s ease-in-out infinite}
@@ -798,8 +798,7 @@
             <div class="face-eye left" id="faceEyeLeft"></div>
             <div class="face-eye right" id="faceEyeRight"></div>
             <svg class="face-mouth" id="faceMouth" viewBox="0 0 100 50" aria-hidden="true">
-              <path id="faceMouthPath" d="M 8 8 C 18 42 82 42 92 8"></path>
-              <ellipse id="faceMouthOpen" cx="50" cy="22" rx="16" ry="1" opacity="0"></ellipse>
+              <path id="faceMouthPath" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path>
             </svg>
             <svg class="scene-gear" viewBox="0 0 100 100" aria-hidden="true">
               <path d="M 19 38 H 25 M 75 38 H 81" fill="none" stroke="#5bd8d6" stroke-width="2.5" stroke-linecap="round"/>
@@ -956,7 +955,7 @@
   const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
   const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");
   const vibeFace = $("vibeFace"), faceMouth = $("faceMouth"), faceMouthPath = $("faceMouthPath");
-  const faceMouthOpen=$("faceMouthOpen"), faceScene=$("faceScene");
+  const faceScene=$("faceScene");
   const reducedFaceMotion=matchMedia("(prefers-reduced-motion: reduce)");
 
   let playback = null;
@@ -1887,21 +1886,23 @@
     vibeFace.style.setProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
     vibeFace.style.setProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
 
-    const mouthEase=1-Math.exp(-dt/65);
+    const mouthEase=1-Math.exp(-dt/105);
     vibeMouthBlend+=((playing?vibeSpeech.open:0)-vibeMouthBlend)*mouthEase;
     vibeMouthRound+=(vibeSpeech.round-vibeMouthRound)*mouthEase;
     const breathe=.65*Math.sin(now/720);
-    const inset=vibeMouthBlend*(3+vibeMouthRound*6);
-    const endY=8+vibeMouthBlend*5;
-    const depth=42+breathe+vibeMouthBlend*7;
-    faceMouthPath.setAttribute("d",`M ${(8+inset).toFixed(2)} ${endY.toFixed(2)} C ${(18+inset*.55).toFixed(2)} ${depth.toFixed(2)} ${(82-inset*.55).toFixed(2)} ${depth.toFixed(2)} ${(92-inset).toFixed(2)} ${endY.toFixed(2)}`);
-    const opening=Math.max(0,Math.min(1,(vibeMouthBlend-.15)/.48));
-    faceMouthPath.style.opacity=(1-opening*.94).toFixed(3);
-    if(faceMouthOpen){
-      faceMouthOpen.setAttribute("rx",(23-vibeMouthRound*10).toFixed(2));
-      faceMouthOpen.setAttribute("ry",(2+vibeMouthBlend*15).toFixed(2));
-      faceMouthOpen.setAttribute("opacity",opening.toFixed(3));
-    }
+    // One closed contour: its two curves coincide at rest, then stretch apart.
+    const opening=Math.min(1,vibeMouthBlend/.75);
+    const morph=opening*opening*(3-2*opening);
+    const left=8+morph*(18+vibeMouthRound*10);
+    const right=100-left;
+    const endY=8+morph*14;
+    const controlLeft=18+(left-18)*morph;
+    const controlRight=100-controlLeft;
+    const smileDepth=42+breathe;
+    const halfHeight=10+vibeMouthRound*5;
+    const upper=smileDepth*(1-morph)+(endY-halfHeight*4/3)*morph;
+    const lower=smileDepth*(1-morph)+(endY+halfHeight*4/3)*morph;
+    faceMouthPath.setAttribute("d",`M ${left.toFixed(2)} ${endY.toFixed(2)} C ${controlLeft.toFixed(2)} ${upper.toFixed(2)} ${controlRight.toFixed(2)} ${upper.toFixed(2)} ${right.toFixed(2)} ${endY.toFixed(2)} C ${controlRight.toFixed(2)} ${lower.toFixed(2)} ${controlLeft.toFixed(2)} ${lower.toFixed(2)} ${left.toFixed(2)} ${endY.toFixed(2)} Z`);
     if(faceMouth){
       const mouthX=vibeMouthBlend*Math.sin(now/155)*2.2;
       const mouthRotate=vibeMouthBlend*Math.sin(now/240)*1.3;
@@ -1929,9 +1930,7 @@
         vibeFace.style.setProperty("--motion-rotate","0deg");
         vibeFace.style.setProperty("--motion-scale-x","1");
         vibeFace.style.setProperty("--motion-scale-y","1");
-        faceMouthPath?.setAttribute("d","M 8 8 C 18 42 82 42 92 8");
-        if(faceMouthPath) faceMouthPath.style.opacity="1";
-        faceMouthOpen?.setAttribute("opacity","0");
+        faceMouthPath?.setAttribute("d","M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z");
         if(faceMouth) faceMouth.style.transform="none";
       }
     }
