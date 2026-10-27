@@ -136,12 +136,14 @@
       --beat-scale:1;
       --beat-rotate:0deg;
       --bounce-y:0px;
+      --sway-x:0px;
+      --sway-back-x:0px;
       width:min(34vh,28vw);
       min-width:170px;
       max-width:390px;
       aspect-ratio:1;
       position:relative;
-      transform:translateY(var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
+      transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
       transition:transform .16s ease, filter .16s ease, opacity .16s ease;
       filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
       opacity:.95;
@@ -153,8 +155,10 @@
       filter:drop-shadow(0 14px 34px rgba(0,0,0,.32));
     }
     @keyframes faceFloat{
-      0%,100%{transform:translateY(0) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
-      50%{transform:translateY(-7px) rotate(calc(var(--beat-rotate) * .65)) scale(var(--beat-scale))}
+      0%,100%{transform:translate(0,0) rotate(0deg) scale(var(--beat-scale))}
+      30%{transform:translate(var(--sway-back-x),-3px) rotate(calc(var(--beat-rotate) * -.45)) scale(var(--beat-scale))}
+      58%{transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
+      82%{transform:translate(var(--sway-back-x),-2px) rotate(calc(var(--beat-rotate) * .35)) scale(var(--beat-scale))}
     }
     .face-orb{
       position:absolute;
@@ -207,6 +211,13 @@
       stroke-width:9;
       stroke-linecap:round;
       stroke-linejoin:round;
+    }
+    .vibe-face.singing .face-mouth{
+      animation:vocalMouth .46s ease-in-out infinite alternate;
+    }
+    @keyframes vocalMouth{
+      from{transform:translateX(-3px) scale(1,.94)}
+      to{transform:translateX(3px) scale(.80,1.18)}
     }
     .vibe-face.paused{
       animation-duration:5s;
@@ -648,12 +659,14 @@
       --beat-scale:1;
       --beat-rotate:0deg;
       --bounce-y:0px;
+      --sway-x:0px;
+      --sway-back-x:0px;
       width:min(34vh,28vw);
       min-width:170px;
       max-width:390px;
       aspect-ratio:1;
       position:relative;
-      transform:translateY(var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
+      transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
       transition:transform .16s ease, filter .16s ease, opacity .16s ease;
       filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
       opacity:.95;
@@ -665,8 +678,10 @@
       filter:drop-shadow(0 14px 34px rgba(0,0,0,.32));
     }
     @keyframes faceFloat{
-      0%,100%{transform:translateY(0) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
-      50%{transform:translateY(-7px) rotate(calc(var(--beat-rotate) * .65)) scale(var(--beat-scale))}
+      0%,100%{transform:translate(0,0) rotate(0deg) scale(var(--beat-scale))}
+      30%{transform:translate(var(--sway-back-x),-3px) rotate(calc(var(--beat-rotate) * -.45)) scale(var(--beat-scale))}
+      58%{transform:translate(var(--sway-x),var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
+      82%{transform:translate(var(--sway-back-x),-2px) rotate(calc(var(--beat-rotate) * .35)) scale(var(--beat-scale))}
     }
     .face-orb{
       position:absolute;
@@ -719,6 +734,13 @@
       stroke-width:9;
       stroke-linecap:round;
       stroke-linejoin:round;
+    }
+    .vibe-face.singing .face-mouth{
+      animation:vocalMouth .46s ease-in-out infinite alternate;
+    }
+    @keyframes vocalMouth{
+      from{transform:translateX(-3px) scale(1,.94)}
+      to{transform:translateX(3px) scale(.80,1.18)}
     }
     .vibe-face.paused{
       animation-duration:5s;
@@ -957,6 +979,7 @@
   let lyricsTrackId = null;
   let syncedLyrics = [];
   let currentLyricIndex = -1;
+  let vibeLyricIndex = -2;
   let lyricsAbort = null;
   let wakeLock = null;
   let wakeWanted = true;
@@ -1164,10 +1187,8 @@
     if(trackId!==lastTrackId){
       lastTrackId=trackId;
       checkLiked(trackId);
-      if(lyrics.classList.contains("open")){
-        lyricsTrackId=null;
-        loadLyrics(true);
-      }
+      lyricsTrackId=null;
+      loadLyrics(true);
     }
 
     if(trackId && trackId !== lastVibeTrackId){
@@ -1190,6 +1211,7 @@
       pos=Math.min(pos,dur);
       elapsed.textContent=msToTime(pos);
       bar.style.width=dur?`${pos/dur*100}%`:"0%";
+      updateVibeVocalReaction(pos);
       updateLyricsPosition(pos);
       animFrame=requestAnimationFrame(tick);
     }
@@ -1434,6 +1456,7 @@
   function renderSyncedLyrics(lines){
     syncedLyrics=lines;
     currentLyricIndex=-1;
+    vibeLyricIndex=-2;
     lyricsBody.innerHTML=`<div class="lyrics-lines">${lines.map((l,i)=>
       `<p class="lyric-line" data-lyric-index="${i}">${esc(l.text)}</p>`
     ).join("")}</div><div class="lyrics-credit">Lyrics via LRCLIB</div>`;
@@ -1455,12 +1478,16 @@
   function renderPlainLyrics(text){
     syncedLyrics=[];
     currentLyricIndex=-1;
+    vibeLyricIndex=-2;
+    vibeFace?.classList.remove("singing");
     lyricsBody.innerHTML=`<div class="lyrics-plain">${esc(text)}</div><div class="lyrics-credit">Lyrics via LRCLIB</div>`;
   }
 
   function renderLyricsState(message){
     syncedLyrics=[];
     currentLyricIndex=-1;
+    vibeLyricIndex=-2;
+    vibeFace?.classList.remove("singing");
     lyricsBody.innerHTML=`<div class="lyrics-state">${esc(message)}</div>`;
   }
 
@@ -1471,13 +1498,33 @@
     return Math.max(0,pos);
   }
 
+  function getSyncedLyricIndex(positionMs){
+    let low=0, high=syncedLyrics.length-1, found=-1;
+    while(low<=high){
+      const mid=(low+high)>>1;
+      if(positionMs >= syncedLyrics[mid].time-120){found=mid;low=mid+1}
+      else high=mid-1;
+    }
+    return found;
+  }
+
+  function updateVibeVocalReaction(positionMs=getCurrentPositionMs()){
+    if(!vibeFace || !playback?.is_playing || !syncedLyrics.length){
+      vibeFace?.classList.remove("singing");
+      vibeLyricIndex=-2;
+      return;
+    }
+    const idx=getSyncedLyricIndex(positionMs);
+    if(idx===vibeLyricIndex) return;
+    vibeLyricIndex=idx;
+    const line=idx>=0 ? syncedLyrics[idx]?.text || "" : "";
+    const hasLongVocal=/(?:^|\s)(?:u{2,}h*|o{2,}h*|a{2,}h*|u+h+|o+h+|a+h+|wo+h+)(?=\s|[!?.,…-]|$)/i.test(line);
+    vibeFace.classList.toggle("singing",hasLongVocal);
+  }
+
   function updateLyricsPosition(positionMs=getCurrentPositionMs(),forceScroll=false){
     if(!syncedLyrics.length || !lyrics.classList.contains("open")) return;
-    let idx=-1;
-    for(let i=0;i<syncedLyrics.length;i++){
-      if(positionMs >= syncedLyrics[i].time-120) idx=i;
-      else break;
-    }
+    const idx=getSyncedLyricIndex(positionMs);
     if(idx===currentLyricIndex && !forceScroll) return;
     currentLyricIndex=idx;
 
@@ -1692,13 +1739,18 @@
     vibeFace.classList.add("playing");
     const rotate = (Math.random()*2.2 - 1.1) * (0.45 + vibeEnergy*0.65);
     const bounce = Math.max(3, Math.round(3 + vibeEnergy*7));
+    const sway = (Math.random()>.5 ? 1 : -1) * Math.max(3,Math.round(2+vibeEnergy*6));
     vibeFace.style.setProperty("--beat-rotate", `${rotate.toFixed(2)}deg`);
     vibeFace.style.setProperty("--bounce-y", `${-bounce}px`);
+    vibeFace.style.setProperty("--sway-x", `${sway}px`);
+    vibeFace.style.setProperty("--sway-back-x", `${Math.round(sway*-.45)}px`);
     vibeFace.classList.add("beat");
     setTimeout(()=>{
       vibeFace.classList.remove("beat");
       vibeFace.style.setProperty("--bounce-y","0px");
       vibeFace.style.setProperty("--beat-rotate","0deg");
+      vibeFace.style.setProperty("--sway-x","0px");
+      vibeFace.style.setProperty("--sway-back-x","0px");
     }, Math.max(120, Math.min(230, vibeTempoMs * 0.33)));
   }
 
@@ -1724,9 +1776,12 @@
       triggerBeat();
     }else{
       vibeFace.classList.add("paused");
-      vibeFace.classList.remove("playing","beat");
+      vibeFace.classList.remove("playing","beat","singing");
+      vibeLyricIndex=-2;
       vibeFace.style.setProperty("--bounce-y","0px");
       vibeFace.style.setProperty("--beat-rotate","0deg");
+      vibeFace.style.setProperty("--sway-x","0px");
+      vibeFace.style.setProperty("--sway-back-x","0px");
     }
     scheduleBlink();
   }
