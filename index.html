@@ -735,7 +735,8 @@
     .scene-rain{animation:rainFall 1.6s linear infinite;color:#92d9ff}
     .scene-rise{animation:bubbleRise 3s ease-in-out infinite}
     .scene-gear{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .5s ease;z-index:2}
-    .vibe-face[data-scene="water"] .scene-gear{opacity:1}
+    .vibe-face[data-accessory="snorkel"] .scene-snorkel{opacity:1}
+    .vibe-face[data-accessory="shades"] .scene-shades{opacity:1}
     .vibe-face[data-scene="love"] .face-eye{box-shadow:0 0 18px #ff9abf70}
     .face-scene.paused *, .vibe-face.paused .scene-gear{animation-play-state:paused}
     @keyframes propDrift{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(8px,-12px) rotate(10deg)}}
@@ -800,10 +801,15 @@
             <svg class="face-mouth" id="faceMouth" viewBox="0 0 100 50" aria-hidden="true">
               <path id="faceMouthPath" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path>
             </svg>
-            <svg class="scene-gear" viewBox="0 0 100 100" aria-hidden="true">
+            <svg class="scene-gear scene-snorkel" viewBox="0 0 100 100" aria-hidden="true">
               <path d="M 19 38 H 25 M 75 38 H 81" fill="none" stroke="#5bd8d6" stroke-width="2.5" stroke-linecap="round"/>
               <rect x="22" y="32" width="56" height="20" rx="8" fill="#53c8e61c" stroke="#70e3df" stroke-width="3"/>
               <path d="M 74 65 Q 87 69 88 57 V 19 Q 88 15 92 15 H 95" fill="none" stroke="#ffc771" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <svg class="scene-gear scene-shades" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M 19 35 L 25 36 M 75 36 L 81 35 M 45 38 Q 50 35 55 38" fill="none" stroke="#e9e8ee" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M 24 34 L 45 34 L 43 45 Q 34 51 27 44 Z M 55 34 L 76 34 L 73 44 Q 66 51 57 45 Z" fill="#161826" stroke="#dedee8" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M 29 37 L 36 37 M 60 37 L 67 37" stroke="#adceef" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
             </svg>
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
           </div>
@@ -973,6 +979,7 @@
   let currentLyricIndex = -1;
   let vibeLyricIndex = -2;
   let lyricsAbort = null;
+  let lyricsLoadingTrack=null, lyricsLoadState="idle", lyricsRetryAt=0, lyricsRetryCount=0;
   let wakeLock = null;
   let wakeWanted = true;
   let vibeBlinkTimer = null;
@@ -989,17 +996,34 @@
   let vibeSpeechTrack=null;
   let vibeSceneStart=-Infinity, vibeSceneUntil=-Infinity, vibeSceneLastPosition=0;
   let vibeSceneKey="", vibeSceneWord=-1;
+  let vibeAccessoryTimer=null, vibeSceneTimer=null;
+  const vibeThemeLastUsed=new Map();
+  const vibeThemeLastProps=new Map();
   const vibeThemes=[
-    {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves|wellen)$/i,props:["🫧","🫧","🐠"],kind:"scene-rise"},
-    {key:"sun",words:/^(sun|sunshine|sunlight|sonne|sonnenschein|summer|sommer)$/i,props:["☀️","✨","✨"],kind:""},
-    {key:"rain",words:/^(rain|raining|regen|regnet|storm|sturm|thunder|gewitter|tears|tränen)$/i,props:["🌧️","💧","💧"],kind:"scene-rain"},
-    {key:"love",words:/^(love|loving|liebe|lieben|liebst|heart|hearts|herz|herzen|kiss|kisses|kuss|küssen)$/i,props:["💕","💗","💖"],kind:"scene-rise"},
-    {key:"fire",words:/^(fire|flame|flames|feuer|flammen|burn|burning|brennen|brennt)$/i,props:["🔥","✨","🔥"],kind:"scene-rise"},
-    {key:"night",words:/^(moon|moonlight|mond|night|nacht|stars|star|sterne|stern|dream|dreams|träume|traum)$/i,props:["🌙","⭐","✨"],kind:""},
-    {key:"snow",words:/^(snow|snowing|schnee|schneit|winter|ice|eis|frozen|gefroren)$/i,props:["❄️","❄️","❄️"],kind:"scene-rain"},
-    {key:"nature",words:/^(flower|flowers|blume|blumen|bloom|blossom|spring|frühling|butterfly|schmetterling|garden|garten)$/i,props:["🦋","🌸","🌼"],kind:""},
-    {key:"fly",words:/^(fly|flying|fliegen|flieg|fliegst|sky|himmel|cloud|clouds|wolken|wings|flügel)$/i,props:["☁️","🕊️","☁️"],kind:""},
-    {key:"party",words:/^(dance|dancing|tanzen|tanz|party|celebrate|feiern|music|musik)$/i,props:["🎵","🎶","✨"],kind:"scene-rise"}
+    {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves?|wellen|beach|strand)$/i,props:["🫧","🐠","🌊","🐬","🐚","🪸","🐟"],kind:"scene-rise"},
+    {key:"sun",words:/^(sun|sunshine|sunlight|sonne|sonnenschein|summer|sommer|sunset|sonnenuntergang)$/i,props:["☀️","🌤️","🌅","🌻","✨","🏖️"],kind:""},
+    {key:"rain",words:/^(rain|raining|regen|regnet|storm|sturm|thunder|gewitter|tears|tränen|umbrella|regenschirm)$/i,props:["🌧️","💧","☔","⛈️","🌂","💦"],kind:"scene-rain"},
+    {key:"love",words:/^(love|loving|liebe|lieben|liebst|heart|hearts|herz|herzen|kiss|kisses|kuss|küssen|baby|darling|schatz)$/i,props:["💕","💗","💖","💘","💌","💋","🌹"],kind:"scene-rise"},
+    {key:"fire",words:/^(fire|flame|flames|feuer|flammen|burn|burning|brennen|brennt|heat|hitze)$/i,props:["🔥","✨","❤️‍🔥","☄️","💥"],kind:"scene-rise"},
+    {key:"night",words:/^(moon|moonlight|mond|night|nacht|stars|star|sterne|stern|dream|dreams|träume|traum)$/i,props:["🌙","⭐","✨","🌠","💫","🌌","🌛"],kind:""},
+    {key:"snow",words:/^(snow|snowing|schnee|schneit|winter|ice|eis|frozen|gefroren|cold|kalt)$/i,props:["❄️","☃️","🌨️","🧊","⛄","🏔️"],kind:"scene-rain"},
+    {key:"nature",words:/^(flowers?|blume|blumen|bloom|blossom|spring|frühling|butterfly|schmetterling|garden|garten|trees?|baum|bäume|forest|wald)$/i,props:["🦋","🌸","🌼","🌿","🌷","🍃","🌳","🌺"],kind:""},
+    {key:"fly",words:/^(fly|flying|fliegen|flieg|fliegst|sky|himmel|clouds?|wolken|wings|flügel|birds?|vogel|vögel)$/i,props:["☁️","🕊️","🪶","🦅","🪽","🪁"],kind:""},
+    {key:"party",words:/^(dance|dancing|tanzen|tanz|party|celebrate|feiern|music|musik|disco|festival)$/i,props:["🎵","🎶","✨","🪩","🎉","🎊","🕺"],kind:"scene-rise"},
+    {key:"rap",words:/^(rap|rapper|rappen|hiphop|hip|flow|bars|mic|microphone|mikrofon|freestyle|rhymes?|reime|beats?)$/i,props:["🎤","🎧","🎵","💿","📻","⚡"],kind:"scene-rise"},
+    {key:"money",words:/^(money|cash|geld|dollar|dollars|euro|million|millionen|rich|reich|gold|diamonds?|diamant|diamanten)$/i,props:["💸","💎","🪙","💰","✨","💵"],kind:"scene-rise"},
+    {key:"travel",words:/^(road|roads|straße|strasse|highway|drive|driving|fahren|car|cars|auto|zug|train|journey|reise|reisen|flight|flug)$/i,props:["🚗","🛣️","🚂","✈️","🧳","🗺️"],kind:""},
+    {key:"city",words:/^(city|cities|stadt|städte|street|streets|straßen|strassen|downtown|neon|skyline)$/i,props:["🌃","🏙️","🚦","🌆","✨"],kind:""},
+    {key:"space",words:/^(space|universe|universum|galaxy|galaxie|planet|planets|rocket|rakete|mars|astronaut)$/i,props:["🚀","🪐","🛸","🌎","🌌","☄️"],kind:""},
+    {key:"time",words:/^(time|zeit|clock|uhr|seconds?|sekunden|minutes?|minuten|forever|ewig|eternity|ewigkeit)$/i,props:["⏳","⌛","🕰️","⌚","✨"],kind:""},
+    {key:"happy",words:/^(happy|happiness|glücklich|glück|smile|smiling|lächeln|laugh|laughing|lachen|joy|freude)$/i,props:["🌈","✨","🎈","🌟","🎉"],kind:"scene-rise"},
+    {key:"sad",words:/^(sad|sadness|traurig|cry|crying|weinen|weep|lonely|einsam|alone|allein|goodbye|abschied)$/i,props:["💧","🥀","☁️","💔","🌧️"],kind:"scene-rain"},
+    {key:"power",words:/^(strong|stronger|stark|stärker|power|kraft|fight|fighting|kämpfen|fighter|kämpfer|win|winner|sieg|champion)$/i,props:["⚡","🏆","💪","🥇","💥"],kind:"scene-rise"},
+    {key:"home",words:/^(home|house|houses|haus|zuhause|heim|family|familie|heimat)$/i,props:["🏠","🗝️","🪴","🏡","💕"],kind:""},
+    {key:"food",words:/^(coffee|kaffee|tea|tee|pizza|candy|süßigkeiten|chocolate|schokolade|honey|honig|sugar|zucker|cake|kuchen)$/i,props:["☕","🍬","🍫","🍰","🍯","🍕"],kind:""},
+    {key:"animals",words:/^(cat|cats|katze|katzen|dog|dogs|hund|hunde|wolf|wolves|wölfe|lion|löwe|tiger|fox|fuchs)$/i,props:["🐈","🐕","🐺","🦁","🐯","🦊"],kind:""},
+    {key:"sleep",words:/^(sleep|sleeping|schlafen|schlaf|tired|müde|pillow|kissen|bed|bett|lullaby|wiegenlied)$/i,props:["💤","🛌","🌙","☁️","⭐"],kind:""},
+    {key:"magic",words:/^(magic|magical|magie|magisch|miracle|wunder|wish|wishes|wunsch|wünsche|fairy|fee)$/i,props:["🪄","✨","🔮","🧚","🌟","💫"],kind:"scene-rise"}
   ];
 
   function showToast(msg){
@@ -1200,8 +1224,11 @@
       lastTrackId=trackId;
       checkLiked(trackId);
       lyricsTrackId=null;
-      loadLyrics(true);
+      lyricsLoadState="idle";
+      lyricsRetryAt=0;
+      lyricsRetryCount=0;
     }
+    ensureBackgroundLyrics();
 
     if(trackId && trackId !== lastVibeTrackId){
       lastVibeTrackId = trackId;
@@ -1532,8 +1559,13 @@
     vibeSceneUntil=-Infinity;
     vibeSceneKey="";
     vibeSceneWord=-1;
+    if(vibeAccessoryTimer) clearTimeout(vibeAccessoryTimer);
+    if(vibeSceneTimer) clearTimeout(vibeSceneTimer);
+    vibeAccessoryTimer=null;
+    vibeSceneTimer=null;
+    vibeThemeLastUsed.clear();
     vibeFace?.classList.remove("singing");
-    if(vibeFace) delete vibeFace.dataset.scene;
+    if(vibeFace){delete vibeFace.dataset.scene;delete vibeFace.dataset.accessory}
     faceScene?.classList.remove("visible");
   }
 
@@ -1556,18 +1588,51 @@
     });
   }
 
-  function showVibeScene(theme,positionMs){
+  function showVibeScene(theme,positionMs,triggerWord=""){
     if(!faceScene) return;
     vibeSceneKey=theme.key;
     vibeSceneStart=positionMs;
     vibeSceneUntil=positionMs+6500;
-    const positions=[[9,15],[76,11],[83,65]];
-    faceScene.innerHTML=theme.props.map((prop,i)=>{
-      const kind=theme.key==="sun" && i===0 ? "scene-sun" : `${theme.kind} ${i ? "small" : ""}`;
-      return `<span class="scene-prop ${kind}" style="left:${positions[i][0]}%;top:${positions[i][1]}%">${prop}</span>`;
+    vibeThemeLastUsed.set(theme.key,positionMs);
+    const relevantProps=[
+      [/^(sun|sunshine|sonne|sonnenschein)$/i,"☀️"], [/^(moon|moonlight|mond)$/i,"🌙"],
+      [/^(diamonds?|diamant|diamanten)$/i,"💎"], [/^(gold)$/i,"🪙"],
+      [/^(coffee|kaffee)$/i,"☕"], [/^(tea|tee)$/i,"🍵"], [/^(pizza)$/i,"🍕"],
+      [/^(honey|honig)$/i,"🍯"], [/^(sugar|zucker|candy|süßigkeiten)$/i,"🍬"], [/^(chocolate|schokolade)$/i,"🍫"],
+      [/^(cat|cats|katze|katzen)$/i,"🐈"], [/^(dog|dogs|hund|hunde)$/i,"🐕"],
+      [/^(wolf|wolves|wölfe)$/i,"🐺"], [/^(lion|löwe)$/i,"🦁"], [/^(tiger)$/i,"🐯"], [/^(fox|fuchs)$/i,"🦊"],
+      [/^(rocket|rakete)$/i,"🚀"], [/^(car|cars|auto|drive|driving|fahren)$/i,"🚗"],
+      [/^(train|zug)$/i,"🚂"], [/^(flight|flug)$/i,"✈️"], [/^(kiss|kisses|kuss|küssen)$/i,"💋"],
+      [/^(flowers?|blume|blumen)$/i,"🌸"], [/^(butterfly|schmetterling)$/i,"🦋"]
+    ];
+    const primary=relevantProps.find(([words])=>words.test(triggerWord))?.[1];
+    const previous=vibeThemeLastProps.get(theme.key);
+    const pool=theme.props.filter(prop=>prop!==primary);
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+    if(!primary && pool[0]===previous && pool.length>1) [pool[0],pool[1]]=[pool[1],pool[0]];
+    const props=primary ? [primary,...pool.slice(0,2)] : pool.slice(0,3);
+    vibeThemeLastProps.set(theme.key,props[0]);
+    const positions=[[5+Math.random()*10,8+Math.random()*14],[70+Math.random()*8,6+Math.random()*12],[77+Math.random()*7,59+Math.random()*13]];
+    faceScene.innerHTML=props.map((prop,i)=>{
+      const kind=prop==="☀️" && i===0 ? "scene-sun" : `${theme.kind} ${i ? "small" : ""}`;
+      return `<span class="scene-prop ${kind}" style="left:${positions[i][0].toFixed(1)}%;top:${positions[i][1].toFixed(1)}%;animation-delay:${(-Math.random()*2).toFixed(2)}s">${prop}</span>`;
     }).join("");
     vibeFace.dataset.scene=theme.key;
     faceScene.classList.add("visible");
+    delete vibeFace.dataset.accessory;
+    if(vibeAccessoryTimer) clearTimeout(vibeAccessoryTimer);
+    if(vibeSceneTimer) clearTimeout(vibeSceneTimer);
+    // Accessories always come off after real elapsed time, including when playback pauses.
+    if(theme.key==="water" || theme.key==="rap"){
+      vibeFace.dataset.accessory=theme.key==="water" ? "snorkel" : "shades";
+      vibeAccessoryTimer=setTimeout(()=>{delete vibeFace.dataset.accessory;vibeAccessoryTimer=null},theme.key==="water" ? 2600 : 4200);
+    }
+    vibeSceneTimer=setTimeout(()=>{
+      faceScene.classList.remove("visible");
+      delete vibeFace.dataset.scene;
+      delete vibeFace.dataset.accessory;
+      vibeSceneTimer=null;
+    },6500);
   }
 
   function updateVibeVocalReaction(positionMs=getCurrentPositionMs()){
@@ -1583,6 +1648,7 @@
     if(positionMs>=vibeSceneUntil){
       faceScene?.classList.remove("visible");
       delete vibeFace.dataset.scene;
+      delete vibeFace.dataset.accessory;
     }
     vibeSpeech={open:0,round:0,long:false};
     if(!playing || !syncedLyrics.length){
@@ -1608,8 +1674,14 @@
       if(token.index!==vibeSceneWord){
         vibeSceneWord=token.index;
         if(positionMs-vibeSceneStart>=8000){
-          const theme=vibeThemes.find(theme=>theme.words.test(token.word));
-          if(theme) showVibeScene(theme,positionMs);
+          let theme=vibeThemes.find(theme=>theme.words.test(token.word));
+          // A rapid, word-dense line is only a rap-style cue, not a genre detector.
+          const row=syncedLyrics[idx];
+          const lineDuration=(syncedLyrics[idx+1]?.time ?? row.time+6000)-row.time;
+          const denseLine=vibeSpeechPlan.length>=10 && lineDuration>0 && vibeSpeechPlan.length/(lineDuration/1000)>=2.8;
+          if(!theme && denseLine) theme=vibeThemes.find(theme=>theme.key==="rap");
+          const lastUsed=theme ? vibeThemeLastUsed.get(theme.key) ?? -Infinity : 0;
+          if(theme && positionMs-lastUsed>=(theme.key==="water" ? 22000 : 14000)) showVibeScene(theme,positionMs,token.word);
         }
       }
     }
@@ -1635,6 +1707,15 @@
     }
   }
 
+  function ensureBackgroundLyrics(){
+    const item=playback?.item;
+    if(!item || item.type!=="track") return;
+    if(lyricsLoadingTrack===item.id) return;
+    if(lyricsTrackId===item.id && ["loaded","unavailable"].includes(lyricsLoadState)) return;
+    if(performance.now()<lyricsRetryAt) return;
+    void loadLyrics(false);
+  }
+
   async function loadLyrics(force=false){
     const item=playback?.item;
     if(!item || item.type!=="track"){
@@ -1647,16 +1728,25 @@
     lyricsTitle.textContent=item.name || "Lyrics";
     lyricsArtist.textContent=getArtists(item);
 
-    if(!force && lyricsTrackId===item.id && lyricsBody.querySelector(".lyrics-lines,.lyrics-plain")) {
+    if(!force && lyricsLoadingTrack===item.id) return;
+    if(!force && lyricsTrackId===item.id && lyricsLoadState==="loaded") {
       updateLyricsPosition(getCurrentPositionMs(),true);
       return;
     }
 
     lyricsTrackId=item.id;
+    lyricsLoadingTrack=item.id;
+    lyricsLoadState="loading";
     renderLyricsState("Lyrics werden geladen …");
 
     if(lyricsAbort) lyricsAbort.abort();
     lyricsAbort=new AbortController();
+    const controller=lyricsAbort;
+    const isCurrent=()=>lyricsAbort===controller && playback?.item?.id===item.id;
+    const retryLater=()=>{
+      lyricsLoadState="retry";
+      lyricsRetryAt=performance.now()+Math.min(60000,4000*2**Math.min(lyricsRetryCount++,4));
+    };
 
     const params=new URLSearchParams({
       track_name:cleanTrackName(item.name),
@@ -1667,25 +1757,33 @@
 
     try{
       const r=await fetch(`https://lrclib.net/api/get?${params.toString()}`,{
-        signal:lyricsAbort.signal,
+        signal:controller.signal,
         headers:{"Accept":"application/json"}
       });
+      if(!isCurrent()) return;
 
       if(r.status===404){
+        lyricsLoadState="unavailable";
         renderLyricsState("Für diesen Song wurden keine Lyrics gefunden.");
         return;
       }
       if(r.status===429){
+        retryLater();
         renderLyricsState("Lyrics-Dienst ist gerade ausgelastet. Bitte später erneut versuchen.");
         return;
       }
       if(!r.ok){
+        retryLater();
         renderLyricsState(`Lyrics konnten nicht geladen werden (${r.status}).`);
         return;
       }
 
       const d=await r.json();
+      if(!isCurrent()) return;
+      lyricsLoadState="loaded";
+      lyricsRetryCount=0;
       if(d.instrumental){
+        lyricsLoadState="unavailable";
         renderLyricsState("Dieser Titel ist als instrumental markiert.");
         return;
       }
@@ -1697,11 +1795,15 @@
       }else if(d.plainLyrics){
         renderPlainLyrics(d.plainLyrics);
       }else{
+        lyricsLoadState="unavailable";
         renderLyricsState("Für diesen Song wurden keine Lyrics gefunden.");
       }
     }catch(e){
-      if(e.name==="AbortError") return;
+      if(e.name==="AbortError" || !isCurrent()) return;
+      retryLater();
       renderLyricsState("Lyrics konnten nicht geladen werden.");
+    }finally{
+      if(lyricsAbort===controller) lyricsLoadingTrack=null;
     }
   }
 
