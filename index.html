@@ -119,45 +119,100 @@
       font-weight:500;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
-    .clock-panel{
+
+
+    .face-panel{
       min-width:0;
       align-self:center;
-      justify-self:stretch;
+      justify-self:end;
       display:flex;
-      flex-direction:column;
-      align-items:flex-end;
+      align-items:center;
       justify-content:center;
-      padding:clamp(50px,9vh,82px) 0 0 clamp(10px,2vw,26px);
-      text-align:right;
+      padding:clamp(10px,1.5vh,18px) 0 0 clamp(10px,2vw,26px);
       user-select:none;
       pointer-events:none;
     }
-    #clockTime{
-      margin:0;
-      color:var(--text);
-      font-size:clamp(58px,10vw,132px);
-      line-height:.82;
-      letter-spacing:-.065em;
-      font-weight:760;
-      font-variant-numeric:tabular-nums;
-      text-shadow:0 3px 22px rgba(0,0,0,.22);
-      white-space:nowrap;
+    .vibe-face{
+      --beat-scale:1;
+      --beat-rotate:0deg;
+      --bounce-y:0px;
+      width:min(34vh,28vw);
+      min-width:170px;
+      max-width:390px;
+      aspect-ratio:1;
+      position:relative;
+      transform:translateY(var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
+      transition:transform .16s ease, filter .16s ease, opacity .16s ease;
+      filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
+      opacity:.95;
+      animation:faceFloat 3.1s ease-in-out infinite;
     }
-    #clockWeekday{
-      margin-top:clamp(15px,2.5vh,25px);
-      color:rgba(255,255,255,.88);
-      font-size:clamp(15px,2vw,25px);
-      font-weight:700;
-      text-transform:capitalize;
-      white-space:nowrap;
+    .vibe-face.playing{animation-duration:2.2s}
+    .vibe-face.beat{
+      --beat-scale:1.05;
+      filter:drop-shadow(0 14px 34px rgba(0,0,0,.32));
     }
-    #clockDate{
-      margin-top:4px;
-      color:var(--muted);
-      font-size:clamp(13px,1.65vw,21px);
-      font-weight:500;
-      white-space:nowrap;
+    @keyframes faceFloat{
+      0%,100%{transform:translateY(0) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
+      50%{transform:translateY(-7px) rotate(calc(var(--beat-rotate) * .65)) scale(var(--beat-scale))}
     }
+    .face-orb{
+      position:absolute;
+      inset:12%;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 42%),
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,.05), transparent 46%);
+      opacity:.38;
+      filter:blur(12px);
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .vibe-face.beat .face-orb{
+      opacity:.5;
+      transform:scale(1.02);
+    }
+    .face-eye{
+      position:absolute;
+      top:35%;
+      width:12.2%;
+      height:12.2%;
+      background:rgba(255,255,255,.93);
+      border-radius:50%;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 8px 18px rgba(0,0,0,.16);
+      transition:transform .12s ease,width .12s ease,height .12s ease,top .12s ease,opacity .12s ease;
+    }
+    .face-eye.left{left:24%}
+    .face-eye.right{right:24%}
+    .vibe-face.blink .face-eye{
+      height:2.4%;
+      top:39.5%;
+      border-radius:999px;
+      transform:scaleY(.55);
+      opacity:.96;
+    }
+    .face-mouth{
+      position:absolute;
+      left:21%;
+      top:52%;
+      width:58%;
+      height:24%;
+      overflow:visible;
+      filter:drop-shadow(0 8px 10px rgba(0,0,0,.10));
+    }
+    .face-mouth path{
+      fill:none;
+      stroke:rgba(255,255,255,.94);
+      stroke-width:9;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .vibe-face.paused{
+      animation-duration:5s;
+      opacity:.82;
+    }
+    .vibe-face.paused .face-orb{opacity:.24}
     .timeline{
       grid-column:1/-1;
       align-self:end;
@@ -576,28 +631,100 @@
       .context{justify-content:center}
       #title{font-size:clamp(28px,8vw,48px)}
       #artists{font-size:clamp(15px,4vw,24px)}
-      .clock-panel{align-items:center;text-align:center;padding:4px 0 0}
-      #clockTime{font-size:clamp(48px,16vw,86px)}
-      #clockWeekday{margin-top:8px}
-      .timeline{padding-bottom:8px}
+  
+
+    .face-panel{
+      min-width:0;
+      align-self:center;
+      justify-self:end;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:clamp(10px,1.5vh,18px) 0 0 clamp(10px,2vw,26px);
+      user-select:none;
+      pointer-events:none;
     }
-    @media (max-height:520px) and (orientation:landscape){
-      .now{
-        grid-template-columns:minmax(145px,34vh) minmax(170px,1fr) minmax(185px,29vw);
-        gap:clamp(12px,2vw,25px);
-        padding-top:8px;
-        padding-bottom:4px;
-      }
-      .art-wrap{width:min(34vh,27vw);min-width:145px}
-      #title{font-size:clamp(22px,3.4vw,38px)}
-      #artists{font-size:clamp(13px,1.8vw,20px)}
-      .clock-panel{padding-top:42px}
-      #clockTime{font-size:clamp(46px,8vw,86px)}
-      #clockWeekday{margin-top:10px;font-size:clamp(13px,1.7vw,18px)}
-      #clockDate{font-size:clamp(12px,1.45vw,16px)}
-      .controls{min-height:68px}
-      .ctrl{width:48px;height:48px}
+    .vibe-face{
+      --beat-scale:1;
+      --beat-rotate:0deg;
+      --bounce-y:0px;
+      width:min(34vh,28vw);
+      min-width:170px;
+      max-width:390px;
+      aspect-ratio:1;
+      position:relative;
+      transform:translateY(var(--bounce-y)) rotate(var(--beat-rotate)) scale(var(--beat-scale));
+      transition:transform .16s ease, filter .16s ease, opacity .16s ease;
+      filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
+      opacity:.95;
+      animation:faceFloat 3.1s ease-in-out infinite;
     }
+    .vibe-face.playing{animation-duration:2.2s}
+    .vibe-face.beat{
+      --beat-scale:1.05;
+      filter:drop-shadow(0 14px 34px rgba(0,0,0,.32));
+    }
+    @keyframes faceFloat{
+      0%,100%{transform:translateY(0) rotate(var(--beat-rotate)) scale(var(--beat-scale))}
+      50%{transform:translateY(-7px) rotate(calc(var(--beat-rotate) * .65)) scale(var(--beat-scale))}
+    }
+    .face-orb{
+      position:absolute;
+      inset:12%;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 42%),
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,.05), transparent 46%);
+      opacity:.38;
+      filter:blur(12px);
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .vibe-face.beat .face-orb{
+      opacity:.5;
+      transform:scale(1.02);
+    }
+    .face-eye{
+      position:absolute;
+      top:35%;
+      width:12.2%;
+      height:12.2%;
+      background:rgba(255,255,255,.93);
+      border-radius:50%;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 8px 18px rgba(0,0,0,.16);
+      transition:transform .12s ease,width .12s ease,height .12s ease,top .12s ease,opacity .12s ease;
+    }
+    .face-eye.left{left:24%}
+    .face-eye.right{right:24%}
+    .vibe-face.blink .face-eye{
+      height:2.4%;
+      top:39.5%;
+      border-radius:999px;
+      transform:scaleY(.55);
+      opacity:.96;
+    }
+    .face-mouth{
+      position:absolute;
+      left:21%;
+      top:52%;
+      width:58%;
+      height:24%;
+      overflow:visible;
+      filter:drop-shadow(0 8px 10px rgba(0,0,0,.10));
+    }
+    .face-mouth path{
+      fill:none;
+      stroke:rgba(255,255,255,.94);
+      stroke-width:9;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .vibe-face.paused{
+      animation-duration:5s;
+      opacity:.82;
+    }
+    .vibe-face.paused .face-orb{opacity:.24}
     @media (max-width:820px) and (orientation:landscape){
       .now{
         grid-template-columns:minmax(145px,34vh) minmax(150px,1fr) minmax(170px,29vw);
@@ -608,9 +735,7 @@
       .art-wrap{width:min(34vh,27vw);min-width:145px}
       #title{font-size:clamp(21px,3.5vw,34px)}
       #artists{font-size:clamp(13px,1.9vw,18px)}
-      #clockTime{font-size:clamp(44px,8vw,74px)}
-      #clockWeekday{font-size:clamp(12px,1.8vw,17px)}
-      #clockDate{font-size:clamp(11px,1.5vw,15px)}
+      .vibe-face{width:min(31vh,24vw);min-width:136px}
     }
   </style>
 </head>
@@ -661,10 +786,15 @@
           <p id="artists">Verbinde dein Spotify-Konto</p>
         </div>
 
-        <aside class="clock-panel" aria-label="Uhrzeit und Datum">
-          <div id="clockTime">--:--</div>
-          <div id="clockWeekday">—</div>
-          <div id="clockDate">—</div>
+        <aside class="face-panel" aria-label="Vibe Face">
+          <div class="vibe-face paused" id="vibeFace">
+            <div class="face-orb" aria-hidden="true"></div>
+            <div class="face-eye left" id="faceEyeLeft"></div>
+            <div class="face-eye right" id="faceEyeRight"></div>
+            <svg class="face-mouth" id="faceMouth" viewBox="0 0 100 50" aria-hidden="true">
+              <path d="M 8 8 C 18 42 82 42 92 8"></path>
+            </svg>
+          </div>
         </aside>
       </main>
 
@@ -812,7 +942,7 @@
   const lyricsBody = $("lyricsBody"), lyricsTitle = $("lyricsTitle"), lyricsArtist = $("lyricsArtist");
   const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
   const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");
-  const clockTime = $("clockTime"), clockWeekday = $("clockWeekday"), clockDate = $("clockDate");
+  const vibeFace = $("vibeFace");
 
   let playback = null;
   let lastTrackId = null;
@@ -830,6 +960,12 @@
   let lyricsAbort = null;
   let wakeLock = null;
   let wakeWanted = true;
+  let vibeBeatTimer = null;
+  let vibeBlinkTimer = null;
+  let vibeAudioCache = {};
+  let vibeTempoMs = 620;
+  let vibeEnergy = 0.55;
+  let lastVibeTrackId = null;
 
   function showToast(msg){
     toast.textContent = msg;
@@ -940,6 +1076,8 @@
     device.textContent="Spotify";
     clearInterval(pollTimer);
     cancelAnimationFrame(animFrame);
+    playback = null;
+    startVibeFace();
   }
 
   function setConnected(){
@@ -1032,6 +1170,13 @@
       }
     }
 
+    if(trackId && trackId !== lastVibeTrackId){
+      lastVibeTrackId = trackId;
+      loadVibeAudio(trackId);
+    }else{
+      startVibeFace();
+    }
+
     startProgressAnimation();
   }
 
@@ -1062,6 +1207,7 @@
         album.textContent="Spotify";
         dot.classList.remove("online");
         device.textContent="Kein aktives Gerät";
+        startVibeFace();
         return;
       }
       if(!r.ok) return;
@@ -1534,23 +1680,81 @@
   });
 
 
-  function updateClock(){
-    const now=new Date();
-    clockTime.textContent=new Intl.DateTimeFormat("de-DE",{
-      hour:"2-digit",
-      minute:"2-digit",
-      hour12:false
-    }).format(now);
 
-    clockWeekday.textContent=new Intl.DateTimeFormat("de-DE",{
-      weekday:"long"
-    }).format(now);
+  function clearVibeTimers(){
+    if(vibeBeatTimer){ clearInterval(vibeBeatTimer); vibeBeatTimer=null; }
+    if(vibeBlinkTimer){ clearTimeout(vibeBlinkTimer); vibeBlinkTimer=null; }
+  }
 
-    clockDate.textContent=new Intl.DateTimeFormat("de-DE",{
-      day:"2-digit",
-      month:"long",
-      year:"numeric"
-    }).format(now);
+  function triggerBeat(){
+    if(!vibeFace || !playback?.is_playing) return;
+    vibeFace.classList.remove("paused");
+    vibeFace.classList.add("playing");
+    const rotate = (Math.random()*2.2 - 1.1) * (0.45 + vibeEnergy*0.65);
+    const bounce = Math.max(3, Math.round(3 + vibeEnergy*7));
+    vibeFace.style.setProperty("--beat-rotate", `${rotate.toFixed(2)}deg`);
+    vibeFace.style.setProperty("--bounce-y", `${-bounce}px`);
+    vibeFace.classList.add("beat");
+    setTimeout(()=>{
+      vibeFace.classList.remove("beat");
+      vibeFace.style.setProperty("--bounce-y","0px");
+      vibeFace.style.setProperty("--beat-rotate","0deg");
+    }, Math.max(120, Math.min(230, vibeTempoMs * 0.33)));
+  }
+
+  function scheduleBlink(){
+    if(vibeBlinkTimer) clearTimeout(vibeBlinkTimer);
+    const delay = Math.round(2000 + Math.random()*3500);
+    vibeBlinkTimer = setTimeout(()=>{
+      if(!vibeFace) return;
+      vibeFace.classList.add("blink");
+      setTimeout(()=>vibeFace.classList.remove("blink"), 170);
+      scheduleBlink();
+    }, delay);
+  }
+
+  function startVibeFace(){
+    clearVibeTimers();
+    if(!vibeFace) return;
+
+    if(playback?.is_playing){
+      vibeFace.classList.remove("paused");
+      vibeFace.classList.add("playing");
+      vibeBeatTimer = setInterval(triggerBeat, vibeTempoMs);
+      triggerBeat();
+    }else{
+      vibeFace.classList.add("paused");
+      vibeFace.classList.remove("playing","beat");
+      vibeFace.style.setProperty("--bounce-y","0px");
+      vibeFace.style.setProperty("--beat-rotate","0deg");
+    }
+    scheduleBlink();
+  }
+
+  async function loadVibeAudio(trackId){
+    if(!trackId) return;
+    if(vibeAudioCache[trackId]){
+      ({tempoMs:vibeTempoMs, energy:vibeEnergy} = vibeAudioCache[trackId]);
+      startVibeFace();
+      return;
+    }
+
+    try{
+      const res = await api(`/audio-features/${trackId}`);
+      if(!res.ok) throw new Error("audio-features");
+      const data = await res.json();
+      const tempo = Number(data?.tempo || 0);
+      const energy = Number(data?.energy ?? 0.55);
+      const tempoMs = tempo > 1 ? Math.max(320, Math.min(900, Math.round(60000/tempo))) : 620;
+
+      vibeAudioCache[trackId] = {tempoMs, energy};
+      vibeTempoMs = tempoMs;
+      vibeEnergy = energy;
+    }catch{
+      vibeTempoMs = 620;
+      vibeEnergy = 0.55;
+    }
+    startVibeFace();
   }
 
   async function boot(){
@@ -1581,9 +1785,8 @@
     }
   }
 
-  updateClock();
-  setInterval(updateClock,1000);
   requestWakeLock();
+  startVibeFace();
   boot();
 </script>
 </body>
