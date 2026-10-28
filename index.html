@@ -740,6 +740,11 @@
     .vibe-face.blink .face-eye{top:35%;height:auto;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scaleY(.08)}
     .expression-props{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:4}
     .expression-props > g{opacity:0;visibility:hidden;transition:opacity .3s ease}
+    .expression-brows{fill:none;stroke:rgba(255,255,255,.94);stroke-width:2.1;stroke-linecap:round;opacity:var(--brow-opacity,0)!important;visibility:visible!important}
+    .expression-brows .brow-left{transform:rotate(var(--brow-angle,0deg));transform-origin:30px 29px}
+    .expression-brows .brow-right{transform:rotate(calc(var(--brow-angle,0deg) * -1));transform-origin:70px 29px}
+    .vibe-face[data-expression="sad"] .prop-tear,.vibe-face[data-expression="laugh"] .prop-cheeks{opacity:1;visibility:visible}
+    .prop-tear{animation:sweatSlide 2s ease-in-out infinite}
     .vibe-face[data-expression="coffee"] .prop-coffee,
     .vibe-face[data-expression="party"] .prop-party,
     .vibe-face[data-expression="sweat"] .prop-sweat{opacity:1;visibility:visible}
@@ -839,6 +844,9 @@
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
             <div class="face-easteregg" id="faceEasteregg" aria-hidden="true"></div>
             <svg class="expression-props" viewBox="0 0 100 100" aria-hidden="true">
+              <g class="expression-brows"><path class="brow-left" d="M 23 29 Q 30 27 37 29"/><path class="brow-right" d="M 63 29 Q 70 27 77 29"/></g>
+              <g class="prop-tear"><path d="M 76 47 Q 71 54 75 56 Q 81 57 76 47" fill="#9bdff7"/></g>
+              <g class="prop-cheeks" fill="#ffb5bd" fill-opacity=".35"><ellipse cx="24" cy="51" rx="5" ry="2.5"/><ellipse cx="76" cy="51" rx="5" ry="2.5"/></g>
               <g class="prop-coffee">
                 <path d="M 71 66 H 77 Q 84 66 83 72 Q 82 78 75 76" fill="none" stroke="#d7bfa6" stroke-width="2.5"/>
                 <path d="M 57 64 H 76 L 74 80 Q 66 85 59 80 Z" fill="#f4e6d4" stroke="#d7bfa6" stroke-width="1.3"/>
@@ -1026,6 +1034,7 @@
   let vibeMotionLast = performance.now();
   let vibeMouthBlend = 0;
   let vibeMouthRound = 0;
+  let vibeMouthWide = 0;
   const vibeMotion = {x:0,y:0,rotate:0,scaleX:1,scaleY:1};
   let vibeSpeech={open:0,round:0,long:false};
   let vibeSpeechPlan=[];
@@ -1037,7 +1046,8 @@
   const vibeThemeLastProps=new Map();
   let vibeExpression="", vibeExpressionStart=0, vibeExpressionEnd=0;
   let vibeNextExpression=performance.now()+6000;
-  const vibeExpressionPose={x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0};
+  const vibeExpressionPose={x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0};
+  let vibeSingleTapTimer=null, vibeReactionFrame=null;
   let vibeEggUntil=0, vibeEggCooldown=0, vibeEggFrame=null;
   let vibeEggTaps=[], vibeEggPointer=null;
   const vibeThemes=[
@@ -1608,13 +1618,14 @@
     vibeExpression="";
     vibeExpressionEnd=0;
     vibeNextExpression=performance.now()+6000;
-    Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0});
+    Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0});
     if(vibeFace){
       delete vibeFace.dataset.expression;
       vibeFace.style.setProperty("--gaze-x","0px");
       vibeFace.style.setProperty("--gaze-y","0px");
       vibeFace.style.setProperty("--eye-open","1");
       vibeFace.style.setProperty("--left-eye-open","1");
+      vibeFace.style.setProperty("--brow-opacity","0");
     }
     vibeFace?.classList.remove("singing");
     if(vibeFace){delete vibeFace.dataset.scene;delete vibeFace.dataset.accessory}
@@ -1680,7 +1691,7 @@
       vibeFace.dataset.accessory=theme.key==="water" ? "snorkel" : "shades";
       vibeAccessoryTimer=setTimeout(()=>{delete vibeFace.dataset.accessory;vibeAccessoryTimer=null},theme.key==="water" ? 2600 : 4200);
     }
-    const sceneExpressions={sun:"sweat",snow:"lookUp",love:"grin",party:"party",magic:"surprise",fly:"lookUp",sad:"sleepy",happy:"grin",rap:"skeptic"};
+    const sceneExpressions={sun:"sweat",snow:"lookUp",love:"grin",party:"laugh",magic:"surprise",fly:"lookUp",sad:"sad",happy:"laugh",rap:"skeptic",power:"determined",time:"thinking"};
     if(theme.key==="food" && /^(coffee|kaffee|tea|tee)$/i.test(triggerWord)) startVibeExpression("coffee",4200);
     else if(sceneExpressions[theme.key]) startVibeExpression(sceneExpressions[theme.key],theme.key==="party" ? 4500 : 3200);
     vibeSceneTimer=setTimeout(()=>{
@@ -1726,7 +1737,7 @@
       const envelope=Math.pow(Math.sin(Math.PI*progress),.45);
       const vowel=/[aeiouyäöü]/i.test(char);
       const closed=/[bmp]/i.test(char);
-      vibeSpeech={open:envelope*(long ? .86 : vowel ? .76 : closed ? .05 : .32),round:/[ouöüw]/i.test(char)?1:.12,long};
+      vibeSpeech={open:envelope*(long ? .86 : vowel ? .76 : closed ? .05 : .32),round:/[ouöüw]/i.test(char)?1:.12,wide:/[aeä]/i.test(char)?1:0,long};
       if(token.index!==vibeSceneWord){
         vibeSceneWord=token.index;
         if(positionMs-vibeSceneStart>=8000){
@@ -1998,6 +2009,8 @@
   function triggerVibeEasteregg(){
     const now=performance.now();
     if(now<vibeEggCooldown) return;
+    if(vibeSingleTapTimer) clearTimeout(vibeSingleTapTimer);
+    vibeSingleTapTimer=null;
     vibeEggUntil=now+7000;
     vibeEggCooldown=vibeEggUntil+3000;
     vibeEggTaps=[];
@@ -2016,7 +2029,7 @@
         vibeEggFrame=null;
         if(!playback){
           Object.assign(vibeMotion,{x:0,y:0,rotate:0,scaleX:1,scaleY:1});
-          Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0});
+          Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0});
           updateVibeMotion(0);
         }
         return;
@@ -2035,6 +2048,12 @@
     if(vibeEggTaps.length && now-vibeEggTaps[vibeEggTaps.length-1]>500) vibeEggTaps=[];
     vibeEggTaps=vibeEggTaps.filter(time=>now-time<=1800);
     vibeEggTaps.push(now);
+    if(vibeSingleTapTimer) clearTimeout(vibeSingleTapTimer);
+    vibeSingleTapTimer=setTimeout(()=>{
+      vibeSingleTapTimer=null;
+      if(vibeEggTaps.length===1 && performance.now()>=vibeEggCooldown) startVibeExpression("angry",2700);
+      vibeEggTaps=[];
+    },520);
     if(vibeEggTaps.length>=5) triggerVibeEasteregg();
   }
 
@@ -2064,6 +2083,14 @@
     vibeExpressionEnd=vibeExpressionStart+duration;
     vibeNextExpression=vibeExpressionEnd+7000+Math.random()*6500;
     if(vibeFace) vibeFace.dataset.expression=name;
+    if(!playback && vibeReactionFrame===null){
+      const tick=()=>{
+        if(playback || performance.now()>vibeExpressionEnd+650){vibeReactionFrame=null;return}
+        if(performance.now()>=vibeEggUntil) updateVibeMotion(0);
+        vibeReactionFrame=requestAnimationFrame(tick);
+      };
+      vibeReactionFrame=requestAnimationFrame(tick);
+    }
   }
 
   function updateVibeExpression(now,dt,playing){
@@ -2078,12 +2105,12 @@
       delete vibeFace.dataset.expression;
     }
     if(!vibeExpression && now>=vibeNextExpression && !reducedFaceMotion.matches){
-      const gestures=playing ? ["sideLeft","sideRight","wink","grin","skeptic","surprise"] : ["sleepy","sideLeft","sideRight","wink"];
+      const gestures=playing ? ["sideLeft","sideRight","wink","grin","skeptic","surprise","laugh","thinking","determined"] : ["sleepy","sideLeft","sideRight","wink","thinking","pout"];
       startVibeExpression(gestures[Math.floor(Math.random()*gestures.length)],2800+Math.random()*1000);
     }
     const progress=Math.max(0,Math.min(1,(now-vibeExpressionStart)/Math.max(1,vibeExpressionEnd-vibeExpressionStart)));
     const envelope=vibeExpression ? Math.pow(Math.max(0,Math.sin(Math.PI*progress)),.5) : 0;
-    let x=0,y=0,eye=1,left=1,tilt=0,smile=0,open=0;
+    let x=0,y=0,eye=1,left=1,tilt=0,smile=0,open=0,brow=0,browOpacity=0;
     switch(vibeExpression){
       case "sideLeft":x=-4*envelope;tilt=-2*envelope;break;
       case "sideRight":x=4*envelope;tilt=2*envelope;break;
@@ -2095,14 +2122,22 @@
       case "surprise":y=-1.6*envelope;open=.55*envelope;tilt=-1.2*envelope;break;
       case "coffee":eye=left=1-.35*envelope;y=1.5*envelope;tilt=-2.8*envelope;break;
       case "party":eye=left=1-.2*envelope;tilt=Math.sin(now/190)*2*envelope;smile=4*envelope;break;
+      case "angry":eye=left=1-.42*envelope;brow=24*envelope;browOpacity=envelope;smile=-44*envelope;x=Math.sin(now/65)*1.2*envelope;tilt=-2*envelope;break;
+      case "sad":eye=left=1-.3*envelope;brow=-21*envelope;browOpacity=envelope;smile=-53*envelope;y=2*envelope;tilt=-3*envelope;break;
+      case "laugh":eye=left=1-.78*envelope;open=(.3+.24*(.5+.5*Math.sin(now/95)))*envelope;smile=9*envelope;y=-Math.abs(Math.sin(now/100))*2.5*envelope;tilt=Math.sin(now/210)*2*envelope;break;
+      case "thinking":x=3*envelope;y=-2*envelope;left=1-.35*envelope;brow=-10*envelope;browOpacity=.7*envelope;smile=-22*envelope;tilt=4*envelope;break;
+      case "determined":eye=left=1-.18*envelope;brow=15*envelope;browOpacity=.8*envelope;smile=-14*envelope;tilt=-1.5*envelope;break;
+      case "pout":eye=left=1-.17*envelope;smile=-39*envelope;brow=-12*envelope;browOpacity=.6*envelope;open=.16*envelope;break;
     }
     const ease=1-Math.exp(-dt/95);
-    const target={x,y,eye,left,tilt,smile,open};
+    const target={x,y,eye,left,tilt,smile,open,brow,browOpacity};
     for(const key of Object.keys(target)) vibeExpressionPose[key]+=(target[key]-vibeExpressionPose[key])*ease;
     vibeFace.style.setProperty("--gaze-x",`${vibeExpressionPose.x.toFixed(2)}px`);
     vibeFace.style.setProperty("--gaze-y",`${vibeExpressionPose.y.toFixed(2)}px`);
     vibeFace.style.setProperty("--eye-open",vibeExpressionPose.eye.toFixed(3));
     vibeFace.style.setProperty("--left-eye-open",vibeExpressionPose.left.toFixed(3));
+    vibeFace.style.setProperty("--brow-angle",`${vibeExpressionPose.brow.toFixed(2)}deg`);
+    vibeFace.style.setProperty("--brow-opacity",vibeExpressionPose.browOpacity.toFixed(3));
   }
 
   function updateVibeMotion(positionMs=0){
@@ -2166,17 +2201,18 @@
     const mouthEase=1-Math.exp(-dt/105);
     vibeMouthBlend+=(Math.max(playing?vibeSpeech.open:0,vibeExpressionPose.open)-vibeMouthBlend)*mouthEase;
     vibeMouthRound+=(vibeSpeech.round-vibeMouthRound)*mouthEase;
+    vibeMouthWide+=((vibeSpeech.wide || 0)-vibeMouthWide)*mouthEase;
     const breathe=.65*Math.sin(now/720);
     // One closed contour: its two curves coincide at rest, then stretch apart.
     const opening=Math.min(1,vibeMouthBlend/.75);
     const morph=opening*opening*(3-2*opening);
-    const left=8+morph*(18+vibeMouthRound*10);
+    const left=8+morph*(18+vibeMouthRound*10-vibeMouthWide*5);
     const right=100-left;
     const endY=8+morph*14;
     const controlLeft=18+(left-18)*morph;
     const controlRight=100-controlLeft;
     const smileDepth=42+breathe+vibeExpressionPose.smile;
-    const halfHeight=10+vibeMouthRound*5;
+    const halfHeight=10+vibeMouthRound*5-vibeMouthWide*2;
     const upper=smileDepth*(1-morph)+(endY-halfHeight*4/3)*morph;
     const lower=smileDepth*(1-morph)+(endY+halfHeight*4/3)*morph;
     faceMouthPath.setAttribute("d",`M ${left.toFixed(2)} ${endY.toFixed(2)} C ${controlLeft.toFixed(2)} ${upper.toFixed(2)} ${controlRight.toFixed(2)} ${upper.toFixed(2)} ${right.toFixed(2)} ${endY.toFixed(2)} C ${controlRight.toFixed(2)} ${lower.toFixed(2)} ${controlLeft.toFixed(2)} ${lower.toFixed(2)} ${left.toFixed(2)} ${endY.toFixed(2)} Z`);
