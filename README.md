@@ -89,7 +89,43 @@ To enable GitHub Pages on a **private** repository, you must use a specific setu
 ## ⚠️ Requirements
 
   * **Spotify Premium:** Playback control functions (Play/Pause, Skip, Volume) require a **Spotify Premium** subscription due to Spotify API restrictions.
-  * **Active Device:** You must have Spotify actively playing on another device (like your phone or computer) for SpotDeck to display playback data and allow controls.
+  * **Playback device:** Use another active Spotify Connect device in controller mode, or start the local browser player described below.
+
+## Browser playback and Vibe Face settings
+
+Open **Einstellungen → Wiedergabe**:
+
+- **Andere Geräte steuern** keeps the existing controller mode. Choose an available Spotify Connect device in the device list to transfer the current playback; its play/pause state is preserved.
+- **Auf diesem Gerät abspielen** prepares the official Spotify Web Playback SDK. Existing controller logins remain valid, but local playback requires reconnecting once to grant `streaming`, `user-read-email` and `user-read-private`. Then choose local playback again and press **Auf diesem Gerät starten**. No browser playback starts merely by opening the settings.
+- Spotify Premium, HTTPS and browser support for protected media are required. The Spotify developer app must be configured for the Web Playback SDK. A local-device registration or mock test alone does not prove audible playback on a particular device.
+- If playback is blocked by autoplay rules, press the start button again. On some systems, especially iOS, volume is controlled on the device itself.
+- TV browsers are not guaranteed to support Spotify DRM, even if ordinary video works. When unsupported, keep controller mode or run SpotDeck on a mini-PC connected to the TV by HDMI.
+
+The SDK is loaded only when local playback is requested. Tokens stay in the existing PKCE/session flow; no client secret or account credentials are embedded. A shared refresh operation prevents competing token refreshes. Logout disconnects the local player.
+
+**Einstellungen → Vibe-Face-Bewegung** offers Systemstandard, Reduzierte Bewegung, Normale Animation and Lebhafte Animation. The default follows the operating system; explicitly choosing Normal or Lively overrides its reduced-motion preference. Reduced mode limits head movement while keeping expressions, lyrics and interactions available.
+
+Vibe Face uses one animation loop for idle behaviour, dance, lyric mouth movements and the Easteregg. The loop pauses in hidden tabs and updates at approximately 30 fps (15 fps in reduced mode). It occasionally looks around, daydreams, yawns, crosses its eyes or briefly stumbles and recovers while dancing. These are original character gestures, inspired by playful small companions, not copied assets.
+
+Single taps vary between shy, cheeky, happy and surprised reactions; shorter multi-tap sequences produce confused or playfully annoyed reactions. **Five taps/clicks** within 2.6 seconds, with gaps no longer than 650 ms, trigger seven seconds of Vibe Overdrive. Dragging, long presses, multi-touch and duplicate synthetic clicks do not count. Enter/Space on the focused face also work.
+
+Optional quiet interaction sounds are disabled by default. Enable **Leise Fantasiegeräusche** to hear short, rate-limited electronic chirps. They use a separate low-volume audio source and do not process Spotify audio.
+
+Lyrics-based singing remains an approximation from synchronized LRC line times, not phoneme or live-audio analysis. Without synchronized lyrics, idle expressions and dance still work. Tempo/energy use Spotify audio features when accessible; otherwise a default tempo is used.
+
+### Verification
+
+Run the dependency-free, offline integration checks with:
+
+```sh
+node tests/spotdeck.test.cjs
+```
+
+They cover reduced-motion overrides, idle animation, one RAF loop, hidden-tab suspension, mouse/touch fallback, ghost clicks, the five-tap Easteregg, simulated SDK initialization and commands, transfer requests, metadata, library playback, scope upgrade and DRM/account fallback. No real account or token is used.
+
+On 2026-10-29 the actual Chromium-based in-app browser was checked at desktop and 844 × 390 viewports: settings, explicit normal motion with OS reduction enabled, idle reactions and five real mouse clicks passed. Firefox native automation was stopped by the testing tool's URL-policy limitation at its profile chooser. Separate Chrome/Edge, Safari, iOS, Android, smart-TV hardware and audible Premium playback have **not** been certified by these checks and need a device/account test.
+
+Official references: [Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk), [SDK reference and autoplay activation](https://developer.spotify.com/documentation/web-playback-sdk/reference), [required player scopes](https://developer.spotify.com/documentation/web-playback-sdk/howtos/web-app-player/).
 
 ## 📃 License
 

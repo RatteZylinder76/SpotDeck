@@ -734,9 +734,12 @@
     .egg-confetti{position:absolute;left:var(--egg-x);top:12%;font-size:clamp(14px,3vh,28px);animation:eggConfetti 2.8s ease-out infinite;animation-delay:var(--egg-delay)}
     .egg-caption{position:absolute;top:80%;left:0;width:100%;text-align:center;font-size:clamp(10px,1.6vh,15px);font-weight:800;letter-spacing:.13em;color:#e8d4ff;text-shadow:0 0 14px #c38af0}
     @keyframes eggConfetti{0%{transform:translate(0,-12px) rotate(-20deg) scale(.7);opacity:0}15%,65%{opacity:.95}100%{transform:translate(var(--egg-drift),120px) rotate(190deg) scale(1);opacity:0}}
-    @media(prefers-reduced-motion:reduce){.egg-confetti{animation:none;top:var(--egg-x)}}
-    .vibe-face .face-eye{height:auto;aspect-ratio:1;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--eye-open,1));transition:transform .12s ease}
+    .vibe-face[data-motion="reduced"] .egg-confetti{animation:none;top:var(--egg-x)}
+    .vibe-face .face-eye{height:auto;aspect-ratio:1;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--eye-open,1));transition:transform .12s ease,margin .3s ease}
     .vibe-face .face-eye.left{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--left-eye-open,var(--eye-open,1)))}
+    .vibe-face[data-expression="crossEyed"] .face-eye.left{margin-left:4px}
+    .vibe-face[data-expression="crossEyed"] .face-eye.right{margin-right:4px}
+    .vibe-face[data-expression="shy"] .prop-cheeks,.vibe-face[data-expression="bashful"] .prop-cheeks{opacity:1;visibility:visible}
     .vibe-face.blink .face-eye{top:35%;height:auto;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scaleY(.08)}
     .expression-props{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:4}
     .expression-props > g{opacity:0;visibility:hidden;transition:opacity .3s ease}
@@ -754,7 +757,7 @@
     @keyframes coffeeSip{0%,100%{transform:translate(5px,9px) rotate(0deg)}35%,65%{transform:translate(-6px,-1px) rotate(-12deg)}}
     @keyframes steamFloat{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:.7;transform:translateY(-3px)}}
     @keyframes sweatSlide{0%,100%{transform:translateY(0)}60%{transform:translateY(5px)}}
-    @media(prefers-reduced-motion:reduce){.expression-props g{animation:none}}
+    .vibe-face[data-motion="reduced"] .expression-props g{animation:none}
     #faceMouthPath{fill:rgba(255,255,255,.94)}
     .face-scene{position:absolute;inset:-12%;pointer-events:none;opacity:0;transition:opacity .65s ease;z-index:3}
     .face-scene.visible{opacity:1}
@@ -773,7 +776,16 @@
     @keyframes sunFly{0%{transform:translate(-10px,28px) rotate(-25deg);opacity:0}15%{opacity:1}50%{transform:translate(80px,-20px) rotate(10deg)}85%{opacity:1}100%{transform:translate(190px,20px) rotate(40deg);opacity:0}}
     @keyframes bubbleRise{0%{transform:translateY(25px) scale(.6);opacity:0}20%,70%{opacity:.9}100%{transform:translate(10px,-70px) scale(1.2);opacity:0}}
     @keyframes rainFall{0%{transform:translate(0,-20px);opacity:0}20%,80%{opacity:.8}100%{transform:translate(-15px,70px);opacity:0}}
-    @media(prefers-reduced-motion:reduce){.scene-prop{animation:none}.face-scene{transition:none}.vibe-face{will-change:auto}}
+    .vibe-face[data-motion="reduced"] .scene-prop{animation:none}
+    .vibe-face[data-motion="reduced"] .face-scene{transition:none}
+    .vibe-face[data-motion="reduced"]{will-change:auto}
+    .panel{max-height:calc(100dvh - 28px);overflow-y:auto}
+    .setting-field{display:block;width:100%;margin:6px 0 14px;padding:10px 12px;border-radius:10px;color:var(--text);background:#162522;border:1px solid #ffffff24}
+    .setting-note{font-size:12px;line-height:1.5;color:var(--muted);margin:8px 0 14px}
+    .setting-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0}
+    .setting-action{padding:10px 13px;background:#264a3c;color:#f4f7f6;border-radius:10px;cursor:pointer}
+    .setting-action:disabled{opacity:.5;cursor:wait}
+    .setting-row input{accent-color:var(--accent)}
   </style>
 </head>
 <body>
@@ -960,11 +972,31 @@
       <div class="panel-head"><h2>Einstellungen</h2><button class="close" id="closeSettings" aria-label="Schließen">×</button></div>
       <div class="label">Aktives Gerät</div>
       <div class="device" id="settingsDevice">—</div>
+      <label class="label" for="playbackMode">Wiedergabe</label>
+      <select class="setting-field" id="playbackMode">
+        <option value="controller">Andere Geräte steuern</option>
+        <option value="local">Auf diesem Gerät abspielen</option>
+      </select>
+      <button class="setting-action" id="localPlaybackBtn" hidden>Auf diesem Gerät starten</button>
+      <button class="setting-action" id="sdkAuthBtn" hidden>Spotify für lokale Wiedergabe verbinden</button>
+      <p class="setting-note" id="playerStatus" role="status" aria-live="polite">Controller-Modus: Spotify auf einem anderen Gerät starten.</p>
+      <label class="label" for="devicePicker">Spotify-Gerät</label>
+      <select class="setting-field" id="devicePicker"><option value="">Geräte laden …</option></select>
+      <button class="setting-action" id="refreshDevices">Geräte aktualisieren</button>
+      <p class="setting-note">Lokale Wiedergabe benötigt Spotify Premium und einen Browser mit geschützter Audiowiedergabe. TV-Browser werden nicht immer unterstützt; alternativ funktioniert ein Mini-PC per HDMI.</p>
       <div class="label">Lautstärke</div>
       <div class="vol-row">
         <input id="volumeSlider" type="range" min="0" max="100" value="50">
         <span id="volumeValue">50%</span>
       </div>
+      <label class="label" for="motionSetting">Vibe-Face-Bewegung</label>
+      <select class="setting-field" id="motionSetting">
+        <option value="system">Systemstandard</option><option value="reduced">Reduzierte Bewegung</option>
+        <option value="normal">Normale Animation</option><option value="lively">Lebhafte Animation</option>
+      </select>
+      <p class="setting-note" id="motionStatus"></p>
+      <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
+      <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <button class="danger" id="logoutBtn">Spotify trennen</button>
     </div>
   </div>
@@ -988,7 +1020,8 @@
     "user-library-read",
     "user-library-modify",
     "playlist-read-private",
-    "playlist-read-collaborative"
+    "playlist-read-collaborative",
+    "streaming","user-read-email","user-read-private"
   ];
 
   const $ = id => document.getElementById(id);
@@ -1007,6 +1040,16 @@
   const vibeFace = $("vibeFace"), faceMouth = $("faceMouth"), faceMouthPath = $("faceMouthPath");
   const faceScene=$("faceScene");
   const reducedFaceMotion=matchMedia("(prefers-reduced-motion: reduce)");
+  const motionSetting=$("motionSetting"), motionStatus=$("motionStatus"), faceSoundSetting=$("faceSoundSetting");
+  const playbackModeSelect=$("playbackMode"), devicePicker=$("devicePicker"), playerStatus=$("playerStatus");
+  const localPlaybackBtn=$("localPlaybackBtn"), sdkAuthBtn=$("sdkAuthBtn"), refreshDevicesBtn=$("refreshDevices");
+  const facePreferences=readFacePreferences();
+  let frameLast=0, progressLast=0;
+  let faceAudioContext=null, lastFaceSound=-Infinity;
+  let tokenRefreshPromise=null;
+  let localPlayer=null, localDeviceId=null, localPlayerPromise=null, sdkScriptPromise=null;
+  let localPlayerEpoch=0, localStateLast=0, deviceRefreshEpoch=0, localPlayerCancel=null;
+  let playbackMode="controller", deviceList=[], localVolume=.5, deviceTransferBusy=false;
 
   let playback = null;
   let lastTrackId = null;
@@ -1047,8 +1090,10 @@
   let vibeExpression="", vibeExpressionStart=0, vibeExpressionEnd=0;
   let vibeNextExpression=performance.now()+6000;
   const vibeExpressionPose={x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0};
-  let vibeSingleTapTimer=null, vibeReactionFrame=null;
-  let vibeEggUntil=0, vibeEggCooldown=0, vibeEggFrame=null;
+  let vibeSingleTapTimer=null;
+  let vibeTapReactionUntil=0, vibeTapReactionLast="";
+  let vibeNextStumble=performance.now()+45000+Math.random()*40000, vibeStumbleStart=-Infinity;
+  let vibeEggUntil=0, vibeEggCooldown=0;
   let vibeEggTaps=[], vibeEggPointer=null;
   const vibeThemes=[
     {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves?|wellen|beach|strand)$/i,props:["🫧","🐠","🌊","🐬","🐚","🪸","🐟"],kind:"scene-rise"},
@@ -1084,6 +1129,53 @@
     toastTimer = setTimeout(()=>toast.classList.remove("show"),1800);
   }
 
+  function readFacePreferences(){
+    try{
+      const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
+      return {motion:["system","reduced","normal","lively"].includes(saved.motion)?saved.motion:"system",sound:saved.sound===true};
+    }catch{return {motion:"system",sound:false}}
+  }
+  function motionLevel(){
+    const mode=facePreferences.motion;
+    if(mode==="reduced" || (mode==="system" && reducedFaceMotion.matches)) return 0;
+    return mode==="lively" ? 1.4 : 1;
+  }
+  function applyFacePreferences(){
+    vibeFace.dataset.motion=motionLevel()===0 ? "reduced" : facePreferences.motion==="lively" ? "lively" : "normal";
+    motionSetting.value=facePreferences.motion;
+    faceSoundSetting.checked=facePreferences.sound;
+    motionStatus.textContent=motionLevel()===0 ? "Bewegung reduziert. Mimik, Antippen und Easteregg bleiben aktiv." : "Bewegung aktiv – auch ohne laufende Musik.";
+    try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
+    startProgressAnimation();
+  }
+  function playFaceSound(name="happy"){
+    if(!facePreferences.sound || document.visibilityState!=="visible" || performance.now()-lastFaceSound<1400) return;
+    const AudioCtx=window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+    try{
+      faceAudioContext ||= new AudioCtx();
+      void faceAudioContext.resume().catch(()=>{});
+      lastFaceSound=performance.now();
+      const notes=name==="angry" || name==="confused" ? [330,290,350] : [620,820,720];
+      notes.forEach((hz,i)=>{
+        const at=faceAudioContext.currentTime+i*.085;
+        const osc=faceAudioContext.createOscillator(),gain=faceAudioContext.createGain();
+        osc.type="sine";osc.frequency.setValueAtTime(hz,at);osc.frequency.exponentialRampToValueAtTime(hz*1.12,at+.055);
+        gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(.018,at+.012);gain.gain.exponentialRampToValueAtTime(.0001,at+.075);
+        osc.connect(gain);gain.connect(faceAudioContext.destination);osc.start(at);osc.stop(at+.085);
+        osc.onended=()=>{osc.disconnect();gain.disconnect()};
+      });
+    }catch{}
+  }
+  function unlockFaceSound(){
+    if(!facePreferences.sound) return;
+    try{
+      const AudioCtx=window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtx) return;
+      faceAudioContext ||= new AudioCtx();void faceAudioContext.resume().catch(()=>{});
+    }catch{}
+  }
+
   function msToTime(ms){
     const s = Math.max(0,Math.floor(ms/1000));
     return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
@@ -1106,7 +1198,9 @@
 
   async function beginAuth(){
     const verifier=randomString();
+    const state=randomString(32);
     sessionStorage.setItem("spotdeck.verifier",verifier);
+    sessionStorage.setItem("spotdeck.authState",state);
     const challenge=b64url(await sha256(verifier));
     const u=new URL("https://accounts.spotify.com/authorize");
     u.searchParams.set("response_type","code");
@@ -1116,6 +1210,7 @@
     u.searchParams.set("code_challenge_method","S256");
     u.searchParams.set("code_challenge",challenge);
     u.searchParams.set("show_dialog","true");
+    u.searchParams.set("state",state);
     location.href=u.toString();
   }
 
@@ -1140,13 +1235,14 @@
       access_token:d.access_token,
       refresh_token:d.refresh_token,
       expires_at:Date.now()+(d.expires_in-60)*1000,
-      auth_version:AUTH_VERSION
+      auth_version:AUTH_VERSION,
+      scopes:(d.scope || "").split(/\s+/)
     });
     sessionStorage.removeItem("spotdeck.verifier");
     history.replaceState({},document.title,REDIRECT_URI);
   }
 
-  async function refreshIfNeeded(){
+  async function refreshSessionToken(){
     const s=loadSession();
     if(!s) return false;
     if(Date.now()<s.expires_at) return true;
@@ -1164,9 +1260,15 @@
     const d=await r.json();
     s.access_token=d.access_token;
     if(d.refresh_token) s.refresh_token=d.refresh_token;
+    if(d.scope) s.scopes=d.scope.split(/\s+/);
     s.expires_at=Date.now()+(d.expires_in-60)*1000;
     saveSession(s);
     return true;
+  }
+
+  function refreshIfNeeded(){
+    if(!tokenRefreshPromise) tokenRefreshPromise=refreshSessionToken().finally(()=>{tokenRefreshPromise=null});
+    return tokenRefreshPromise;
   }
 
   async function api(path,options={}){
@@ -1180,13 +1282,203 @@
     return r;
   }
 
+  function localPlaybackSupported(){
+    return window.isSecureContext && typeof navigator.requestMediaKeySystemAccess==="function";
+  }
+  function hasStreamingScope(){
+    const scopes=loadSession()?.scopes || [];
+    return ["streaming","user-read-email","user-read-private"].every(scope=>scopes.includes(scope));
+  }
+  function isLocalPlayback(){
+    return playbackMode==="local" && localPlayer && localDeviceId && playback?.device?.id===localDeviceId;
+  }
+  function playerMessage(message){playerStatus.textContent=message}
+  function teardownLocalPlayer(){
+    localPlayerEpoch++;
+    if(localPlayerCancel){localPlayerCancel();localPlayerCancel=null}
+    if(localPlayer){try{localPlayer.disconnect()}catch{}}
+    localPlayer=null;localDeviceId=null;localPlayerPromise=null;localStateLast=0;
+    localPlaybackBtn.disabled=false;
+  }
+  function localPlayerFailure(message){
+    teardownLocalPlayer();playbackMode="controller";playbackModeSelect.value="controller";
+    localPlaybackBtn.hidden=true;
+    playerMessage(`${message} Andere Geräte lassen sich weiterhin steuern. Bei einem TV hilft alternativ ein Mini-PC per HDMI.`);
+  }
+  function loadPlaybackSDK(){
+    if(window.Spotify?.Player) return Promise.resolve();
+    if(sdkScriptPromise) return sdkScriptPromise;
+    sdkScriptPromise=new Promise((resolve,reject)=>{
+      const timeout=setTimeout(()=>finish(new Error("Spotify-Player konnte nicht geladen werden. Verbindung oder Inhaltsblocker prüfen.")),15000);
+      const previous=window.onSpotifyWebPlaybackSDKReady;
+      let script;
+      function finish(error){
+        clearTimeout(timeout);
+        window.onSpotifyWebPlaybackSDKReady=previous;
+        if(error){script?.remove();reject(error)}else resolve();
+      }
+      window.onSpotifyWebPlaybackSDKReady=()=>{finish();if(typeof previous==="function") previous()};
+      script=document.createElement("script");script.src="https://sdk.scdn.co/spotify-player.js";script.async=true;
+      script.onerror=()=>finish(new Error("Spotify-Player ist nicht erreichbar. Bitte später erneut versuchen."));
+      document.head.append(script);
+    }).catch(error=>{sdkScriptPromise=null;throw error});
+    return sdkScriptPromise;
+  }
+  function renderLocalState(state){
+    if(!state || playbackMode!=="local" || !localDeviceId) return;
+    const current=state.track_window?.current_track;
+    if(!current) return;
+    localStateLast=performance.now();
+    renderPlayback({
+      item:{...current,type:current.type || "track",duration_ms:state.duration || current.duration_ms},
+      progress_ms:state.position || 0,is_playing:!state.paused,
+      shuffle_state:state.shuffle,
+      device:{id:localDeviceId,name:"SpotDeck – dieses Gerät",is_active:true,volume_percent:Math.round(localVolume*100)}
+    });
+  }
+  function prepareLocalPlayback(){
+    if(localPlayerPromise) return localPlayerPromise;
+    if(localPlayer && localDeviceId) return Promise.resolve(localDeviceId);
+    if(!loadSession()){
+      localPlaybackBtn.hidden=true;sdkAuthBtn.hidden=false;playerMessage("Bitte Spotify verbinden, um auf diesem Gerät abzuspielen.");return Promise.resolve(null);
+    }
+    if(!hasStreamingScope()){
+      localPlaybackBtn.hidden=true;sdkAuthBtn.hidden=false;playerMessage("Für lokale Wiedergabe bitte Spotify einmal mit den zusätzlichen Player-Berechtigungen verbinden. Der Controller bleibt nutzbar.");return Promise.resolve(null);
+    }
+    sdkAuthBtn.hidden=true;
+    if(!localPlaybackSupported()){
+      localPlayerFailure("Dieser Browser bietet keine passende geschützte Audiowiedergabe über HTTPS.");return Promise.resolve(null);
+    }
+    const epoch=++localPlayerEpoch;
+    playerMessage("Spotify-Player wird vorbereitet …");localPlaybackBtn.hidden=false;localPlaybackBtn.disabled=true;
+    localPlayerPromise=(async()=>{
+      await loadPlaybackSDK();
+      if(epoch!==localPlayerEpoch) return null;
+      return await new Promise((resolve,reject)=>{
+        let settled=false;
+        const timeout=setTimeout(()=>fail("Der Browser-Player wird nicht bereit. Bitte DRM-Einstellungen oder Browser-Unterstützung prüfen."),20000);
+        const finish=id=>{if(settled)return;settled=true;clearTimeout(timeout);localPlayerCancel=null;resolve(id)};
+        localPlayerCancel=()=>finish(null);
+        const fail=message=>{
+          if(epoch!==localPlayerEpoch) return;
+          if(!settled){settled=true;clearTimeout(timeout);reject(new Error(message))}
+          localPlayerCancel=null;
+          localPlayerFailure(message);
+        };
+        const player=new window.Spotify.Player({
+          name:"SpotDeck – dieses Gerät",volume:localVolume,enableMediaSession:true,
+          getOAuthToken:callback=>{
+            refreshIfNeeded().then(ok=>{
+              if(epoch!==localPlayerEpoch) return;
+              if(!ok) {callback("");fail("Spotify-Anmeldung abgelaufen. Bitte erneut verbinden.");return}
+              callback(loadSession().access_token);
+            }).catch(()=>{if(epoch===localPlayerEpoch){callback("");fail("Spotify-Anmeldung konnte nicht aktualisiert werden.")}});
+          }
+        });
+        localPlayer=player;
+        player.addListener("ready",({device_id})=>{
+          if(epoch!==localPlayerEpoch) return;
+          localDeviceId=device_id;localPlaybackBtn.disabled=false;
+          playerMessage("Bereit. Zum Übernehmen der Wiedergabe auf „Auf diesem Gerät starten“ tippen.");
+          finish(device_id);void refreshSpotifyDevices();
+        });
+        player.addListener("not_ready",()=>{
+          if(epoch!==localPlayerEpoch) return;
+          fail("Das lokale Spotify-Gerät ist nicht mehr erreichbar. Bitte erneut starten.");
+        });
+        player.addListener("player_state_changed",state=>{if(epoch===localPlayerEpoch) renderLocalState(state)});
+        player.addListener("autoplay_failed",()=>{
+          if(epoch===localPlayerEpoch) playerMessage("Der Browser wartet auf eine Berührung. Bitte noch einmal „Auf diesem Gerät starten“ drücken.");
+        });
+        player.addListener("initialization_error",()=>fail("Dieser Browser unterstützt Spotify-Audio oder den benötigten DRM-Schutz nicht."));
+        player.addListener("authentication_error",()=>fail("Spotify hat die Player-Anmeldung abgelehnt. Bitte erneut verbinden."));
+        player.addListener("account_error",()=>fail("Lokale Spotify-Wiedergabe benötigt ein berechtigtes Spotify-Premium-Konto."));
+        player.addListener("playback_error",()=>{
+          if(epoch===localPlayerEpoch) playerMessage("Der Titel konnte lokal nicht gestartet werden. Bitte erneut starten oder ein anderes Gerät wählen.");
+        });
+        player.connect().then(ok=>{if(!ok) fail("Verbindung zum Spotify-Player nicht möglich.")}).catch(()=>fail("Verbindung zum Spotify-Player fehlgeschlagen."));
+      });
+    })().catch(error=>{
+      if(epoch===localPlayerEpoch) localPlayerFailure(error.message);
+      return null;
+    }).finally(()=>{if(epoch===localPlayerEpoch) localPlayerPromise=null});
+    return localPlayerPromise;
+  }
+  async function transferPlayback(id,play){
+    const r=await api("/me/player",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({device_ids:[id],play:!!play})});
+    if(!r.ok) throw new Error(r.status===403 ? "Spotify erlaubt den Gerätewechsel nicht. Premium und Geräteberechtigung prüfen." : "Gerätewechsel fehlgeschlagen. Gerät in Spotify öffnen und erneut versuchen.");
+  }
+  async function startLocalPlayback(){
+    // Must run synchronously in this click event, before any await (autoplay on iOS).
+    if(deviceTransferBusy) return;
+    const activation=localPlayer?.activateElement();
+    if(!localPlayer || !localDeviceId){
+      await prepareLocalPlayback();return;
+    }
+    deviceTransferBusy=true;localPlaybackBtn.disabled=true;
+    try{
+      await activation;
+      await transferPlayback(localDeviceId,true);
+      playbackMode="local";playbackModeSelect.value="local";
+      if(!playback?.device || playback.device.id!==localDeviceId){
+        playback={...(playback || {}),device:{id:localDeviceId,name:"SpotDeck – dieses Gerät",volume_percent:Math.round(localVolume*100)}};
+      }
+      renderDevicePicker();
+      playerMessage("Wiedergabe auf diesem Gerät angefordert. Falls noch kein Song gewählt ist, bitte einen Titel aus der Bibliothek starten.");
+      setTimeout(()=>{void poll();void refreshSpotifyDevices()},500);
+    }catch(error){playerMessage(error.message)}
+    finally{deviceTransferBusy=false;localPlaybackBtn.disabled=false}
+  }
+  function renderDevicePicker(){
+    const active=playback?.device?.id;
+    const devices=deviceList.slice();
+    if(playback?.device?.id && !devices.some(d=>d.id===active)) devices.push({...playback.device,is_active:true});
+    if(localDeviceId && !devices.some(d=>d.id===localDeviceId)) devices.push({id:localDeviceId,name:"SpotDeck – dieses Gerät",is_active:active===localDeviceId});
+    devicePicker.replaceChildren();
+    const blank=document.createElement("option");blank.value="";blank.textContent=devices.length ? "Gerät auswählen" : "Keine Geräte – Spotify auf einem Gerät öffnen";devicePicker.append(blank);
+    for(const d of devices){
+      if(!d.id) continue;
+      const option=document.createElement("option");option.value=d.id;
+      option.textContent=`${d.name || "Spotify-Gerät"}${d.id===localDeviceId?" (lokal)":""}${d.id===active || (!active && d.is_active)?" · aktiv":""}`;
+      option.disabled=!!d.is_restricted;devicePicker.append(option);
+    }
+    devicePicker.value=active || "";
+  }
+  async function refreshSpotifyDevices(){
+    if(!loadSession()){deviceList=[];renderDevicePicker();return}
+    const epoch=++deviceRefreshEpoch;
+    try{
+      const r=await api("/me/player/devices");
+      if(!r.ok) throw new Error("Geräte konnten nicht geladen werden.");
+      const data=await r.json();if(epoch!==deviceRefreshEpoch) return;
+      deviceList=data.devices || [];renderDevicePicker();
+    }catch(error){if(epoch===deviceRefreshEpoch) playerMessage(error.message)}
+  }
+  function playbackEndpoint(path){
+    const id=isLocalPlayback() ? localDeviceId : playback?.device?.id;
+    return id ? `${path}${path.includes("?")?"&":"?"}device_id=${encodeURIComponent(id)}` : path;
+  }
+  async function seekPlayback(ms){
+    if(isLocalPlayback()) await localPlayer.seek(ms);
+    else{
+      const r=await api(playbackEndpoint(`/me/player/seek?position_ms=${ms}`),{method:"PUT"});
+      if(!r.ok) throw new Error("Springen im Titel nicht möglich.");
+    }
+    if(playback){playback.progress_ms=ms;lastPollAt=performance.now();updateLyricsPosition(ms,true)}
+  }
+
   function setDisconnected(){
     app.classList.add("disconnected");
     dot.classList.remove("online");
     device.textContent="Spotify";
     clearInterval(pollTimer);
-    cancelAnimationFrame(animFrame);
+    pollTimer=null;
     playback = null;
+    lastTrackId=null;
+    if(lyricsAbort) lyricsAbort.abort();
+    syncedLyrics=[];
+    resetVibeLyrics();
+    teardownLocalPlayer();
     startVibeFace();
   }
 
@@ -1237,6 +1529,8 @@
     device.textContent=data?.device?.name || "Kein aktives Gerät";
     settingsDevice.textContent=data?.device?.name || "Kein aktives Gerät";
     dot.classList.toggle("online",!!data?.device);
+    if(data?.device?.id===localDeviceId && localDeviceId){playbackMode="local";playbackModeSelect.value="local";localPlaybackBtn.hidden=false}
+    renderDevicePicker();
 
     if(image && art.dataset.src!==image){
       art.dataset.src=image;
@@ -1292,29 +1586,47 @@
   }
 
   function startProgressAnimation(){
-    cancelAnimationFrame(animFrame);
-    function tick(){
-      if(!playback) return;
-      const dur=playback.item?.duration_ms||0;
-      let pos=playback.progress_ms||0;
-      if(playback.is_playing) pos += performance.now()-lastPollAt;
-      pos=Math.min(pos,dur);
-      elapsed.textContent=msToTime(pos);
-      bar.style.width=dur?`${pos/dur*100}%`:"0%";
+    if(animFrame!==null || document.visibilityState==="hidden") return;
+    animFrame=requestAnimationFrame(spotDeckFrame);
+  }
+
+  function spotDeckFrame(now){
+    animFrame=null;
+    if(document.visibilityState==="hidden") return;
+    const interval=motionLevel()===0 ? 65 : 32;
+    if(now-frameLast>=interval){
+      frameLast=now;
+      const dur=playback?.item?.duration_ms || 0;
+      const pos=playback ? Math.min(getCurrentPositionMs(),dur) : 0;
+      if(now-progressLast>=110){
+        progressLast=now;
+        elapsed.textContent=msToTime(pos);
+        bar.style.width=dur?`${pos/dur*100}%`:"0%";
+        updateLyricsPosition(pos);
+      }
       updateVibeVocalReaction(pos);
       updateVibeMotion(pos);
-      updateLyricsPosition(pos);
-      animFrame=requestAnimationFrame(tick);
+      if(vibeEggUntil && performance.now()>=vibeEggUntil){
+        vibeFace.classList.remove("easteregg");
+        vibeEggUntil=0;
+      }
     }
-    animFrame=requestAnimationFrame(tick);
+    startProgressAnimation();
   }
 
   async function poll(){
     try{
+      if(document.visibilityState==="hidden") return;
+      const started=performance.now();
+      const sdkStatePromise=playbackMode==="local" && localPlayer?.getCurrentState ? localPlayer.getCurrentState().catch(()=>null) : Promise.resolve(null);
       const r=await api("/me/player?additional_types=track,episode");
+      const sdkState=await sdkStatePromise;
       setConnected();
       if(r.status===204){
+        if(sdkState && localDeviceId && playbackMode==="local"){renderLocalState(sdkState);return}
+        if(isLocalPlayback() && localStateLast>started) return;
         playback=null;
+        if(lastTrackId!==null){lastTrackId=null;syncedLyrics=[];resetVibeLyrics()}
         title.textContent="Nichts wird abgespielt";
         artists.textContent="Starte Spotify auf deinem PC, Handy oder Lautsprecher";
         album.textContent="Spotify";
@@ -1324,16 +1636,28 @@
         return;
       }
       if(!r.ok) return;
-      renderPlayback(await r.json());
+      const data=await r.json();
+      if(sdkState && data?.device?.id===localDeviceId && playbackMode==="local"){renderLocalState(sdkState);return}
+      if(localStateLast>started && data?.device?.id===localDeviceId && playbackMode==="local") return;
+      if(data?.device?.id && localDeviceId && data.device.id!==localDeviceId && playback?.device?.id===localDeviceId){
+        playbackMode="controller";playbackModeSelect.value="controller";localPlaybackBtn.hidden=true;
+        playerMessage("Wiedergabe läuft jetzt auf einem anderen Spotify-Gerät.");
+      }
+      renderPlayback(data);
     }catch(e){
       if(e.message==="NO_SESSION"||e.message==="SESSION_EXPIRED") setDisconnected();
     }
   }
 
   async function playPause(){
+    if(isLocalPlayback()){
+      const activation=localPlayer.activateElement();
+      try{await activation;await localPlayer.togglePlay()}catch{showToast("Lokale Wiedergabe konnte nicht gestartet werden.")}
+      return;
+    }
     if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
     const endpoint=playback.is_playing?"/me/player/pause":"/me/player/play";
-    const r=await api(endpoint,{method:"PUT"});
+    const r=await api(playbackEndpoint(endpoint),{method:"PUT"});
     if(r.ok||r.status===204){
       playback.is_playing=!playback.is_playing;
       renderPlayback(playback);
@@ -1342,8 +1666,12 @@
   }
 
   async function skip(path){
+    if(isLocalPlayback()){
+      try{await (path==="previous"?localPlayer.previousTrack():localPlayer.nextTrack())}catch{showToast("Titelwechsel lokal nicht möglich.")}
+      return;
+    }
     if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
-    const r=await api(`/me/player/${path}`,{method:"POST"});
+    const r=await api(playbackEndpoint(`/me/player/${path}`),{method:"POST"});
     if(r.ok||r.status===204) setTimeout(poll,250);
     else showToast("Steuerung nicht möglich");
   }
@@ -1351,7 +1679,7 @@
   async function toggleShuffle(){
     if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
     const next=!playback.shuffle_state;
-    const r=await api(`/me/player/shuffle?state=${next}`,{method:"PUT"});
+    const r=await api(playbackEndpoint(`/me/player/shuffle?state=${next}`),{method:"PUT"});
     if(r.ok||r.status===204){
       playback.shuffle_state=next;
       shuffleBtn.classList.toggle("active",next);
@@ -1390,7 +1718,7 @@
 
   async function playContext(uri){
     if(!playback?.device){showToast("Starte Spotify zuerst auf einem Wiedergabegerät");return}
-    const r=await api("/me/player/play",{
+    const r=await api(playbackEndpoint("/me/player/play"),{
       method:"PUT",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({context_uri:uri})
@@ -1406,7 +1734,7 @@
     if(!playback?.device){showToast("Starte Spotify zuerst auf einem Wiedergabegerät");return}
     const clean=uris.filter(Boolean).slice(0,50);
     if(!clean.length){showToast("Keine Songs gefunden");return}
-    const r=await api("/me/player/play",{
+    const r=await api(playbackEndpoint("/me/player/play"),{
       method:"PUT",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({uris:clean})
@@ -1558,11 +1886,7 @@
         const i=Number(el.dataset.lyricIndex);
         const ms=Math.max(0,Math.round(syncedLyrics[i]?.time || 0));
         if(!playback?.device) return;
-        const r=await api(`/me/player/seek?position_ms=${ms}`,{method:"PUT"});
-        if(r.ok||r.status===204){
-          if(playback){playback.progress_ms=ms;lastPollAt=performance.now()}
-          updateLyricsPosition(ms,true);
-        }
+        try{await seekPlayback(ms)}catch(error){showToast(error.message)}
       });
     });
   }
@@ -1902,8 +2226,13 @@
   }
 
   async function setVolume(v){
+    if(isLocalPlayback()){
+      try{const nextVolume=Math.max(0,Math.min(1,v/100));await localPlayer.setVolume(nextVolume);localVolume=nextVolume}catch{showToast("Die Lautstärke bitte direkt am Gerät ändern.")}
+      return;
+    }
     if(!playback?.device) return;
-    await api(`/me/player/volume?volume_percent=${Math.round(v)}`,{method:"PUT"});
+    const r=await api(playbackEndpoint(`/me/player/volume?volume_percent=${Math.round(v)}`),{method:"PUT"});
+    if(!r.ok) showToast("Die Lautstärke bitte direkt am Spotify-Gerät ändern.");
   }
 
   connect.addEventListener("click",beginAuth);
@@ -1922,7 +2251,7 @@
   closeLyrics.addEventListener("click",()=>lyrics.classList.remove("open"));
   refreshLyrics.addEventListener("click",()=>loadLyrics(true));
 
-  settingsBtn.addEventListener("click",()=>settings.classList.add("open"));
+  settingsBtn.addEventListener("click",()=>{settings.classList.add("open");void refreshSpotifyDevices()});
   closeSettings.addEventListener("click",()=>settings.classList.remove("open"));
   settings.addEventListener("click",e=>{if(e.target===settings)settings.classList.remove("open")});
 
@@ -1963,8 +2292,7 @@
     const rect=track.getBoundingClientRect();
     const ratio=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
     const ms=Math.round(playback.item.duration_ms*ratio);
-    const r=await api(`/me/player/seek?position_ms=${ms}`,{method:"PUT"});
-    if(r.ok||r.status===204){playback.progress_ms=ms;lastPollAt=performance.now();renderPlayback(playback)}
+    try{await seekPlayback(ms)}catch(error){showToast(error.message)}
   });
 
 
@@ -1973,11 +2301,21 @@
   });
 
   document.addEventListener("visibilitychange",()=>{
-    if(document.visibilityState==="visible") requestWakeLock();
-    else releaseWakeLock();
+    if(document.visibilityState==="visible"){
+      requestWakeLock();vibeMotionLast=performance.now();frameLast=0;
+      startProgressAnimation();scheduleBlink();
+      if(loadSession()) void poll();
+    }else{
+      releaseWakeLock();
+      if(animFrame!==null) cancelAnimationFrame(animFrame);
+      animFrame=null;
+      if(vibeBlinkTimer) clearTimeout(vibeBlinkTimer);
+      vibeBlinkTimer=null;
+    }
   });
 
   document.addEventListener("keydown",e=>{
+    if(e.target.closest("input,select,textarea,button,[role=button]") && e.key!=="Escape") return;
     if(e.code==="Space"){e.preventDefault();playPause()}
     if(e.key==="ArrowRight")skip("next");
     if(e.key==="ArrowLeft")skip("previous");
@@ -1992,7 +2330,7 @@
 
 
   function scheduleBlink(){
-    if(!vibeFace || vibeBlinkTimer) return;
+    if(!vibeFace || vibeBlinkTimer || document.visibilityState==="hidden") return;
     const delay = Math.round(1800 + Math.random()*3800);
     vibeBlinkTimer = setTimeout(()=>{
       vibeBlinkTimer=null;
@@ -2023,89 +2361,92 @@
     faceScene?.classList.remove("visible");
     vibeFace.classList.add("easteregg");
     startVibeExpression("party",7000);
-    const tick=()=>{
-      if(performance.now()>=vibeEggUntil){
-        vibeFace.classList.remove("easteregg");
-        vibeEggFrame=null;
-        if(!playback){
-          Object.assign(vibeMotion,{x:0,y:0,rotate:0,scaleX:1,scaleY:1});
-          Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0});
-          updateVibeMotion(0);
-        }
-        return;
-      }
-      // Playback already has its own animation loop. Also work when Spotify is idle.
-      if(!playback) updateVibeMotion(0);
-      vibeEggFrame=requestAnimationFrame(tick);
-    };
-    if(vibeEggFrame!==null) cancelAnimationFrame(vibeEggFrame);
-    vibeEggFrame=requestAnimationFrame(tick);
+    playFaceSound("happy");
+    startProgressAnimation();
   }
 
   function registerVibeTap(){
     const now=performance.now();
     if(now<vibeEggCooldown) return;
-    if(vibeEggTaps.length && now-vibeEggTaps[vibeEggTaps.length-1]>500) vibeEggTaps=[];
-    vibeEggTaps=vibeEggTaps.filter(time=>now-time<=1800);
+    if(vibeEggTaps.length && now-vibeEggTaps[vibeEggTaps.length-1]>650) vibeEggTaps=[];
+    vibeEggTaps=vibeEggTaps.filter(time=>now-time<=2600);
     vibeEggTaps.push(now);
     if(vibeSingleTapTimer) clearTimeout(vibeSingleTapTimer);
     vibeSingleTapTimer=setTimeout(()=>{
       vibeSingleTapTimer=null;
-      if(vibeEggTaps.length===1 && performance.now()>=vibeEggCooldown) startVibeExpression("angry",2700);
+      if(vibeEggTaps.length && performance.now()>=vibeEggCooldown){
+        const choices=vibeEggTaps.length===1 ? ["shy","cheeky","grin","surprise","bashful"] : ["confused","angry","skeptic"];
+        let reaction=choices[Math.floor(Math.random()*choices.length)];
+        if(reaction===vibeTapReactionLast) reaction=choices[(choices.indexOf(reaction)+1)%choices.length];
+        vibeTapReactionLast=reaction;vibeTapReactionUntil=performance.now()+3000;
+        startVibeExpression(reaction,2900);playFaceSound(reaction);
+      }
       vibeEggTaps=[];
-    },520);
+    },680);
     if(vibeEggTaps.length>=5) triggerVibeEasteregg();
   }
 
   vibeFace?.addEventListener("pointerdown",event=>{
-    if(event.button!==0 || !event.isPrimary) return;
+    if(event.button!==0 || event.isPrimary===false) return;
+    unlockFaceSound();
     vibeEggPointer={id:event.pointerId,x:event.clientX,y:event.clientY,time:performance.now()};
   });
   vibeFace?.addEventListener("pointerup",event=>{
     const down=vibeEggPointer;
     vibeEggPointer=null;
-    if(!down || down.id!==event.pointerId || !event.isPrimary) return;
+    if(!down || down.id!==event.pointerId || event.isPrimary===false) return;
     if(performance.now()-down.time>650 || Math.hypot(event.clientX-down.x,event.clientY-down.y)>16) return;
     registerVibeTap();
   });
   vibeFace?.addEventListener("pointercancel",()=>{vibeEggPointer=null});
+  vibeFace?.addEventListener("dblclick",event=>event.preventDefault());
+  if(!window.PointerEvent){
+    let lastTouch=-Infinity,touchDown=null;
+    vibeFace?.addEventListener("touchstart",event=>{
+      unlockFaceSound();
+      const t=event.touches.length===1 ? event.touches[0] : null;
+      touchDown=t ? {x:t.clientX,y:t.clientY,time:performance.now()} : null;
+    },{passive:true});
+    vibeFace?.addEventListener("touchcancel",()=>{touchDown=null});
+    vibeFace?.addEventListener("touchend",event=>{
+      const down=touchDown;touchDown=null;
+      if(event.changedTouches.length!==1 || event.touches.length || !down) return;
+      const t=event.changedTouches[0];lastTouch=performance.now();event.preventDefault();
+      if(lastTouch-down.time<=650 && Math.hypot(t.clientX-down.x,t.clientY-down.y)<=16) registerVibeTap();
+    },{passive:false});
+    vibeFace?.addEventListener("click",event=>{if(event.button===0 && performance.now()-lastTouch>900) registerVibeTap()});
+  }
   vibeFace?.addEventListener("keydown",event=>{
     if(event.code!=="Space" && event.key!=="Enter") return;
     event.preventDefault();event.stopPropagation();
+    unlockFaceSound();
     if(!event.repeat) registerVibeTap();
   });
 
   function startVibeExpression(name,duration=3000){
     if(performance.now()<vibeEggUntil && name!=="party") return;
-    if(reducedFaceMotion.matches) return;
+    if(performance.now()<vibeTapReactionUntil && name!==vibeTapReactionLast && name!=="party") return;
     vibeExpression=name;
     vibeExpressionStart=performance.now();
     vibeExpressionEnd=vibeExpressionStart+duration;
-    vibeNextExpression=vibeExpressionEnd+7000+Math.random()*6500;
+    vibeNextExpression=vibeExpressionEnd+11000+Math.random()*15000;
     if(vibeFace) vibeFace.dataset.expression=name;
-    if(!playback && vibeReactionFrame===null){
-      const tick=()=>{
-        if(playback || performance.now()>vibeExpressionEnd+650){vibeReactionFrame=null;return}
-        if(performance.now()>=vibeEggUntil) updateVibeMotion(0);
-        vibeReactionFrame=requestAnimationFrame(tick);
-      };
-      vibeReactionFrame=requestAnimationFrame(tick);
-    }
+    startProgressAnimation();
   }
 
   function updateVibeExpression(now,dt,playing){
-    if(now<vibeEggUntil && !reducedFaceMotion.matches){
+    if(now<vibeEggUntil){
       vibeExpression="party";
       vibeExpressionStart=vibeEggUntil-7000;
       vibeExpressionEnd=vibeEggUntil;
       vibeFace.dataset.expression="party";
     }
-    if(reducedFaceMotion.matches || now>=vibeExpressionEnd){
+    if(now>=vibeExpressionEnd){
       vibeExpression="";
       delete vibeFace.dataset.expression;
     }
-    if(!vibeExpression && now>=vibeNextExpression && !reducedFaceMotion.matches){
-      const gestures=playing ? ["sideLeft","sideRight","wink","grin","skeptic","surprise","laugh","thinking","determined"] : ["sleepy","sideLeft","sideRight","wink","thinking","pout"];
+    if(!vibeExpression && now>=vibeNextExpression){
+      const gestures=playing ? ["sideLeft","sideRight","wink","grin","skeptic","surprise","laugh","thinking","proud","curious","crossEyed","dreamy"] : ["sleepy","sideLeft","sideRight","wink","thinking","yawn","dreamy","shy","curious","crossEyed"];
       startVibeExpression(gestures[Math.floor(Math.random()*gestures.length)],2800+Math.random()*1000);
     }
     const progress=Math.max(0,Math.min(1,(now-vibeExpressionStart)/Math.max(1,vibeExpressionEnd-vibeExpressionStart)));
@@ -2128,6 +2469,14 @@
       case "thinking":x=3*envelope;y=-2*envelope;left=1-.35*envelope;brow=-10*envelope;browOpacity=.7*envelope;smile=-22*envelope;tilt=4*envelope;break;
       case "determined":eye=left=1-.18*envelope;brow=15*envelope;browOpacity=.8*envelope;smile=-14*envelope;tilt=-1.5*envelope;break;
       case "pout":eye=left=1-.17*envelope;smile=-39*envelope;brow=-12*envelope;browOpacity=.6*envelope;open=.16*envelope;break;
+      case "shy":case "bashful":x=-2*envelope;y=2*envelope;eye=left=1-.3*envelope;tilt=-5*envelope;smile=3*envelope;break;
+      case "cheeky":left=1-.65*envelope;x=2*envelope;smile=6*envelope;tilt=3*envelope;break;
+      case "confused":left=1-.5*envelope;brow=-13*envelope;browOpacity=envelope;tilt=Math.sin(progress*Math.PI*2)*5*envelope;smile=-17*envelope;break;
+      case "proud":y=-2*envelope;eye=left=1-.25*envelope;smile=7*envelope;tilt=-2*envelope;break;
+      case "curious":x=Math.sin(progress*Math.PI*1.5)*3*envelope;y=-2*envelope;tilt=5*envelope;brow=-8*envelope;browOpacity=.6*envelope;break;
+      case "crossEyed":eye=left=1-.15*envelope;open=.16*envelope;tilt=-3*envelope;break;
+      case "dreamy":eye=left=1-.45*envelope;y=-1.8*envelope;x=Math.sin(progress*Math.PI)*2*envelope;smile=5*envelope;tilt=4*envelope;break;
+      case "yawn":eye=left=1-.72*envelope;open=.65*envelope;y=-2*envelope;tilt=-2*envelope;break;
     }
     const ease=1-Math.exp(-dt/95);
     const target={x,y,eye,left,tilt,smile,open,brow,browOpacity};
@@ -2175,6 +2524,16 @@
     }
 
     const ease=1-Math.exp(-dt/(playing?82:180));
+    const level=motionLevel();
+    if(playing && level>0 && now>=vibeNextStumble && !vibeExpression && now>=vibeEggUntil){
+      vibeStumbleStart=now;vibeNextStumble=now+55000+Math.random()*60000;
+    }
+    const stumbleAge=now-vibeStumbleStart;
+    if(stumbleAge>=0 && stumbleAge<1900){
+      const slip=Math.sin(stumbleAge/190)*Math.exp(-stumbleAge/550);
+      targetRotate+=slip*8;targetX+=slip*5;
+      if(stumbleAge>500 && !vibeExpression) startVibeExpression("confused",750);
+    }else if(stumbleAge>=1900 && stumbleAge<2000 && vibeExpression!=="grin") startVibeExpression("grin",1800);
     if(now<vibeEggUntil){
       const eggBeat=now/210;
       const eggEnvelope=Math.min(1,(vibeEggUntil-now)/900,(now-(vibeEggUntil-7000))/650);
@@ -2183,9 +2542,8 @@
       targetRotate+=Math.sin(eggBeat*.5)*8*eggEnvelope;
     }
     targetRotate+=vibeExpressionPose.tilt;
-    if(reducedFaceMotion.matches){
-      targetX=0;targetY=0;targetRotate=0;targetScaleX=1;targetScaleY=1;
-    }
+    targetX*=level;targetY*=level;targetRotate*=level;
+    targetScaleX=1+(targetScaleX-1)*level;targetScaleY=1+(targetScaleY-1)*level;
     vibeMotion.x+=(targetX-vibeMotion.x)*ease;
     vibeMotion.y+=(targetY-vibeMotion.y)*ease;
     vibeMotion.rotate+=(targetRotate-vibeMotion.rotate)*ease;
@@ -2233,21 +2591,9 @@
       vibeFace.classList.add("paused");
       vibeFace.classList.remove("playing","singing");
       vibeLyricIndex=-2;
-      if(!playback){
-        Object.assign(vibeMotion,{x:0,y:0,rotate:0,scaleX:1,scaleY:1});
-        vibeMouthBlend=0;
-        vibeMouthRound=0;
-        resetVibeLyrics();
-        vibeFace.style.setProperty("--motion-x","0px");
-        vibeFace.style.setProperty("--motion-y","0px");
-        vibeFace.style.setProperty("--motion-rotate","0deg");
-        vibeFace.style.setProperty("--motion-scale-x","1");
-        vibeFace.style.setProperty("--motion-scale-y","1");
-        faceMouthPath?.setAttribute("d","M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z");
-        if(faceMouth) faceMouth.style.transform="none";
-      }
     }
     scheduleBlink();
+    startProgressAnimation();
   }
 
   async function loadVibeAudio(trackId){
@@ -2262,14 +2608,17 @@
       const res = await api(`/audio-features/${trackId}`);
       if(!res.ok) throw new Error("audio-features");
       const data = await res.json();
+      if(trackId!==lastVibeTrackId) return;
       const tempo = Number(data?.tempo || 0);
-      const energy = Number(data?.energy ?? 0.55);
+      const rawEnergy=Number(data?.energy ?? .55);
+      const energy=Number.isFinite(rawEnergy) ? Math.max(0,Math.min(1,rawEnergy)) : .55;
       const tempoMs = tempo > 1 ? Math.max(320, Math.min(900, Math.round(60000/tempo))) : 620;
 
       vibeAudioCache[trackId] = {tempoMs, energy};
       vibeTempoMs = tempoMs;
       vibeEnergy = energy;
     }catch{
+      if(trackId!==lastVibeTrackId) return;
       vibeTempoMs = 620;
       vibeEnergy = 0.55;
     }
@@ -2283,7 +2632,11 @@
       showToast(`Spotify: ${q.get("error")}`);
     }
     if(q.get("code")){
-      try{await exchangeCode(q.get("code"))}
+      try{
+        if(!q.get("state") || q.get("state")!==sessionStorage.getItem("spotdeck.authState")) throw new Error("Anmeldeantwort konnte nicht geprüft werden. Bitte Spotify erneut verbinden.");
+        await exchangeCode(q.get("code"));
+        sessionStorage.removeItem("spotdeck.authState");
+      }
       catch(e){clearSession();showToast(e.message)}
     }
 
@@ -2305,6 +2658,34 @@
   }
 
   requestWakeLock();
+  motionSetting.addEventListener("change",()=>{facePreferences.motion=motionSetting.value;applyFacePreferences()});
+  faceSoundSetting.addEventListener("change",()=>{facePreferences.sound=faceSoundSetting.checked;applyFacePreferences();if(facePreferences.sound)playFaceSound()});
+  if(reducedFaceMotion.addEventListener) reducedFaceMotion.addEventListener("change",applyFacePreferences);
+  else if(reducedFaceMotion.addListener) reducedFaceMotion.addListener(applyFacePreferences);
+  playbackModeSelect.addEventListener("change",()=>{
+    playbackMode=playbackModeSelect.value;
+    localPlaybackBtn.hidden=playbackMode!=="local";
+    sdkAuthBtn.hidden=true;
+    if(playbackMode==="local") void prepareLocalPlayback();
+    else playerMessage("Controller-Modus. Ein Spotify-Gerät aus der Liste auswählen.");
+  });
+  localPlaybackBtn.addEventListener("click",()=>{void startLocalPlayback()});
+  sdkAuthBtn.addEventListener("click",beginAuth);
+  refreshDevicesBtn.addEventListener("click",()=>{void refreshSpotifyDevices()});
+  devicePicker.addEventListener("change",()=>{
+    const id=devicePicker.value;
+    if(!id || deviceTransferBusy) return;
+    if(id===localDeviceId){void startLocalPlayback();return}
+    deviceTransferBusy=true;devicePicker.disabled=true;
+    transferPlayback(id,!!playback?.is_playing).then(()=>{
+      playbackMode="controller";playbackModeSelect.value="controller";localPlaybackBtn.hidden=true;
+      playerMessage("Wiedergabe wurde an das ausgewählte Spotify-Gerät übergeben.");
+      setTimeout(()=>{void poll();void refreshSpotifyDevices()},400);
+    }).catch(error=>playerMessage(error.message)).finally(()=>{deviceTransferBusy=false;devicePicker.disabled=false});
+  });
+  window.addEventListener("pagehide",()=>{teardownLocalPlayer();if(faceAudioContext) void faceAudioContext.suspend()});
+  window.addEventListener("pageshow",()=>{startProgressAnimation();scheduleBlink()});
+  applyFacePreferences();
   startVibeFace();
   boot();
 </script>
