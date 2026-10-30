@@ -91,6 +91,66 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   const cache=h.run('new LookupCache("test-cache",2,2000)');cache.put('a',{value:1},10000);cache.put('b',{value:2},10000);cache.put('c',{value:3},10000);assert.equal(cache.entries.size,2);assert.equal(cache.get('a'),null);
   cache.entries.get('b').expires=Date.now()-1;assert.equal(cache.get('b'),null);
   console.log('PASS stale lyric cancellation, track-change clearing, bounded cache and expiry.');
+
+  const timedRecord={...lyric(22),syncedLyrics:'[00:02.00]First synthetic line\n[00:05.00]Second synthetic line\n[00:10.00]Third synthetic line'};
+  const timed=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>{
+    if(url.includes('/api/get?'))return res(lyric(21));
+    if(url.includes('/api/search?'))return res([lyric(21),timedRecord]);
+    return res(null,204);
+  }});
+  timed.context.item=track();
+  const foundTimed=await runAsync(timed,'searchLyrics(trackIdentity(item),new AbortController().signal)');
+  assert.equal(foundTimed.record.id,22,'An exact plain-text result cannot hide a matching synchronized record');
+  timed.context.result=foundTimed;
+  timed.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};timed.run('renderPlayback(data);lyrics.classList.add("open")');
+  const cueNodes=Array.from({length:3},(_,i)=>{const node=timed.document.createElement('p');node.dataset.lyricIndex=String(i);node.offsetTop=i*100;return node});
+  const body=timed.nodes.get('lyricsBody');body.querySelectorAll=()=>cueNodes;body.clientHeight=200;
+  const scrolls=[];body.scrollTo=options=>scrolls.push(options);
+  timed.run('applyLyricResult(trackIdentity(playback.item),result);lyricsTrackId=item.id');
+  assert.equal(timed.run('ownPlayback.active'),false);
+  assert.equal(timed.run('syncedLyrics.length'),3);
+  assert(timed.nodes.get('lyricsNotice').textContent.includes('synchronisiert'));
+  timed.run('playback.progress_ms=1800;lastPollAt=performance.now()');timed.step(400);
+  assert.equal(timed.run('currentLyricIndex'),0);assert(cueNodes[0].classList.contains('active'));
+  timed.run('renderPlayback({...playback,progress_ms:4900,is_playing:false})');timed.step(1000);
+  assert.equal(timed.run('currentLyricIndex'),0,'Pause freezes highlighted position');
+  timed.run('renderPlayback({...playback,progress_ms:4900,is_playing:true})');timed.step(400);
+  assert.equal(timed.run('currentLyricIndex'),1);assert(cueNodes[1].classList.contains('active'));assert(!cueNodes[0].classList.contains('active'));
+  timed.run('facePreferences.lyricsOffset=1800;updateLyricsPosition(10000,true)');
+  assert.equal(timed.run('currentLyricIndex'),2,'A saved local-audio offset cannot misalign Spotify lyrics');
+  timed.run('updateLyricsPosition(2100,true)');assert.equal(timed.run('currentLyricIndex'),0,'Backward position/seek follows earlier cue');
+  timed.run('playbackMode="local";localDeviceId="external";localPlayer={seek:async ms=>{runtime.testSeek=ms}}');
+  timed.event(cueNodes[2],'click');await timed.flush();
+  assert.equal(timed.run('runtime.testSeek'),10000,'Clicking a timed line seeks the SDK without the local-audio offset');
+  assert.equal(timed.run('currentLyricIndex'),2);
+  timed.run('updateLyricsPosition(2100,true)');
+  assert(scrolls.length>0,'Active lines scroll into view');
+  timed.run('updateVibeVocalReaction(5100)');assert.equal(timed.run('vibeSpeech.open'),0,'Spotify lyric display does not enable lyric-driven face singing');
+  timed.run('lyrics.classList.remove("open");updateLyricsPosition(10000,true)');assert.equal(timed.run('currentLyricIndex'),0);
+  timed.run('lyrics.classList.add("open");updateLyricsPosition(10000,true)');assert.equal(timed.run('currentLyricIndex'),2);
+  const oldRequestCount=timed.requests.length;timed.run('lyricCache.put(trackIdentity(item).key,{signature:trackIdentity(item).signature,result},700000)');
+  await runAsync(timed,'loadLyrics()');assert.equal(timed.requests.length,oldRequestCount,'Timed results survive cache round-trip');
+  assert.equal(timed.run('syncedLyrics.length'),3);
+  for(const wrong of [
+    {...timedRecord,duration:210},
+    {...timedRecord,duration:null},
+    {...timedRecord,trackName:'Example (Live)'},
+    {...timedRecord,syncedLyrics:'[99:00.00]Invalid out-of-range cue'},
+  ]){
+    timed.context.wrong=wrong;timed.run('applyLyricResult(trackIdentity(item),{status:"found",record:wrong})');
+    assert.equal(timed.run('syncedLyrics.length'),0,'Unverified versions, durations and invalid cues remain plain');
+  }
+  timed.run('applyLyricResult(trackIdentity(item),{...result,status:"alternative"})');assert.equal(timed.run('syncedLyrics.length'),0);
+  timed.run('applyLyricResult(trackIdentity(item),{status:"found",record:{...result.record,syncedLyrics:null}})');assert.equal(timed.run('syncedLyrics.length'),0);
+  timed.run('applyLyricResult(trackIdentity(item),result);renderPlayback({...playback,item:{...item,id:"changed",name:"Next"}})');
+  assert.equal(timed.run('syncedLyrics.length'),0,'Track changes immediately clear old timing');
+  console.log('PASS timed-first LRCLIB lookup, playback/pause/resume/backward positions, source labels, cache, version/duration guards, static fallback and track cleanup.');
+
+  const fallback=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>url.includes('/api/get?')?res(lyric(30)):res(null,503)});
+  fallback.context.item=track();
+  const partial=await runAsync(fallback,'searchLyrics(trackIdentity(item),new AbortController().signal)');
+  assert.equal(partial.status,'found');assert.equal(partial.record.id,30);assert.equal(partial.timingSearchIncomplete,true);
+  console.log('PASS an unavailable timestamp search preserves an already found plain-text fallback.');
   // Structural layout contract; real pixel geometry still requires browser/device QA.
   const {html}=require('./spotdeck.test.cjs');
   const lyricsHead=html.slice(html.indexOf('<div class="lyrics-head">'),html.indexOf('<div class="lyrics-body"'));

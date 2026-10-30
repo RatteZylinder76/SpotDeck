@@ -1135,7 +1135,7 @@
         <span id="lyricsArtist">—</span>
         <p class="lyrics-notice" id="lyricsNotice" hidden></p>
       </div>
-      <details class="lyrics-menu" id="lyricsMenu"><summary class="round-action glass glass-clear" aria-label="Lyrics-Informationen und lokale Datei">⋯</summary><div class="lyrics-menu-content"><p id="lyricsInfo">Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt. Abweichende Aufnahmen werden gekennzeichnet.</p><a href="https://lrclib.net" target="_blank" rel="noopener">Lyrics: LRCLIB</a><label class="lyrics-local glass glass-clear">Lokalen Text öffnen<input type="file" id="localTextFile" aria-label="Lokale Lyrics- oder Textdatei öffnen" accept=".lrc,.txt,.yaml,.yml"></label></div></details>
+      <details class="lyrics-menu" id="lyricsMenu"><summary class="round-action glass glass-clear" aria-label="Lyrics-Informationen und lokale Datei">⋯</summary><div class="lyrics-menu-content"><p id="lyricsInfo">Passende LRCLIB-Lyrics mit Zeitmarken laufen zur Wiedergabe mit. Ohne passende Zeitmarken wird normaler Text angezeigt; andere Aufnahmeversionen bleiben gekennzeichnet.</p><a href="https://lrclib.net" target="_blank" rel="noopener">Lyrics: LRCLIB</a><label class="lyrics-local glass glass-clear">Lokalen Text öffnen<input type="file" id="localTextFile" aria-label="Lokale Lyrics- oder Textdatei öffnen" accept=".lrc,.txt,.yaml,.yml"></label></div></details>
       <button class="round-action glass glass-clear" id="refreshLyrics" aria-label="Lyrics neu laden" title="Lyrics neu laden">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 8M5.5 15A7 7 0 0 0 18 17.5l2-1.5"/>
@@ -2308,7 +2308,7 @@ THE SOFTWARE.
       el.addEventListener("keydown",e=>{if(["Enter"," "].includes(e.key)){e.preventDefault();el.click()}});
       el.addEventListener("click",async()=>{
         const i=Number(el.dataset.lyricIndex);
-        const ms=Math.max(0,Math.round((syncedLyrics[i]?.time || 0)+facePreferences.lyricsOffset));
+        const ms=Math.max(0,Math.round((syncedLyrics[i]?.time || 0)+(ownPlayback.active?facePreferences.lyricsOffset:0)));
         if(!playback?.device) return;
         try{await seekPlayback(ms)}catch(error){showToast(error.message)}
       });
@@ -2501,8 +2501,8 @@ THE SOFTWARE.
   }
 
   function updateLyricsPosition(positionMs=getCurrentPositionMs(),forceScroll=false){
-    if(!ownPlayback.active||!syncedLyrics.length||!lyrics.classList.contains("open"))return;
-    positionMs-=facePreferences.lyricsOffset;
+    if(!syncedLyrics.length||!lyrics.classList.contains("open"))return;
+    if(ownPlayback.active)positionMs-=facePreferences.lyricsOffset;
     const idx=getSyncedLyricIndex(positionMs);
     if(idx===currentLyricIndex && !forceScroll) return;
     currentLyricIndex=idx;
@@ -2516,7 +2516,7 @@ THE SOFTWARE.
     const active=idx>=0 ? nodes[idx] : null;
     if(active){
       const top=active.offsetTop - lyricsBody.clientHeight*.42;
-      lyricsBody.scrollTo({top:Math.max(0,top),behavior:forceScroll?"smooth":"smooth"});
+      lyricsBody.scrollTo({top:Math.max(0,top),behavior:motionLevel()===0?"auto":"smooth"});
     }
   }
 
@@ -2545,7 +2545,7 @@ THE SOFTWARE.
     }
     try{
       const result=await searchLyrics(identity,controller.signal);if(!current())return;
-      lyricCache.put(identity.key,{signature:identity.signature,result},["found","alternative"].includes(result.status)?7*86400000:15*60000);
+      lyricCache.put(identity.key,{signature:identity.signature,result},!result.timingSearchIncomplete&&["found","alternative"].includes(result.status)?7*86400000:15*60000);
       applyLyricResult(identity,result);
     }catch(error){
       if(error.name==="AbortError"||!current())return;
@@ -3408,7 +3408,7 @@ THE SOFTWARE.
     save(){try{let data=JSON.stringify([...this.entries.values()]);while(data.length>this.budget&&this.entries.size){this.entries.delete(this.entries.keys().next().value);data=JSON.stringify([...this.entries.values()])}localStorage.setItem(this.key,data)}catch{/* Keep the bounded in-memory cache if storage is full/unavailable. */}}
     clear(){this.entries.clear();try{localStorage.removeItem(this.key)}catch{}}
   }
-  const tempoCache=new LookupCache("spotdeck.tempoCache.v1",128,240000),lyricCache=new LookupCache("spotdeck.lyricCache.v2",40,1200000);
+  const tempoCache=new LookupCache("spotdeck.tempoCache.v1",128,240000),lyricCache=new LookupCache("spotdeck.lyricCache.v3",40,1200000);
   function foldText(value){return String(value||"").normalize("NFKD").replace(/\p{M}/gu,"").toLowerCase().replace(/&/g," and ").replace(/[^\p{L}\p{N}]+/gu," ").trim().replace(/\s+/g," ")}
   function versionInfo(title,extra=""){
     const qualifiers=[];const versionPattern=/\b(remix|mix|edit|remaster(?:ed)?|live|acoustic|instrumental|karaoke|demo|sped|slowed|version)\b/i;
@@ -3610,10 +3610,23 @@ THE SOFTWARE.
     return parseLyricsRecord(record).map(line=>line.text).join("\n");
   }
   function usableLyrics(record){return record&&typeof record==="object"&&(record.instrumental===true||!!lyricText(record))}
+  function syncedRowsFor(identity,result){
+    if(result?.status!=="found"||result.match?.alternative||result.record?.instrumental)return [];
+    const match=compareRecording(identity,result.record);
+    if(!match.safe||!match.sameVersion||match.delta==null||match.delta>2)return [];
+    const rows=parseLyricsRecord(result.record);
+    if(!rows.length||rows.length>5000||rows.some(row=>!Number.isFinite(row.time)||row.time<0||row.time>(identity.duration*1000+2000)))return [];
+    return rows;
+  }
+  function preferTimedLyrics(identity,records){
+    const timed=records.filter(record=>syncedRowsFor(identity,{status:"found",record}).length);
+    return chooseRecording(identity,timed.length?timed:records,"lyrics");
+  }
   async function searchLyrics(identity,signal){
     const exactParams=new URLSearchParams({track_name:identity.title,artist_name:identity.artists[0]||"",album_name:identity.album,duration:String(Math.max(1,Math.round(identity.duration||1)))});
     const exact=await publicMetadata(`https://lrclib.net/api/get?${exactParams}`,signal);
-    if(usableLyrics(exact)&&compareRecording(identity,exact).safe)return {status:"found",record:exact,match:compareRecording(identity,exact),candidates:[],source:"LRCLIB"};
+    const exactResult={status:"found",record:exact,match:compareRecording(identity,exact||{}),candidates:[],source:"LRCLIB"};
+    if(usableLyrics(exact)&&exactResult.match.safe&&(exact.instrumental||syncedRowsFor(identity,exactResult).length))return exactResult;
     const records=[];if(usableLyrics(exact))records.push(exact);
     const stages=[{track_name:identity.title,artist_name:identity.artists[0]||""}];
     const cleaned=identity.title.replace(/[()[\]]/g," ").replace(/\s+/g," ").trim();
@@ -3622,25 +3635,30 @@ THE SOFTWARE.
     if(base!==foldText(identity.title))stages.push({track_name:base,artist_name:identity.artists[0]||""});
     const secondary=identity.artists[1];if(secondary)stages.push({track_name:base,artist_name:secondary});
     if(base!==identity.title||foldText(identity.artists[0])!==identity.artists[0])stages.push({track_name:base,artist_name:foldText(identity.artists[0])});
-    const queried=new Set();
+    const queried=new Set();let timingSearchError=null;
     for(const query of stages.slice(0,4)){
       const key=JSON.stringify(query);if(queried.has(key))continue;queried.add(key);
-      const data=await publicMetadata(`https://lrclib.net/api/search?${new URLSearchParams(query)}`,signal);
+      let data;
+      try{data=await publicMetadata(`https://lrclib.net/api/search?${new URLSearchParams(query)}`,signal)}
+      catch(error){if(error.name==="AbortError"||signal.aborted||!records.length)throw error;timingSearchError=error;break}
       if(Array.isArray(data))records.push(...data.slice(0,20).filter(usableLyrics));
       const unique=[...new Map(records.map(record=>[record.id!=null?String(record.id):JSON.stringify([record.trackName,record.artistName,record.duration]),record])).values()];
-      const result=chooseRecording(identity,unique,"lyrics");if(result.status==="found")return {...result,source:"LRCLIB"};
+      const result=preferTimedLyrics(identity,unique);if(result.status==="found"&&(result.record.instrumental||syncedRowsFor(identity,result).length))return {...result,source:"LRCLIB"};
     }
     const unique=[...new Map(records.map(record=>[record.id!=null?String(record.id):JSON.stringify([record.trackName,record.artistName,record.duration]),record])).values()];
-    return {...chooseRecording(identity,unique,"lyrics"),source:"LRCLIB"};
+    return {...preferTimedLyrics(identity,unique),source:"LRCLIB",timingSearchIncomplete:!!timingSearchError};
   }
   function applyLyricResult(identity,result){
     if(result.status==="found"||result.status==="alternative"){
       lyricsLoadState="loaded";lyricsRetryCount=0;lyricsNotice.hidden=false;
       const alternative=result.status==="alternative"||result.match?.alternative;
-      lyricsNotice.textContent=alternative?"Lyrics: LRCLIB · Andere Version":"Lyrics: LRCLIB";
-      $("lyricsInfo").textContent=alternative?`Andere Version: „${result.record.trackName||result.record.title}“ · ${result.record.artistName||""}. Nur Text; Zeitmarken werden nicht übernommen.`:"Passende Aufnahme. Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt.";
+      const timedRows=syncedRowsFor(identity,result);
+      lyricsNotice.textContent=alternative?"Lyrics: LRCLIB · Andere Version":timedRows.length?"Lyrics: LRCLIB · synchronisiert":"Lyrics: LRCLIB · nur Text";
+      $("lyricsInfo").textContent=alternative?`Andere Version: „${result.record.trackName||result.record.title}“ · ${result.record.artistName||""}. Nur Text; Zeitmarken werden nicht übernommen.` :timedRows.length?"Passende Aufnahme mit Zeitmarken. Die aktuelle Zeile folgt der gemeldeten Spotify-Wiedergabeposition. Die Quelle ist LRCLIB, nicht Spotify." :result.timingSearchIncomplete?"Die Zeitmarkensuche war vorübergehend nicht erreichbar. Bereits gefundener Text bleibt verfügbar; später erneut aktualisieren.":"Für diese Aufnahme fehlen passende Zeitmarken. Der Text kann frei gescrollt werden.";
       lyricsChoices.hidden=true;lookupState.lyricsCandidates=[];
-      if(result.record.instrumental)renderLyricsState("Diese Aufnahme ist als instrumental gekennzeichnet.");else renderPlainLyrics(lyricText(result.record));
+      if(result.record.instrumental)renderLyricsState("Diese Aufnahme ist als instrumental gekennzeichnet.");
+      else if(timedRows.length){renderSyncedLyrics(timedRows);updateLyricsPosition(getCurrentPositionMs(),true)}
+      else renderPlainLyrics(lyricText(result.record));
     }else if(result.status==="ambiguous"){
       lyricsLoadState="choice";lookupState.lyricsIdentity=identity;lookupState.lyricsCandidates=result.candidates||[];
       renderLyricsState("Mehrere mögliche Texte gefunden. Wähle die passende Aufnahme oben aus.");lyricsNotice.hidden=false;lyricsNotice.textContent="Lyrics: LRCLIB · Version auswählen";
@@ -3651,7 +3669,7 @@ THE SOFTWARE.
   function resetLyricLookup(){
     lookupState.lyricsEpoch++;lyricsAbort?.abort();lyricsLoadingTrack=null;lookupState.lyricsCandidates=[];lookupState.lyricsIdentity=null;
     lyricsNotice.hidden=true;lyricsChoices.hidden=true;$("lyricsMenu").open=false;
-    $("lyricsInfo").textContent="Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt. Abweichende Aufnahmen werden gekennzeichnet.";
+    $("lyricsInfo").textContent="Passende LRCLIB-Lyrics mit Zeitmarken laufen zur Wiedergabe mit. Ohne passende Zeitmarken wird normaler Text angezeigt; andere Aufnahmeversionen bleiben gekennzeichnet.";
   }
   $("refreshTempo").addEventListener("click",()=>{if(!ownPlayback.active&&playback?.item)tempoRequest(playback.item,true);else renderTempoStatus()});
   tempoLookupSetting.addEventListener("change",()=>{facePreferences.tempoLookup=tempoLookupSetting.checked;persistPartyPreferences();if(playback?.item)tempoRequest(playback.item,true);else cancelTempoLookup()});
