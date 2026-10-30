@@ -93,6 +93,31 @@ To enable GitHub Pages on a **private** repository, you must use a specific setu
 
 ## Browser playback and Vibe Face settings
 
+### Glass interface and responsive face
+
+The interface uses a shared CSS glass material for navigation, the floating playback dock and settings. Clear controls, regular surfaces and a more opaque dialog share light edges, reflections and shadows. Album artwork remains unfiltered inside cards; the existing blurred artwork still supplies the background colors. No additional rendering loop is used for the glass treatment. Design references: [Apple Materials](https://developer.apple.com/design/human-interface-guidelines/materials) and [CSS backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/backdrop-filter).
+
+**Einstellungen → Vibe-Face-Größe** offers Normal, Groß (default) and Extra groß, with upper limits of 480, 570 and 650 CSS pixels. These are limits, not fixed dimensions: the face uses its container's available width and height and keeps a square aspect ratio. Smaller screens and short landscape windows automatically shrink it. The panel reserves movement/effect space, SVG accessories scale with the face, and a ResizeObserver adjusts translation amplitude without adding another animation loop or replacing the existing transform variables.
+
+**Glas & Transparenz → Reduzierte Transparenz** saves an explicit, more opaque appearance and removes surface blur. The system transparency preference is also respected when supported. Browsers without backdrop-filter get more opaque materials automatically. Motion preferences and optional sounds retain their existing behavior.
+
+All appearance preferences persist locally. The progress track supports click/touch and Arrow keys (5 seconds), Home and End. Playlist cards, saved tracks and synchronized lyric lines accept Enter/Space. Settings place focus in the dialog, contain Tab navigation and return focus when closed. Long song titles wrap; on very short screens their metadata area can scroll instead of moving the playback dock out of view.
+
+#### Layout verification, 2026-10-30
+
+The Chromium-based in-app browser was checked with generated cover, track, library and synchronized-lyrics data, without a Spotify account. All six requested viewports had no horizontal page overflow; all main and navigation buttons remained visible and at least 44 × 44 CSS pixels.
+
+| Viewport | Face square, Groß | Layout |
+| --- | ---: | --- |
+| 390 × 844 | 249 px | Cover, metadata and face stacked; floating dock |
+| 844 × 390 | 155 px | Compact three-column landscape |
+| 768 × 1024 | 376 px | Cover/metadata row, large face below |
+| 1366 × 768 | 368 px | Cover, metadata and face in three columns |
+| 1920 × 1080 | 566 px | Prominent desktop face |
+| 3840 × 2160 | 570 px | Large-screen layout; Extra groß reaches 650 px |
+
+Additional browser checks covered saved settings after reload, reduced transparency, dialog scrolling at 844 × 390, forward/backward focus containment, library cards, active lyrics, actual five-click Easteregg activation and visible confetti with a 650 px lively face. The offline integration suite also checks preference migration/validation, proportional motion scaling, keyboard seeking and dialog focus behavior. Separate Firefox, Safari, mobile operating systems, physical TV hardware and audible Spotify Premium playback have not been retested for this visual revision.
+
 Open **Einstellungen → Wiedergabe**:
 
 - **Andere Geräte steuern** keeps the existing controller mode. Choose an available Spotify Connect device in the device list to transfer the current playback; its play/pause state is preserved.

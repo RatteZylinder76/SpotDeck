@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 new Function(script);
-function harness({reduced=false,pointer=true,session=false,drm=true,fetcher}={}){
+function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,preferences}={}){
   let now=0,nextId=0;
   const timers=new Map(),frames=new Map(),nodes=new Map(),store=new Map(),requests=[],players=[];
   function node(id=''){
@@ -11,7 +11,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher}={})
     return {id,value:'',textContent:'',innerHTML:'',hidden:false,disabled:false,checked:false,dataset:{},children:[],handlers,
       style:{setProperty(k,v){this[k]=v}},classList:{add(...v){v.forEach(x=>classes.add(x))},remove(...v){v.forEach(x=>classes.delete(x))},contains:x=>classes.has(x),toggle(x,on){if(on===undefined)on=!classes.has(x);on?classes.add(x):classes.delete(x)}},
       addEventListener(name,fn){(handlers[name] ||= []).push(fn)},
-      setAttribute(k,v){this[k]=v},getAttribute(k){return this[k]},
+      setAttribute(k,v){this[k]=v},getAttribute(k){return this[k]},focus(){document.activeElement=this},
       append(...items){this.children.push(...items)},replaceChildren(...items){this.children=items},remove(){},
       querySelector:()=>null,querySelectorAll:()=>[],getBoundingClientRect:()=>({left:0,top:0,width:200,height:200}),scrollTo(){},closest:()=>null,
     };
@@ -19,6 +19,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher}={})
   for(const match of html.matchAll(/\bid="([^"]+)"/g))nodes.set(match[1],node(match[1]));
   const document=node('document');Object.assign(document,{visibilityState:'visible',getElementById:id=>nodes.get(id),createElement:()=>node(),head:node(),documentElement:node(),body:node()});
   const localStorage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
+  if(preferences)store.set('spotdeck.facePreferences',JSON.stringify(preferences));
   const response=(data,status=200)=>({ok:status>=200&&status<300,status,json:async()=>data});
   if(session)store.set('spotdeck.session',JSON.stringify({access_token:'TEST_ONLY',refresh_token:'TEST_REFRESH',auth_version:2,expires_at:Date.now()+3600000,scopes:['streaming','user-read-email','user-read-private']}));
   class MockPlayer{
@@ -126,4 +127,39 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher}={})
   const old=harness();old.store.set('spotdeck.session',JSON.stringify({access_token:'OLD_TEST',auth_version:2}));
   await old.run('prepareLocalPlayback()');assert.equal(old.players.length,0);assert.equal(old.nodes.get('sdkAuthBtn').hidden,false);
   console.log('PASS unsupported TV/DRM fallback and old-controller-session scope upgrade without forced logout.');
+
+  const sized=harness();
+  assert.equal(sized.nodes.get('app').dataset.faceSize,'large','Existing users receive the larger responsive default');
+  sized.nodes.get('faceSizeSetting').value='extra';sized.event(sized.nodes.get('faceSizeSetting'),'change');
+  sized.nodes.get('transparencySetting').value='reduced';sized.event(sized.nodes.get('transparencySetting'),'change');
+  const restored=harness({preferences:JSON.parse(sized.store.get('spotdeck.facePreferences'))});
+  assert.equal(restored.nodes.get('app').dataset.faceSize,'extra');
+  assert.equal(restored.nodes.get('app').dataset.transparency,'reduced');
+  const invalid=harness({preferences:{size:'bad',transparency:'bad',motion:'bad',sound:'true'}});
+  assert.equal(invalid.nodes.get('faceSizeSetting').value,'large');assert.equal(invalid.run('facePreferences.sound'),false);
+  restored.nodes.get('vibeFace').offsetWidth=650;restored.run('syncFaceScale()');
+  assert.equal(restored.run('faceMotionScale'),3.25,'TV-sized figure receives proportional motion');
+  restored.nodes.get('vibeFace').offsetWidth=100;restored.run('syncFaceScale()');assert.equal(restored.run('faceMotionScale'),.5);
+  console.log('PASS saved size/transparency settings, migration, invalid values and proportional motion scaling.');
+
+  const settings=sized.nodes.get('settings'),close=sized.nodes.get('closeSettings'),logout=sized.nodes.get('logoutBtn');
+  close.getClientRects=logout.getClientRects=()=>[{}];settings.querySelectorAll=()=>[close,logout];
+  sized.document.activeElement=sized.nodes.get('settingsBtn');sized.event(sized.nodes.get('settingsBtn'),'click');
+  assert.equal(sized.document.activeElement,close,'Opening settings focuses the close action');
+  sized.document.activeElement=logout;sized.event(settings,'keydown',{key:'Tab'});assert.equal(sized.document.activeElement,close);
+  sized.event(settings,'keydown',{key:'Tab',shiftKey:true});assert.equal(sized.document.activeElement,logout);
+  sized.event(close,'click');assert.equal(sized.document.activeElement,sized.nodes.get('settingsBtn'));
+  console.log('PASS settings focus placement, forward/backward tab containment and return focus.');
+
+  const slider=s.nodes.get('track');
+  s.run('playbackMode="local";playback.device.id="local-test";localDeviceId="local-test"');
+  // account_error disconnected the previous mock; a new player tests the real input handler.
+  await s.run('prepareLocalPlayback()');
+  s.run('playbackMode="local";playback.device.id="local-test"');
+  s.event(slider,'keydown',{key:'End'});await s.flush();
+  assert(s.players.at(-1).calls.some(c=>Array.isArray(c)&&c[0]==='seek'&&c[1]===30000));
+  s.event(slider,'keydown',{key:'Home'});await s.flush();
+  assert(s.players.at(-1).calls.some(c=>Array.isArray(c)&&c[0]==='seek'&&c[1]===0));
+  assert.match(html, /id="track" role="slider" tabindex="0" aria-label="Wiedergabeposition"/);
+  console.log('PASS keyboard seeking at track endpoints and accessible slider markup.');
 })().catch(error=>{console.error(error);process.exitCode=1});

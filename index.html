@@ -2,15 +2,25 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#07100e">
   <title>SpotDeck Car Thing</title>
   <style>
     :root{
       --bg:#07100e;
-      --glass:rgba(10,18,17,.42);
-      --glass2:rgba(7,12,12,.66);
-      --line:rgba(255,255,255,.72);
+      --glass:rgba(38,53,50,.44);
+      --glass2:rgba(18,30,28,.90);
+      --glass-clear:rgba(225,255,247,.07);
+      --glass-blur:24px;
+      --glass-saturation:1.35;
+      --line:rgba(255,255,255,.20);
+      --glass-edge:rgba(255,255,255,.48);
+      --glass-shine:linear-gradient(135deg,#ffffff30,transparent 42%,#ffffff06 72%,#ffffff18);
+      --shadow-sm:0 5px 14px #0003;
+      --shadow-lg:0 20px 60px #0005;
+      --radius:30px;
+      --ease:cubic-bezier(.2,.8,.2,1);
+      --face-cap:570px;
       --text:#f4f7f6;
       --muted:rgba(244,247,246,.70);
       --faint:rgba(244,247,246,.42);
@@ -27,7 +37,8 @@
       touch-action:manipulation;
       overscroll-behavior:none;
     }
-    button,input{font:inherit}
+    button,input,select{font:inherit}
+    [hidden]{display:none!important}
     button{border:0}
     .app{
       position:fixed;inset:0;
@@ -67,15 +78,15 @@
     .now{
       min-height:0;
       display:grid;
-      grid-template-columns:minmax(180px,38vh) minmax(190px,1fr) minmax(230px,34vw);
+      grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.8fr);
       align-items:center;
       gap:clamp(18px,2.8vw,42px);
       padding:clamp(14px,2.5vh,28px) clamp(18px,3.5vw,52px) clamp(10px,1.8vh,18px);
     }
     .art-wrap{
-      width:min(38vh,31vw);
-      min-width:180px;
-      max-width:390px;
+      width:100%;
+      min-width:0;
+      max-width:420px;
       aspect-ratio:1;
       align-self:center;
       justify-self:start;
@@ -108,7 +119,7 @@
       line-height:.98;
       letter-spacing:-.045em;
       font-weight:760;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      overflow-wrap:anywhere;
       text-shadow:0 2px 12px rgba(0,0,0,.14);
     }
     #artists{
@@ -122,13 +133,15 @@
 
 
     .face-panel{
-      min-width:0;
-      align-self:center;
-      justify-self:end;
+      min-width:0;min-height:0;width:100%;height:100%;
+      align-self:stretch;
+      justify-self:stretch;
+      container-type:size;
+      overflow:visible;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:clamp(10px,1.5vh,18px) 0 0 clamp(10px,2vw,26px);
+      padding:0;
       user-select:none;
       pointer-events:none;
     }
@@ -138,16 +151,17 @@
       --motion-rotate:0deg;
       --motion-scale-x:1;
       --motion-scale-y:1;
-      width:min(34vh,28vw);
-      min-width:170px;
-      max-width:390px;
+      width:min(calc(100cqw / 1.44),calc(100cqh / 1.46),var(--face-cap));
+      min-width:0;
+      flex:0 0 auto;
+      container-type:inline-size;
       aspect-ratio:1;
       position:relative;
       transform:translate3d(var(--motion-x),var(--motion-y),0) rotate(var(--motion-rotate)) scale(var(--motion-scale-x),var(--motion-scale-y));
       transform-origin:50% 64%;
       transition:filter .22s ease, opacity .22s ease;
       will-change:transform;
-      filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
+      filter:drop-shadow(0 4px 5px #0008) drop-shadow(0 18px 40px #0005);
       opacity:.95;
     }
     .face-orb{
@@ -254,7 +268,7 @@
       cursor:pointer;
       transition:transform .12s ease,color .15s ease,background .15s ease;
     }
-    .ctrl:active{transform:scale(.88);background:rgba(255,255,255,.08)}
+
     .ctrl svg{width:clamp(22px,4.8vh,39px);height:clamp(22px,4.8vh,39px)}
     .ctrl.active{color:var(--accent)}
     .ctrl.primary svg{width:clamp(24px,5.2vh,42px);height:clamp(24px,5.2vh,42px)}
@@ -267,7 +281,7 @@
       opacity:.96;
       transition:opacity .18s ease;
     }
-    .mini-actions:hover,.mini-actions:focus-within{opacity:1}
+    .mini-actions:focus-within{opacity:1}
     .mini{
       width:42px;height:42px;border-radius:50%;
       display:grid;place-items:center;
@@ -277,7 +291,7 @@
       cursor:pointer;
     }
     .mini svg{width:20px;height:20px}
-    .mini:active{transform:scale(.92);background:rgba(255,255,255,.12)}
+
     #connect{
       position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
       z-index:50;
@@ -322,7 +336,7 @@
       border:1px solid rgba(255,255,255,.12);
       cursor:pointer;
     }
-    .round-action:active{transform:scale(.92)}
+
     .round-action svg{width:20px;height:20px}
     .library-scroll{
       min-height:0;
@@ -414,7 +428,7 @@
       text-decoration:none;
       flex:0 0 auto;
     }
-    .spotify-link:hover{color:white}
+    @media (hover:hover){.spotify-link:hover{color:white}}
     .track-list{display:grid;gap:7px}
     .lib-track{
       display:grid;
@@ -612,121 +626,6 @@
       border:1px solid rgba(255,255,255,.10);
     }
     .toast.show{opacity:1;transform:translate(-50%,0)}
-    @media (orientation:portrait){
-      .now{
-        grid-template-columns:1fr;
-        grid-template-rows:auto auto auto;
-        justify-items:center;
-        align-content:center;
-        text-align:center;
-        gap:14px;
-      }
-      .art-wrap{width:min(58vw,31vh);min-width:0;justify-self:center}
-      .context{justify-content:center}
-      #title{font-size:clamp(28px,8vw,48px)}
-      #artists{font-size:clamp(15px,4vw,24px)}
-    }
-  
-
-    .face-panel{
-      min-width:0;
-      align-self:center;
-      justify-self:end;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:clamp(10px,1.5vh,18px) 0 0 clamp(10px,2vw,26px);
-      user-select:none;
-      pointer-events:none;
-    }
-    .vibe-face{
-      --motion-x:0px;
-      --motion-y:0px;
-      --motion-rotate:0deg;
-      --motion-scale-x:1;
-      --motion-scale-y:1;
-      width:min(34vh,28vw);
-      min-width:170px;
-      max-width:390px;
-      aspect-ratio:1;
-      position:relative;
-      transform:translate3d(var(--motion-x),var(--motion-y),0) rotate(var(--motion-rotate)) scale(var(--motion-scale-x),var(--motion-scale-y));
-      transform-origin:50% 64%;
-      transition:filter .22s ease, opacity .22s ease;
-      will-change:transform;
-      filter:drop-shadow(0 10px 30px rgba(0,0,0,.25));
-      opacity:.95;
-    }
-    .face-orb{
-      position:absolute;
-      inset:12%;
-      border-radius:50%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 42%),
-        radial-gradient(circle at 70% 70%, rgba(255,255,255,.05), transparent 46%);
-      opacity:.38;
-      filter:blur(12px);
-      transition:opacity .18s ease, transform .18s ease;
-    }
-    .vibe-face.playing .face-orb{
-      opacity:.5;
-      transform:scale(1.025);
-    }
-    .face-eye{
-      position:absolute;
-      top:35%;
-      width:12.2%;
-      height:12.2%;
-      background:rgba(255,255,255,.93);
-      border-radius:50%;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.06),
-        0 8px 18px rgba(0,0,0,.16);
-      transition:transform .12s ease,width .12s ease,height .12s ease,top .12s ease,opacity .12s ease;
-    }
-    .face-eye.left{left:24%}
-    .face-eye.right{right:24%}
-    .vibe-face.blink .face-eye{
-      height:2.4%;
-      top:39.5%;
-      border-radius:999px;
-      transform:scaleY(.55);
-      opacity:.96;
-    }
-    .face-mouth{
-      position:absolute;
-      left:21%;
-      top:52%;
-      width:58%;
-      height:24%;
-      overflow:visible;
-      filter:drop-shadow(0 8px 10px rgba(0,0,0,.10));
-    }
-    .face-mouth path{
-      fill:none;
-      stroke:rgba(255,255,255,.94);
-      stroke-width:9;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-    }
-    .vibe-face.singing .face-orb{opacity:.58}
-    .vibe-face.paused{
-      opacity:.82;
-    }
-    .vibe-face.paused .face-orb{opacity:.24}
-    @media (max-width:820px) and (orientation:landscape){
-      .now{
-        grid-template-columns:minmax(145px,34vh) minmax(150px,1fr) minmax(170px,29vw);
-        gap:14px;
-        padding-left:16px;
-        padding-right:16px;
-      }
-      .art-wrap{width:min(34vh,27vw);min-width:145px}
-      #title{font-size:clamp(21px,3.5vw,34px)}
-      #artists{font-size:clamp(13px,1.9vw,18px)}
-      .vibe-face{width:min(31vh,24vw);min-width:136px}
-    }
-    .vibe-face{flex:0 0 auto}
     #vibeFace{pointer-events:auto;cursor:pointer;touch-action:manipulation;outline:none}
     #vibeFace:focus-visible{outline:2px solid #9fe7cb;outline-offset:8px;border-radius:24px}
     .face-easteregg{position:absolute;inset:-18%;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .45s ease;z-index:5}
@@ -786,6 +685,136 @@
     .setting-action{padding:10px 13px;background:#264a3c;color:#f4f7f6;border-radius:10px;cursor:pointer}
     .setting-action:disabled{opacity:.5;cursor:wait}
     .setting-row input{accent-color:var(--accent)}
+
+    /* Shared glass materials. No per-frame work or moving reflection layers. */
+    .glass{
+      position:relative;isolation:isolate;color:var(--text);
+      background-color:var(--glass);background-image:var(--glass-shine);
+      border:1px solid var(--line);border-top-color:var(--glass-edge);
+      box-shadow:var(--shadow-sm),inset 0 1px 0 #ffffff18,inset 0 -1px 0 #0003;
+      -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturation));
+      backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    }
+    .glass-clear{background-color:var(--glass-clear)}
+    .glass-tinted{background-color:var(--glass2)}
+    .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+      background:radial-gradient(ellipse at 28% 0%,#ffffff26,transparent 58%);opacity:.7;transition:opacity .25s var(--ease)}
+    :is(button,a,[role="button"],input,select,[role="slider"]):focus-visible{
+      outline:3px solid #d1ffe9;outline-offset:4px;box-shadow:0 0 0 6px #07100ed9;
+    }
+    :is(.ctrl,.mini,.round-action,.setting-action,.close,.danger){
+      cursor:pointer;transition:transform .24s var(--ease),box-shadow .24s var(--ease),background-color .24s var(--ease),border-color .24s var(--ease);
+    }
+    :is(.ctrl,.mini,.round-action,.setting-action,.close,.danger):active{
+      transform:translateY(1px) scale(.96);box-shadow:0 2px 5px #0006,inset 0 1px 4px #0003;
+    }
+    @media (hover:hover) and (pointer:fine){
+      :is(.ctrl,.mini,.round-action,.setting-action,.close,.danger):hover{background-color:#c7f9e829;border-color:#ffffff60}
+      .ctrl.primary:hover{background-color:#c8f9dce6}
+      .glass:hover::before{opacity:1}
+      .playlist-card:hover{background:#ffffff12;transform:translateY(-2px)}
+    }
+    .app{--edge:clamp(16px,3vw,72px);--dock-height:clamp(74px,10dvh,106px)}
+    .app[data-face-size="normal"]{--face-cap:480px}
+    .app[data-face-size="extra"]{--face-cap:650px}
+    .bg{filter:blur(60px) saturate(1.15) brightness(.65);opacity:.95}
+    .tint{background:radial-gradient(ellipse at 15% 15%,#8cb7a92b,transparent 55%),linear-gradient(120deg,#04120e77,#08171360 50%,#020c0bb0)}
+    .shade{background:linear-gradient(180deg,#0002,transparent 40%,#0005)}
+    .shell{padding:calc(var(--safe-t) + 64px) calc(var(--safe-r) + var(--edge)) calc(var(--safe-b) + 16px) calc(var(--safe-l) + var(--edge));gap:8px}
+    .now{gap:clamp(14px,2vw,64px);padding:8px 0;overflow:visible}
+    .meta{z-index:1;text-shadow:0 2px 18px #0005;max-height:40dvh;overflow-y:auto;scrollbar-width:thin}
+    #title{font-size:clamp(26px,3.3vw,64px);line-height:1.06;letter-spacing:-.045em}
+    #artists{font-size:clamp(15px,1.6vw,28px);line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+    .context{font-size:clamp(12px,1.1vw,20px);line-height:1.4}
+    #art{border-radius:clamp(16px,2vw,28px);box-shadow:0 0 0 1px #ffffff25,0 24px 55px #0004}
+    .timeline{width:min(100%,1120px);justify-self:center;padding:0 8px 0}
+    .track{height:28px;background:transparent;overflow:visible;display:flex;align-items:center;touch-action:manipulation}
+    .track::before{content:"";position:absolute;left:0;right:0;height:5px;border-radius:99px;background:#ffffff26;box-shadow:inset 0 1px 2px #0004,0 1px 0 #ffffff18}
+    #barInner{position:relative;height:5px;background:linear-gradient(90deg,#d9eee7b3,#fff);box-shadow:0 1px 5px #0003;min-width:0}
+    #barInner::after{content:"";position:absolute;right:-6px;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;transform:translateY(-50%);opacity:0;box-shadow:0 2px 8px #0005;transition:opacity .15s}
+    .track:focus-visible #barInner::after,.track:active #barInner::after{opacity:1}
+    @media (hover:hover){.track:hover #barInner::after{opacity:1}}
+    .times{height:16px;opacity:1;overflow:visible;font-size:11px;color:#e5f0ebbd;font-variant-numeric:tabular-nums}
+    .controls{width:min(100%,720px);min-height:var(--dock-height);justify-self:center;gap:clamp(6px,2vw,24px);padding:10px clamp(12px,2vw,24px);border-radius:999px;box-shadow:var(--shadow-lg),inset 0 1px 0 #ffffff20}
+    .ctrl{width:clamp(46px,7dvh,64px);height:clamp(46px,7dvh,64px)}
+    .ctrl svg,.ctrl.primary svg{width:clamp(22px,3dvh,30px);height:clamp(22px,3dvh,30px)}
+    .ctrl.primary{width:clamp(54px,8dvh,78px);height:clamp(54px,8dvh,78px);color:#092016;background-color:#b0f4cecf;border-color:#e1ffecb3;box-shadow:0 6px 22px #0004,inset 0 1px 1px #fff9}
+    .ctrl.active{color:#a0ffbf;border-color:#85f5ac80;background-color:#1ed76026}
+    .controls .ctrl{backdrop-filter:none;-webkit-backdrop-filter:none}
+    .mini-actions{top:calc(var(--safe-t) + 14px);right:calc(var(--safe-r) + var(--edge,20px));gap:10px}
+    .mini,.round-action,.close{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center}
+    #connect{position:fixed;background-color:#bef8d4;color:#092016;box-shadow:var(--shadow-lg);max-width:calc(100vw - 32px)}
+    .status-pill{left:calc(var(--safe-l) + 22px);top:calc(var(--safe-t) + 30px);opacity:.7;color:#e3eee9}
+    .settings{padding:calc(var(--safe-t) + 14px) calc(var(--safe-r) + 14px) calc(var(--safe-b) + 14px) calc(var(--safe-l) + 14px);background:#02080780;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transition:opacity .2s var(--ease),display .2s allow-discrete}
+    .settings.open{opacity:1}
+    .settings.open{animation:veilIn .22s var(--ease)}
+    .panel{width:min(520px,100%);max-height:100%;padding:clamp(20px,3vw,32px);border-radius:var(--radius);box-shadow:var(--shadow-lg);scrollbar-width:thin;scrollbar-color:#b8ccc66b transparent;touch-action:pan-y;overscroll-behavior:contain;backdrop-filter:none;-webkit-backdrop-filter:none}
+    .settings.open .panel{animation:panelIn .28s var(--ease)}
+    .panel-head{margin-bottom:24px}.panel h2{font-size:25px;letter-spacing:-.035em}.label{display:block;color:#e3eee9b8;font-size:12px;font-weight:650;margin-top:18px}
+    .setting-field{min-height:46px;border-radius:15px;background:#ffffff0d;border:1px solid #ffffff29;color:var(--text);color-scheme:dark;padding:11px 13px}
+    .setting-field option{background:#162620;color:#fff}
+    .setting-action,.danger{min-height:44px;border-radius:999px;padding:11px 18px;font-size:13px;font-weight:650}
+    .danger{color:#ffd0cd;background-color:#a02f2926}.setting-note{color:#deeae5ba;line-height:1.6}
+    .setting-row{min-height:44px;font-size:14px;cursor:pointer}.setting-row input{width:21px;height:21px;flex-shrink:0}
+    #volumeSlider{appearance:none;-webkit-appearance:none;height:28px;background:transparent;cursor:pointer}
+    #volumeSlider::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:#e3f7ed52;box-shadow:inset 0 1px 2px #0003}
+    #volumeSlider::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;margin-top:-7px;background:#effff7;box-shadow:0 2px 8px #0005}
+    #volumeSlider::-moz-range-track{height:6px;border-radius:99px;background:#e3f7ed52}
+    #volumeSlider::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#effff7;box-shadow:0 2px 8px #0005}
+    #volumeSlider::-moz-range-progress{height:6px;background:#d4f6e6;border-radius:99px}
+    .library{background:linear-gradient(145deg,#10231ef5,#060e0dfc)}
+    .library-top,.lyrics-top{margin:12px;border-radius:24px;border:1px solid var(--line);background-image:var(--glass-shine);background-color:var(--glass);box-shadow:var(--shadow-sm)}
+    .library-top .round-action,.lyrics-top .round-action{backdrop-filter:none;-webkit-backdrop-filter:none}
+    .library-scroll{padding-top:8px}.playlist-grid{grid-template-columns:repeat(auto-fill,minmax(min(160px,100%),1fr));gap:18px}
+    .playlist-card{padding:8px;border-radius:23px;background:#ffffff07;border-color:#ffffff12;box-shadow:0 8px 22px #0002;transition:transform .22s var(--ease),background .22s var(--ease)}
+    .playlist-cover,.playlist-placeholder{border-radius:16px}.playlist-info{padding:12px 5px 8px}.playlist-sub,.lib-track-artist{color:#dfede2ad}
+    .lib-track{border-radius:18px;padding:10px;background:#ffffff05}.lib-track img{border-radius:10px}.library-state{color:#e6f1ebbd}
+    .lyrics{background:linear-gradient(160deg,#0a1716ed,#030808fa),var(--lyrics-bg,#08100f);backdrop-filter:none;-webkit-backdrop-filter:none}
+    .lyric-line{color:#e2eee49c;line-height:1.28;letter-spacing:-.025em;transition:color .3s,opacity .3s,transform .3s var(--ease)}
+    .lyric-line.near{color:#eef6f0b3}.lyric-line.active{color:#fff;text-shadow:0 2px 22px #0004}
+    .toast{background:var(--glass2);bottom:calc(var(--safe-b) + 128px);max-width:calc(100vw - 28px);text-align:center}
+    /* Effects use face-relative units, while SVG props already scale with their viewBox. */
+    .scene-prop{font-size:14cqw}.scene-prop.small{font-size:8cqw}.scene-sun{font-size:18cqw}
+    .egg-confetti{font-size:8cqw}.egg-caption{font-size:4cqw;letter-spacing:.10em}
+    .vibe-face[data-expression="crossEyed"] .face-eye.left{margin-left:2%}
+    .vibe-face[data-expression="crossEyed"] .face-eye.right{margin-right:2%}
+    @keyframes sunFly{0%{transform:translate(-3cqw,8cqw) rotate(-25deg);opacity:0}15%{opacity:1}50%{transform:translate(24cqw,-6cqw) rotate(10deg)}85%{opacity:1}100%{transform:translate(57cqw,6cqw) rotate(40deg);opacity:0}}
+    @keyframes propDrift{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(2.4cqw,-3.6cqw) rotate(10deg)}}
+    @keyframes bubbleRise{0%{transform:translateY(7cqw) scale(.6);opacity:0}20%,70%{opacity:.9}100%{transform:translate(3cqw,-21cqw) scale(1.2);opacity:0}}
+    @keyframes rainFall{0%{transform:translate(0,-6cqw);opacity:0}20%,80%{opacity:.8}100%{transform:translate(-4.5cqw,21cqw);opacity:0}}
+    @keyframes eggConfetti{0%{transform:translate(0,-3cqw) rotate(-20deg) scale(.7);opacity:0}15%,65%{opacity:.95}100%{transform:translate(var(--egg-drift),30cqw) rotate(190deg);opacity:0}}
+    @keyframes veilIn{from{opacity:0}to{opacity:1}}
+    @keyframes panelIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @media (orientation:portrait){
+      .now{grid-template-columns:minmax(0,.7fr) minmax(0,1fr);grid-template-rows:minmax(0,.7fr) minmax(0,1.8fr);gap:12px 22px}
+      .art-wrap{width:auto;height:100%;max-width:100%;max-height:22dvh;justify-self:center}
+      .face-panel{grid-column:1/-1}
+      #title{font-size:clamp(26px,4.3vw,44px)}
+    }
+    @media (max-width:600px) and (orientation:portrait){
+      .shell{padding-top:calc(var(--safe-t) + 66px);gap:4px}
+      .now{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,.6fr) auto minmax(0,1.5fr);gap:8px;text-align:center}
+      .art-wrap{max-height:20dvh;max-width:44vw}.meta{width:100%;max-height:18dvh}.context{justify-content:center;margin-bottom:5px;font-size:12px}
+      #title{font-size:clamp(22px,6.6vw,34px)}#artists{font-size:14px;margin-top:6px}
+      .controls{gap:4px;padding:8px;--dock-height:74px}.ctrl{width:46px;height:46px}.ctrl.primary{width:56px;height:56px}
+      .mini-actions{gap:8px}.status-pill{font-size:10px}
+    }
+    @media (max-height:500px) and (orientation:landscape){
+      .shell{padding-top:calc(var(--safe-t) + 58px);padding-bottom:calc(var(--safe-b) + 8px);gap:0;--dock-height:64px}
+      .now{grid-template-columns:minmax(0,.8fr) minmax(0,1.1fr) minmax(0,1.5fr);gap:16px;padding:0}
+      .art-wrap{width:min(100%,45dvh)}#title{font-size:clamp(20px,3vw,34px)}#artists{font-size:13px;margin-top:6px}
+      .context{font-size:11px;margin-bottom:5px}.controls{width:min(70%,520px);padding:5px 14px}.ctrl{width:44px;height:44px}.ctrl.primary{width:52px;height:52px}
+      .times{height:12px;font-size:10px}.track{height:22px}.mini-actions{top:calc(var(--safe-t) + 8px)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .glass,.glass::before,.playlist-card,.lyric-line{transition:none}
+      .settings.open,.settings.open .panel{animation:none;transition:none}
+    }
+    @media (prefers-reduced-transparency:reduce){.app{--glass:#23352ff5;--glass-clear:#23352ff5;--glass2:#13251ffb;--glass-blur:0px}.app .settings{backdrop-filter:none;-webkit-backdrop-filter:none}}
+    .app[data-transparency="reduced"]{--glass:#23352ff5;--glass-clear:#23352ff5;--glass2:#13251ffb;--glass-blur:0px}
+    .app[data-transparency="reduced"] :is(.glass,.library-top,.lyrics-top,.settings){backdrop-filter:none;-webkit-backdrop-filter:none}
+    @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.app{--glass:#23352ff5;--glass-clear:#23352ff5;--glass2:#13251ffb}}
+    @supports not (width:1cqw){.vibe-face{width:min(36vw,54vh,var(--face-cap))}.scene-prop{font-size:28px}.egg-caption{font-size:12px}}
   </style>
 </head>
 <body>
@@ -800,25 +829,25 @@
   </div>
 
   <div class="mini-actions">
-    <button class="mini" id="libraryBtn" aria-label="Bibliothek" title="Bibliothek">
+    <button class="mini glass glass-clear" id="libraryBtn" aria-label="Bibliothek" title="Bibliothek">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M4 5h12M4 10h12M4 15h8"/><path d="M18 14v6"/><path d="M15 17h6"/>
       </svg>
     </button>
-    <button class="mini" id="lyricsBtn" aria-label="Lyrics" title="Lyrics">
+    <button class="mini glass glass-clear" id="lyricsBtn" aria-label="Lyrics" title="Lyrics">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 6h14M5 10h9M5 14h12M5 18h7"/>
       </svg>
     </button>
-    <button class="mini" id="settingsBtn" aria-label="Einstellungen" title="Einstellungen">
+    <button class="mini glass glass-clear" id="settingsBtn" aria-label="Einstellungen" title="Einstellungen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.16.38.43.72.78.96.32.23.7.37 1.1.4h.1v4h-.1A1.7 1.7 0 0 0 19.4 15Z"/></svg>
     </button>
-    <button class="mini" id="fsBtn" aria-label="Vollbild" title="Vollbild">
+    <button class="mini glass glass-clear" id="fsBtn" aria-label="Vollbild" title="Vollbild">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
     </button>
   </div>
 
-  <button id="connect">Mit Spotify verbinden</button>
+  <button class="glass" id="connect">Mit Spotify verbinden</button>
 
   <div class="shell">
     <div style="min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto">
@@ -873,30 +902,30 @@
       </main>
 
       <div class="timeline" id="progress">
-        <div class="track" id="track">
+        <div class="track" id="track" role="slider" tabindex="0" aria-label="Wiedergabeposition" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
           <div id="barInner"></div>
         </div>
         <div class="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div>
       </div>
     </div>
 
-    <footer class="controls">
-      <button class="ctrl" id="shuffleBtn" aria-label="Shuffle">
+    <footer class="controls glass">
+      <button class="ctrl glass glass-clear" id="shuffleBtn" aria-label="Shuffle">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
           <path d="M16 3h5v5"/><path d="m21 3-7 7"/><path d="M4 7h3.5c2 0 3.1.8 4.5 2.6l4 5.1c1.2 1.5 2.3 2.3 4 2.3H21"/><path d="M16 21h5v-5"/><path d="m21 21-3.2-3.2"/><path d="M4 17h3.5c1.6 0 2.7-.5 3.8-1.7"/>
         </svg>
       </button>
-      <button class="ctrl" id="prevBtn" aria-label="Vorheriger Titel">
+      <button class="ctrl glass glass-clear" id="prevBtn" aria-label="Vorheriger Titel">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM18 5v14l-9-7 9-7z"/></svg>
       </button>
-      <button class="ctrl primary" id="playPauseBtn" aria-label="Play/Pause">
+      <button class="ctrl primary glass glass-clear" id="playPauseBtn" aria-label="Play/Pause">
         <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
       </button>
-      <button class="ctrl" id="nextBtn" aria-label="Nächster Titel">
+      <button class="ctrl glass glass-clear" id="nextBtn" aria-label="Nächster Titel">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM6 5v14l9-7-9-7z"/></svg>
       </button>
-      <button class="ctrl" id="likeBtn" aria-label="Titel speichern">
+      <button class="ctrl glass glass-clear" id="likeBtn" aria-label="Titel speichern">
         <svg id="heartOutline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
         <svg id="heartFill" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
       </button>
@@ -906,13 +935,13 @@
 
   <div class="library" id="library">
     <div class="library-top">
-      <button class="round-action" id="closeLibrary" aria-label="Zurück" title="Zurück">
+      <button class="round-action glass glass-clear" id="closeLibrary" aria-label="Zurück" title="Zurück">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <path d="m15 18-6-6 6-6"/>
         </svg>
       </button>
       <h2 class="library-title">Deine Bibliothek</h2>
-      <button class="round-action" id="refreshLibrary" aria-label="Neu laden" title="Neu laden">
+      <button class="round-action glass glass-clear" id="refreshLibrary" aria-label="Neu laden" title="Neu laden">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 8M5.5 15A7 7 0 0 0 18 17.5l2-1.5"/>
         </svg>
@@ -947,7 +976,7 @@
 
   <section class="lyrics" id="lyrics" aria-label="Lyrics">
     <div class="lyrics-top">
-      <button class="round-action" id="closeLyrics" aria-label="Zurück" title="Zurück">
+      <button class="round-action glass glass-clear" id="closeLyrics" aria-label="Zurück" title="Zurück">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <path d="m15 18-6-6 6-6"/>
         </svg>
@@ -956,7 +985,7 @@
         <strong id="lyricsTitle">Lyrics</strong>
         <span id="lyricsArtist">—</span>
       </div>
-      <button class="round-action" id="refreshLyrics" aria-label="Lyrics neu laden" title="Lyrics neu laden">
+      <button class="round-action glass glass-clear" id="refreshLyrics" aria-label="Lyrics neu laden" title="Lyrics neu laden">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 8M5.5 15A7 7 0 0 0 18 17.5l2-1.5"/>
         </svg>
@@ -968,8 +997,8 @@
   </section>
 
   <div class="settings" id="settings">
-    <div class="panel">
-      <div class="panel-head"><h2>Einstellungen</h2><button class="close" id="closeSettings" aria-label="Schließen">×</button></div>
+    <div class="panel glass glass-tinted" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="panel-head"><h2 id="settingsTitle">Einstellungen</h2><button class="close glass glass-clear" id="closeSettings" aria-label="Schließen">×</button></div>
       <div class="label">Aktives Gerät</div>
       <div class="device" id="settingsDevice">—</div>
       <label class="label" for="playbackMode">Wiedergabe</label>
@@ -977,18 +1006,22 @@
         <option value="controller">Andere Geräte steuern</option>
         <option value="local">Auf diesem Gerät abspielen</option>
       </select>
-      <button class="setting-action" id="localPlaybackBtn" hidden>Auf diesem Gerät starten</button>
-      <button class="setting-action" id="sdkAuthBtn" hidden>Spotify für lokale Wiedergabe verbinden</button>
+      <button class="setting-action glass glass-clear" id="localPlaybackBtn" hidden>Auf diesem Gerät starten</button>
+      <button class="setting-action glass glass-clear" id="sdkAuthBtn" hidden>Spotify für lokale Wiedergabe verbinden</button>
       <p class="setting-note" id="playerStatus" role="status" aria-live="polite">Controller-Modus: Spotify auf einem anderen Gerät starten.</p>
       <label class="label" for="devicePicker">Spotify-Gerät</label>
       <select class="setting-field" id="devicePicker"><option value="">Geräte laden …</option></select>
-      <button class="setting-action" id="refreshDevices">Geräte aktualisieren</button>
+      <button class="setting-action glass glass-clear" id="refreshDevices">Geräte aktualisieren</button>
       <p class="setting-note">Lokale Wiedergabe benötigt Spotify Premium und einen Browser mit geschützter Audiowiedergabe. TV-Browser werden nicht immer unterstützt; alternativ funktioniert ein Mini-PC per HDMI.</p>
       <div class="label">Lautstärke</div>
       <div class="vol-row">
-        <input id="volumeSlider" type="range" min="0" max="100" value="50">
+        <input id="volumeSlider" aria-label="Lautstärke" type="range" min="0" max="100" value="50">
         <span id="volumeValue">50%</span>
       </div>
+      <label class="label" for="faceSizeSetting">Vibe-Face-Größe</label>
+      <select class="setting-field" id="faceSizeSetting"><option value="normal">Normal</option><option value="large">Groß</option><option value="extra">Extra groß</option></select>
+      <label class="label" for="transparencySetting">Glas &amp; Transparenz</label>
+      <select class="setting-field" id="transparencySetting"><option value="system">Glaseffekte · Systemstandard</option><option value="reduced">Reduzierte Transparenz</option></select>
       <label class="label" for="motionSetting">Vibe-Face-Bewegung</label>
       <select class="setting-field" id="motionSetting">
         <option value="system">Systemstandard</option><option value="reduced">Reduzierte Bewegung</option>
@@ -997,7 +1030,7 @@
       <p class="setting-note" id="motionStatus"></p>
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
-      <button class="danger" id="logoutBtn">Spotify trennen</button>
+      <button class="danger glass glass-clear" id="logoutBtn">Spotify trennen</button>
     </div>
   </div>
 
@@ -1043,6 +1076,7 @@
   const motionSetting=$("motionSetting"), motionStatus=$("motionStatus"), faceSoundSetting=$("faceSoundSetting");
   const playbackModeSelect=$("playbackMode"), devicePicker=$("devicePicker"), playerStatus=$("playerStatus");
   const localPlaybackBtn=$("localPlaybackBtn"), sdkAuthBtn=$("sdkAuthBtn"), refreshDevicesBtn=$("refreshDevices");
+  const faceSizeSetting=$("faceSizeSetting"), transparencySetting=$("transparencySetting");
   const facePreferences=readFacePreferences();
   let frameLast=0, progressLast=0;
   let faceAudioContext=null, lastFaceSound=-Infinity;
@@ -1132,8 +1166,8 @@
   function readFacePreferences(){
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
-      return {motion:["system","reduced","normal","lively"].includes(saved.motion)?saved.motion:"system",sound:saved.sound===true};
-    }catch{return {motion:"system",sound:false}}
+      return {motion:["system","reduced","normal","lively"].includes(saved.motion)?saved.motion:"system",sound:saved.sound===true,size:["normal","large","extra"].includes(saved.size)?saved.size:"large",transparency:["system","reduced"].includes(saved.transparency)?saved.transparency:"system"};
+    }catch{return {motion:"system",sound:false,size:"large",transparency:"system"}}
   }
   function motionLevel(){
     const mode=facePreferences.motion;
@@ -1142,6 +1176,10 @@
   }
   function applyFacePreferences(){
     vibeFace.dataset.motion=motionLevel()===0 ? "reduced" : facePreferences.motion==="lively" ? "lively" : "normal";
+    app.dataset.faceSize=facePreferences.size;
+    app.dataset.transparency=facePreferences.transparency;
+    faceSizeSetting.value=facePreferences.size;
+    transparencySetting.value=facePreferences.transparency;
     motionSetting.value=facePreferences.motion;
     faceSoundSetting.checked=facePreferences.sound;
     motionStatus.textContent=motionLevel()===0 ? "Bewegung reduziert. Mimik, Antippen und Easteregg bleiben aktiv." : "Bewegung aktiv – auch ohne laufende Musik.";
@@ -1602,6 +1640,8 @@
         progressLast=now;
         elapsed.textContent=msToTime(pos);
         bar.style.width=dur?`${pos/dur*100}%`:"0%";
+        track.setAttribute("aria-valuenow",String(dur?Math.round(pos/dur*100):0));
+        track.setAttribute("aria-valuetext",`${msToTime(pos)} von ${msToTime(dur)}`);
         updateLyricsPosition(pos);
       }
       updateVibeVocalReaction(pos);
@@ -1759,7 +1799,7 @@
       const cover=image
         ? `<img class="playlist-cover" src="${esc(image)}" alt="">`
         : `<div class="playlist-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h10M4 11h10M4 16h7"/><circle cx="17" cy="17" r="3"/><path d="M20 17V8l-6 2v7"/></svg></div>`;
-      return `<div class="playlist-card" data-playlist="${i}">
+      return `<div class="playlist-card" data-playlist="${i}" role="button" tabindex="0" aria-label="${esc(p?.name || "Playlist")} abspielen">
         ${cover}
         <div class="playlist-info">
           <div class="playlist-name">${esc(p?.name || "Playlist")}</div>
@@ -1771,6 +1811,7 @@
       </div>`;
     }).join("");
     playlistGrid.querySelectorAll("[data-playlist]").forEach(card=>{
+      card.addEventListener("keydown",e=>{if(e.target===card && ["Enter"," "].includes(e.key)){e.preventDefault();card.click()}});
       card.addEventListener("click",e=>{
         if(e.target.closest("[data-stop]")) return;
         const p=libraryPlaylists[Number(card.dataset.playlist)];
@@ -1790,7 +1831,7 @@
       const image=t?.album?.images?.[t.album.images.length-1]?.url || t?.album?.images?.[0]?.url || "";
       const artist=(t?.artists||[]).map(a=>a.name).join(", ");
       const link=t?.external_urls?.spotify || "#";
-      return `<div class="lib-track" data-track="${i}">
+      return `<div class="lib-track" data-track="${i}" role="button" tabindex="0" aria-label="${esc(t?.name || "Song")} abspielen">
         <img src="${esc(image)}" alt="">
         <div class="lib-track-copy">
           <div class="lib-track-title">${esc(t?.name || "Song")}</div>
@@ -1800,6 +1841,7 @@
       </div>`;
     }).join("");
     likedList.querySelectorAll("[data-track]").forEach(row=>{
+      row.addEventListener("keydown",e=>{if(e.target===row && ["Enter"," "].includes(e.key)){e.preventDefault();row.click()}});
       row.addEventListener("click",e=>{
         if(e.target.closest("[data-stop]")) return;
         const idx=Number(row.dataset.track);
@@ -1878,10 +1920,11 @@
     vibeLyricIndex=-2;
     vibeSpeechPlan=[];
     lyricsBody.innerHTML=`<div class="lyrics-lines">${lines.map((l,i)=>
-      `<p class="lyric-line" data-lyric-index="${i}">${esc(l.text)}</p>`
+      `<p class="lyric-line" data-lyric-index="${i}" role="button" tabindex="0" aria-label="Zu ${msToTime(l.time)} springen">${esc(l.text)}</p>`
     ).join("")}</div><div class="lyrics-credit">Lyrics via LRCLIB</div>`;
 
     lyricsBody.querySelectorAll("[data-lyric-index]").forEach(el=>{
+      el.addEventListener("keydown",e=>{if(["Enter"," "].includes(e.key)){e.preventDefault();el.click()}});
       el.addEventListener("click",async()=>{
         const i=Number(el.dataset.lyricIndex);
         const ms=Math.max(0,Math.round(syncedLyrics[i]?.time || 0));
@@ -2251,9 +2294,28 @@
   closeLyrics.addEventListener("click",()=>lyrics.classList.remove("open"));
   refreshLyrics.addEventListener("click",()=>loadLyrics(true));
 
-  settingsBtn.addEventListener("click",()=>{settings.classList.add("open");void refreshSpotifyDevices()});
-  closeSettings.addEventListener("click",()=>settings.classList.remove("open"));
-  settings.addEventListener("click",e=>{if(e.target===settings)settings.classList.remove("open")});
+  let settingsReturnFocus=null;
+  function openSettingsPanel(){
+    settingsReturnFocus=document.activeElement;
+    settings.classList.add("open");
+    closeSettings.focus?.();
+    void refreshSpotifyDevices();
+  }
+  function closeSettingsPanel(){
+    if(!settings.classList.contains("open")) return;
+    settings.classList.remove("open");
+    (settingsReturnFocus || settingsBtn).focus?.();
+  }
+  settingsBtn.addEventListener("click",openSettingsPanel);
+  closeSettings.addEventListener("click",closeSettingsPanel);
+  settings.addEventListener("click",e=>{if(e.target===settings)closeSettingsPanel()});
+  settings.addEventListener("keydown",e=>{
+    if(e.key!=="Tab") return;
+    const fields=[...settings.querySelectorAll("button,select,input")].filter(el=>!el.disabled && !el.hidden && el.getClientRects().length);
+    const first=fields[0],last=fields[fields.length-1];
+    if(e.shiftKey && document.activeElement===first){e.preventDefault();last?.focus()}
+    else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first?.focus()}
+  });
 
   volumeSlider.addEventListener("input",()=>{
     volumeValue.textContent=`${volumeSlider.value}%`;
@@ -2287,6 +2349,15 @@
     }
   });
 
+  track.addEventListener("keydown",async e=>{
+    if(!["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"].includes(e.key)) return;
+    e.preventDefault();e.stopPropagation();
+    if(!playback?.device || !playback?.item?.duration_ms) return;
+    const duration=playback.item.duration_ms;
+    const delta=["ArrowRight","ArrowUp"].includes(e.key)?5000:-5000;
+    const ms=e.key==="Home"?0:e.key==="End"?duration:Math.max(0,Math.min(duration,getCurrentPositionMs()+delta));
+    try{await seekPlayback(ms)}catch(error){showToast(error.message)}
+  });
   track.addEventListener("click",async e=>{
     if(!playback?.item?.duration_ms||!playback?.device) return;
     const rect=track.getBoundingClientRect();
@@ -2315,13 +2386,13 @@
   });
 
   document.addEventListener("keydown",e=>{
-    if(e.target.closest("input,select,textarea,button,[role=button]") && e.key!=="Escape") return;
+    if(e.target.closest("input,select,textarea,button,[role=button],[role=slider]") && e.key!=="Escape") return;
     if(e.code==="Space"){e.preventDefault();playPause()}
     if(e.key==="ArrowRight")skip("next");
     if(e.key==="ArrowLeft")skip("previous");
     if(e.key.toLowerCase()==="f")fsBtn.click();
     if(e.key==="Escape"){
-      settings.classList.remove("open");
+      closeSettingsPanel();
       library.classList.remove("open");
       lyrics.classList.remove("open");
     }
@@ -2481,14 +2552,18 @@
     const ease=1-Math.exp(-dt/95);
     const target={x,y,eye,left,tilt,smile,open,brow,browOpacity};
     for(const key of Object.keys(target)) vibeExpressionPose[key]+=(target[key]-vibeExpressionPose[key])*ease;
-    vibeFace.style.setProperty("--gaze-x",`${vibeExpressionPose.x.toFixed(2)}px`);
-    vibeFace.style.setProperty("--gaze-y",`${vibeExpressionPose.y.toFixed(2)}px`);
+    vibeFace.style.setProperty("--gaze-x",`${(vibeExpressionPose.x*faceMotionScale).toFixed(2)}px`);
+    vibeFace.style.setProperty("--gaze-y",`${(vibeExpressionPose.y*faceMotionScale).toFixed(2)}px`);
     vibeFace.style.setProperty("--eye-open",vibeExpressionPose.eye.toFixed(3));
     vibeFace.style.setProperty("--left-eye-open",vibeExpressionPose.left.toFixed(3));
     vibeFace.style.setProperty("--brow-angle",`${vibeExpressionPose.brow.toFixed(2)}deg`);
     vibeFace.style.setProperty("--brow-opacity",vibeExpressionPose.browOpacity.toFixed(3));
   }
 
+  let faceMotionScale=1;
+  function syncFaceScale(){faceMotionScale=Math.max(.35,Math.min(3.25,(vibeFace.offsetWidth || 200)/200))}
+  if(typeof ResizeObserver!=="undefined") new ResizeObserver(syncFaceScale).observe(vibeFace);
+  window.addEventListener("resize",syncFaceScale);
   function updateVibeMotion(positionMs=0){
     if(!vibeFace || !faceMouthPath) return;
     const now=performance.now();
@@ -2542,7 +2617,7 @@
       targetRotate+=Math.sin(eggBeat*.5)*8*eggEnvelope;
     }
     targetRotate+=vibeExpressionPose.tilt;
-    targetX*=level;targetY*=level;targetRotate*=level;
+    targetX*=level*faceMotionScale;targetY*=level*faceMotionScale;targetRotate*=level;
     targetScaleX=1+(targetScaleX-1)*level;targetScaleY=1+(targetScaleY-1)*level;
     vibeMotion.x+=(targetX-vibeMotion.x)*ease;
     vibeMotion.y+=(targetY-vibeMotion.y)*ease;
@@ -2658,6 +2733,8 @@
   }
 
   requestWakeLock();
+  faceSizeSetting.addEventListener("change",()=>{facePreferences.size=faceSizeSetting.value;applyFacePreferences()});
+  transparencySetting.addEventListener("change",()=>{facePreferences.transparency=transparencySetting.value;applyFacePreferences()});
   motionSetting.addEventListener("change",()=>{facePreferences.motion=motionSetting.value;applyFacePreferences()});
   faceSoundSetting.addEventListener("change",()=>{facePreferences.sound=faceSoundSetting.checked;applyFacePreferences();if(facePreferences.sound)playFaceSound()});
   if(reducedFaceMotion.addEventListener) reducedFaceMotion.addEventListener("change",applyFacePreferences);
