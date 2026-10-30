@@ -7,10 +7,10 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   let now=0,nextId=0;
   const timers=new Map(),frames=new Map(),nodes=new Map(),store=new Map(),requests=[],players=[];
   function node(id=''){
-    const classes=new Set(),handlers={};
-    return {id,value:'',textContent:'',innerHTML:'',hidden:false,disabled:false,checked:false,dataset:{},children:[],handlers,
+    const classes=new Set(),handlers={},captureHandlers={};
+    return {id,value:'',textContent:'',innerHTML:'',hidden:false,disabled:false,checked:false,dataset:{},children:[],handlers,captureHandlers,
       style:{setProperty(k,v){this[k]=v}},classList:{add(...v){v.forEach(x=>classes.add(x))},remove(...v){v.forEach(x=>classes.delete(x))},contains:x=>classes.has(x),toggle(x,on){if(on===undefined)on=!classes.has(x);on?classes.add(x):classes.delete(x)}},
-      addEventListener(name,fn){(handlers[name] ||= []).push(fn)},
+      addEventListener(name,fn,options){const registry=options===true||options?.capture?captureHandlers:handlers;(registry[name] ||= []).push(fn)},
       setAttribute(k,v){this[k]=v},getAttribute(k){return this[k]},focus(){document.activeElement=this},
       append(...items){this.children.push(...items)},replaceChildren(...items){this.children=items},remove(){},
       querySelector:()=>null,querySelectorAll:()=>[],getBoundingClientRect:()=>({left:0,top:0,width:200,height:200}),scrollTo(){},closest:()=>null,
@@ -53,7 +53,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   });
   vm.runInContext(script,context,{filename:'index.html'});
   function run(code){return vm.runInContext(code,context)}
-  function event(target,type,props={}){for(const fn of (target.handlers[type]||[])) fn({target,preventDefault(){},stopPropagation(){},button:0,isPrimary:true,pointerId:1,clientX:30,clientY:30,...props})}
+  function event(target,type,props={}){let stopped=false;const event={target,preventDefault(){this.defaultPrevented=true},stopPropagation(){},stopImmediatePropagation(){stopped=true},button:0,isPrimary:true,pointerId:1,clientX:30,clientY:30,...props};for(const fn of [...(target.captureHandlers[type]||[]),...(target.handlers[type]||[])]){fn(event);if(stopped)break}return event}
   function step(ms){
     const end=now+ms;
     while(now<end){

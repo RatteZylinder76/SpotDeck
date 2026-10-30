@@ -1,5 +1,7 @@
 # Halloween and timing architecture
 
+The newer [Party and metadata update](party-lookups.md) supersedes the original presentation controls and tempo-settings layout described below. The Party exit now hides too, and the idle face grows dynamically.
+
 ## Findings in the previous version
 
 `loadVibeAudio()` requested Spotify audio features and silently used 620 ms when that failed. This corresponds to about 96.8 BPM; it was a preset, not detected tempo. The 320–900 ms clamp also collapsed very slow and fast tempi into unrelated limits. `updateVibeMotion()` divided track position by that interval, implicitly putting the first beat at position zero. There was no downbeat/phase measurement. A valid BPM alone cannot identify a song's first beat or tempo changes. Incoming playback polls reset the position anchor, so polling latency could shift the movement phase.
@@ -32,7 +34,7 @@ References: [LRCLIB API](https://lrclib.net/docs), [Lyricsfile specification](ht
 
 Halloween and Party default off and persist locally. Ambient decoration, automatic surprises, scene frequency and dance pattern have separate preferences. A single elapsed-time scene manager drives ghost/startle, bat/duck, slipping pumpkin hat, cute vampire, failed spell, skeleton companion, cover ghost, spider, shadow and flying pumpkin. Scenes use existing moods plus new startled, duck and vampire poses. Only one major scene runs; its DOM is removed on expiry, mode-off or tab hiding. The normal presets leave 75–90, 45–75 or 30–45 seconds after a scene. The Halloween Overdrive substitutes pumpkin/ghost confetti. There is no strobe effect or continuous canvas loop.
 
-Party mode keeps metadata and cover visible, enlarges the face on wide screens, and hides the dock/timeline/top controls after eight seconds of inactivity. Hidden controls are inert. Pointer/touch or any key reveals them; the first key wakes without activating a hidden action. Arrow keys navigate visible player actions spatially, leaving native fields and dialogs alone. The explicit exit stays visible. Open dialogs prevent hiding. Fullscreen and Screen Wake Lock retain their existing implementation. Neither mode auto-enables fullscreen, and browser DRM capabilities are unchanged.
+Party mode keeps metadata and cover visible, enlarges the face on wide screens, and hides player controls after eight seconds of inactivity. Hidden controls are inert. Pointer/touch or any key reveals them; the first key wakes without activating a hidden action. Arrow keys navigate visible player actions spatially, leaving native fields and dialogs alone. The initial edition kept the exit visible; the newer update hides it too and adds dialog-aware Escape. Open dialogs prevent hiding. Fullscreen and Screen Wake Lock retain their existing implementation. Neither mode auto-enables fullscreen, and browser DRM capabilities are unchanged.
 
 ## Verification (2026-10-30)
 
