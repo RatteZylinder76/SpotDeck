@@ -16,10 +16,14 @@ Synchronization requires a found match, matching version, existing high-confiden
 
 Rendered lines follow reported Spotify position through the existing central RAF: position progresses while playing, freezes when paused, and a new position/seek changes the highlighted line. Opening mid-song immediately selects the current line. No extra polling, RAF or audio processing is added. Saved local-audio lyric offsets are not applied to Spotify. Reduced motion uses immediate scrolling; normal motion scrolls smoothly.
 
-Vibe Face stays autonomous for Spotify; this change only restores the lyric display. The existing independent body movement, local-audio singing, TV performance profiles, Party transitions and Halloween scenes remain intact.
+Vibe Face now also sings from the verified lyric timestamps during Spotify playback, including with the Lyrics view closed. Lyrics load in the existing deferred metadata task and temporary failures retry after the existing backoff through the same central clock. Actual word timestamps are used when present; syllable/vowel positions within line-only lyrics are estimated. The mouth stops its lyric reaction during pause, word gaps, plain-text fallback and track changes. The body keeps its independent dance; no audio capture or analysis is introduced. TV performance profiles, Party transitions and Halloween scenes remain intact.
 
 ## Verification
 
 All three suites pass. Added tests cover timed-first search even when exact lookup returns plain text; line highlighting/scrolling from Spotify state; pause/resume and backward position changes; reopening; cache reuse; source labels; plain, alternate, duration-unknown and out-of-range fallbacks; track-change cleanup; independence from local-audio offsets and vocal animation; and retention of plain text during a failed timestamp search.
 
 Fixtures use invented test lines, not song lyrics. No live Spotify session, specific Smooth Operator recording, audible timing or pixel-level browser layout was verified. Existing browser/device limitations from [TV performance](tv-performance.md) still apply. Reload SpotDeck fully after updating; source status shows synchronisiert or nur Text.
+
+## Singing restoration verification
+
+The three suites also verify positive Spotify mouth opening, actual mouth-path morphing in the existing RAF, closed-view background loads, pause and word-gap closure, ignoring local-file offsets, plain fallback restraint and delayed background retry without request storms. No new real-audio or device verification was performed.

@@ -1211,7 +1211,7 @@
         <button class="setting-action glass glass-clear" id="refreshTempo">Tempo neu suchen</button>
         <select class="setting-field" id="tempoCandidates" aria-label="Passende Aufnahme für Tempo auswählen" hidden></select>
         <div class="lookup-credit"><a href="https://musicbrainz.org" target="_blank" rel="noopener">MusicBrainz</a><a href="https://acousticbrainz.org" target="_blank" rel="noopener">AcousticBrainz · freies Archiv bis 2022</a></div>
-        <p class="setting-note">Die kostenlose Suche übermittelt Titel, Interpret und gegebenenfalls ISRC. Datenbank-BPM sind Metadaten und bestätigen keine genaue Beatphase. Spotify wird nicht analysiert oder mit den Animationen synchronisiert.</p>
+        <p class="setting-note">Die kostenlose Suche übermittelt Titel, Interpret und gegebenenfalls ISRC. Datenbank-BPM sind Metadaten und bestätigen keine genaue Beatphase. Spotify-Audio wird nicht analysiert. Der Mund folgt vorhandenen Lyrics-Zeitmarken; der Tanz bleibt frei.</p>
         <details class="advanced-settings" id="tempoAdvanced">
           <summary>Eigene Musik &amp; Tempo selbst korrigieren</summary>
           <p class="setting-note">Bei eigenen bzw. entsprechend lizenzierten Dateien hört SpotDeck automatisch auf den Rhythmus. Die folgenden Korrekturen sind optional.</p>
@@ -1944,7 +1944,7 @@ THE SOFTWARE.
     if(trackId!==lastTrackId){
       lastTrackId=trackId;
       resetLyricLookup();
-      if(!ownPlayback.active){renderLyricsState("Passender Songtext wird beim Öffnen gesucht …");isLiked=false;updateLikeVisual();likedController?.abort();cancelTempoLookup()}
+      if(!ownPlayback.active){renderLyricsState("Passender Songtext wird gesucht …");isLiked=false;updateLikeVisual();likedController?.abort();cancelTempoLookup()}
       lyricsTrackId=null;
       lyricsLoadState="idle";
       lyricsRetryAt=0;
@@ -1958,7 +1958,7 @@ THE SOFTWARE.
     if(!ownPlayback.active)metadataTimer=setTimeout(()=>{
       metadataTimer=null;if(playback?.item?.id!==item?.id)return;
       if(item?.type==="track"){if(runtime.likedTrack!==trackId){runtime.likedTrack=trackId;void checkLiked(trackId)}}
-      if(lyrics.classList.contains("open")&&lyricsTrackId!==trackId)void loadLyrics(false);
+      if(item?.type==="track"&&lyricsTrackId!==trackId)void loadLyrics(false);
     },150);
 
     if(!ownPlayback.active && trackId && trackId !== lastVibeTrackId){
@@ -2453,8 +2453,7 @@ THE SOFTWARE.
 
   function updateVibeVocalReaction(positionMs=getCurrentPositionMs()){
     if(!vibeFace)return;
-    if(!ownPlayback.active){vibeSpeech={open:0,round:0,wide:0,long:false};vibeFace.classList.remove("singing");return}
-    positionMs-=facePreferences.lyricsOffset;
+    if(ownPlayback.active)positionMs-=facePreferences.lyricsOffset;
     const trackId=playback?.item?.id || null;
     if(trackId!==vibeSpeechTrack || Math.abs(positionMs-vibeSceneLastPosition)>1800){
       resetVibeLyrics();
@@ -3119,10 +3118,10 @@ THE SOFTWARE.
     const sources={none:"Kein erkanntes Tempo",manual:"Manuell eingegeben",tap:"Tap-Tempo",onset:"Onset-Erkennung · geschätzt"};
     $("tapTempo").textContent=beatEngine.taps.length>0&&beatEngine.taps.length<4?`Noch ${4-beatEngine.taps.length} × im Takt tippen`:"Im Takt tippen";
     renderTempoStatus();
-    const source=ownPlayback.active?sources[beatEngine.source]:"Freie Animation · keine Spotify-Synchronisierung";
+    const source=ownPlayback.active?sources[beatEngine.source]:syncedLyrics.length?"Freier Tanz · Mitsingen nach Lyrics":"Freie Animation · keine Spotify-Synchronisierung";
     const bpm=ownPlayback.active&&beatEngine.bpm?`${beatEngine.bpm.toFixed(1)} BPM · Tanz ${beatEngine.danceBpm().toFixed(1)} BPM`:"Kein gemessenes BPM";
     const quality=ownPlayback.active&&beatEngine.bpm?` · Konfidenz ${Math.round(beatEngine.confidence*100)} % (keine Genauigkeitsgarantie)`:"";
-    const message=`${bpm}. ${source}${quality}. Beatversatz ${Math.round(beatEngine.offset)} ms; Lyricsversatz ${facePreferences.lyricsOffset} ms. ${ownPlayback.active?lyricsTimingLabel():"Emotionen und Überraschungen bleiben eigenständig aktiv."}`;
+    const message=`${bpm}. ${source}${quality}. Beatversatz ${Math.round(beatEngine.offset)} ms; Lyricsversatz ${ownPlayback.active?facePreferences.lyricsOffset:0} ms. ${ownPlayback.active||syncedLyrics.length?lyricsTimingLabel():"Emotionen und Überraschungen bleiben eigenständig aktiv."}`;
     if(beatDiagnostic.textContent!==message)beatDiagnostic.textContent=message;
   }
   function lyricsTimingLabel(){return syncedLyrics.some(row=>row.words?.length)?"Wortzeitstempel vorhanden.":syncedLyrics.length?"Wortzeitpunkte aus Zeilen geschätzt.":"Keine synchronisierten Lyrics."}
@@ -3533,7 +3532,9 @@ THE SOFTWARE.
     renderTempoCandidates();renderTempoStatus();
   }
   function cancelTempoLookup(){const state=lookupState.tempo;state.controller?.abort();Object.assign(state,{status:"idle",signature:"",key:"",identity:null,pending:null,result:null,candidates:[]});renderTempoCandidates();renderTempoStatus()}
-  function tickMetadataLookups(now){const state=lookupState.tempo;if(state.pending&&now>=state.pending.at){const request=state.pending;state.pending=null;void findTempoMetadata(request.identity,request.force,state.controller)}}
+  function tickMetadataLookups(now){const state=lookupState.tempo;if(state.pending&&now>=state.pending.at){const request=state.pending;state.pending=null;void findTempoMetadata(request.identity,request.force,state.controller)}
+    if(!ownPlayback.active&&playback?.item?.type==="track"&&lyricsLoadState==="retry"&&now>=lyricsRetryAt&&!lyricsLoadingTrack)void loadLyrics(false);
+  }
   async function findTempoMetadata(identity,force,controller){
     const state=lookupState.tempo,signal=controller.signal,current=()=>!signal.aborted&&state.controller===controller&&state.signature===identity.signature&&!ownPlayback.active;
     const cached=!force&&[tempoCache.get(identity.key),identity.isrc?tempoCache.get(`isrc:${identity.isrc}`):null].find(entry=>entry?.signature===identity.signature&&validTempoResult(entry.result));
