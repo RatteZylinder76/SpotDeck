@@ -178,3 +178,8 @@ MIT License © 2025 Sayan Sarkar
 
 ## 🤝 Contributions 
 Special Thanks To [Shitij](https://github.com/ShitijHalder) For The Overall Help.
+
+
+## TV performance and playback diagnostics
+
+Settings → Darstellung now offers Auto, Quality and TV/Performance profiles plus opt-in local diagnostics. Local SDK state events bypass REST latency; serialized, revision-guarded polling supplies fallback/reconciliation. Lyrics use a compact source line and a ⋯ menu for details/local files. Reduced-motion confetti uses independent ring coordinates. See [implementation, verification limits and device comparison steps](docs/tv-performance.md). All three offline suites pass; actual TV audio gaps, paint cost and new browser layouts still need device testing.

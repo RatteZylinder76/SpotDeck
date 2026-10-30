@@ -91,4 +91,16 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   const cache=h.run('new LookupCache("test-cache",2,2000)');cache.put('a',{value:1},10000);cache.put('b',{value:2},10000);cache.put('c',{value:3},10000);assert.equal(cache.entries.size,2);assert.equal(cache.get('a'),null);
   cache.entries.get('b').expires=Date.now()-1;assert.equal(cache.get('b'),null);
   console.log('PASS stale lyric cancellation, track-change clearing, bounded cache and expiry.');
+  // Structural layout contract; real pixel geometry still requires browser/device QA.
+  const {html}=require('./spotdeck.test.cjs');
+  const lyricsHead=html.slice(html.indexOf('<div class="lyrics-head">'),html.indexOf('<div class="lyrics-body"'));
+  assert(lyricsHead.indexOf('id="lyricsNotice"')<lyricsHead.indexOf('class="lyrics-tools"'),'Compact source lives in the title header');
+  assert(lyricsHead.indexOf('id="lyricsMenu"')<lyricsHead.indexOf('id="localTextFile"'),'Local file action is inside the menu');
+  const tools=lyricsHead.slice(lyricsHead.indexOf('class="lyrics-tools"'));
+  assert(!tools.includes('id="localTextFile"'));
+  assert.match(html,/\.lyrics-tools \.setting-field\[hidden\]\{display:none\}/);
+  assert.match(html,/@media\(max-height:600px\)/);
+  assert.match(html,/font-size:clamp\(20px,min\(3\.2vw,5vh\),54px\)/);
+  assert(l.nodes.get('lyricsChoices').hidden,'Unique result has no version selector');
+  console.log('PASS compact source/header, local-file menu, hidden unique selector and low-height layout rules (structural checks only).');
 })().catch(error=>{console.error(error);process.exitCode=1});

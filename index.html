@@ -630,10 +630,10 @@
     #vibeFace:focus-visible{outline:2px solid #9fe7cb;outline-offset:8px;border-radius:24px}
     .face-easteregg{position:absolute;inset:-18%;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .45s ease;z-index:5}
     .vibe-face.easteregg .face-easteregg{opacity:1;visibility:visible}
-    .egg-confetti{position:absolute;left:var(--egg-x);top:12%;font-size:clamp(14px,3vh,28px);animation:eggConfetti 2.8s ease-out infinite;animation-delay:var(--egg-delay)}
+    .egg-confetti{position:absolute;left:var(--egg-x);top:var(--egg-y);font-size:clamp(14px,3vh,28px);animation:eggConfetti 2.8s ease-out infinite;animation-delay:var(--egg-delay)}
     .egg-caption{position:absolute;top:80%;left:0;width:100%;text-align:center;font-size:clamp(10px,1.6vh,15px);font-weight:800;letter-spacing:.13em;color:#e8d4ff;text-shadow:0 0 14px #c38af0}
     @keyframes eggConfetti{0%{transform:translate(0,-12px) rotate(-20deg) scale(.7);opacity:0}15%,65%{opacity:.95}100%{transform:translate(var(--egg-drift),120px) rotate(190deg) scale(1);opacity:0}}
-    .vibe-face[data-motion="reduced"] .egg-confetti{animation:none;top:var(--egg-x)}
+    .vibe-face[data-motion="reduced"] .egg-confetti{animation:none;top:var(--egg-y)}
     .vibe-face .face-eye{height:auto;aspect-ratio:1;transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--eye-open,1));transition:transform .12s ease,margin .3s ease}
     .vibe-face .face-eye.left{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,var(--left-eye-open,var(--eye-open,1)))}
     .vibe-face[data-expression="crossEyed"] .face-eye.left{margin-left:4px}
@@ -926,6 +926,40 @@
     @media (max-height:500px) and (orientation:landscape){.app[data-party="true"]{--party-top:58px;--party-gap:0px;--dock-slot:64px;--timeline-slot:34px}.lyrics-tools{padding-bottom:4px}.lyrics-notice{font-size:11px;margin:0 auto 4px}}
     @media (prefers-reduced-motion:reduce){#partyExit{transition:none}}
 
+
+    /* Keep paint-heavy effects off the moving face. */
+    .vibe-face{filter:none;transition:opacity .22s ease}
+    .face-eye{box-shadow:0 4px 8px #0005}
+    .face-orb{filter:none;background:radial-gradient(ellipse,#ffffff0d,transparent 68%)}
+    .bg{filter:blur(28px) saturate(.9) brightness(.56)}
+    .app[data-performance="tv"]{--glass-blur:8px}
+    .app[data-performance="tv"] .bg{filter:blur(10px) brightness(.5);transition:opacity .4s}
+    .app[data-performance="tv"] :is(.scene-prop,.halloween-layer,.face-easteregg){filter:none}
+    .app[data-performance="tv"] .halloween-ambient::before,.app[data-performance="tv"] .halloween-ambient::after{animation:none}
+    .app[data-performance="tv"] .scene-prop:nth-child(n+5){display:none}
+    html[data-performance="tv"]{--glass-blur:8px}
+    html[data-performance="tv"] :is(.glass,.lyrics-top,.library-top,.settings){backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+    .app[data-motion="reduced"] .halloween-ambient::before,.app[data-motion="reduced"] .halloween-ambient::after{animation:none}
+    .egg-confetti{font-size:clamp(14px,5cqw,42px)}
+    .vibe-face[data-motion="reduced"] .egg-confetti{top:var(--egg-y);opacity:.9}
+    @keyframes eggConfetti{0%{transform:translate(0,0) rotate(-20deg) scale(.8);opacity:0}15%,65%{opacity:.95}100%{transform:translate(var(--egg-drift),-9cqw) rotate(120deg);opacity:0}}
+    .runtime-diagnostic{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:42vh;overflow:auto}
+    .lyrics.open{grid-template-rows:auto auto minmax(0,1fr)}
+    .lyrics-top{grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;padding-top:calc(var(--safe-t) + 8px);padding-bottom:8px}
+    .lyrics-head strong{font-size:clamp(17px,2vw,26px)}
+    .lyrics-head .lyrics-notice{margin:3px 0 0;width:100%;font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lyrics-tools{padding:0}
+    .lyrics-tools .setting-field{display:block;width:calc(100% - 32px);max-width:980px;margin:6px auto;font-size:13px}
+    .lyrics-tools .setting-field[hidden]{display:none}
+    .lyrics-menu{position:relative}
+    .lyrics-menu summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center}
+    .lyrics-menu summary::-webkit-details-marker{display:none}
+    .lyrics-menu-content{position:absolute;right:0;top:calc(100% + 8px);z-index:4;width:min(320px,78vw);padding:16px;border-radius:18px;background:#122420fa;border:1px solid var(--line);box-shadow:var(--shadow-lg);font-size:13px;line-height:1.5}
+    .lyrics-menu-content p{margin:0 0 10px}.lyrics-menu-content a{color:#c9f2d8}
+    .lyrics-menu-content .lyrics-local{display:block;margin-top:12px}
+    .lyrics-body{padding-top:clamp(10px,2vh,22px)}
+    .lyrics-plain{font-size:clamp(20px,min(3.2vw,5vh),54px);line-height:1.45}
+    @media(max-height:600px){.lyrics-top{padding-top:calc(var(--safe-t) + 5px);padding-bottom:5px}.lyrics-top .round-action{width:36px;height:36px}.lyrics-head strong{font-size:18px}.lyrics-head span{margin-top:2px;font-size:11px}.lyrics-body{padding-top:10px}.lyrics-tools .setting-field{margin:3px auto;padding:6px 10px}}
   </style>
 </head>
 <body>
@@ -1099,7 +1133,9 @@
       <div class="lyrics-head">
         <strong id="lyricsTitle">Lyrics</strong>
         <span id="lyricsArtist">—</span>
+        <p class="lyrics-notice" id="lyricsNotice" hidden></p>
       </div>
+      <details class="lyrics-menu" id="lyricsMenu"><summary class="round-action glass glass-clear" aria-label="Lyrics-Informationen und lokale Datei">⋯</summary><div class="lyrics-menu-content"><p id="lyricsInfo">Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt. Abweichende Aufnahmen werden gekennzeichnet.</p><a href="https://lrclib.net" target="_blank" rel="noopener">Lyrics: LRCLIB</a><label class="lyrics-local glass glass-clear">Lokalen Text öffnen<input type="file" id="localTextFile" aria-label="Lokale Lyrics- oder Textdatei öffnen" accept=".lrc,.txt,.yaml,.yml"></label></div></details>
       <button class="round-action glass glass-clear" id="refreshLyrics" aria-label="Lyrics neu laden" title="Lyrics neu laden">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 8M5.5 15A7 7 0 0 0 18 17.5l2-1.5"/>
@@ -1107,9 +1143,7 @@
       </button>
     </div>
     <div class="lyrics-tools">
-      <p class="lyrics-notice" id="lyricsNotice" hidden></p>
       <select class="setting-field" id="lyricsChoices" aria-label="Passende Songtextversion auswählen" hidden></select>
-      <label class="lyrics-local glass glass-clear">Lokalen Text öffnen<input type="file" id="localTextFile" aria-label="Lokale Lyrics- oder Textdatei öffnen" accept=".lrc,.txt,.yaml,.yml"></label>
     </div>
     <div class="lyrics-body" id="lyricsBody">
       <div class="lyrics-state">Lyrics werden geladen …</div>
@@ -1138,6 +1172,13 @@
         <input id="volumeSlider" aria-label="Lautstärke" type="range" min="0" max="100" value="50">
         <span id="volumeValue">50%</span>
       </div>
+      <h3>Darstellung</h3>
+      <label class="label" for="performanceSetting">Performance</label>
+      <select class="setting-field" id="performanceSetting"><option value="auto">Automatisch</option><option value="quality">Hohe Qualität</option><option value="tv">TV / Performance</option></select>
+      <p class="setting-note" id="performanceStatus"></p>
+      <label class="setting-row"><span>Diagnose anzeigen · nur lokal</span><input type="checkbox" id="debugSetting"></label>
+      <pre class="runtime-diagnostic" id="runtimeDiagnostic" hidden aria-label="Animations- und Spotify-Diagnose"></pre>
+      <button class="setting-action glass glass-clear" id="exportDiagnostic" hidden>Diagnose herunterladen</button>
       <label class="label" for="faceSizeSetting">Vibe-Face-Größe</label>
       <select class="setting-field" id="faceSizeSetting"><option value="normal">Normal</option><option value="large">Groß</option><option value="extra">Extra groß</option></select>
       <label class="label" for="transparencySetting">Glas &amp; Transparenz</label>
@@ -1282,6 +1323,8 @@ THE SOFTWARE.
   let localPlayer=null, localDeviceId=null, localPlayerPromise=null, sdkScriptPromise=null;
   let localPlayerEpoch=0, localStateLast=0, deviceRefreshEpoch=0, localPlayerCancel=null;
   let playbackMode="controller", deviceList=[], localVolume=.5, deviceTransferBusy=false;
+  let pollBusy=false,pollController=null,playbackRevision=0,lastLocalPoll=-Infinity,lastRemotePoll=-Infinity;
+  let pickerSignature="",metadataTimer=null,likedController=null,sdkQueryPromise=null;
 
   let playback = null;
   let lastTrackId = null;
@@ -1362,17 +1405,78 @@ THE SOFTWARE.
   }
 
   function readFacePreferences(){
-    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true};
+    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto"};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
       if(!saved||typeof saved!=="object")return defaults;
-      for(const [key,choices]of Object.entries({motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
+      for(const [key,choices]of Object.entries({performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
       for(const key of ["sound","halloween","party","ambient","surprises","tempoLookup"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
       for(const [key,a,b]of [["manualBpm",30,400],["beatOffset",-2000,2000],["lyricsOffset",-5000,5000]])if(typeof saved[key]==="number"&&Number.isFinite(saved[key])&&saved[key]>=a&&saved[key]<=b)defaults[key]=saved[key];
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
       return defaults;
     }catch{return defaults}
   }
+
+  // Bounded, opt-in diagnostics. No tokens, account data, URLs or raw SDK errors.
+  const runtime={enabled:false,events:[],sdkStatus:"disconnected",track:null,runningTrack:null,nextTrack:null,trackChangedAt:0,queryMs:0,polls:0,
+    frames:0,gaps:0,lastFrame:0,frameTotal:0,workTotal:0,maxWork:0,fps:0,meanFrame:0,meanWork:0,windowAt:0,slowWindows:0,autoTV:false,lastAux:0,lastMouth:0,lastDebug:0,sections:{},observer:null};
+  const faceStyleCache=new Map();
+  function setFaceProperty(key,value){
+    if(faceStyleCache.get(key)===value)return;
+    faceStyleCache.set(key,value);vibeFace.style.setProperty(key,value);
+  }
+  function effectivePerformance(){return facePreferences.performance==="tv"||(facePreferences.performance==="auto"&&runtime.autoTV)?"tv":"quality"}
+  function applyPerformance(){
+    app.dataset.performance=effectivePerformance();document.documentElement.dataset.performance=effectivePerformance();
+    $("performanceSetting").value=facePreferences.performance;
+    $("performanceStatus").textContent=facePreferences.performance==="auto"?(runtime.autoTV?"Automatisch: vereinfachte Effekte nach gemessenen Frame-Lücken.":"Automatisch: Laufzeit wird beobachtet; keine Geräteerkennung."):(effectivePerformance()==="tv"?"Weniger Blur und Partikel; Körperbewegung bis 30 Bilder/s.":"Volle Effekte; Körperbewegung bis 60 Bilder/s.");
+  }
+  function diagnose(kind,detail={}){
+    if(!runtime.enabled)return;
+    runtime.events.push({atMs:Math.round(performance.now()),kind,...detail});
+    if(runtime.events.length>160)runtime.events.shift();
+  }
+  function setDebug(enabled){
+    runtime.enabled=enabled;runtime.events=[];runtime.sections={};
+    $("runtimeDiagnostic").hidden=!enabled;$("exportDiagnostic").hidden=!enabled;
+    runtime.observer?.disconnect();runtime.observer=null;
+    if(enabled&&typeof PerformanceObserver!=="undefined"){
+      try{runtime.observer=new PerformanceObserver(list=>{for(const entry of list.getEntries())diagnose("long-task",{durationMs:Math.round(entry.duration)})});runtime.observer.observe({entryTypes:["longtask"]})}catch{}
+    }
+  }
+  function timedSection(name,fn){
+    if(!runtime.enabled)return fn();
+    const start=performance.now();fn();const elapsed=performance.now()-start;
+    const section=runtime.sections[name]||{count:0,total:0,max:0};
+    section.count++;section.total+=elapsed;section.max=Math.max(section.max,elapsed);runtime.sections[name]=section;
+  }
+  function observeFrame(now,work){
+    if(runtime.lastFrame){
+      const gap=now-runtime.lastFrame;runtime.frameTotal+=gap;
+      if(gap>80){runtime.gaps++;diagnose("frame-gap",{durationMs:Math.round(gap),scene:effects.active?.name||"none"})}
+    }
+    runtime.lastFrame=now;runtime.frames++;runtime.workTotal+=work;runtime.maxWork=Math.max(runtime.maxWork,work);
+    if(!runtime.windowAt)runtime.windowAt=now;
+    if(now-runtime.windowAt>=5000){
+      runtime.fps=runtime.frames*1000/(now-runtime.windowAt);runtime.meanFrame=runtime.frameTotal/Math.max(1,runtime.frames-1);runtime.meanWork=runtime.workTotal/runtime.frames;
+      const expectedInterval=motionLevel()===0?65:1000/30;
+      const slow=runtime.meanFrame>expectedInterval*1.35||runtime.maxWork>40;
+      runtime.slowWindows=slow?runtime.slowWindows+1:0;
+      if(facePreferences.performance==="auto"&&runtime.slowWindows>=2&&!runtime.autoTV){runtime.autoTV=true;applyPerformance();diagnose("automatic-performance")}
+      runtime.frames=0;runtime.frameTotal=0;runtime.workTotal=0;runtime.maxWork=0;runtime.windowAt=now;
+    }
+    if(runtime.enabled&&now-runtime.lastDebug>1000){
+      runtime.lastDebug=now;
+      const transform=typeof getComputedStyle==="function"?getComputedStyle(vibeFace).transform:"unavailable";
+      $("runtimeDiagnostic").textContent=JSON.stringify({fps:+runtime.fps.toFixed(1),frameMs:+runtime.meanFrame.toFixed(2),loopMs:+runtime.meanWork.toFixed(2),frameGaps:runtime.gaps,motion:facePreferences.motion,systemReduced:reducedFaceMotion.matches,motionLevel:motionLevel(),dataMotion:vibeFace.dataset.motion,transform,faceWidth:vibeFace.offsetWidth||0,halloween:facePreferences.halloween,scene:effects.active?.name||"none",performance:effectivePerformance(),track:runtime.track,sdk:runtime.sdkStatus,lastTrackChangeMs:runtime.trackChangedAt,queryMs:runtime.queryMs,polls:runtime.polls,sections:runtime.sections,events:runtime.events.slice(-8),audioStart:"Nicht messbar: SDK meldet nur Playerzustand."},null,2);
+    }
+  }
+  $("performanceSetting").addEventListener("change",()=>{facePreferences.performance=$("performanceSetting").value;runtime.autoTV=false;runtime.slowWindows=0;applyPerformance();persistPartyPreferences()});
+  $("debugSetting").addEventListener("change",()=>setDebug($("debugSetting").checked));
+  $("exportDiagnostic").addEventListener("click",()=>{
+    const blob=new Blob([JSON.stringify({summary:$("runtimeDiagnostic").textContent,events:runtime.events},null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="spotdeck-diagnose.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
 
   function motionLevel(){
     const mode=facePreferences.motion;
@@ -1387,9 +1491,10 @@ THE SOFTWARE.
     transparencySetting.value=facePreferences.transparency;
     motionSetting.value=facePreferences.motion;
     faceSoundSetting.checked=facePreferences.sound;
-    motionStatus.textContent=motionLevel()===0 ? "Bewegung reduziert. Mimik, Antippen und Easteregg bleiben aktiv." : "Bewegung aktiv – auch ohne laufende Musik.";
+    motionStatus.textContent=motionLevel()===0 ? (facePreferences.motion==="system"?"Systemeinstellung reduziert die Bewegung. Für sichtbares Wippen „Normale Animation“ wählen.":"Bewegung ausdrücklich reduziert. Mimik und Easteregg bleiben aktiv.") : "Bewegung aktiv – auch ohne Musik. "+(reducedFaceMotion.matches?"Manuelle Auswahl überschreibt reduzierte Systembewegung.":"");
+    app.dataset.motion=vibeFace.dataset.motion;
     try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
-    startProgressAnimation();
+    applyPerformance();startProgressAnimation();
   }
   function playFaceSound(name="happy"){
     if(!facePreferences.sound || document.visibilityState!=="visible" || performance.now()-lastFaceSound<1400) return;
@@ -1494,8 +1599,11 @@ THE SOFTWARE.
       grant_type:"refresh_token",
       refresh_token:s.refresh_token
     });
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
+    const refreshStarted=performance.now();
+    try{
     const r=await fetch("https://accounts.spotify.com/api/token",{
-      method:"POST",
+      method:"POST",signal:controller.signal,
       headers:{"Content-Type":"application/x-www-form-urlencoded"},
       body
     });
@@ -1506,7 +1614,8 @@ THE SOFTWARE.
     if(d.scope) s.scopes=d.scope.split(/\s+/);
     s.expires_at=Date.now()+(d.expires_in-60)*1000;
     saveSession(s);
-    return true;
+    diagnose("token-refresh",{durationMs:performance.now()-refreshStarted});return true;
+    }finally{clearTimeout(timeout)}
   }
 
   function refreshIfNeeded(){
@@ -1516,6 +1625,7 @@ THE SOFTWARE.
 
   async function api(path,options={}){
     if(!await refreshIfNeeded()) throw new Error("NO_SESSION");
+    if(options.signal?.aborted)throw Object.assign(new Error("Request expired"),{name:"AbortError"});
     const s=loadSession();
     const r=await fetch(`https://api.spotify.com/v1${path}`,{
       ...options,
@@ -1537,10 +1647,10 @@ THE SOFTWARE.
   }
   function playerMessage(message){playerStatus.textContent=message}
   function teardownLocalPlayer(){
-    localPlayerEpoch++;
+    localPlayerEpoch++;playbackRevision++;
     if(localPlayerCancel){localPlayerCancel();localPlayerCancel=null}
     if(localPlayer){try{localPlayer.disconnect()}catch{}}
-    localPlayer=null;localDeviceId=null;localPlayerPromise=null;localStateLast=0;
+    localPlayer=null;localDeviceId=null;localPlayerPromise=null;localStateLast=0;sdkQueryPromise=null;
     localPlaybackBtn.disabled=false;
   }
   function localPlayerFailure(message){
@@ -1567,12 +1677,17 @@ THE SOFTWARE.
     }).catch(error=>{sdkScriptPromise=null;throw error});
     return sdkScriptPromise;
   }
-  function renderLocalState(state){
+  function renderLocalState(state,source="event"){
+    if(source==="event"){playbackRevision++;diagnose("sdk-state",{track:state?.track_window?.current_track?.id||null,paused:state?.paused??null,position:state?.position??null});}
     if(ownPlayback.active){if(state&&!state.paused)stopOwnedAudio();else return}
     if(!state || playbackMode!=="local" || !localDeviceId) return;
     const current=state.track_window?.current_track;
     if(!current) return;
     localStateLast=performance.now();
+    runtime.sdkStatus=state.paused?"paused":"playing";
+    if(state.duration && state.position>=state.duration-250)diagnose("sdk-near-end",{track:current.id,position:state.position,duration:state.duration});
+    const next=state.track_window?.next_tracks?.[0];
+    if(next && next.id!==runtime.nextTrack){runtime.nextTrack=next.id;rememberTrackMetadata(next);const image=getArt(next);if(image){const preload=new Image();preload.src=image}}
     renderPlayback({
       item:{...current,type:current.type || "track",duration_ms:state.duration || current.duration_ms},
       progress_ms:state.position || 0,is_playing:!state.paused,
@@ -1622,22 +1737,25 @@ THE SOFTWARE.
         localPlayer=player;
         player.addListener("ready",({device_id})=>{
           if(epoch!==localPlayerEpoch) return;
-          localDeviceId=device_id;localPlaybackBtn.disabled=false;
+          localDeviceId=device_id;runtime.sdkStatus="ready";diagnose("sdk-ready");localPlaybackBtn.disabled=false;
           playerMessage("Bereit. Zum Übernehmen der Wiedergabe auf „Auf diesem Gerät starten“ tippen.");
           finish(device_id);void refreshSpotifyDevices();
         });
         player.addListener("not_ready",()=>{
+          runtime.sdkStatus="not_ready";diagnose("not_ready");
           if(epoch!==localPlayerEpoch) return;
           fail("Das lokale Spotify-Gerät ist nicht mehr erreichbar. Bitte erneut starten.");
         });
         player.addListener("player_state_changed",state=>{if(epoch===localPlayerEpoch) renderLocalState(state)});
         player.addListener("autoplay_failed",()=>{
+          runtime.sdkStatus="autoplay_failed";diagnose("autoplay_failed");
           if(epoch===localPlayerEpoch) playerMessage("Der Browser wartet auf eine Berührung. Bitte noch einmal „Auf diesem Gerät starten“ drücken.");
         });
-        player.addListener("initialization_error",()=>fail("Dieser Browser unterstützt Spotify-Audio oder den benötigten DRM-Schutz nicht."));
-        player.addListener("authentication_error",()=>fail("Spotify hat die Player-Anmeldung abgelehnt. Bitte erneut verbinden."));
-        player.addListener("account_error",()=>fail("Lokale Spotify-Wiedergabe benötigt ein berechtigtes Spotify-Premium-Konto."));
+        player.addListener("initialization_error",()=>{runtime.sdkStatus="initialization_error";diagnose("initialization_error");fail("Dieser Browser unterstützt Spotify-Audio oder den benötigten DRM-Schutz nicht.")});
+        player.addListener("authentication_error",()=>{runtime.sdkStatus="authentication_error";diagnose("authentication_error");fail("Spotify hat die Player-Anmeldung abgelehnt. Bitte erneut verbinden.")});
+        player.addListener("account_error",()=>{runtime.sdkStatus="account_error";diagnose("account_error");fail("Lokale Spotify-Wiedergabe benötigt ein berechtigtes Spotify-Premium-Konto.")});
         player.addListener("playback_error",()=>{
+          runtime.sdkStatus="playback_error";diagnose("playback_error");
           if(epoch===localPlayerEpoch) playerMessage("Der Titel konnte lokal nicht gestartet werden. Bitte erneut starten oder ein anderes Gerät wählen.");
         });
         player.connect().then(ok=>{if(!ok) fail("Verbindung zum Spotify-Player nicht möglich.")}).catch(()=>fail("Verbindung zum Spotify-Player fehlgeschlagen."));
@@ -1681,6 +1799,8 @@ THE SOFTWARE.
     const devices=deviceList.slice();
     if(currentDevice?.id && !devices.some(d=>d.id===active)) devices.push({...currentDevice,is_active:true});
     if(localDeviceId && !devices.some(d=>d.id===localDeviceId)) devices.push({id:localDeviceId,name:"SpotDeck – dieses Gerät",is_active:active===localDeviceId});
+    const signature=JSON.stringify([active,localDeviceId,devices.map(d=>[d.id,d.name,d.is_active,d.is_restricted])]);
+    if(signature===pickerSignature)return;pickerSignature=signature;
     devicePicker.replaceChildren();
     const blank=document.createElement("option");blank.value="";blank.textContent=devices.length ? "Gerät auswählen" : "Keine Geräte – Spotify auf einem Gerät öffnen";devicePicker.append(blank);
     for(const d of devices){
@@ -1719,9 +1839,9 @@ THE SOFTWARE.
     if(ownPlayback.active){teardownLocalPlayer();clearInterval(pollTimer);pollTimer=null;return}
     app.classList.add("disconnected");
     dot.classList.remove("online");
-    device.textContent="Spotify";
+    setText(device,"Spotify");
     clearInterval(pollTimer);
-    pollTimer=null;
+    pollTimer=null;playbackRevision++;pollController?.abort();clearTimeout(metadataTimer);likedController?.abort();
     playback = null;
     cancelTempoLookup();resetLyricLookup();
     lastTrackId=null;
@@ -1754,18 +1874,21 @@ THE SOFTWARE.
   }
 
   async function checkLiked(trackId){
+    likedController?.abort();const controller=new AbortController();likedController=controller;
     if(!trackId){isLiked=false;updateLikeVisual();return}
     try{
       const uri=`spotify:track:${trackId}`;
-      const r=await api(`/me/library/contains?uris=${encodeURIComponent(uri)}`);
+      const r=await api(`/me/library/contains?uris=${encodeURIComponent(uri)}`,{signal:controller.signal});
       if(r.ok){
         const d=await r.json();
+        if(controller.signal.aborted||lastTrackId!==trackId)return;
         isLiked=!!d[0];
         updateLikeVisual();
       }
     }catch{}
   }
 
+  function setText(node,text){if(node.textContent!==text)node.textContent=text}
   function renderPlayback(data){
     if(ownPlayback.active&&data?.spotdeck_source!=="owned")return;
     if(!ownPlayback.active&&data?.item)rememberTrackMetadata(data.item);
@@ -1775,11 +1898,11 @@ THE SOFTWARE.
     const trackId=item?.type==="track"?item.id:null;
     const image=getArt(item);
 
-    title.textContent=item?.name || "Nichts wird abgespielt";
-    artists.textContent=item?getArtists(item):"Starte Spotify auf deinem Wiedergabegerät";
-    album.textContent=item?.album?.name || item?.show?.name || "Spotify";
-    device.textContent=data?.device?.name || "Kein aktives Gerät";
-    settingsDevice.textContent=data?.device?.name || "Kein aktives Gerät";
+    setText(title,item?.name || "Nichts wird abgespielt");
+    setText(artists,item?getArtists(item):"Starte Spotify auf deinem Wiedergabegerät");
+    setText(album,item?.album?.name || item?.show?.name || "Spotify");
+    setText(device,data?.device?.name || "Kein aktives Gerät");
+    setText(settingsDevice,data?.device?.name || "Kein aktives Gerät");
     dot.classList.toggle("online",!!data?.device);
     if(data?.device?.id===localDeviceId && localDeviceId){playbackMode="local";playbackModeSelect.value="local";localPlaybackBtn.hidden=false}
     renderDevicePicker();
@@ -1799,8 +1922,8 @@ THE SOFTWARE.
 
     const dur=item?.duration_ms||0;
     const pos=data?.progress_ms||0;
-    duration.textContent=msToTime(dur);
-    elapsed.textContent=msToTime(pos);
+    setText(duration,msToTime(dur));
+    setText(elapsed,msToTime(pos));
     bar.style.width=dur?`${Math.min(100,pos/dur*100)}%`:"0%";
 
     if(data?.is_playing){
@@ -1815,20 +1938,28 @@ THE SOFTWARE.
 
     if(data?.device?.volume_percent!=null){
       volumeSlider.value=data.device.volume_percent;
-      volumeValue.textContent=`${data.device.volume_percent}%`;
+      setText(volumeValue,`${data.device.volume_percent}%`);
     }
 
     if(trackId!==lastTrackId){
       lastTrackId=trackId;
       resetLyricLookup();
-      if(!ownPlayback.active){renderLyricsState("Passender Songtext wird beim Öffnen gesucht …");checkLiked(trackId)}
+      if(!ownPlayback.active){renderLyricsState("Passender Songtext wird beim Öffnen gesucht …");isLiked=false;updateLikeVisual();likedController?.abort();cancelTempoLookup()}
       lyricsTrackId=null;
       lyricsLoadState="idle";
       lyricsRetryAt=0;
       lyricsRetryCount=0;
     }
     ensureBackgroundLyrics();
-    if(!ownPlayback.active){if(item?.type==="track")tempoRequest(item);else cancelTempoLookup();if(lyrics.classList.contains("open")&&lyricsTrackId!==trackId)void loadLyrics(false)}
+    if(runtime.track!==trackId){runtime.track=trackId;runtime.trackChangedAt=performance.now();diagnose("ui-track",{track:trackId})}
+    if(data?.is_playing && runtime.runningTrack!==trackId){runtime.runningTrack=trackId;diagnose("reported-playing",{track:trackId})}
+    if(!ownPlayback.active&&item?.type==="track")tempoRequest(item);
+    clearTimeout(metadataTimer);
+    if(!ownPlayback.active)metadataTimer=setTimeout(()=>{
+      metadataTimer=null;if(playback?.item?.id!==item?.id)return;
+      if(item?.type==="track"){if(runtime.likedTrack!==trackId){runtime.likedTrack=trackId;void checkLiked(trackId)}}
+      if(lyrics.classList.contains("open")&&lyricsTrackId!==trackId)void loadLyrics(false);
+    },150);
 
     if(!ownPlayback.active && trackId && trackId !== lastVibeTrackId){
       lastVibeTrackId = trackId;
@@ -1848,24 +1979,30 @@ THE SOFTWARE.
   function spotDeckFrame(now){
     animFrame=null;
     if(document.visibilityState==="hidden") return;
-    const interval=motionLevel()===0 ? 65 : 32;
+    const interval=motionLevel()===0 ? 65 : effectivePerformance()==="tv"||facePreferences.performance==="auto" ? 1000/30 : 1000/60;
     if(now-frameLast>=interval){
-      frameLast=now;
+      frameLast=now-(now-frameLast)%interval;
+      const workStart=performance.now();
       const dur=playback?.item?.duration_ms || 0;
       const pos=playback ? Math.min(getCurrentPositionMs(),dur) : 0;
       if(now-progressLast>=110){
         progressLast=now;
-        elapsed.textContent=msToTime(pos);
+        setText(elapsed,msToTime(pos));
         bar.style.width=dur?`${pos/dur*100}%`:"0%";
         track.setAttribute("aria-valuenow",String(dur?Math.round(pos/dur*100):0));
         track.setAttribute("aria-valuetext",`${msToTime(pos)} von ${msToTime(dur)}`);
         updateLyricsPosition(pos);
       }
-      analyseOwnedAudio(now);
-      updateVibeVocalReaction(pos);
-      tickEffects(now);
-      updateVibeMotion(pos);
-      tickParty(now);tickMetadataLookups(now);renderBeatDiagnostic();
+      timedSection("audio-analysis",()=>analyseOwnedAudio(now));
+      if(now-runtime.lastAux>=(effectivePerformance()==="tv"?100:50)){
+        runtime.lastAux=now;
+        timedSection("vocal",()=>updateVibeVocalReaction(pos));
+        timedSection("effects",()=>tickEffects(now));
+        tickMetadataLookups(now);renderBeatDiagnostic();
+      }
+      timedSection("body-mouth",()=>updateVibeMotion(pos));
+      timedSection("party",()=>tickParty(now));
+      observeFrame(now,performance.now()-workStart);
       if(vibeEggUntil && performance.now()>=vibeEggUntil){
         vibeFace.classList.remove("easteregg");
         vibeEggUntil=0;
@@ -1875,39 +2012,53 @@ THE SOFTWARE.
   }
 
   async function poll(){
+    if(pollBusy||document.visibilityState==="hidden")return;
+    pollBusy=true;runtime.polls=1;
+    const revision=playbackRevision,epoch=localPlayerEpoch,started=performance.now();
+    const controller=new AbortController();pollController=controller;
+    const timeout=setTimeout(()=>controller.abort(),10000);
     try{
-      if(document.visibilityState==="hidden") return;
-      const started=performance.now();
-      const sdkStatePromise=playbackMode==="local" && localPlayer?.getCurrentState ? localPlayer.getCurrentState().catch(()=>null) : Promise.resolve(null);
-      const r=await api("/me/player?additional_types=track,episode");
-      const sdkState=await sdkStatePromise;
-      if(ownPlayback.active){if(sdkState&&!sdkState.paused){stopOwnedAudio();renderLocalState(sdkState)}else if(r.ok&&r.status!==204){const remote=await r.json();if(remote?.is_playing){stopOwnedAudio();renderPlayback(remote)}}return}
-      setConnected();
+      const local=playbackMode==="local"&&localPlayer&&localDeviceId;
+      // SDK events own the timeline; query only after ten seconds without an event.
+      if(local && localPlayer.getCurrentState && started-localStateLast>=10000 && started-lastLocalPoll>=10000){
+        lastLocalPoll=started;
+        if(!sdkQueryPromise){const pending=localPlayer.getCurrentState();sdkQueryPromise=pending;void pending.finally(()=>{if(sdkQueryPromise===pending)sdkQueryPromise=null}).catch(()=>{})}
+        const state=await Promise.race([sdkQueryPromise,new Promise(resolve=>controller.signal.addEventListener("abort",()=>resolve(null),{once:true}))]);
+        diagnose("sdk-query",{durationMs:performance.now()-started});
+        if(revision!==playbackRevision||epoch!==localPlayerEpoch||controller.signal.aborted)return;
+        if(state){renderLocalState(state,"fallback");return}
+      }
+      if(controller.signal.aborted)return;
+      if(local && started-lastRemotePoll<15000)return;
+      lastRemotePoll=started;
+      const apiStarted=performance.now();
+      const r=await api("/me/player?additional_types=track,episode",{signal:controller.signal});
+      runtime.queryMs=performance.now()-apiStarted;
+      diagnose("api-state",{durationMs:runtime.queryMs,status:r.status});
+      if(revision!==playbackRevision||epoch!==localPlayerEpoch||controller.signal.aborted)return;
       if(r.status===204){
-        if(sdkState && localDeviceId && playbackMode==="local"){renderLocalState(sdkState);return}
-        if(isLocalPlayback() && localStateLast>started) return;
-        playback=null;cancelTempoLookup();resetLyricLookup();
-        if(lastTrackId!==null){lastTrackId=null;syncedLyrics=[];resetVibeLyrics()}
-        title.textContent="Nichts wird abgespielt";
-        artists.textContent="Starte Spotify auf deinem PC, Handy oder Lautsprecher";
-        album.textContent="Spotify";
-        dot.classList.remove("online");
-        device.textContent="Kein aktives Gerät";
-        startVibeFace();
+        if(local)return;
+        if(!ownPlayback.active){setConnected();renderPlayback(null)}
         return;
       }
-      if(!r.ok) return;
+      if(!r.ok)return;
       const data=await r.json();
-      if(data?.item)rememberTrackMetadata(data.item);
-      if(sdkState && data?.device?.id===localDeviceId && playbackMode==="local"){renderLocalState(sdkState);return}
-      if(localStateLast>started && data?.device?.id===localDeviceId && playbackMode==="local") return;
-      if(data?.device?.id && localDeviceId && data.device.id!==localDeviceId && playback?.device?.id===localDeviceId){
-        playbackMode="controller";playbackModeSelect.value="controller";localPlaybackBtn.hidden=true;
+      if(revision!==playbackRevision||epoch!==localPlayerEpoch||controller.signal.aborted)return;
+      if(ownPlayback.active){if(data?.is_playing){stopOwnedAudio();renderPlayback(data)}return}
+      setConnected();
+      if(local && data?.item)rememberTrackMetadata(data.item);
+      if(local && (!data?.device?.id||data.device.id===localDeviceId))return;
+      if(local && data?.device?.id && data.device.id!==localDeviceId){
+        playbackRevision++;playbackMode="controller";playbackModeSelect.value="controller";localPlaybackBtn.hidden=true;
         playerMessage("Wiedergabe läuft jetzt auf einem anderen Spotify-Gerät.");
       }
       renderPlayback(data);
-    }catch(e){
-      if(e.message==="NO_SESSION"||e.message==="SESSION_EXPIRED") setDisconnected();
+    }catch(error){
+      diagnose("poll-error",{kind:error.name==="AbortError"?"timeout":"request-failed"});
+      if(error.message==="NO_SESSION"||error.message==="SESSION_EXPIRED")setDisconnected();
+    }finally{
+      clearTimeout(timeout);if(pollController===controller)pollController=null;
+      pollBusy=false;runtime.polls=0;
     }
   }
 
@@ -2221,11 +2372,11 @@ THE SOFTWARE.
     Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0});
     if(vibeFace){
       delete vibeFace.dataset.expression;
-      vibeFace.style.setProperty("--gaze-x","0px");
-      vibeFace.style.setProperty("--gaze-y","0px");
-      vibeFace.style.setProperty("--eye-open","1");
-      vibeFace.style.setProperty("--left-eye-open","1");
-      vibeFace.style.setProperty("--brow-opacity","0");
+      setFaceProperty("--gaze-x","0px");
+      setFaceProperty("--gaze-y","0px");
+      setFaceProperty("--eye-open","1");
+      setFaceProperty("--left-eye-open","1");
+      setFaceProperty("--brow-opacity","0");
     }
     vibeFace?.classList.remove("singing");
     if(vibeFace){delete vibeFace.dataset.scene;delete vibeFace.dataset.accessory}
@@ -2483,7 +2634,7 @@ THE SOFTWARE.
   });
 
   volumeSlider.addEventListener("input",()=>{
-    volumeValue.textContent=`${volumeSlider.value}%`;
+    setText(volumeValue,`${volumeSlider.value}%`);
   });
   let volTimer;
   volumeSlider.addEventListener("change",()=>{
@@ -2538,7 +2689,7 @@ THE SOFTWARE.
 
   document.addEventListener("visibilitychange",()=>{
     if(document.visibilityState==="visible"){
-      requestWakeLock();vibeMotionLast=performance.now();frameLast=0;
+      requestWakeLock();vibeMotionLast=performance.now();frameLast=0;runtime.lastFrame=0;runtime.windowAt=0;runtime.frames=0;runtime.frameTotal=0;runtime.workTotal=0;
       startProgressAnimation();scheduleBlink();
       if(loadSession()) void poll();
     }else{
@@ -2591,7 +2742,12 @@ THE SOFTWARE.
     const layer=$("faceEasteregg");
     if(layer){
       const confetti=facePreferences.halloween?["🎃","👻","✨","🦇","🍬","⭐","🎃","🕸️","✨","🔮"]:["✨","🎵","🎉","💜","🎶","⭐","🎊","💚","✨","🪩"];
-      layer.innerHTML=confetti.map((icon,i)=>`<span class="egg-confetti" style="--egg-x:${7+i*9}%;--egg-delay:${(-i*.31).toFixed(2)}s;--egg-drift:${i%2 ? 20 : -20}px">${icon}</span>`).join("")+`<span class="egg-caption">${facePreferences.halloween?"BOO OVERDRIVE":"VIBE OVERDRIVE"}</span>`;
+      const positions=[[12,18],[32,7],[57,5],[81,14],[91,39],[87,67],[70,85],[35,88],[8,68],[3,42]];
+      const count=effectivePerformance()==="tv"?6:confetti.length;
+      layer.innerHTML=Array.from({length:count},(_,i)=>{
+        const index=Math.floor(i*positions.length/count),[x,y]=positions[index];
+        return `<span class="egg-confetti" style="--egg-x:${x}%;--egg-y:${y}%;--egg-delay:${(-i*.31).toFixed(2)}s;--egg-drift:${x<50?-5:5}cqw">${confetti[index]}</span>`;
+      }).join("")+`<span class="egg-caption">${facePreferences.halloween?"BOO OVERDRIVE":"VIBE OVERDRIVE"}</span>`;
     }
     delete vibeFace.dataset.accessory;
     faceScene?.classList.remove("visible");
@@ -2724,12 +2880,12 @@ THE SOFTWARE.
     const ease=1-Math.exp(-dt/95);
     const target={x,y,eye,left,tilt,smile,open,brow,browOpacity};
     for(const key of Object.keys(target)) vibeExpressionPose[key]+=(target[key]-vibeExpressionPose[key])*ease;
-    vibeFace.style.setProperty("--gaze-x",`${(vibeExpressionPose.x*faceMotionScale).toFixed(2)}px`);
-    vibeFace.style.setProperty("--gaze-y",`${(vibeExpressionPose.y*faceMotionScale).toFixed(2)}px`);
-    vibeFace.style.setProperty("--eye-open",vibeExpressionPose.eye.toFixed(3));
-    vibeFace.style.setProperty("--left-eye-open",vibeExpressionPose.left.toFixed(3));
-    vibeFace.style.setProperty("--brow-angle",`${vibeExpressionPose.brow.toFixed(2)}deg`);
-    vibeFace.style.setProperty("--brow-opacity",vibeExpressionPose.browOpacity.toFixed(3));
+    setFaceProperty("--gaze-x",`${(vibeExpressionPose.x*faceMotionScale).toFixed(2)}px`);
+    setFaceProperty("--gaze-y",`${(vibeExpressionPose.y*faceMotionScale).toFixed(2)}px`);
+    setFaceProperty("--eye-open",vibeExpressionPose.eye.toFixed(3));
+    setFaceProperty("--left-eye-open",vibeExpressionPose.left.toFixed(3));
+    setFaceProperty("--brow-angle",`${vibeExpressionPose.brow.toFixed(2)}deg`);
+    setFaceProperty("--brow-opacity",vibeExpressionPose.browOpacity.toFixed(3));
   }
 
   let faceMotionScale=1;
@@ -2753,7 +2909,7 @@ THE SOFTWARE.
       const arc=Math.pow(Math.max(0,Math.sin(Math.PI*phase)),1.4);
       const landing=Math.exp(-phase*22)+Math.exp(-(1-phase)*22);
       const swayPhase=beatPosition*Math.PI;
-      vibeFace.style.setProperty("--beat-eye",String(1-landing*vibeEnergy*.055*motionLevel()));
+      setFaceProperty("--beat-eye",String(1-landing*vibeEnergy*.055*motionLevel()));
       targetX=Math.sin(swayPhase)*(2.2+vibeEnergy*5.2)+Math.sin(now/1450)*1.1;
       targetY=-(7+vibeEnergy*18)*arc+landing*(1+vibeEnergy*2)+Math.sin(now/980)*.7;
       targetRotate=Math.sin(swayPhase-.55)*(1.0+vibeEnergy*1.9)+Math.sin(now/1750)*.55;
@@ -2770,9 +2926,9 @@ THE SOFTWARE.
         targetRotate+=Math.sin(now/230)*1.15;
       }
     }else{
-      vibeFace.style.setProperty("--beat-eye","1");
-      targetX=Math.sin(now/1700)*1.1;
-      targetY=-1.1+Math.sin(now/1250)*1.1;
+      setFaceProperty("--beat-eye","1");
+      targetX=Math.sin(now/1700)*2.4;
+      targetY=-1.8+Math.sin(now/1250)*1.8;
       targetRotate=Math.sin(now/2100)*.42;
       targetScaleX=1+Math.sin(now/1450)*.003;
       targetScaleY=1-Math.sin(now/1450)*.003;
@@ -2805,13 +2961,15 @@ THE SOFTWARE.
     vibeMotion.scaleX+=(targetScaleX-vibeMotion.scaleX)*ease;
     vibeMotion.scaleY+=(targetScaleY-vibeMotion.scaleY)*ease;
 
-    vibeFace.style.setProperty("--motion-x",`${vibeMotion.x.toFixed(2)}px`);
-    vibeFace.style.setProperty("--motion-y",`${vibeMotion.y.toFixed(2)}px`);
-    vibeFace.style.setProperty("--motion-rotate",`${vibeMotion.rotate.toFixed(2)}deg`);
-    vibeFace.style.setProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
-    vibeFace.style.setProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
+    setFaceProperty("--motion-x",`${vibeMotion.x.toFixed(2)}px`);
+    setFaceProperty("--motion-y",`${vibeMotion.y.toFixed(2)}px`);
+    setFaceProperty("--motion-rotate",`${vibeMotion.rotate.toFixed(2)}deg`);
+    setFaceProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
+    setFaceProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
 
-    const mouthEase=1-Math.exp(-dt/105);
+    if(effectivePerformance()==="tv"&&now-runtime.lastMouth<50)return;
+    const mouthDt=runtime.lastMouth?Math.min(100,now-runtime.lastMouth):dt;runtime.lastMouth=now;
+    const mouthEase=1-Math.exp(-mouthDt/105);
     vibeMouthBlend+=(Math.max(playing?vibeSpeech.open:0,vibeExpressionPose.open)-vibeMouthBlend)*mouthEase;
     vibeMouthRound+=(vibeSpeech.round-vibeMouthRound)*mouthEase;
     vibeMouthWide+=((vibeSpeech.wide || 0)-vibeMouthWide)*mouthEase;
@@ -3048,8 +3206,8 @@ THE SOFTWARE.
       const scene=effects.active,age=now-scene.start;
       if(now>=scene.end){clearHalloween();return}
       const stage=age<1200?0:age<3000?1:age<4700?2:3;
-      vibeFace.style.setProperty("--spook-progress",String(clamp(age/(scene.end-scene.start),0,1)));
-      vibeFace.style.setProperty("--spook-sway",`${Math.sin(now/260)*7}deg`);
+      setFaceProperty("--spook-progress",String(clamp(age/(scene.end-scene.start),0,1)));
+      setFaceProperty("--spook-sway",`${Math.sin(now/260)*7}deg`);
       if(stage!==scene.stage && now>=vibeTapReactionUntil){
         scene.stage=stage;vibeFace.dataset.halloweenStage=String(stage);
         const gestures={ghost:["startled","curious","sideRight","grin"],bat:["duck","lookUp","curious","cheeky"],pumpkin:["proud","confused","thinking","proud"],vampire:["vampire","angry","cheeky","grin"],magic:["thinking","surprise","confused","proud"],skeleton:["curious","party","party","laugh"],coverGhost:["sideLeft","curious","sideLeft","grin"],spider:["lookUp","curious","sideRight","laugh"],shadow:["surprise","sideLeft","curious","grin"],flyingPumpkin:["startled","duck","lookUp","laugh"]};
@@ -3083,6 +3241,17 @@ THE SOFTWARE.
   function setPartyExpansion(target){
     if(partyPresentation.target===target)return;
     partyPresentation.from=partyPresentation.value;partyPresentation.target=target;partyPresentation.start=performance.now();
+    const panel=document.querySelector(".face-panel");
+    const before=panel?.getBoundingClientRect(),beforeFace=panel?vibeFace.getBoundingClientRect():null;
+    partyPresentation.animation?.cancel();
+    app.style.setProperty("--party-expansion",String(target));
+    if(panel&&before&&motionLevel()>0&&panel.animate){
+      const after=panel.getBoundingClientRect(),afterFace=vibeFace.getBoundingClientRect();
+      const scale=afterFace.width&&beforeFace?.width?beforeFace.width/afterFace.width:1;
+      const dx=before.left+before.width/2-after.left-after.width/2;
+      const dy=before.top+before.height/2-after.top-after.height/2;
+      partyPresentation.animation=panel.animate([{transform:`translate(${dx}px,${dy}px) scale(${scale})`},{transform:"none"}],{duration:650,easing:"cubic-bezier(.2,.8,.2,1)"});
+    }
     updatePartyPresentation(performance.now());
   }
   function updatePartyPresentation(now){
@@ -3090,7 +3259,7 @@ THE SOFTWARE.
     const t=motionLevel()===0?1:clamp((now-partyPresentation.start)/650,0,1);
     const ease=t*t*(3-2*t);
     partyPresentation.value=partyPresentation.from+(partyPresentation.target-partyPresentation.from)*ease;
-    app.style.setProperty("--party-expansion",partyPresentation.value.toFixed(5));
+    // Progress is bookkeeping only. Grid geometry already changed once in setPartyExpansion().
   }
   function showPartyControls(){
     partyLastInput=performance.now();partyHidden=false;app.dataset.controlsHidden="false";setPartyExpansion(0);
@@ -3468,19 +3637,21 @@ THE SOFTWARE.
     if(result.status==="found"||result.status==="alternative"){
       lyricsLoadState="loaded";lyricsRetryCount=0;lyricsNotice.hidden=false;
       const alternative=result.status==="alternative"||result.match?.alternative;
-      lyricsNotice.textContent=alternative?`Andere Version: „${result.record.trackName||result.record.title}“ · ${result.record.artistName||""}. Nur Text; die Zeitmarken dieser Version werden nicht übernommen.`:"Quelle: LRCLIB · passende Aufnahme. Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt.";
+      lyricsNotice.textContent=alternative?"Lyrics: LRCLIB · Andere Version":"Lyrics: LRCLIB";
+      $("lyricsInfo").textContent=alternative?`Andere Version: „${result.record.trackName||result.record.title}“ · ${result.record.artistName||""}. Nur Text; Zeitmarken werden nicht übernommen.`:"Passende Aufnahme. Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt.";
       lyricsChoices.hidden=true;lookupState.lyricsCandidates=[];
       if(result.record.instrumental)renderLyricsState("Diese Aufnahme ist als instrumental gekennzeichnet.");else renderPlainLyrics(lyricText(result.record));
     }else if(result.status==="ambiguous"){
       lyricsLoadState="choice";lookupState.lyricsIdentity=identity;lookupState.lyricsCandidates=result.candidates||[];
-      renderLyricsState("Mehrere mögliche Texte gefunden. Wähle die passende Aufnahme oben aus.");lyricsNotice.hidden=false;lyricsNotice.textContent="Die Version ist nicht eindeutig. Ein abweichender Text wird entsprechend gekennzeichnet.";
+      renderLyricsState("Mehrere mögliche Texte gefunden. Wähle die passende Aufnahme oben aus.");lyricsNotice.hidden=false;lyricsNotice.textContent="Lyrics: LRCLIB · Version auswählen";
       lyricsChoices.replaceChildren();const blank=document.createElement("option");blank.value="";blank.textContent="Passenden Songtext auswählen …";lyricsChoices.append(blank);
       lookupState.lyricsCandidates.forEach((candidate,index)=>{const option=document.createElement("option");option.value=String(index);const record=candidate.record;option.textContent=`${record.trackName||record.title} · ${record.artistName||""} · ${record.duration?Math.round(record.duration)+" s":"Dauer unbekannt"}${candidate.match.alternative?" · andere Version":""}`;lyricsChoices.append(option)});lyricsChoices.hidden=false;
-    }else{lyricsLoadState="unavailable";lyricsNotice.hidden=false;lyricsNotice.textContent="Keine ausreichend passende Aufnahme gefunden. Du kannst die Suche später aktualisieren oder eine lokale Textdatei öffnen.";lyricsChoices.hidden=true;renderLyricsState("Für diesen Song wurde noch kein passender Text gefunden.")}
+    }else{lyricsLoadState="unavailable";lyricsNotice.hidden=false;lyricsNotice.textContent="Kein passender Text · lokale Datei im ⋯-Menü";lyricsChoices.hidden=true;renderLyricsState("Für diesen Song wurde noch kein passender Text gefunden.")}
   }
   function resetLyricLookup(){
     lookupState.lyricsEpoch++;lyricsAbort?.abort();lyricsLoadingTrack=null;lookupState.lyricsCandidates=[];lookupState.lyricsIdentity=null;
-    lyricsNotice.hidden=true;lyricsChoices.hidden=true;
+    lyricsNotice.hidden=true;lyricsChoices.hidden=true;$("lyricsMenu").open=false;
+    $("lyricsInfo").textContent="Spotify-Texte werden ohne zeitgesteuerte Hervorhebung angezeigt. Abweichende Aufnahmen werden gekennzeichnet.";
   }
   $("refreshTempo").addEventListener("click",()=>{if(!ownPlayback.active&&playback?.item)tempoRequest(playback.item,true);else renderTempoStatus()});
   tempoLookupSetting.addEventListener("change",()=>{facePreferences.tempoLookup=tempoLookupSetting.checked;persistPartyPreferences();if(playback?.item)tempoRequest(playback.item,true);else cancelTempoLookup()});

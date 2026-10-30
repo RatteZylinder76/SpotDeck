@@ -33,6 +33,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
     async previousTrack(){this.calls.push('previous')}
     async seek(ms){this.calls.push(['seek',ms])}
     async setVolume(value){this.calls.push(['volume',value])}
+    async getCurrentState(){this.calls.push('state');return this.state||null}
   }
   const window=node('window');Object.assign(window,{isSecureContext:true,PointerEvent:pointer?function(){}:undefined,Spotify:{Player:MockPlayer}});
   const context=vm.createContext({window,document,localStorage,sessionStorage:localStorage,location:{origin:'http://127.0.0.1:8765',pathname:'/index.html',search:'',href:''},history:{replaceState(){}},
@@ -163,4 +164,65 @@ if(require.main===module)(async()=>{
   assert(s.players.at(-1).calls.some(c=>Array.isArray(c)&&c[0]==='seek'&&c[1]===0));
   assert.match(html, /id="track" role="slider" tabindex="0" aria-label="Wiedergabeposition"/);
   console.log('PASS keyboard seeking at track endpoints and accessible slider markup.');
+  const regression=harness({reduced:true,preferences:{motion:'normal',performance:'tv',tempoLookup:false}});
+  assert.equal(regression.run('motionLevel()'),1);
+  assert.equal(regression.nodes.get('app').dataset.performance,'tv');
+  assert.equal(JSON.parse(regression.store.get('spotdeck.facePreferences')).performance,'tv');
+  regression.step(1000);
+  const idleX=regression.nodes.get('vibeFace').style['--motion-x'];
+  regression.step(500);assert.notEqual(regression.nodes.get('vibeFace').style['--motion-x'],idleX);
+  regression.run('playback={is_playing:true,item:{duration_ms:30000},progress_ms:0};syncedLyrics=[]');
+  regression.step(600);assert.notEqual(regression.nodes.get('vibeFace').style['--motion-y'],'0.00px');
+  const silentMouth=regression.nodes.get('faceMouthPath').d;
+  regression.run('ownPlayback.active=true;vibeSpeech={open:.7,round:.9,wide:0,long:true};vibeNextExpression=Infinity;updateVibeMotion()');
+  // Directly exercise the mouth independently of vocal lookup and the RAF cadence.
+  regression.run('runtime.lastMouth=-Infinity;vibeMotionLast-=34;updateVibeMotion()');
+  assert.notEqual(regression.nodes.get('faceMouthPath').d,silentMouth);
+  assert.match(html,/transform:translate3d\(var\(--motion-x\),var\(--motion-y\),0\) rotate\(var\(--motion-rotate\)\)/);
+  regression.run('facePreferences.motion="system";applyFacePreferences();triggerVibeEasteregg()');
+  assert.equal(regression.nodes.get('vibeFace').dataset.motion,'reduced');
+  assert.match(regression.nodes.get('faceEasteregg').innerHTML,/--egg-y:/);
+  assert(!html.includes('top:var(--egg-x)'));
+  assert.equal(regression.frames.size,1);
+  assert.equal(regression.run('runtime.enabled'),false);
+  regression.run('setDebug(true)');regression.step(1200);
+  assert(regression.nodes.get('runtimeDiagnostic').textContent.includes('audioStart'));
+  assert(regression.nodes.get('runtimeDiagnostic').textContent.includes('systemReduced'));
+  regression.run('setDebug(false)');assert.equal(regression.nodes.get('runtimeDiagnostic').hidden,true);
+  console.log('PASS body without lyrics, independent mouth, manual OS override, saved TV mode, distributed reduced confetti and opt-in diagnostics.');
+
+  let releasePoll,holdPoll=false;
+  const race=harness({session:true,preferences:{tempoLookup:false},fetcher:async(url,options,res)=>{
+    if(url.includes('/me/player?')&&holdPoll)return new Promise(resolve=>{releasePoll=()=>resolve(res({item:{id:'old',type:'track',name:'Old'},device:{id:'elsewhere'},is_playing:true}))});
+    if(url.includes('/devices'))return res({devices:[]});
+    return res(null,204);
+  }});
+  await race.flush();race.run('clearInterval(pollTimer);playbackMode="local"');await race.run('prepareLocalPlayback()');
+  holdPoll=true;race.step(16000);const pendingPoll=race.run('poll()');await race.flush();
+  assert(releasePoll,'Delayed API poll started');
+  const queryCount=race.requests.length;await race.run('poll();poll()');
+  assert.equal(race.requests.length,queryCount,'Overlapping polls do not issue requests');
+  const state=id=>({position:0,duration:30000,paused:false,track_window:{current_track:{id,type:'track',name:id,album:{images:[]},artists:[]},next_tracks:[]}});
+  const local=race.players[0];local.events.player_state_changed(state('next'));
+  assert.equal(race.nodes.get('title').textContent,'next','SDK event renders before API completes');
+  releasePoll();await pendingPoll;assert.equal(race.nodes.get('title').textContent,'next','Stale response cannot change track or device');
+  assert.equal(race.run('playbackMode'),'local');assert.equal(race.run('runtime.polls'),0);
+  holdPoll=false;race.run('setDebug(true)');
+  const timerCount=race.timers.size,listenerCount=Object.keys(local.events).length;
+  for(let i=0;i<15;i++){local.events.player_state_changed(state('automatic-'+i));race.step(200);await race.flush()}
+  assert.equal(race.nodes.get('title').textContent,'automatic-14');
+  assert(race.timers.size<=timerCount+2,'Track changes keep bounded timers');
+  assert.equal(Object.keys(local.events).length,listenerCount);
+  local.events.playback_error({message:'token=DO_NOT_LOG'});
+  assert.equal(race.run('runtime.sdkStatus'),'playback_error');
+  assert(!race.run('JSON.stringify(runtime.events)').includes('DO_NOT_LOG'));
+  assert(!local.calls.includes('disconnect'),'Playback error does not restart SDK');
+  assert.equal(race.frames.size,1);
+  local.state=state('fallback');race.step(11000);await race.flush();
+  const beforeFallback=race.requests.length;await race.run('poll()');
+  assert.equal(race.nodes.get('title').textContent,'fallback');
+  assert.equal(race.requests.length,beforeFallback,'A fallback SDK snapshot renders without a REST dependency');
+  const reducedAuto=harness({reduced:true});reducedAuto.step(16000);
+  assert.equal(reducedAuto.run('runtime.autoTV'),false,'Intentionally reduced cadence is not classified as weak hardware');
+  console.log('PASS SDK-first transitions, serialized polls, stale reply rejection, repeated automatic changes, bounded resources and sanitized playback errors.');
 })().catch(error=>{console.error(error);process.exitCode=1});
