@@ -110,7 +110,7 @@ function setupOwned(h){
   const spotify=harness({session:true});await spotify.flush();
   spotify.run('renderPlayback({is_playing:true,progress_ms:2000,device:{id:"external"},item:{id:"a",type:"track",name:"Song",duration_ms:20000,album:{images:[]},artists:[]}})');
   spotify.step(2000);assert.equal(spotify.run('beatEngine.bpm'),null);assert.equal(spotify.run('vibeSpeech.open'),0);
-  assert(!spotify.requests.some(r=>r.url.includes('/audio-features')||r.url.includes('lrclib')),'No deprecated tempo calls or hidden lyric synchronization for Spotify');
+  assert(!spotify.requests.some(r=>r.url.includes('/audio-features')),'No deprecated Spotify audio analysis requests');
   console.log('PASS no protected stream analysis, failed Spotify pause blocks test audio, and no false fixed-BPM detection.');
 
   const party=harness({preferences:{party:true,halloween:true,surprises:false}});

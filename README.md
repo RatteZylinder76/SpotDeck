@@ -188,3 +188,6 @@ Settings → Darstellung now offers Auto, Quality and TV/Performance profiles pl
 ## Lyrics timing update
 
 Matching synchronized LRCLIB lyrics now take priority over plain text. They follow Spotify playback position, pause and seeking; different versions or unconfirmed timing remain plain. Spotify app lyrics are not available via the public API. The change supersedes older statements about static Spotify lyric display; autonomous Vibe Face behavior stays unchanged. See [lyrics matching and tests](docs/lyrics-sync.md).
+
+
+The synchronized lyric timeline also drives Vibe Face singing again, even with the text view closed. Lyrics load in the background and transient errors retry with backoff. Word-level timing is used when available; mouth timing within line-only lyrics is estimated. The dance remains independent.

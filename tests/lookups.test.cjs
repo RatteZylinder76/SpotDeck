@@ -58,8 +58,9 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   await runAsync(b,'findTempoMetadata(trackIdentity(playback.item),false,lookupState.tempo.controller)');
   assert.equal(b.run('lookupState.tempo.status'),'found');assert.equal(b.run('lookupState.tempo.result.record.bpm'),128);
   assert.equal(b.run('beatEngine.bpm'),null,'Spotify metadata BPM never controls the beat engine');
-  assert.equal(b.nodes.get('tempoSummary').dataset.state,'found');const count=b.requests.length;
-  await runAsync(b,'findTempoMetadata(trackIdentity(playback.item),false,lookupState.tempo.controller)');assert.equal(b.requests.length,count);
+  const tempoRequestCount=()=>b.requests.filter(request=>/musicbrainz\.org|acousticbrainz\.org/.test(request.url)).length;
+  assert.equal(b.nodes.get('tempoSummary').dataset.state,'found');const count=tempoRequestCount();
+  await runAsync(b,'findTempoMetadata(trackIdentity(playback.item),false,lookupState.tempo.controller)');assert.equal(tempoRequestCount(),count);
   assert(b.requests.every(request=>!request.url.includes('api_key')&&!request.options.headers?.Authorization));
   console.log('PASS free MusicBrainz→AcousticBrainz lookup, verified duration, BPM provenance, cache and no Spotify synchronization or secret transmission.');
 
@@ -77,8 +78,8 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   assert.equal(reloaded.requests.length,0,'Reloading cannot bypass provider backoff');
   b.context.shared={...track(),external_ids:{isrc:'USAAA2000001'}};
   b.run('storeTempoResult(trackIdentity(shared),lookupState.tempo.result)');
-  b.context.shared.id='second-release';b.run('tempoRequest(shared)');const sharedCount=b.requests.length;
-  await runAsync(b,'findTempoMetadata(trackIdentity(shared),false,lookupState.tempo.controller)');assert.equal(b.requests.length,sharedCount,'Same ISRC and recording signature share the cache across track IDs');
+  b.context.shared.id='second-release';b.run('tempoRequest(shared)');const sharedCount=tempoRequestCount();
+  await runAsync(b,'findTempoMetadata(trackIdentity(shared),false,lookupState.tempo.controller)');assert.equal(tempoRequestCount(),sharedCount,'Same ISRC and recording signature share the cache across track IDs');
   assert.equal(b.run('lookupState.tempo.status'),'found');
   console.log('PASS provider backoff survives reload and a confirmed recording cache is reused by ISRC.');
 
@@ -125,7 +126,9 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   assert.equal(timed.run('currentLyricIndex'),2);
   timed.run('updateLyricsPosition(2100,true)');
   assert(scrolls.length>0,'Active lines scroll into view');
-  timed.run('updateVibeVocalReaction(5100)');assert.equal(timed.run('vibeSpeech.open'),0,'Spotify lyric display does not enable lyric-driven face singing');
+  timed.run('updateVibeVocalReaction(5100)');assert(timed.run('vibeSpeech.open')>0,'Spotify timestamps also drive the singing mouth');
+  timed.run('playback.is_playing=false;updateVibeVocalReaction(5100)');assert.equal(timed.run('vibeSpeech.open'),0,'Singing stops on pause');
+  timed.run('playback.is_playing=true');
   timed.run('lyrics.classList.remove("open");updateLyricsPosition(10000,true)');assert.equal(timed.run('currentLyricIndex'),0);
   timed.run('lyrics.classList.add("open");updateLyricsPosition(10000,true)');assert.equal(timed.run('currentLyricIndex'),2);
   const oldRequestCount=timed.requests.length;timed.run('lyricCache.put(trackIdentity(item).key,{signature:trackIdentity(item).signature,result},700000)');
@@ -151,6 +154,37 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   const partial=await runAsync(fallback,'searchLyrics(trackIdentity(item),new AbortController().signal)');
   assert.equal(partial.status,'found');assert.equal(partial.record.id,30);assert.equal(partial.timingSearchIncomplete,true);
   console.log('PASS an unavailable timestamp search preserves an already found plain-text fallback.');
+
+  const singer=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>url.includes('/api/get?')?res(timedRecord):res(null,204)});
+  singer.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};singer.run('renderPlayback(data)');
+  singer.step(200);
+  for(let i=0;i<20&&singer.run('lyricsLoadState')!=='loaded';i++){await singer.flush();singer.step(100)}
+  assert.equal(singer.nodes.get('lyrics').classList.contains('open'),false);
+  assert.equal(singer.run('syncedLyrics.length'),3,'Singing lyrics load with the text view closed');
+  singer.run('playback.progress_ms=2250;lastPollAt=performance.now();facePreferences.lyricsOffset=1800;updateVibeVocalReaction(2250)');
+  assert(singer.run('vibeSpeech.open')>0,'Local-file offset cannot shift Spotify singing');
+  const mouthBefore=singer.nodes.get('faceMouthPath').d;singer.step(150);
+  assert.notEqual(singer.nodes.get('faceMouthPath').d,mouthBefore,'The same RAF morphs the mouth during Spotify singing');
+  assert.equal(singer.frames.size,1);
+  singer.run('playback.is_playing=false;updateVibeVocalReaction(2250)');assert.equal(singer.run('vibeSpeech.open'),0);
+  singer.run('playback.is_playing=true;syncedLyrics=[{time:0,text:"Ooh",words:[{word:"Ooh",start:1000,end:1400}]}];resetVibeLyrics();updateVibeVocalReaction(1200)');
+  assert(singer.run('vibeSpeech.open')>0,'Actual word timestamps drive mouth opening');
+  singer.run('updateVibeVocalReaction(1600)');assert.equal(singer.run('vibeSpeech.open'),0,'Word-timed pauses close the singing mouth');
+  singer.run('renderPlainLyrics("Synthetic static text");updateVibeVocalReaction(1200)');assert.equal(singer.run('vibeSpeech.open'),0,'Untimed fallback does not invent lyric timing');
+  let lyricAttempts=0;
+  const retrySinger=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>{
+    if(url.includes('/api/get?'))return ++lyricAttempts===1?res(null,503):res(timedRecord);
+    return res(null,204);
+  }});
+  retrySinger.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};retrySinger.run('renderPlayback(data)');retrySinger.step(200);
+  for(let i=0;i<20&&retrySinger.run('lyricsLoadState')!=='retry';i++){await retrySinger.flush();retrySinger.step(50)}
+  assert.equal(retrySinger.run('lyricsLoadState'),'retry');assert.equal(lyricAttempts,1);
+  retrySinger.step(10000);await retrySinger.flush();assert.equal(lyricAttempts,1,'No background retry storm during backoff');
+  retrySinger.step(Math.max(0,retrySinger.run('lyricsRetryAt-performance.now()'))+100);
+  for(let i=0;i<20&&retrySinger.run('lyricsLoadState')!=='loaded';i++){await retrySinger.flush();retrySinger.step(100)}
+  assert.equal(retrySinger.run('syncedLyrics.length'),3,'A background load retries after a temporary failure without opening Lyrics');
+  assert.equal(lyricAttempts,2);assert.equal(retrySinger.frames.size,1);
+  console.log('PASS background lyric loading, closed-view singing, line/word mouth timing, pause/gaps, saved local offsets and one RAF.');
   // Structural layout contract; real pixel geometry still requires browser/device QA.
   const {html}=require('./spotdeck.test.cjs');
   const lyricsHead=html.slice(html.indexOf('<div class="lyrics-head">'),html.indexOf('<div class="lyrics-body"'));
