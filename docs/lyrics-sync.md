@@ -1,0 +1,25 @@
+# Matching synchronized lyrics before plain text
+
+Based on main b01f40bf7991c1d958ddbb1b9a5b2c4d8a5aa08d.
+
+## Source limitation and resulting behavior
+
+Spotify confirms that its public API does not expose lyrics: [Spotify developer answer](https://community.spotify.com/forum/en/discussion/5355493/update-endpoint-for-lyrics). The Web Playback SDK supplies playback state, not the Spotify application's lyric feed. Availability of lyrics inside Spotify (for example a particular recording of Smooth Operator) does not establish external availability. No private cookie, undocumented lyric endpoint or third-party proxy is used.
+
+LRCLIB supplies [line timestamps and optional word timings](https://lrclib.net/docs). The previous implementation retained those fields in the cache but always rendered plain text and restricted highlight updates to owned audio. Those display restrictions are removed for verified external lyric matches.
+
+Search now gives priority to timed LRCLIB records for the same recording. An exact result with only plain text no longer ends the search before a matching timed result can be found. Bounded existing search stages and backoff remain. If timestamp search fails after finding plain text, that text remains available; the incomplete search is cached for fifteen minutes rather than seven days. Cache version v3 prevents old plain-only selection decisions from masking newly preferred timed results.
+
+## Recording and position checks
+
+Synchronization requires a found match, matching version, existing high-confidence title/artist checks and a confirmed duration difference of at most two seconds. Alternate recording versions, unknown durations, invalid/out-of-range timestamps and text-only results remain plain. Several distinct plausible results still require a selection. A duration match does not guarantee perfect alignment; community timestamps can contain mistakes.
+
+Rendered lines follow reported Spotify position through the existing central RAF: position progresses while playing, freezes when paused, and a new position/seek changes the highlighted line. Opening mid-song immediately selects the current line. No extra polling, RAF or audio processing is added. Saved local-audio lyric offsets are not applied to Spotify. Reduced motion uses immediate scrolling; normal motion scrolls smoothly.
+
+Vibe Face stays autonomous for Spotify; this change only restores the lyric display. The existing independent body movement, local-audio singing, TV performance profiles, Party transitions and Halloween scenes remain intact.
+
+## Verification
+
+All three suites pass. Added tests cover timed-first search even when exact lookup returns plain text; line highlighting/scrolling from Spotify state; pause/resume and backward position changes; reopening; cache reuse; source labels; plain, alternate, duration-unknown and out-of-range fallbacks; track-change cleanup; independence from local-audio offsets and vocal animation; and retention of plain text during a failed timestamp search.
+
+Fixtures use invented test lines, not song lyrics. No live Spotify session, specific Smooth Operator recording, audible timing or pixel-level browser layout was verified. Existing browser/device limitations from [TV performance](tv-performance.md) still apply. Reload SpotDeck fully after updating; source status shows synchronisiert or nur Text.

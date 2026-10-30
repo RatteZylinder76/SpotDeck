@@ -1,5 +1,7 @@
 # Halloween and timing architecture
 
+Historical implementation notes: the [lyrics timing update](lyrics-sync.md) supersedes the older static-text display restriction below. Vibe Face and local-audio timing behavior remain as described.
+
 The newer [Party and metadata update](party-lookups.md) supersedes the original presentation controls and tempo-settings layout described below. The Party exit now hides too, and the idle face grows dynamically.
 
 ## Findings in the previous version
