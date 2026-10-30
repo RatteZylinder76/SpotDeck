@@ -93,6 +93,18 @@ To enable GitHub Pages on a **private** repository, you must use a specific setu
 
 ## Browser playback and Vibe Face settings
 
+### Halloween Party Edition
+
+Open **Einstellungen → Party & Halloween** to enable **Halloween-Modus** and/or **Party-Modus**. Both default off and are saved locally. Halloween adds a violet/orange glass palette, optional quiet fog/moon decoration and ten brief, cute scenes. Only one larger scene runs at a time. **Halloween-Effekte** controls the pause between scenes; **Automatische Überraschungen** and **Ambient-Hintergrund** can be switched off separately. Five taps use pumpkin/ghost confetti when Halloween is enabled.
+
+Party mode enlarges the face on wide displays (up to 880 px on the tested 4K layout) and hides the dock, timeline and top actions after eight seconds without input. Mouse movement, touch or a key reveals them. **Party-Modus beenden** stays visible. Arrow keys provide spatial navigation where the browser forwards remote-control keys. Existing fullscreen and Wake Lock remain available; Party mode does not force fullscreen.
+
+Dance now has more visible jumps, landing compression, alternating tilt and optional bounce/sway/shuffle patterns. Existing Normal/Lively/Reduced motion settings remain in place. Spotify uses autonomous animation: no protected Spotify audio is captured or analysed, no inaccessible audio-features endpoint is assumed, and no preset tempo is labelled as detected. Spotify lyrics remain readable without synchronized face cues or line highlighting, in accordance with the synchronization restriction described in the [Spotify policy](https://developer.spotify.com/policy).
+
+**Tempo & Synchronisationstest** supports a local audio file for which you hold the required synchronization rights. Select the audio file, confirm those rights, optionally import a matching `.lyricsfile.yaml` or `.lrc`, then start the test. Spotify is paused first; the test does not start if pausing fails. Files stay in the browser. The central beat clock offers estimated onsets/BPM, explicit manual BPM, tap tempo, half/double dance tempo and beat/lyrics offsets. Actual word timestamps are distinguished from line-based estimates. Stopping the test does not automatically resume Spotify.
+
+The diagnostic labels source, raw and dance BPM, confidence and offset. An estimate is not an accuracy guarantee. The generated 120-BPM browser test yielded about 120.5 BPM; real music can require manual adjustment. See [timing findings, implementation, policy decisions and verification](docs/halloween-timing.md) for details. The pinned YAML parser and its license are bundled in the standalone HTML; there is no new external runtime dependency.
+
 ### Glass interface and responsive face
 
 The interface uses a shared CSS glass material for navigation, the floating playback dock and settings. Clear controls, regular surfaces and a more opaque dialog share light edges, reflections and shadows. Album artwork remains unfiltered inside cards; the existing blurred artwork still supplies the background colors. No additional rendering loop is used for the glass treatment. Design references: [Apple Materials](https://developer.apple.com/design/human-interface-guidelines/materials) and [CSS backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/backdrop-filter).
@@ -136,7 +148,7 @@ Single taps vary between shy, cheeky, happy and surprised reactions; shorter mul
 
 Optional quiet interaction sounds are disabled by default. Enable **Leise Fantasiegeräusche** to hear short, rate-limited electronic chirps. They use a separate low-volume audio source and do not process Spotify audio.
 
-Lyrics-based singing remains an approximation from synchronized LRC line times, not phoneme or live-audio analysis. Without synchronized lyrics, idle expressions and dance still work. Tempo/energy use Spotify audio features when accessible; otherwise a default tempo is used.
+For the permitted local test source, Lyricsfile word timestamps drive singing when available; LRC line-only lyrics use conservative timing estimates. This is not phoneme recognition. Without lyrics or reliable tempo, autonomous expressions and dance remain available. Spotify audio-features requests and the old 620 ms tempo fallback are retired.
 
 ### Verification
 
@@ -144,9 +156,12 @@ Run the dependency-free, offline integration checks with:
 
 ```sh
 node tests/spotdeck.test.cjs
+node tests/halloween.test.cjs
 ```
 
 They cover reduced-motion overrides, idle animation, one RAF loop, hidden-tab suspension, mouse/touch fallback, ghost clicks, the five-tap Easteregg, simulated SDK initialization and commands, transfer requests, metadata, library playback, scope upgrade and DRM/account fallback. No real account or token is used.
+
+The Halloween suite adds scene lifecycle/exclusivity, priorities, bounded queues/timers, tempo folding, phase/transport behavior, tap/onset estimates, YAML validation, real-word/estimated timing, local audio controls and rights gates, Party hiding/wake/exit and source cleanup. Current browser and device-test limits are recorded in the timing document linked above.
 
 On 2026-10-29 the actual Chromium-based in-app browser was checked at desktop and 844 × 390 viewports: settings, explicit normal motion with OS reduction enabled, idle reactions and five real mouse clicks passed. Firefox native automation was stopped by the testing tool's URL-policy limitation at its profile chooser. Separate Chrome/Edge, Safari, iOS, Android, smart-TV hardware and audible Premium playback have **not** been certified by these checks and need a device/account test.
 

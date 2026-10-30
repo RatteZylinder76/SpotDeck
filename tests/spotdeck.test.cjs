@@ -65,7 +65,8 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   return {context,run,nodes,document,window,store,requests,players,frames,timers,event,step,response,flush:()=>new Promise(resolve=>setImmediate(resolve))};
 }
 
-(async()=>{
+module.exports={harness,html};
+if(require.main===module)(async()=>{
   const h=harness({reduced:true});
   assert.equal(h.run('motionLevel()'),0);
   assert.equal(h.frames.size,1,'One idle animation loop');

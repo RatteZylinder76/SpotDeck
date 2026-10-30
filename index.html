@@ -815,6 +815,83 @@
     .app[data-transparency="reduced"] :is(.glass,.library-top,.lyrics-top,.settings){backdrop-filter:none;-webkit-backdrop-filter:none}
     @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.app{--glass:#23352ff5;--glass-clear:#23352ff5;--glass2:#13251ffb}}
     @supports not (width:1cqw){.vibe-face{width:min(36vw,54vh,var(--face-cap))}.scene-prop{font-size:28px}.egg-caption{font-size:12px}}
+    /* Optional party layers: static glass materials and a single, bounded scene layer. */
+    .app[data-halloween="true"]{--bg:#130e1b;--glass:rgba(52,34,64,.52);--glass-clear:rgba(220,191,240,.10);--glass2:rgba(30,20,38,.94);--glass-edge:#ecd5ff70}
+    .app[data-halloween="true"] .tint{background:radial-gradient(ellipse at 14% 20%,#ad67392b,transparent 48%),radial-gradient(ellipse at 85% 45%,#734c993b,transparent 55%),linear-gradient(125deg,#1b10259c,#100f18b3)}
+    .app[data-halloween="true"] .ctrl.primary{background-color:#efc39bd9;color:#30201c;border-color:#fff1d4a3}
+    .app[data-halloween="true"][data-transparency="reduced"]{--glass:#392a43fa;--glass-clear:#392a43fa;--glass2:#21182afb}
+    .party-section{border-top:1px solid var(--line);margin-top:24px;padding-top:8px}
+    .party-section h3{font-size:16px;margin:14px 0 8px;letter-spacing:-.02em}
+    .setting-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+    .setting-grid > div{min-width:0}.setting-field[type="number"]{width:100%}
+    .setting-field[type="file"]{font-size:12px;white-space:normal;overflow:hidden}
+    .diagnostic{padding:14px;border-radius:18px;background:#ffffff08;border:1px solid #ffffff16;font-size:12px;line-height:1.65;color:#e4eae5d9;overflow-wrap:anywhere}
+    .ctrl:disabled{opacity:.35;cursor:default}
+    #partyExit{position:fixed;z-index:45;left:calc(var(--safe-l) + 16px);top:calc(var(--safe-t) + 14px);padding:11px 16px;border-radius:999px;min-height:44px;font-size:12px;font-weight:650;cursor:pointer}
+    .controls,.mini-actions,.timeline,#connect{transition:opacity .45s var(--ease),visibility .45s}
+    .app[data-party="true"][data-controls-hidden="true"] :is(.controls,.mini-actions,.timeline,#connect){opacity:0;visibility:hidden;pointer-events:none}
+    .app[data-party="true"] .status-pill{display:none}
+    .app[data-party="true"].disconnected .now{filter:none}
+    .app[data-party="true"].disconnected #connect{top:auto;bottom:calc(var(--safe-b) + 134px)}
+    @media (min-width:1000px) and (orientation:landscape){
+      .app[data-party="true"]{--face-cap:880px}
+      .app[data-party="true"] .now{grid-template-columns:minmax(0,.7fr) minmax(0,1.2fr) minmax(0,2.1fr)}
+    }
+    .halloween-ambient{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;visibility:hidden;overflow:hidden;transition:opacity 1s}
+    .app[data-halloween="true"][data-ambient="true"] .halloween-ambient{opacity:1;visibility:visible}
+    .halloween-ambient::before,.halloween-ambient::after{content:"";position:absolute;inset:10% -10% -10%;background:radial-gradient(ellipse at 30% 80%,#c6b1d41a,transparent 42%),radial-gradient(ellipse at 80% 60%,#c0b1ce10,transparent 45%);animation:partyFog 38s ease-in-out infinite alternate}
+    .halloween-ambient::after{animation-delay:-19s;opacity:.6}
+    .halloween-ambient::before,.halloween-ambient::after{animation-play-state:paused}
+    .app[data-halloween="true"][data-ambient="true"] .halloween-ambient::before,.app[data-halloween="true"][data-ambient="true"] .halloween-ambient::after{animation-play-state:running}
+    .app[data-page-hidden="true"] .halloween-ambient::before,.app[data-page-hidden="true"] .halloween-ambient::after{animation-play-state:paused}
+    .ambient-moon{position:absolute;right:10%;top:12%;width:clamp(48px,8vw,140px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 32% 25%,#f2e2cc55,#c5b4cb18 65%,transparent 70%);box-shadow:0 0 70px #d5b2dc0d}
+    .ambient-pumpkin{position:absolute;left:3%;bottom:6%;font-size:clamp(28px,4vw,72px);opacity:.22}
+    .shell{position:relative;z-index:1}
+    .art-wrap{position:relative;overflow:visible}#art{position:relative;z-index:2}
+    .cover-ghost{position:absolute;width:32%;left:58%;top:0;z-index:1;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(0) rotate(-12deg);transition:transform 1s var(--ease),opacity .7s}
+    .cover-ghost.visible{opacity:.85;visibility:visible;transform:translateY(-62%) rotate(10deg)}
+    .cover-ghost svg{width:100%;height:auto}
+    .halloween-layer{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:visible}
+    .face-eye,.face-mouth{z-index:1}
+    [data-halloween-scene="ghost"] .halloween-layer{z-index:0}
+    .halloween-layer svg{width:100%;height:100%;overflow:visible}
+    .halloween-ghost{position:absolute;width:30%;height:36%;left:64%;top:28%;opacity:.9;transform:translate(calc((1 - var(--spook-progress,0)) * -18cqw),calc(var(--spook-progress,0) * -15cqw)) rotate(var(--spook-sway,0deg))}
+    .halloween-bat{position:absolute;left:0;top:13%;width:38%;height:24%;transform:translateX(calc(var(--spook-progress,0) * 68cqw)) rotate(var(--spook-sway,0deg))}
+    [data-halloween-scene="shadow"] .halloween-bat{opacity:.18;width:46%;top:23%}
+    .halloween-hat{position:absolute;width:48%;height:28%;top:5%;left:26%;transform:rotate(-4deg);transition:transform .8s var(--ease)}
+    [data-halloween-scene="pumpkin"][data-halloween-stage="1"] .halloween-hat{transform:translate(9cqw,3cqw) rotate(22deg)}
+    [data-halloween-stage="2"] .halloween-hat{transform:translate(-2cqw,-2cqw) rotate(-8deg)}
+    .magic-mishap{position:absolute;left:72%;top:55%;font-size:14cqw;opacity:0;transform:scale(.5);transition:transform .6s var(--ease),opacity .4s}
+    [data-halloween-stage="1"] .magic-mishap,[data-halloween-stage="2"] .magic-mishap{opacity:.85;transform:scale(1)}
+    .halloween-fangs{position:absolute;inset:0}
+    .halloween-skeleton{position:absolute;left:0;top:53%;font-size:12cqw;line-height:.68;text-align:center;transform:rotate(calc(var(--spook-sway,0deg) * -1));color:#e8dfeb}
+    .halloween-skeleton span{display:block;font-family:system-ui;font-size:10cqw;line-height:.8}
+    .halloween-spider{position:absolute;left:76%;top:calc(3% + var(--spook-progress,0) * 22%);font-size:12cqw}
+    .halloween-spider i{position:absolute;width:1px;height:30cqw;background:#d4c5df77;bottom:84%;left:50%}
+    .flying-pumpkin{position:absolute;left:0;top:25%;font-size:16cqw;transform:translateX(calc(var(--spook-progress,0) * 75cqw)) rotate(calc(var(--spook-progress,0) * 90deg))}
+    .vibe-face .face-eye{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,calc(var(--eye-open,1) * var(--beat-eye,1)))}
+    .vibe-face .face-eye.left{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scale(1,calc(var(--left-eye-open,var(--eye-open,1)) * var(--beat-eye,1)))}
+    .vibe-face.blink .face-eye{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)) scaleY(.08)}
+    .app[data-halloween="true"] .egg-caption{color:#ffe4bb;text-shadow:0 2px 12px #542b68}
+    @keyframes partyFog{from{transform:translate(-3%,2%)}to{transform:translate(4%,-2%)}}
+    .app:has(.vibe-face[data-motion="reduced"]) .halloween-ambient::before,.app:has(.vibe-face[data-motion="reduced"]) .halloween-ambient::after{animation:none}
+    .vibe-face[data-motion="reduced"] :is(.halloween-ghost,.halloween-bat,.flying-pumpkin,.halloween-skeleton){transform:none}
+    .vibe-face[data-motion="reduced"] :is(.halloween-hat,.magic-mishap){transition:none}
+    .vibe-face[data-motion="reduced"] .halloween-hat{transform:none}
+    .vibe-face[data-motion="reduced"] .halloween-spider{top:15%}
+    .app:has(.vibe-face[data-motion="reduced"]) .cover-ghost{transition:opacity .4s}
+    @media (prefers-reduced-motion:reduce){.halloween-ambient::before,.halloween-ambient::after{animation:none}.controls,.mini-actions,.timeline,.cover-ghost{transition:none}}
+    @media (prefers-reduced-transparency:reduce){.app[data-halloween="true"]{--glass:#392a43fa;--glass-clear:#392a43fa;--glass2:#21182afb}}
+    @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.app[data-halloween="true"]{--glass:#392a43fa;--glass-clear:#392a43fa;--glass2:#21182afb}}
+    @supports not (width:1cqw){
+      .halloween-skeleton,.halloween-skeleton span,.halloween-spider,.magic-mishap,.flying-pumpkin{font-size:clamp(20px,3vw,42px)}
+      .halloween-ghost{transform:translate(calc((1 - var(--spook-progress,0)) * -60%),calc(var(--spook-progress,0) * -50%)) rotate(var(--spook-sway,0deg))}
+      .halloween-bat{transform:translateX(calc(var(--spook-progress,0) * 180%)) rotate(var(--spook-sway,0deg))}
+      .flying-pumpkin{transform:translateX(calc(var(--spook-progress,0) * 450%))}
+      .halloween-spider i{height:80px}
+    }
+    @media (max-width:420px){.setting-grid{grid-template-columns:1fr}#partyExit{font-size:0;padding:10px 12px}#partyExit::after{content:"Party beenden";font-size:10px}.app[data-party="true"] .mini-actions{gap:4px}}
+
   </style>
 </head>
 <body>
@@ -822,6 +899,8 @@
   <div class="bg" id="bg"></div>
   <div class="tint"></div>
   <div class="shade"></div>
+  <div class="halloween-ambient" aria-hidden="true"><span class="ambient-moon"></span><span class="ambient-pumpkin">🎃</span></div>
+  <button class="glass glass-clear" id="partyExit" aria-label="Party-Modus beenden" hidden>Party-Modus beenden</button>
 
   <div class="status-pill">
     <span class="dot" id="dot"></span>
@@ -853,6 +932,7 @@
     <div style="min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto">
       <main class="now">
         <div class="art-wrap">
+          <span class="cover-ghost" id="coverGhost" aria-hidden="true"></span>
           <img id="art" alt="Albumcover" src="">
         </div>
         <div class="meta">
@@ -883,6 +963,7 @@
               <path d="M 29 37 L 36 37 M 60 37 L 67 37" stroke="#adceef" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
             </svg>
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
+            <div class="halloween-layer" id="halloweenLayer" aria-hidden="true"></div>
             <div class="face-easteregg" id="faceEasteregg" aria-hidden="true"></div>
             <svg class="expression-props" viewBox="0 0 100 100" aria-hidden="true">
               <g class="expression-brows"><path class="brow-left" d="M 23 29 Q 30 27 37 29"/><path class="brow-right" d="M 63 29 Q 70 27 77 29"/></g>
@@ -1030,6 +1111,41 @@
       <p class="setting-note" id="motionStatus"></p>
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
+      <section class="party-section" aria-labelledby="partyTitle">
+        <h3 id="partyTitle">Party &amp; Halloween</h3>
+        <label class="setting-row"><span>Halloween-Modus</span><input type="checkbox" id="halloweenSetting"></label>
+        <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
+        <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. „Party-Modus beenden“ bleibt sichtbar.</p>
+        <label class="label" for="halloweenEffects">Halloween-Effekte</label>
+        <select class="setting-field" id="halloweenEffects"><option value="few">Wenig · etwa 75–90 Sekunden Pause</option><option value="normal">Normal · etwa 45–75 Sekunden Pause</option><option value="many">Viele · etwa 30–45 Sekunden Pause</option></select>
+        <label class="setting-row"><span>Ambient-Hintergrund</span><input type="checkbox" id="ambientSetting"></label>
+        <label class="setting-row"><span>Automatische Überraschungen</span><input type="checkbox" id="surpriseSetting"></label>
+        <label class="label" for="dancePattern">Tanzmuster</label>
+        <select class="setting-field" id="dancePattern"><option value="auto">Abwechslungsreich</option><option value="bounce">Hopsen &amp; Landen</option><option value="sway">Schwingen</option><option value="shuffle">Kleine Seitenschritte</option></select>
+        <p class="setting-note">Normal/Lebhaft und reduzierte Bewegung bleiben oben unter „Vibe-Face-Bewegung“ einstellbar. Spotify begleitet das Gesicht mit freien, eigenständigen Bewegungen.</p>
+      </section>
+      <section class="party-section" aria-labelledby="syncTitle">
+        <h3 id="syncTitle">Tempo &amp; Synchronisationstest</h3>
+        <p class="setting-note">Präzise Synchronisierung ist für eigene bzw. entsprechend lizenzierte Audioquellen verfügbar. Spotify-Aufnahmen werden weder analysiert noch mit den neuen Effekten synchronisiert.</p>
+        <p class="diagnostic" id="beatDiagnostic" role="note" aria-label="Tempostatus"></p>
+        <label class="label" for="ownedFile">Eigene Audiodatei · bleibt auf diesem Gerät</label>
+        <input class="setting-field" type="file" accept="audio/*,.flac,.opus" id="ownedFile">
+        <label class="setting-row"><span>Ich darf diese Aufnahme mit Texten und Animationen synchronisieren.</span><input type="checkbox" id="ownedRights"></label>
+        <div class="setting-row"><button class="setting-action glass glass-clear" id="ownedStart">Spotify pausieren &amp; Test starten</button><button class="setting-action glass glass-clear" id="ownedStop">Test beenden</button></div>
+        <audio id="ownedAudio" preload="metadata"></audio>
+        <p class="setting-note" id="ownedStatus" role="status">Noch keine Testquelle geladen. Es wird nichts hochgeladen oder aufgezeichnet.</p>
+        <label class="label" for="ownedLyrics">Passende Lyricsdatei · .lyricsfile.yaml oder .lrc</label>
+        <input class="setting-field" id="ownedLyrics" type="file" accept=".yaml,.yml,.lrc">
+        <div class="setting-grid">
+          <div><label class="label" for="manualBpm">BPM (optional, 30–400)</label><input class="setting-field" id="manualBpm" type="number" min="30" max="400" step="0.1" placeholder="Automatisch schätzen"></div>
+          <div><label class="label" for="tempoFactor">Tanztempo</label><select class="setting-field" id="tempoFactor"><option value="0.5">Halbtempo</option><option value="1">Normal (80–160 BPM)</option><option value="2">Doppeltempo</option></select></div>
+          <div><label class="label" for="beatOffset">Beatversatz (ms)</label><input class="setting-field" id="beatOffset" type="number" min="-2000" max="2000" step="10"></div>
+          <div><label class="label" for="lyricsOffset">Lyricsversatz (ms)</label><input class="setting-field" id="lyricsOffset" type="number" min="-5000" max="5000" step="10"></div>
+        </div>
+        <div class="setting-row"><button class="setting-action glass glass-clear" id="tapTempo">Tap-Tempo · mindestens 4 × tippen</button><button class="setting-action glass glass-clear" id="autoTempo">Automatisch schätzen</button></div>
+        <p class="setting-note">Positive Versätze verzögern die Bewegung bzw. den Text. Onset-Erkennung und aus Zeilen geschätzte Wortzeiten sind keine garantierte Musikerkennung. Echte Wortzeitstempel werden gesondert ausgewiesen.</p>
+      </section>
+
       <button class="danger glass glass-clear" id="logoutBtn">Spotify trennen</button>
     </div>
   </div>
@@ -1038,6 +1154,33 @@
 </div>
 
 <script>
+/* Bundled js-yaml 4.1.1, https://github.com/nodeca/js-yaml
+(The MIT License)
+
+Copyright (C) 2011-2015 by Vitaly Puzrin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+/*! js-yaml 4.1.1 https://github.com/nodeca/js-yaml @license MIT */
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports):"function"==typeof define&&define.amd?define(["exports"],t):t((e="undefined"!=typeof globalThis?globalThis:e||self).jsyaml={})}(this,function(e){"use strict";function t(e){return null==e}var n={isNothing:t,isObject:function(e){return"object"==typeof e&&null!==e},toArray:function(e){return Array.isArray(e)?e:t(e)?[]:[e]},repeat:function(e,t){var n,i="";for(n=0;n<t;n+=1)i+=e;return i},isNegativeZero:function(e){return 0===e&&Number.NEGATIVE_INFINITY===1/e},extend:function(e,t){var n,i,r,o;if(t)for(n=0,i=(o=Object.keys(t)).length;n<i;n+=1)e[r=o[n]]=t[r];return e}};function i(e,t){var n="",i=e.reason||"(unknown reason)";return e.mark?(e.mark.name&&(n+='in "'+e.mark.name+'" '),n+="("+(e.mark.line+1)+":"+(e.mark.column+1)+")",!t&&e.mark.snippet&&(n+="\n\n"+e.mark.snippet),i+" "+n):i}function r(e,t){Error.call(this),this.name="YAMLException",this.reason=e,this.mark=t,this.message=i(this,!1),Error.captureStackTrace?Error.captureStackTrace(this,this.constructor):this.stack=(new Error).stack||""}r.prototype=Object.create(Error.prototype),r.prototype.constructor=r,r.prototype.toString=function(e){return this.name+": "+i(this,e)};var o=r;function a(e,t,n,i,r){var o="",a="",l=Math.floor(r/2)-1;return i-t>l&&(t=i-l+(o=" ... ").length),n-i>l&&(n=i+l-(a=" ...").length),{str:o+e.slice(t,n).replace(/\t/g,"→")+a,pos:i-t+o.length}}function l(e,t){return n.repeat(" ",t-e.length)+e}var c=function(e,t){if(t=Object.create(t||null),!e.buffer)return null;t.maxLength||(t.maxLength=79),"number"!=typeof t.indent&&(t.indent=1),"number"!=typeof t.linesBefore&&(t.linesBefore=3),"number"!=typeof t.linesAfter&&(t.linesAfter=2);for(var i,r=/\r?\n|\r|\0/g,o=[0],c=[],s=-1;i=r.exec(e.buffer);)c.push(i.index),o.push(i.index+i[0].length),e.position<=i.index&&s<0&&(s=o.length-2);s<0&&(s=o.length-1);var u,p,f="",d=Math.min(e.line+t.linesAfter,c.length).toString().length,h=t.maxLength-(t.indent+d+3);for(u=1;u<=t.linesBefore&&!(s-u<0);u++)p=a(e.buffer,o[s-u],c[s-u],e.position-(o[s]-o[s-u]),h),f=n.repeat(" ",t.indent)+l((e.line-u+1).toString(),d)+" | "+p.str+"\n"+f;for(p=a(e.buffer,o[s],c[s],e.position,h),f+=n.repeat(" ",t.indent)+l((e.line+1).toString(),d)+" | "+p.str+"\n",f+=n.repeat("-",t.indent+d+3+p.pos)+"^\n",u=1;u<=t.linesAfter&&!(s+u>=c.length);u++)p=a(e.buffer,o[s+u],c[s+u],e.position-(o[s]-o[s+u]),h),f+=n.repeat(" ",t.indent)+l((e.line+u+1).toString(),d)+" | "+p.str+"\n";return f.replace(/\n$/,"")},s=["kind","multi","resolve","construct","instanceOf","predicate","represent","representName","defaultStyle","styleAliases"],u=["scalar","sequence","mapping"];var p=function(e,t){if(t=t||{},Object.keys(t).forEach(function(t){if(-1===s.indexOf(t))throw new o('Unknown option "'+t+'" is met in definition of "'+e+'" YAML type.')}),this.options=t,this.tag=e,this.kind=t.kind||null,this.resolve=t.resolve||function(){return!0},this.construct=t.construct||function(e){return e},this.instanceOf=t.instanceOf||null,this.predicate=t.predicate||null,this.represent=t.represent||null,this.representName=t.representName||null,this.defaultStyle=t.defaultStyle||null,this.multi=t.multi||!1,this.styleAliases=function(e){var t={};return null!==e&&Object.keys(e).forEach(function(n){e[n].forEach(function(e){t[String(e)]=n})}),t}(t.styleAliases||null),-1===u.indexOf(this.kind))throw new o('Unknown kind "'+this.kind+'" is specified for "'+e+'" YAML type.')};function f(e,t){var n=[];return e[t].forEach(function(e){var t=n.length;n.forEach(function(n,i){n.tag===e.tag&&n.kind===e.kind&&n.multi===e.multi&&(t=i)}),n[t]=e}),n}function d(e){return this.extend(e)}d.prototype.extend=function(e){var t=[],n=[];if(e instanceof p)n.push(e);else if(Array.isArray(e))n=n.concat(e);else{if(!e||!Array.isArray(e.implicit)&&!Array.isArray(e.explicit))throw new o("Schema.extend argument should be a Type, [ Type ], or a schema definition ({ implicit: [...], explicit: [...] })");e.implicit&&(t=t.concat(e.implicit)),e.explicit&&(n=n.concat(e.explicit))}t.forEach(function(e){if(!(e instanceof p))throw new o("Specified list of YAML types (or a single Type object) contains a non-Type object.");if(e.loadKind&&"scalar"!==e.loadKind)throw new o("There is a non-scalar type in the implicit list of a schema. Implicit resolving of such types is not supported.");if(e.multi)throw new o("There is a multi type in the implicit list of a schema. Multi tags can only be listed as explicit.")}),n.forEach(function(e){if(!(e instanceof p))throw new o("Specified list of YAML types (or a single Type object) contains a non-Type object.")});var i=Object.create(d.prototype);return i.implicit=(this.implicit||[]).concat(t),i.explicit=(this.explicit||[]).concat(n),i.compiledImplicit=f(i,"implicit"),i.compiledExplicit=f(i,"explicit"),i.compiledTypeMap=function(){var e,t,n={scalar:{},sequence:{},mapping:{},fallback:{},multi:{scalar:[],sequence:[],mapping:[],fallback:[]}};function i(e){e.multi?(n.multi[e.kind].push(e),n.multi.fallback.push(e)):n[e.kind][e.tag]=n.fallback[e.tag]=e}for(e=0,t=arguments.length;e<t;e+=1)arguments[e].forEach(i);return n}(i.compiledImplicit,i.compiledExplicit),i};var h=d,g=new p("tag:yaml.org,2002:str",{kind:"scalar",construct:function(e){return null!==e?e:""}}),m=new p("tag:yaml.org,2002:seq",{kind:"sequence",construct:function(e){return null!==e?e:[]}}),y=new p("tag:yaml.org,2002:map",{kind:"mapping",construct:function(e){return null!==e?e:{}}}),b=new h({explicit:[g,m,y]});var A=new p("tag:yaml.org,2002:null",{kind:"scalar",resolve:function(e){if(null===e)return!0;var t=e.length;return 1===t&&"~"===e||4===t&&("null"===e||"Null"===e||"NULL"===e)},construct:function(){return null},predicate:function(e){return null===e},represent:{canonical:function(){return"~"},lowercase:function(){return"null"},uppercase:function(){return"NULL"},camelcase:function(){return"Null"},empty:function(){return""}},defaultStyle:"lowercase"});var v=new p("tag:yaml.org,2002:bool",{kind:"scalar",resolve:function(e){if(null===e)return!1;var t=e.length;return 4===t&&("true"===e||"True"===e||"TRUE"===e)||5===t&&("false"===e||"False"===e||"FALSE"===e)},construct:function(e){return"true"===e||"True"===e||"TRUE"===e},predicate:function(e){return"[object Boolean]"===Object.prototype.toString.call(e)},represent:{lowercase:function(e){return e?"true":"false"},uppercase:function(e){return e?"TRUE":"FALSE"},camelcase:function(e){return e?"True":"False"}},defaultStyle:"lowercase"});function w(e){return 48<=e&&e<=57||65<=e&&e<=70||97<=e&&e<=102}function k(e){return 48<=e&&e<=55}function C(e){return 48<=e&&e<=57}var x=new p("tag:yaml.org,2002:int",{kind:"scalar",resolve:function(e){if(null===e)return!1;var t,n=e.length,i=0,r=!1;if(!n)return!1;if("-"!==(t=e[i])&&"+"!==t||(t=e[++i]),"0"===t){if(i+1===n)return!0;if("b"===(t=e[++i])){for(i++;i<n;i++)if("_"!==(t=e[i])){if("0"!==t&&"1"!==t)return!1;r=!0}return r&&"_"!==t}if("x"===t){for(i++;i<n;i++)if("_"!==(t=e[i])){if(!w(e.charCodeAt(i)))return!1;r=!0}return r&&"_"!==t}if("o"===t){for(i++;i<n;i++)if("_"!==(t=e[i])){if(!k(e.charCodeAt(i)))return!1;r=!0}return r&&"_"!==t}}if("_"===t)return!1;for(;i<n;i++)if("_"!==(t=e[i])){if(!C(e.charCodeAt(i)))return!1;r=!0}return!(!r||"_"===t)},construct:function(e){var t,n=e,i=1;if(-1!==n.indexOf("_")&&(n=n.replace(/_/g,"")),"-"!==(t=n[0])&&"+"!==t||("-"===t&&(i=-1),t=(n=n.slice(1))[0]),"0"===n)return 0;if("0"===t){if("b"===n[1])return i*parseInt(n.slice(2),2);if("x"===n[1])return i*parseInt(n.slice(2),16);if("o"===n[1])return i*parseInt(n.slice(2),8)}return i*parseInt(n,10)},predicate:function(e){return"[object Number]"===Object.prototype.toString.call(e)&&e%1==0&&!n.isNegativeZero(e)},represent:{binary:function(e){return e>=0?"0b"+e.toString(2):"-0b"+e.toString(2).slice(1)},octal:function(e){return e>=0?"0o"+e.toString(8):"-0o"+e.toString(8).slice(1)},decimal:function(e){return e.toString(10)},hexadecimal:function(e){return e>=0?"0x"+e.toString(16).toUpperCase():"-0x"+e.toString(16).toUpperCase().slice(1)}},defaultStyle:"decimal",styleAliases:{binary:[2,"bin"],octal:[8,"oct"],decimal:[10,"dec"],hexadecimal:[16,"hex"]}}),I=new RegExp("^(?:[-+]?(?:[0-9][0-9_]*)(?:\\.[0-9_]*)?(?:[eE][-+]?[0-9]+)?|\\.[0-9_]+(?:[eE][-+]?[0-9]+)?|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");var S=/^[-+]?[0-9]+e/;var O=new p("tag:yaml.org,2002:float",{kind:"scalar",resolve:function(e){return null!==e&&!(!I.test(e)||"_"===e[e.length-1])},construct:function(e){var t,n;return n="-"===(t=e.replace(/_/g,"").toLowerCase())[0]?-1:1,"+-".indexOf(t[0])>=0&&(t=t.slice(1)),".inf"===t?1===n?Number.POSITIVE_INFINITY:Number.NEGATIVE_INFINITY:".nan"===t?NaN:n*parseFloat(t,10)},predicate:function(e){return"[object Number]"===Object.prototype.toString.call(e)&&(e%1!=0||n.isNegativeZero(e))},represent:function(e,t){var i;if(isNaN(e))switch(t){case"lowercase":return".nan";case"uppercase":return".NAN";case"camelcase":return".NaN"}else if(Number.POSITIVE_INFINITY===e)switch(t){case"lowercase":return".inf";case"uppercase":return".INF";case"camelcase":return".Inf"}else if(Number.NEGATIVE_INFINITY===e)switch(t){case"lowercase":return"-.inf";case"uppercase":return"-.INF";case"camelcase":return"-.Inf"}else if(n.isNegativeZero(e))return"-0.0";return i=e.toString(10),S.test(i)?i.replace("e",".e"):i},defaultStyle:"lowercase"}),j=b.extend({implicit:[A,v,x,O]}),T=j,N=new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])$"),F=new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9]?)-([0-9][0-9]?)(?:[Tt]|[ \\t]+)([0-9][0-9]?):([0-9][0-9]):([0-9][0-9])(?:\\.([0-9]*))?(?:[ \\t]*(Z|([-+])([0-9][0-9]?)(?::([0-9][0-9]))?))?$");var E=new p("tag:yaml.org,2002:timestamp",{kind:"scalar",resolve:function(e){return null!==e&&(null!==N.exec(e)||null!==F.exec(e))},construct:function(e){var t,n,i,r,o,a,l,c,s=0,u=null;if(null===(t=N.exec(e))&&(t=F.exec(e)),null===t)throw new Error("Date resolve error");if(n=+t[1],i=+t[2]-1,r=+t[3],!t[4])return new Date(Date.UTC(n,i,r));if(o=+t[4],a=+t[5],l=+t[6],t[7]){for(s=t[7].slice(0,3);s.length<3;)s+="0";s=+s}return t[9]&&(u=6e4*(60*+t[10]+ +(t[11]||0)),"-"===t[9]&&(u=-u)),c=new Date(Date.UTC(n,i,r,o,a,l,s)),u&&c.setTime(c.getTime()-u),c},instanceOf:Date,represent:function(e){return e.toISOString()}});var M=new p("tag:yaml.org,2002:merge",{kind:"scalar",resolve:function(e){return"<<"===e||null===e}}),L="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\n\r";var _=new p("tag:yaml.org,2002:binary",{kind:"scalar",resolve:function(e){if(null===e)return!1;var t,n,i=0,r=e.length,o=L;for(n=0;n<r;n++)if(!((t=o.indexOf(e.charAt(n)))>64)){if(t<0)return!1;i+=6}return i%8==0},construct:function(e){var t,n,i=e.replace(/[\r\n=]/g,""),r=i.length,o=L,a=0,l=[];for(t=0;t<r;t++)t%4==0&&t&&(l.push(a>>16&255),l.push(a>>8&255),l.push(255&a)),a=a<<6|o.indexOf(i.charAt(t));return 0===(n=r%4*6)?(l.push(a>>16&255),l.push(a>>8&255),l.push(255&a)):18===n?(l.push(a>>10&255),l.push(a>>2&255)):12===n&&l.push(a>>4&255),new Uint8Array(l)},predicate:function(e){return"[object Uint8Array]"===Object.prototype.toString.call(e)},represent:function(e){var t,n,i="",r=0,o=e.length,a=L;for(t=0;t<o;t++)t%3==0&&t&&(i+=a[r>>18&63],i+=a[r>>12&63],i+=a[r>>6&63],i+=a[63&r]),r=(r<<8)+e[t];return 0===(n=o%3)?(i+=a[r>>18&63],i+=a[r>>12&63],i+=a[r>>6&63],i+=a[63&r]):2===n?(i+=a[r>>10&63],i+=a[r>>4&63],i+=a[r<<2&63],i+=a[64]):1===n&&(i+=a[r>>2&63],i+=a[r<<4&63],i+=a[64],i+=a[64]),i}}),D=Object.prototype.hasOwnProperty,U=Object.prototype.toString;var q=new p("tag:yaml.org,2002:omap",{kind:"sequence",resolve:function(e){if(null===e)return!0;var t,n,i,r,o,a=[],l=e;for(t=0,n=l.length;t<n;t+=1){if(i=l[t],o=!1,"[object Object]"!==U.call(i))return!1;for(r in i)if(D.call(i,r)){if(o)return!1;o=!0}if(!o)return!1;if(-1!==a.indexOf(r))return!1;a.push(r)}return!0},construct:function(e){return null!==e?e:[]}}),Y=Object.prototype.toString;var R=new p("tag:yaml.org,2002:pairs",{kind:"sequence",resolve:function(e){if(null===e)return!0;var t,n,i,r,o,a=e;for(o=new Array(a.length),t=0,n=a.length;t<n;t+=1){if(i=a[t],"[object Object]"!==Y.call(i))return!1;if(1!==(r=Object.keys(i)).length)return!1;o[t]=[r[0],i[r[0]]]}return!0},construct:function(e){if(null===e)return[];var t,n,i,r,o,a=e;for(o=new Array(a.length),t=0,n=a.length;t<n;t+=1)i=a[t],r=Object.keys(i),o[t]=[r[0],i[r[0]]];return o}}),B=Object.prototype.hasOwnProperty;var K=new p("tag:yaml.org,2002:set",{kind:"mapping",resolve:function(e){if(null===e)return!0;var t,n=e;for(t in n)if(B.call(n,t)&&null!==n[t])return!1;return!0},construct:function(e){return null!==e?e:{}}}),P=T.extend({implicit:[E,M],explicit:[_,q,R,K]}),W=Object.prototype.hasOwnProperty,H=/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/,$=/[\x85\u2028\u2029]/,G=/[,\[\]\{\}]/,V=/^(?:!|!!|![a-z\-]+!)$/i,Z=/^(?:!|[^,\[\]\{\}])(?:%[0-9a-f]{2}|[0-9a-z\-#;\/\?:@&=\+\$,_\.!~\*'\(\)\[\]])*$/i;function J(e){return Object.prototype.toString.call(e)}function Q(e){return 10===e||13===e}function z(e){return 9===e||32===e}function X(e){return 9===e||32===e||10===e||13===e}function ee(e){return 44===e||91===e||93===e||123===e||125===e}function te(e){var t;return 48<=e&&e<=57?e-48:97<=(t=32|e)&&t<=102?t-97+10:-1}function ne(e){return 120===e?2:117===e?4:85===e?8:0}function ie(e){return 48<=e&&e<=57?e-48:-1}function re(e){return 48===e?"\0":97===e?"":98===e?"\b":116===e||9===e?"\t":110===e?"\n":118===e?"\v":102===e?"\f":114===e?"\r":101===e?"":32===e?" ":34===e?'"':47===e?"/":92===e?"\\":78===e?"":95===e?" ":76===e?"\u2028":80===e?"\u2029":""}function oe(e){return e<=65535?String.fromCharCode(e):String.fromCharCode(55296+(e-65536>>10),56320+(e-65536&1023))}function ae(e,t,n){"__proto__"===t?Object.defineProperty(e,t,{configurable:!0,enumerable:!0,writable:!0,value:n}):e[t]=n}for(var le=new Array(256),ce=new Array(256),se=0;se<256;se++)le[se]=re(se)?1:0,ce[se]=re(se);function ue(e,t){this.input=e,this.filename=t.filename||null,this.schema=t.schema||P,this.onWarning=t.onWarning||null,this.legacy=t.legacy||!1,this.json=t.json||!1,this.listener=t.listener||null,this.implicitTypes=this.schema.compiledImplicit,this.typeMap=this.schema.compiledTypeMap,this.length=e.length,this.position=0,this.line=0,this.lineStart=0,this.lineIndent=0,this.firstTabInLine=-1,this.documents=[]}function pe(e,t){var n={name:e.filename,buffer:e.input.slice(0,-1),position:e.position,line:e.line,column:e.position-e.lineStart};return n.snippet=c(n),new o(t,n)}function fe(e,t){throw pe(e,t)}function de(e,t){e.onWarning&&e.onWarning.call(null,pe(e,t))}var he={YAML:function(e,t,n){var i,r,o;null!==e.version&&fe(e,"duplication of %YAML directive"),1!==n.length&&fe(e,"YAML directive accepts exactly one argument"),null===(i=/^([0-9]+)\.([0-9]+)$/.exec(n[0]))&&fe(e,"ill-formed argument of the YAML directive"),r=parseInt(i[1],10),o=parseInt(i[2],10),1!==r&&fe(e,"unacceptable YAML version of the document"),e.version=n[0],e.checkLineBreaks=o<2,1!==o&&2!==o&&de(e,"unsupported YAML version of the document")},TAG:function(e,t,n){var i,r;2!==n.length&&fe(e,"TAG directive accepts exactly two arguments"),i=n[0],r=n[1],V.test(i)||fe(e,"ill-formed tag handle (first argument) of the TAG directive"),W.call(e.tagMap,i)&&fe(e,'there is a previously declared suffix for "'+i+'" tag handle'),Z.test(r)||fe(e,"ill-formed tag prefix (second argument) of the TAG directive");try{r=decodeURIComponent(r)}catch(t){fe(e,"tag prefix is malformed: "+r)}e.tagMap[i]=r}};function ge(e,t,n,i){var r,o,a,l;if(t<n){if(l=e.input.slice(t,n),i)for(r=0,o=l.length;r<o;r+=1)9===(a=l.charCodeAt(r))||32<=a&&a<=1114111||fe(e,"expected valid JSON character");else H.test(l)&&fe(e,"the stream contains non-printable characters");e.result+=l}}function me(e,t,i,r){var o,a,l,c;for(n.isObject(i)||fe(e,"cannot merge mappings; the provided source object is unacceptable"),l=0,c=(o=Object.keys(i)).length;l<c;l+=1)a=o[l],W.call(t,a)||(ae(t,a,i[a]),r[a]=!0)}function ye(e,t,n,i,r,o,a,l,c){var s,u;if(Array.isArray(r))for(s=0,u=(r=Array.prototype.slice.call(r)).length;s<u;s+=1)Array.isArray(r[s])&&fe(e,"nested arrays are not supported inside keys"),"object"==typeof r&&"[object Object]"===J(r[s])&&(r[s]="[object Object]");if("object"==typeof r&&"[object Object]"===J(r)&&(r="[object Object]"),r=String(r),null===t&&(t={}),"tag:yaml.org,2002:merge"===i)if(Array.isArray(o))for(s=0,u=o.length;s<u;s+=1)me(e,t,o[s],n);else me(e,t,o,n);else e.json||W.call(n,r)||!W.call(t,r)||(e.line=a||e.line,e.lineStart=l||e.lineStart,e.position=c||e.position,fe(e,"duplicated mapping key")),ae(t,r,o),delete n[r];return t}function be(e){var t;10===(t=e.input.charCodeAt(e.position))?e.position++:13===t?(e.position++,10===e.input.charCodeAt(e.position)&&e.position++):fe(e,"a line break is expected"),e.line+=1,e.lineStart=e.position,e.firstTabInLine=-1}function Ae(e,t,n){for(var i=0,r=e.input.charCodeAt(e.position);0!==r;){for(;z(r);)9===r&&-1===e.firstTabInLine&&(e.firstTabInLine=e.position),r=e.input.charCodeAt(++e.position);if(t&&35===r)do{r=e.input.charCodeAt(++e.position)}while(10!==r&&13!==r&&0!==r);if(!Q(r))break;for(be(e),r=e.input.charCodeAt(e.position),i++,e.lineIndent=0;32===r;)e.lineIndent++,r=e.input.charCodeAt(++e.position)}return-1!==n&&0!==i&&e.lineIndent<n&&de(e,"deficient indentation"),i}function ve(e){var t,n=e.position;return!(45!==(t=e.input.charCodeAt(n))&&46!==t||t!==e.input.charCodeAt(n+1)||t!==e.input.charCodeAt(n+2)||(n+=3,0!==(t=e.input.charCodeAt(n))&&!X(t)))}function we(e,t){1===t?e.result+=" ":t>1&&(e.result+=n.repeat("\n",t-1))}function ke(e,t){var n,i,r=e.tag,o=e.anchor,a=[],l=!1;if(-1!==e.firstTabInLine)return!1;for(null!==e.anchor&&(e.anchorMap[e.anchor]=a),i=e.input.charCodeAt(e.position);0!==i&&(-1!==e.firstTabInLine&&(e.position=e.firstTabInLine,fe(e,"tab characters must not be used in indentation")),45===i)&&X(e.input.charCodeAt(e.position+1));)if(l=!0,e.position++,Ae(e,!0,-1)&&e.lineIndent<=t)a.push(null),i=e.input.charCodeAt(e.position);else if(n=e.line,Ie(e,t,3,!1,!0),a.push(e.result),Ae(e,!0,-1),i=e.input.charCodeAt(e.position),(e.line===n||e.lineIndent>t)&&0!==i)fe(e,"bad indentation of a sequence entry");else if(e.lineIndent<t)break;return!!l&&(e.tag=r,e.anchor=o,e.kind="sequence",e.result=a,!0)}function Ce(e){var t,n,i,r,o=!1,a=!1;if(33!==(r=e.input.charCodeAt(e.position)))return!1;if(null!==e.tag&&fe(e,"duplication of a tag property"),60===(r=e.input.charCodeAt(++e.position))?(o=!0,r=e.input.charCodeAt(++e.position)):33===r?(a=!0,n="!!",r=e.input.charCodeAt(++e.position)):n="!",t=e.position,o){do{r=e.input.charCodeAt(++e.position)}while(0!==r&&62!==r);e.position<e.length?(i=e.input.slice(t,e.position),r=e.input.charCodeAt(++e.position)):fe(e,"unexpected end of the stream within a verbatim tag")}else{for(;0!==r&&!X(r);)33===r&&(a?fe(e,"tag suffix cannot contain exclamation marks"):(n=e.input.slice(t-1,e.position+1),V.test(n)||fe(e,"named tag handle cannot contain such characters"),a=!0,t=e.position+1)),r=e.input.charCodeAt(++e.position);i=e.input.slice(t,e.position),G.test(i)&&fe(e,"tag suffix cannot contain flow indicator characters")}i&&!Z.test(i)&&fe(e,"tag name cannot contain such characters: "+i);try{i=decodeURIComponent(i)}catch(t){fe(e,"tag name is malformed: "+i)}return o?e.tag=i:W.call(e.tagMap,n)?e.tag=e.tagMap[n]+i:"!"===n?e.tag="!"+i:"!!"===n?e.tag="tag:yaml.org,2002:"+i:fe(e,'undeclared tag handle "'+n+'"'),!0}function xe(e){var t,n;if(38!==(n=e.input.charCodeAt(e.position)))return!1;for(null!==e.anchor&&fe(e,"duplication of an anchor property"),n=e.input.charCodeAt(++e.position),t=e.position;0!==n&&!X(n)&&!ee(n);)n=e.input.charCodeAt(++e.position);return e.position===t&&fe(e,"name of an anchor node must contain at least one character"),e.anchor=e.input.slice(t,e.position),!0}function Ie(e,t,i,r,o){var a,l,c,s,u,p,f,d,h,g=1,m=!1,y=!1;if(null!==e.listener&&e.listener("open",e),e.tag=null,e.anchor=null,e.kind=null,e.result=null,a=l=c=4===i||3===i,r&&Ae(e,!0,-1)&&(m=!0,e.lineIndent>t?g=1:e.lineIndent===t?g=0:e.lineIndent<t&&(g=-1)),1===g)for(;Ce(e)||xe(e);)Ae(e,!0,-1)?(m=!0,c=a,e.lineIndent>t?g=1:e.lineIndent===t?g=0:e.lineIndent<t&&(g=-1)):c=!1;if(c&&(c=m||o),1!==g&&4!==i||(d=1===i||2===i?t:t+1,h=e.position-e.lineStart,1===g?c&&(ke(e,h)||function(e,t,n){var i,r,o,a,l,c,s,u=e.tag,p=e.anchor,f={},d=Object.create(null),h=null,g=null,m=null,y=!1,b=!1;if(-1!==e.firstTabInLine)return!1;for(null!==e.anchor&&(e.anchorMap[e.anchor]=f),s=e.input.charCodeAt(e.position);0!==s;){if(y||-1===e.firstTabInLine||(e.position=e.firstTabInLine,fe(e,"tab characters must not be used in indentation")),i=e.input.charCodeAt(e.position+1),o=e.line,63!==s&&58!==s||!X(i)){if(a=e.line,l=e.lineStart,c=e.position,!Ie(e,n,2,!1,!0))break;if(e.line===o){for(s=e.input.charCodeAt(e.position);z(s);)s=e.input.charCodeAt(++e.position);if(58===s)X(s=e.input.charCodeAt(++e.position))||fe(e,"a whitespace character is expected after the key-value separator within a block mapping"),y&&(ye(e,f,d,h,g,null,a,l,c),h=g=m=null),b=!0,y=!1,r=!1,h=e.tag,g=e.result;else{if(!b)return e.tag=u,e.anchor=p,!0;fe(e,"can not read an implicit mapping pair; a colon is missed")}}else{if(!b)return e.tag=u,e.anchor=p,!0;fe(e,"can not read a block mapping entry; a multiline key may not be an implicit key")}}else 63===s?(y&&(ye(e,f,d,h,g,null,a,l,c),h=g=m=null),b=!0,y=!0,r=!0):y?(y=!1,r=!0):fe(e,"incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line"),e.position+=1,s=i;if((e.line===o||e.lineIndent>t)&&(y&&(a=e.line,l=e.lineStart,c=e.position),Ie(e,t,4,!0,r)&&(y?g=e.result:m=e.result),y||(ye(e,f,d,h,g,m,a,l,c),h=g=m=null),Ae(e,!0,-1),s=e.input.charCodeAt(e.position)),(e.line===o||e.lineIndent>t)&&0!==s)fe(e,"bad indentation of a mapping entry");else if(e.lineIndent<t)break}return y&&ye(e,f,d,h,g,null,a,l,c),b&&(e.tag=u,e.anchor=p,e.kind="mapping",e.result=f),b}(e,h,d))||function(e,t){var n,i,r,o,a,l,c,s,u,p,f,d,h=!0,g=e.tag,m=e.anchor,y=Object.create(null);if(91===(d=e.input.charCodeAt(e.position)))a=93,s=!1,o=[];else{if(123!==d)return!1;a=125,s=!0,o={}}for(null!==e.anchor&&(e.anchorMap[e.anchor]=o),d=e.input.charCodeAt(++e.position);0!==d;){if(Ae(e,!0,t),(d=e.input.charCodeAt(e.position))===a)return e.position++,e.tag=g,e.anchor=m,e.kind=s?"mapping":"sequence",e.result=o,!0;h?44===d&&fe(e,"expected the node content, but found ','"):fe(e,"missed comma between flow collection entries"),f=null,l=c=!1,63===d&&X(e.input.charCodeAt(e.position+1))&&(l=c=!0,e.position++,Ae(e,!0,t)),n=e.line,i=e.lineStart,r=e.position,Ie(e,t,1,!1,!0),p=e.tag,u=e.result,Ae(e,!0,t),d=e.input.charCodeAt(e.position),!c&&e.line!==n||58!==d||(l=!0,d=e.input.charCodeAt(++e.position),Ae(e,!0,t),Ie(e,t,1,!1,!0),f=e.result),s?ye(e,o,y,p,u,f,n,i,r):l?o.push(ye(e,null,y,p,u,f,n,i,r)):o.push(u),Ae(e,!0,t),44===(d=e.input.charCodeAt(e.position))?(h=!0,d=e.input.charCodeAt(++e.position)):h=!1}fe(e,"unexpected end of the stream within a flow collection")}(e,d)?y=!0:(l&&function(e,t){var i,r,o,a,l=1,c=!1,s=!1,u=t,p=0,f=!1;if(124===(a=e.input.charCodeAt(e.position)))r=!1;else{if(62!==a)return!1;r=!0}for(e.kind="scalar",e.result="";0!==a;)if(43===(a=e.input.charCodeAt(++e.position))||45===a)1===l?l=43===a?3:2:fe(e,"repeat of a chomping mode identifier");else{if(!((o=ie(a))>=0))break;0===o?fe(e,"bad explicit indentation width of a block scalar; it cannot be less than one"):s?fe(e,"repeat of an indentation width identifier"):(u=t+o-1,s=!0)}if(z(a)){do{a=e.input.charCodeAt(++e.position)}while(z(a));if(35===a)do{a=e.input.charCodeAt(++e.position)}while(!Q(a)&&0!==a)}for(;0!==a;){for(be(e),e.lineIndent=0,a=e.input.charCodeAt(e.position);(!s||e.lineIndent<u)&&32===a;)e.lineIndent++,a=e.input.charCodeAt(++e.position);if(!s&&e.lineIndent>u&&(u=e.lineIndent),Q(a))p++;else{if(e.lineIndent<u){3===l?e.result+=n.repeat("\n",c?1+p:p):1===l&&c&&(e.result+="\n");break}for(r?z(a)?(f=!0,e.result+=n.repeat("\n",c?1+p:p)):f?(f=!1,e.result+=n.repeat("\n",p+1)):0===p?c&&(e.result+=" "):e.result+=n.repeat("\n",p):e.result+=n.repeat("\n",c?1+p:p),c=!0,s=!0,p=0,i=e.position;!Q(a)&&0!==a;)a=e.input.charCodeAt(++e.position);ge(e,i,e.position,!1)}}return!0}(e,d)||function(e,t){var n,i,r;if(39!==(n=e.input.charCodeAt(e.position)))return!1;for(e.kind="scalar",e.result="",e.position++,i=r=e.position;0!==(n=e.input.charCodeAt(e.position));)if(39===n){if(ge(e,i,e.position,!0),39!==(n=e.input.charCodeAt(++e.position)))return!0;i=e.position,e.position++,r=e.position}else Q(n)?(ge(e,i,r,!0),we(e,Ae(e,!1,t)),i=r=e.position):e.position===e.lineStart&&ve(e)?fe(e,"unexpected end of the document within a single quoted scalar"):(e.position++,r=e.position);fe(e,"unexpected end of the stream within a single quoted scalar")}(e,d)||function(e,t){var n,i,r,o,a,l;if(34!==(l=e.input.charCodeAt(e.position)))return!1;for(e.kind="scalar",e.result="",e.position++,n=i=e.position;0!==(l=e.input.charCodeAt(e.position));){if(34===l)return ge(e,n,e.position,!0),e.position++,!0;if(92===l){if(ge(e,n,e.position,!0),Q(l=e.input.charCodeAt(++e.position)))Ae(e,!1,t);else if(l<256&&le[l])e.result+=ce[l],e.position++;else if((a=ne(l))>0){for(r=a,o=0;r>0;r--)(a=te(l=e.input.charCodeAt(++e.position)))>=0?o=(o<<4)+a:fe(e,"expected hexadecimal character");e.result+=oe(o),e.position++}else fe(e,"unknown escape sequence");n=i=e.position}else Q(l)?(ge(e,n,i,!0),we(e,Ae(e,!1,t)),n=i=e.position):e.position===e.lineStart&&ve(e)?fe(e,"unexpected end of the document within a double quoted scalar"):(e.position++,i=e.position)}fe(e,"unexpected end of the stream within a double quoted scalar")}(e,d)?y=!0:!function(e){var t,n,i;if(42!==(i=e.input.charCodeAt(e.position)))return!1;for(i=e.input.charCodeAt(++e.position),t=e.position;0!==i&&!X(i)&&!ee(i);)i=e.input.charCodeAt(++e.position);return e.position===t&&fe(e,"name of an alias node must contain at least one character"),n=e.input.slice(t,e.position),W.call(e.anchorMap,n)||fe(e,'unidentified alias "'+n+'"'),e.result=e.anchorMap[n],Ae(e,!0,-1),!0}(e)?function(e,t,n){var i,r,o,a,l,c,s,u,p=e.kind,f=e.result;if(X(u=e.input.charCodeAt(e.position))||ee(u)||35===u||38===u||42===u||33===u||124===u||62===u||39===u||34===u||37===u||64===u||96===u)return!1;if((63===u||45===u)&&(X(i=e.input.charCodeAt(e.position+1))||n&&ee(i)))return!1;for(e.kind="scalar",e.result="",r=o=e.position,a=!1;0!==u;){if(58===u){if(X(i=e.input.charCodeAt(e.position+1))||n&&ee(i))break}else if(35===u){if(X(e.input.charCodeAt(e.position-1)))break}else{if(e.position===e.lineStart&&ve(e)||n&&ee(u))break;if(Q(u)){if(l=e.line,c=e.lineStart,s=e.lineIndent,Ae(e,!1,-1),e.lineIndent>=t){a=!0,u=e.input.charCodeAt(e.position);continue}e.position=o,e.line=l,e.lineStart=c,e.lineIndent=s;break}}a&&(ge(e,r,o,!1),we(e,e.line-l),r=o=e.position,a=!1),z(u)||(o=e.position+1),u=e.input.charCodeAt(++e.position)}return ge(e,r,o,!1),!!e.result||(e.kind=p,e.result=f,!1)}(e,d,1===i)&&(y=!0,null===e.tag&&(e.tag="?")):(y=!0,null===e.tag&&null===e.anchor||fe(e,"alias node should not have any properties")),null!==e.anchor&&(e.anchorMap[e.anchor]=e.result)):0===g&&(y=c&&ke(e,h))),null===e.tag)null!==e.anchor&&(e.anchorMap[e.anchor]=e.result);else if("?"===e.tag){for(null!==e.result&&"scalar"!==e.kind&&fe(e,'unacceptable node kind for !<?> tag; it should be "scalar", not "'+e.kind+'"'),s=0,u=e.implicitTypes.length;s<u;s+=1)if((f=e.implicitTypes[s]).resolve(e.result)){e.result=f.construct(e.result),e.tag=f.tag,null!==e.anchor&&(e.anchorMap[e.anchor]=e.result);break}}else if("!"!==e.tag){if(W.call(e.typeMap[e.kind||"fallback"],e.tag))f=e.typeMap[e.kind||"fallback"][e.tag];else for(f=null,s=0,u=(p=e.typeMap.multi[e.kind||"fallback"]).length;s<u;s+=1)if(e.tag.slice(0,p[s].tag.length)===p[s].tag){f=p[s];break}f||fe(e,"unknown tag !<"+e.tag+">"),null!==e.result&&f.kind!==e.kind&&fe(e,"unacceptable node kind for !<"+e.tag+'> tag; it should be "'+f.kind+'", not "'+e.kind+'"'),f.resolve(e.result,e.tag)?(e.result=f.construct(e.result,e.tag),null!==e.anchor&&(e.anchorMap[e.anchor]=e.result)):fe(e,"cannot resolve a node with !<"+e.tag+"> explicit tag")}return null!==e.listener&&e.listener("close",e),null!==e.tag||null!==e.anchor||y}function Se(e){var t,n,i,r,o=e.position,a=!1;for(e.version=null,e.checkLineBreaks=e.legacy,e.tagMap=Object.create(null),e.anchorMap=Object.create(null);0!==(r=e.input.charCodeAt(e.position))&&(Ae(e,!0,-1),r=e.input.charCodeAt(e.position),!(e.lineIndent>0||37!==r));){for(a=!0,r=e.input.charCodeAt(++e.position),t=e.position;0!==r&&!X(r);)r=e.input.charCodeAt(++e.position);for(i=[],(n=e.input.slice(t,e.position)).length<1&&fe(e,"directive name must not be less than one character in length");0!==r;){for(;z(r);)r=e.input.charCodeAt(++e.position);if(35===r){do{r=e.input.charCodeAt(++e.position)}while(0!==r&&!Q(r));break}if(Q(r))break;for(t=e.position;0!==r&&!X(r);)r=e.input.charCodeAt(++e.position);i.push(e.input.slice(t,e.position))}0!==r&&be(e),W.call(he,n)?he[n](e,n,i):de(e,'unknown document directive "'+n+'"')}Ae(e,!0,-1),0===e.lineIndent&&45===e.input.charCodeAt(e.position)&&45===e.input.charCodeAt(e.position+1)&&45===e.input.charCodeAt(e.position+2)?(e.position+=3,Ae(e,!0,-1)):a&&fe(e,"directives end mark is expected"),Ie(e,e.lineIndent-1,4,!1,!0),Ae(e,!0,-1),e.checkLineBreaks&&$.test(e.input.slice(o,e.position))&&de(e,"non-ASCII line breaks are interpreted as content"),e.documents.push(e.result),e.position===e.lineStart&&ve(e)?46===e.input.charCodeAt(e.position)&&(e.position+=3,Ae(e,!0,-1)):e.position<e.length-1&&fe(e,"end of the stream or a document separator is expected")}function Oe(e,t){t=t||{},0!==(e=String(e)).length&&(10!==e.charCodeAt(e.length-1)&&13!==e.charCodeAt(e.length-1)&&(e+="\n"),65279===e.charCodeAt(0)&&(e=e.slice(1)));var n=new ue(e,t),i=e.indexOf("\0");for(-1!==i&&(n.position=i,fe(n,"null byte is not allowed in input")),n.input+="\0";32===n.input.charCodeAt(n.position);)n.lineIndent+=1,n.position+=1;for(;n.position<n.length-1;)Se(n);return n.documents}var je={loadAll:function(e,t,n){null!==t&&"object"==typeof t&&void 0===n&&(n=t,t=null);var i=Oe(e,n);if("function"!=typeof t)return i;for(var r=0,o=i.length;r<o;r+=1)t(i[r])},load:function(e,t){var n=Oe(e,t);if(0!==n.length){if(1===n.length)return n[0];throw new o("expected a single document in the stream, but found more")}}},Te=Object.prototype.toString,Ne=Object.prototype.hasOwnProperty,Fe=65279,Ee={0:"\\0",7:"\\a",8:"\\b",9:"\\t",10:"\\n",11:"\\v",12:"\\f",13:"\\r",27:"\\e",34:'\\"',92:"\\\\",133:"\\N",160:"\\_",8232:"\\L",8233:"\\P"},Me=["y","Y","yes","Yes","YES","on","On","ON","n","N","no","No","NO","off","Off","OFF"],Le=/^[-+]?[0-9_]+(?::[0-9_]+)+(?:\.[0-9_]*)?$/;function _e(e){var t,i,r;if(t=e.toString(16).toUpperCase(),e<=255)i="x",r=2;else if(e<=65535)i="u",r=4;else{if(!(e<=4294967295))throw new o("code point within a string may not be greater than 0xFFFFFFFF");i="U",r=8}return"\\"+i+n.repeat("0",r-t.length)+t}function De(e){this.schema=e.schema||P,this.indent=Math.max(1,e.indent||2),this.noArrayIndent=e.noArrayIndent||!1,this.skipInvalid=e.skipInvalid||!1,this.flowLevel=n.isNothing(e.flowLevel)?-1:e.flowLevel,this.styleMap=function(e,t){var n,i,r,o,a,l,c;if(null===t)return{};for(n={},r=0,o=(i=Object.keys(t)).length;r<o;r+=1)a=i[r],l=String(t[a]),"!!"===a.slice(0,2)&&(a="tag:yaml.org,2002:"+a.slice(2)),(c=e.compiledTypeMap.fallback[a])&&Ne.call(c.styleAliases,l)&&(l=c.styleAliases[l]),n[a]=l;return n}(this.schema,e.styles||null),this.sortKeys=e.sortKeys||!1,this.lineWidth=e.lineWidth||80,this.noRefs=e.noRefs||!1,this.noCompatMode=e.noCompatMode||!1,this.condenseFlow=e.condenseFlow||!1,this.quotingType='"'===e.quotingType?2:1,this.forceQuotes=e.forceQuotes||!1,this.replacer="function"==typeof e.replacer?e.replacer:null,this.implicitTypes=this.schema.compiledImplicit,this.explicitTypes=this.schema.compiledExplicit,this.tag=null,this.result="",this.duplicates=[],this.usedDuplicates=null}function Ue(e,t){for(var i,r=n.repeat(" ",t),o=0,a=-1,l="",c=e.length;o<c;)-1===(a=e.indexOf("\n",o))?(i=e.slice(o),o=c):(i=e.slice(o,a+1),o=a+1),i.length&&"\n"!==i&&(l+=r),l+=i;return l}function qe(e,t){return"\n"+n.repeat(" ",e.indent*t)}function Ye(e){return 32===e||9===e}function Re(e){return 32<=e&&e<=126||161<=e&&e<=55295&&8232!==e&&8233!==e||57344<=e&&e<=65533&&e!==Fe||65536<=e&&e<=1114111}function Be(e){return Re(e)&&e!==Fe&&13!==e&&10!==e}function Ke(e,t,n){var i=Be(e),r=i&&!Ye(e);return(n?i:i&&44!==e&&91!==e&&93!==e&&123!==e&&125!==e)&&35!==e&&!(58===t&&!r)||Be(t)&&!Ye(t)&&35===e||58===t&&r}function Pe(e,t){var n,i=e.charCodeAt(t);return i>=55296&&i<=56319&&t+1<e.length&&(n=e.charCodeAt(t+1))>=56320&&n<=57343?1024*(i-55296)+n-56320+65536:i}function We(e){return/^\n* /.test(e)}function He(e,t,n,i,r,o,a,l){var c,s,u=0,p=null,f=!1,d=!1,h=-1!==i,g=-1,m=Re(s=Pe(e,0))&&s!==Fe&&!Ye(s)&&45!==s&&63!==s&&58!==s&&44!==s&&91!==s&&93!==s&&123!==s&&125!==s&&35!==s&&38!==s&&42!==s&&33!==s&&124!==s&&61!==s&&62!==s&&39!==s&&34!==s&&37!==s&&64!==s&&96!==s&&function(e){return!Ye(e)&&58!==e}(Pe(e,e.length-1));if(t||a)for(c=0;c<e.length;u>=65536?c+=2:c++){if(!Re(u=Pe(e,c)))return 5;m=m&&Ke(u,p,l),p=u}else{for(c=0;c<e.length;u>=65536?c+=2:c++){if(10===(u=Pe(e,c)))f=!0,h&&(d=d||c-g-1>i&&" "!==e[g+1],g=c);else if(!Re(u))return 5;m=m&&Ke(u,p,l),p=u}d=d||h&&c-g-1>i&&" "!==e[g+1]}return f||d?n>9&&We(e)?5:a?2===o?5:2:d?4:3:!m||a||r(e)?2===o?5:2:1}function $e(e,t,n,i,r){e.dump=function(){if(0===t.length)return 2===e.quotingType?'""':"''";if(!e.noCompatMode&&(-1!==Me.indexOf(t)||Le.test(t)))return 2===e.quotingType?'"'+t+'"':"'"+t+"'";var a=e.indent*Math.max(1,n),l=-1===e.lineWidth?-1:Math.max(Math.min(e.lineWidth,40),e.lineWidth-a),c=i||e.flowLevel>-1&&n>=e.flowLevel;switch(He(t,c,e.indent,l,function(t){return function(e,t){var n,i;for(n=0,i=e.implicitTypes.length;n<i;n+=1)if(e.implicitTypes[n].resolve(t))return!0;return!1}(e,t)},e.quotingType,e.forceQuotes&&!i,r)){case 1:return t;case 2:return"'"+t.replace(/'/g,"''")+"'";case 3:return"|"+Ge(t,e.indent)+Ve(Ue(t,a));case 4:return">"+Ge(t,e.indent)+Ve(Ue(function(e,t){var n,i,r=/(\n+)([^\n]*)/g,o=(l=e.indexOf("\n"),l=-1!==l?l:e.length,r.lastIndex=l,Ze(e.slice(0,l),t)),a="\n"===e[0]||" "===e[0];var l;for(;i=r.exec(e);){var c=i[1],s=i[2];n=" "===s[0],o+=c+(a||n||""===s?"":"\n")+Ze(s,t),a=n}return o}(t,l),a));case 5:return'"'+function(e){for(var t,n="",i=0,r=0;r<e.length;i>=65536?r+=2:r++)i=Pe(e,r),!(t=Ee[i])&&Re(i)?(n+=e[r],i>=65536&&(n+=e[r+1])):n+=t||_e(i);return n}(t)+'"';default:throw new o("impossible error: invalid scalar style")}}()}function Ge(e,t){var n=We(e)?String(t):"",i="\n"===e[e.length-1];return n+(i&&("\n"===e[e.length-2]||"\n"===e)?"+":i?"":"-")+"\n"}function Ve(e){return"\n"===e[e.length-1]?e.slice(0,-1):e}function Ze(e,t){if(""===e||" "===e[0])return e;for(var n,i,r=/ [^ ]/g,o=0,a=0,l=0,c="";n=r.exec(e);)(l=n.index)-o>t&&(i=a>o?a:l,c+="\n"+e.slice(o,i),o=i+1),a=l;return c+="\n",e.length-o>t&&a>o?c+=e.slice(o,a)+"\n"+e.slice(a+1):c+=e.slice(o),c.slice(1)}function Je(e,t,n,i){var r,o,a,l="",c=e.tag;for(r=0,o=n.length;r<o;r+=1)a=n[r],e.replacer&&(a=e.replacer.call(n,String(r),a)),(ze(e,t+1,a,!0,!0,!1,!0)||void 0===a&&ze(e,t+1,null,!0,!0,!1,!0))&&(i&&""===l||(l+=qe(e,t)),e.dump&&10===e.dump.charCodeAt(0)?l+="-":l+="- ",l+=e.dump);e.tag=c,e.dump=l||"[]"}function Qe(e,t,n){var i,r,a,l,c,s;for(a=0,l=(r=n?e.explicitTypes:e.implicitTypes).length;a<l;a+=1)if(((c=r[a]).instanceOf||c.predicate)&&(!c.instanceOf||"object"==typeof t&&t instanceof c.instanceOf)&&(!c.predicate||c.predicate(t))){if(n?c.multi&&c.representName?e.tag=c.representName(t):e.tag=c.tag:e.tag="?",c.represent){if(s=e.styleMap[c.tag]||c.defaultStyle,"[object Function]"===Te.call(c.represent))i=c.represent(t,s);else{if(!Ne.call(c.represent,s))throw new o("!<"+c.tag+'> tag resolver accepts not "'+s+'" style');i=c.represent[s](t,s)}e.dump=i}return!0}return!1}function ze(e,t,n,i,r,a,l){e.tag=null,e.dump=n,Qe(e,n,!1)||Qe(e,n,!0);var c,s=Te.call(e.dump),u=i;i&&(i=e.flowLevel<0||e.flowLevel>t);var p,f,d="[object Object]"===s||"[object Array]"===s;if(d&&(f=-1!==(p=e.duplicates.indexOf(n))),(null!==e.tag&&"?"!==e.tag||f||2!==e.indent&&t>0)&&(r=!1),f&&e.usedDuplicates[p])e.dump="*ref_"+p;else{if(d&&f&&!e.usedDuplicates[p]&&(e.usedDuplicates[p]=!0),"[object Object]"===s)i&&0!==Object.keys(e.dump).length?(!function(e,t,n,i){var r,a,l,c,s,u,p="",f=e.tag,d=Object.keys(n);if(!0===e.sortKeys)d.sort();else if("function"==typeof e.sortKeys)d.sort(e.sortKeys);else if(e.sortKeys)throw new o("sortKeys must be a boolean or a function");for(r=0,a=d.length;r<a;r+=1)u="",i&&""===p||(u+=qe(e,t)),c=n[l=d[r]],e.replacer&&(c=e.replacer.call(n,l,c)),ze(e,t+1,l,!0,!0,!0)&&((s=null!==e.tag&&"?"!==e.tag||e.dump&&e.dump.length>1024)&&(e.dump&&10===e.dump.charCodeAt(0)?u+="?":u+="? "),u+=e.dump,s&&(u+=qe(e,t)),ze(e,t+1,c,!0,s)&&(e.dump&&10===e.dump.charCodeAt(0)?u+=":":u+=": ",p+=u+=e.dump));e.tag=f,e.dump=p||"{}"}(e,t,e.dump,r),f&&(e.dump="&ref_"+p+e.dump)):(!function(e,t,n){var i,r,o,a,l,c="",s=e.tag,u=Object.keys(n);for(i=0,r=u.length;i<r;i+=1)l="",""!==c&&(l+=", "),e.condenseFlow&&(l+='"'),a=n[o=u[i]],e.replacer&&(a=e.replacer.call(n,o,a)),ze(e,t,o,!1,!1)&&(e.dump.length>1024&&(l+="? "),l+=e.dump+(e.condenseFlow?'"':"")+":"+(e.condenseFlow?"":" "),ze(e,t,a,!1,!1)&&(c+=l+=e.dump));e.tag=s,e.dump="{"+c+"}"}(e,t,e.dump),f&&(e.dump="&ref_"+p+" "+e.dump));else if("[object Array]"===s)i&&0!==e.dump.length?(e.noArrayIndent&&!l&&t>0?Je(e,t-1,e.dump,r):Je(e,t,e.dump,r),f&&(e.dump="&ref_"+p+e.dump)):(!function(e,t,n){var i,r,o,a="",l=e.tag;for(i=0,r=n.length;i<r;i+=1)o=n[i],e.replacer&&(o=e.replacer.call(n,String(i),o)),(ze(e,t,o,!1,!1)||void 0===o&&ze(e,t,null,!1,!1))&&(""!==a&&(a+=","+(e.condenseFlow?"":" ")),a+=e.dump);e.tag=l,e.dump="["+a+"]"}(e,t,e.dump),f&&(e.dump="&ref_"+p+" "+e.dump));else{if("[object String]"!==s){if("[object Undefined]"===s)return!1;if(e.skipInvalid)return!1;throw new o("unacceptable kind of an object to dump "+s)}"?"!==e.tag&&$e(e,e.dump,t,a,u)}null!==e.tag&&"?"!==e.tag&&(c=encodeURI("!"===e.tag[0]?e.tag.slice(1):e.tag).replace(/!/g,"%21"),c="!"===e.tag[0]?"!"+c:"tag:yaml.org,2002:"===c.slice(0,18)?"!!"+c.slice(18):"!<"+c+">",e.dump=c+" "+e.dump)}return!0}function Xe(e,t){var n,i,r=[],o=[];for(et(e,r,o),n=0,i=o.length;n<i;n+=1)t.duplicates.push(r[o[n]]);t.usedDuplicates=new Array(i)}function et(e,t,n){var i,r,o;if(null!==e&&"object"==typeof e)if(-1!==(r=t.indexOf(e)))-1===n.indexOf(r)&&n.push(r);else if(t.push(e),Array.isArray(e))for(r=0,o=e.length;r<o;r+=1)et(e[r],t,n);else for(r=0,o=(i=Object.keys(e)).length;r<o;r+=1)et(e[i[r]],t,n)}function tt(e,t){return function(){throw new Error("Function yaml."+e+" is removed in js-yaml 4. Use yaml."+t+" instead, which is now safe by default.")}}var nt=p,it=h,rt=b,ot=j,at=T,lt=P,ct=je.load,st=je.loadAll,ut={dump:function(e,t){var n=new De(t=t||{});n.noRefs||Xe(e,n);var i=e;return n.replacer&&(i=n.replacer.call({"":i},"",i)),ze(n,0,i,!0,!0)?n.dump+"\n":""}}.dump,pt=o,ft={binary:_,float:O,map:y,null:A,pairs:R,set:K,timestamp:E,bool:v,int:x,merge:M,omap:q,seq:m,str:g},dt=tt("safeLoad","load"),ht=tt("safeLoadAll","loadAll"),gt=tt("safeDump","dump"),mt={Type:nt,Schema:it,FAILSAFE_SCHEMA:rt,JSON_SCHEMA:ot,CORE_SCHEMA:at,DEFAULT_SCHEMA:lt,load:ct,loadAll:st,dump:ut,YAMLException:pt,types:ft,safeLoad:dt,safeLoadAll:ht,safeDump:gt};e.CORE_SCHEMA=at,e.DEFAULT_SCHEMA=lt,e.FAILSAFE_SCHEMA=rt,e.JSON_SCHEMA=ot,e.Schema=it,e.Type=nt,e.YAMLException=pt,e.default=mt,e.dump=ut,e.load=ct,e.loadAll=st,e.safeDump=gt,e.safeLoad=dt,e.safeLoadAll=ht,e.types=ft,Object.defineProperty(e,"__esModule",{value:!0})});
+
+
   // Deine bereits verwendete Spotify-App.
   const SPOTIFY_CLIENT_ID = "952ebc1821154410a1f1106ff0f66e60";
 
@@ -1104,8 +1247,6 @@
   let wakeLock = null;
   let wakeWanted = true;
   let vibeBlinkTimer = null;
-  let vibeAudioCache = {};
-  let vibeTempoMs = 620;
   let vibeEnergy = 0.55;
   let lastVibeTrackId = null;
   let vibeMotionLast = performance.now();
@@ -1121,7 +1262,7 @@
   let vibeAccessoryTimer=null, vibeSceneTimer=null;
   const vibeThemeLastUsed=new Map();
   const vibeThemeLastProps=new Map();
-  let vibeExpression="", vibeExpressionStart=0, vibeExpressionEnd=0;
+  let vibeExpression="", vibeExpressionStart=0, vibeExpressionEnd=0,vibeExpressionPriority=0;
   let vibeNextExpression=performance.now()+6000;
   const vibeExpressionPose={x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0};
   let vibeSingleTapTimer=null;
@@ -1130,6 +1271,8 @@
   let vibeEggUntil=0, vibeEggCooldown=0;
   let vibeEggTaps=[], vibeEggPointer=null;
   const vibeThemes=[
+    {key:"halloween",words:/^(ghosts?|geister?|geist|vampires?|vampire?|witch(?:es)?|hexen?|monsters?|skeletons?|skelette?|pumpkins?|kürbis(?:se)?|spiders?|spinnen?|bats?|fledermäuse|fledermaus|moon|mond|night|nacht|dark|dunkel|scream|schrei|fear|angst|magic|magie|grave|grab|dead|tod)$/i,props:["👻","🦇","🎃","🕸️","🔮"],kind:""},
+    {key:"fear",words:/^(fear|afraid|scared|fright|angst|ängstlich|erschrecken|schreck)$/i,props:["😶‍🌫️","💨","👀"],kind:""},
     {key:"water",words:/^(water|wasser|meer|sea|ocean|ozean|swim|swimming|schwimmen|dive|tauchen|river|fluss|waves?|wellen|beach|strand)$/i,props:["🫧","🐠","🌊","🐬","🐚","🪸","🐟"],kind:"scene-rise"},
     {key:"sun",words:/^(sun|sunshine|sunlight|sonne|sonnenschein|summer|sommer|sunset|sonnenuntergang)$/i,props:["☀️","🌤️","🌅","🌻","✨","🏖️"],kind:""},
     {key:"rain",words:/^(rain|raining|regen|regnet|storm|sturm|thunder|gewitter|tears|tränen|umbrella|regenschirm)$/i,props:["🌧️","💧","☔","⛈️","🌂","💦"],kind:"scene-rain"},
@@ -1164,11 +1307,18 @@
   }
 
   function readFacePreferences(){
+    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
-      return {motion:["system","reduced","normal","lively"].includes(saved.motion)?saved.motion:"system",sound:saved.sound===true,size:["normal","large","extra"].includes(saved.size)?saved.size:"large",transparency:["system","reduced"].includes(saved.transparency)?saved.transparency:"system"};
-    }catch{return {motion:"system",sound:false,size:"large",transparency:"system"}}
+      if(!saved||typeof saved!=="object")return defaults;
+      for(const [key,choices]of Object.entries({motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
+      for(const key of ["sound","halloween","party","ambient","surprises"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
+      for(const [key,a,b]of [["manualBpm",30,400],["beatOffset",-2000,2000],["lyricsOffset",-5000,5000]])if(typeof saved[key]==="number"&&Number.isFinite(saved[key])&&saved[key]>=a&&saved[key]<=b)defaults[key]=saved[key];
+      if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
+      return defaults;
+    }catch{return defaults}
   }
+
   function motionLevel(){
     const mode=facePreferences.motion;
     if(mode==="reduced" || (mode==="system" && reducedFaceMotion.matches)) return 0;
@@ -1363,6 +1513,7 @@
     return sdkScriptPromise;
   }
   function renderLocalState(state){
+    if(ownPlayback.active){if(state&&!state.paused)stopOwnedAudio();else return}
     if(!state || playbackMode!=="local" || !localDeviceId) return;
     const current=state.track_window?.current_track;
     if(!current) return;
@@ -1443,10 +1594,12 @@
     return localPlayerPromise;
   }
   async function transferPlayback(id,play){
+    if(ownPlayback.active)stopOwnedAudio();
     const r=await api("/me/player",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({device_ids:[id],play:!!play})});
     if(!r.ok) throw new Error(r.status===403 ? "Spotify erlaubt den Gerätewechsel nicht. Premium und Geräteberechtigung prüfen." : "Gerätewechsel fehlgeschlagen. Gerät in Spotify öffnen und erneut versuchen.");
   }
   async function startLocalPlayback(){
+    if(ownPlayback.active)stopOwnedAudio();
     // Must run synchronously in this click event, before any await (autoplay on iOS).
     if(deviceTransferBusy) return;
     const activation=localPlayer?.activateElement();
@@ -1468,9 +1621,10 @@
     finally{deviceTransferBusy=false;localPlaybackBtn.disabled=false}
   }
   function renderDevicePicker(){
-    const active=playback?.device?.id;
+    const currentDevice=ownPlayback.active?ownPlayback.previous?.device:playback?.device;
+    const active=currentDevice?.id;
     const devices=deviceList.slice();
-    if(playback?.device?.id && !devices.some(d=>d.id===active)) devices.push({...playback.device,is_active:true});
+    if(currentDevice?.id && !devices.some(d=>d.id===active)) devices.push({...currentDevice,is_active:true});
     if(localDeviceId && !devices.some(d=>d.id===localDeviceId)) devices.push({id:localDeviceId,name:"SpotDeck – dieses Gerät",is_active:active===localDeviceId});
     devicePicker.replaceChildren();
     const blank=document.createElement("option");blank.value="";blank.textContent=devices.length ? "Gerät auswählen" : "Keine Geräte – Spotify auf einem Gerät öffnen";devicePicker.append(blank);
@@ -1497,6 +1651,7 @@
     return id ? `${path}${path.includes("?")?"&":"?"}device_id=${encodeURIComponent(id)}` : path;
   }
   async function seekPlayback(ms){
+    if(ownPlayback.active){ownedAudio.currentTime=clamp(ms,0,ownedDuration())/1000;beatEngine.anchor(ownedPosition(),!ownedAudio.paused,performance.now(),true);resetVibeLyrics();effects.queue=[];return}
     if(isLocalPlayback()) await localPlayer.seek(ms);
     else{
       const r=await api(playbackEndpoint(`/me/player/seek?position_ms=${ms}`),{method:"PUT"});
@@ -1506,6 +1661,7 @@
   }
 
   function setDisconnected(){
+    if(ownPlayback.active){teardownLocalPlayer();clearInterval(pollTimer);pollTimer=null;return}
     app.classList.add("disconnected");
     dot.classList.remove("online");
     device.textContent="Spotify";
@@ -1555,6 +1711,7 @@
   }
 
   function renderPlayback(data){
+    if(ownPlayback.active&&data?.spotdeck_source!=="owned")return;
     playback=data;
     lastPollAt=performance.now();
     const item=data?.item;
@@ -1605,7 +1762,7 @@
 
     if(trackId!==lastTrackId){
       lastTrackId=trackId;
-      checkLiked(trackId);
+      if(!ownPlayback.active)checkLiked(trackId);
       lyricsTrackId=null;
       lyricsLoadState="idle";
       lyricsRetryAt=0;
@@ -1613,7 +1770,7 @@
     }
     ensureBackgroundLyrics();
 
-    if(trackId && trackId !== lastVibeTrackId){
+    if(!ownPlayback.active && trackId && trackId !== lastVibeTrackId){
       lastVibeTrackId = trackId;
       loadVibeAudio(trackId);
     }else{
@@ -1644,8 +1801,11 @@
         track.setAttribute("aria-valuetext",`${msToTime(pos)} von ${msToTime(dur)}`);
         updateLyricsPosition(pos);
       }
+      analyseOwnedAudio(now);
       updateVibeVocalReaction(pos);
+      tickEffects(now);
       updateVibeMotion(pos);
+      tickParty(now);renderBeatDiagnostic();
       if(vibeEggUntil && performance.now()>=vibeEggUntil){
         vibeFace.classList.remove("easteregg");
         vibeEggUntil=0;
@@ -1661,6 +1821,7 @@
       const sdkStatePromise=playbackMode==="local" && localPlayer?.getCurrentState ? localPlayer.getCurrentState().catch(()=>null) : Promise.resolve(null);
       const r=await api("/me/player?additional_types=track,episode");
       const sdkState=await sdkStatePromise;
+      if(ownPlayback.active){if(sdkState&&!sdkState.paused){stopOwnedAudio();renderLocalState(sdkState)}else if(r.ok&&r.status!==204){const remote=await r.json();if(remote?.is_playing){stopOwnedAudio();renderPlayback(remote)}}return}
       setConnected();
       if(r.status===204){
         if(sdkState && localDeviceId && playbackMode==="local"){renderLocalState(sdkState);return}
@@ -1690,6 +1851,7 @@
   }
 
   async function playPause(){
+    if(ownPlayback.active){if(ownedAudio.paused)await startOwnedAudio();else{ownedAudio.pause();renderOwnedPlayback()}return}
     if(isLocalPlayback()){
       const activation=localPlayer.activateElement();
       try{await activation;await localPlayer.togglePlay()}catch{showToast("Lokale Wiedergabe konnte nicht gestartet werden.")}
@@ -1706,6 +1868,7 @@
   }
 
   async function skip(path){
+    if(ownPlayback.active)return;
     if(isLocalPlayback()){
       try{await (path==="previous"?localPlayer.previousTrack():localPlayer.nextTrack())}catch{showToast("Titelwechsel lokal nicht möglich.")}
       return;
@@ -1717,6 +1880,7 @@
   }
 
   async function toggleShuffle(){
+    if(ownPlayback.active)return;
     if(!playback?.device){showToast("Kein aktives Spotify-Gerät");return}
     const next=!playback.shuffle_state;
     const r=await api(playbackEndpoint(`/me/player/shuffle?state=${next}`),{method:"PUT"});
@@ -1727,6 +1891,7 @@
   }
 
   async function toggleLike(){
+    if(ownPlayback.active)return;
     const item=playback?.item;
     if(item?.type!=="track"||!item.id){showToast("Nur bei Musiktiteln verfügbar");return}
     const uri=item.uri || `spotify:track:${item.id}`;
@@ -1757,6 +1922,7 @@
   }
 
   async function playContext(uri){
+    if(ownPlayback.active)stopOwnedAudio();
     if(!playback?.device){showToast("Starte Spotify zuerst auf einem Wiedergabegerät");return}
     const r=await api(playbackEndpoint("/me/player/play"),{
       method:"PUT",
@@ -1771,6 +1937,7 @@
   }
 
   async function playUris(uris){
+    if(ownPlayback.active)stopOwnedAudio();
     if(!playback?.device){showToast("Starte Spotify zuerst auf einem Wiedergabegerät");return}
     const clean=uris.filter(Boolean).slice(0,50);
     if(!clean.length){showToast("Keine Songs gefunden");return}
@@ -1916,18 +2083,20 @@
 
   function renderSyncedLyrics(lines){
     syncedLyrics=lines;
+    const seen=new Set();
+    for(const row of lines){const key=normalizedWord(row.text).replace(/\s+/g," ");row.refrain=key.length>=8&&seen.has(key);seen.add(key)}
     currentLyricIndex=-1;
     vibeLyricIndex=-2;
     vibeSpeechPlan=[];
     lyricsBody.innerHTML=`<div class="lyrics-lines">${lines.map((l,i)=>
       `<p class="lyric-line" data-lyric-index="${i}" role="button" tabindex="0" aria-label="Zu ${msToTime(l.time)} springen">${esc(l.text)}</p>`
-    ).join("")}</div><div class="lyrics-credit">Lyrics via LRCLIB</div>`;
+    ).join("")}</div><div class="lyrics-credit">${ownPlayback.active?"Lokale Lyricsdatei · "+lyricsTimingLabel():"Lyrics via LRCLIB"}</div>`;
 
     lyricsBody.querySelectorAll("[data-lyric-index]").forEach(el=>{
       el.addEventListener("keydown",e=>{if(["Enter"," "].includes(e.key)){e.preventDefault();el.click()}});
       el.addEventListener("click",async()=>{
         const i=Number(el.dataset.lyricIndex);
-        const ms=Math.max(0,Math.round(syncedLyrics[i]?.time || 0));
+        const ms=Math.max(0,Math.round((syncedLyrics[i]?.time || 0)+facePreferences.lyricsOffset));
         if(!playback?.device) return;
         try{await seekPlayback(ms)}catch(error){showToast(error.message)}
       });
@@ -1953,6 +2122,7 @@
   }
 
   function getCurrentPositionMs(){
+    if(ownPlayback.active)return ownedPosition();
     if(!playback) return 0;
     let pos=playback.progress_ms || 0;
     if(playback.is_playing) pos += performance.now()-lastPollAt;
@@ -1963,13 +2133,14 @@
     let low=0, high=syncedLyrics.length-1, found=-1;
     while(low<=high){
       const mid=(low+high)>>1;
-      if(positionMs >= syncedLyrics[mid].time-120){found=mid;low=mid+1}
+      if(positionMs >= syncedLyrics[mid].time){found=mid;low=mid+1}
       else high=mid-1;
     }
     return found;
   }
 
   function resetVibeLyrics(){
+    effects.queue=effects.queue.filter(event=>event.kind==="halloween");
     vibeSpeech={open:0,round:0,long:false};
     vibeSpeechPlan=[];
     vibeLyricIndex=-2;
@@ -1984,6 +2155,7 @@
     vibeThemeLastUsed.clear();
     vibeExpression="";
     vibeExpressionEnd=0;
+    vibeExpressionPriority=0;
     vibeNextExpression=performance.now()+6000;
     Object.assign(vibeExpressionPose,{x:0,y:0,eye:1,left:1,tilt:0,smile:0,open:0,brow:0,browOpacity:0});
     if(vibeFace){
@@ -2001,21 +2173,18 @@
 
   // LRC supplies line times. Word and vowel timing is an approximation, not audio analysis.
   function buildVibeSpeechPlan(idx){
-    const row=syncedLyrics[idx];
-    if(!row) return [];
-    const words=[...row.text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)].map(m=>m[0]);
-    if(!words.length || /^\s*[\[(].*[\])]\s*$/.test(row.text)) return [];
-    const weights=words.map(word=>Math.max(1,Math.min(12,word.length)));
-    const weight=weights.reduce((a,b)=>a+b,0);
-    const next=syncedLyrics[idx+1]?.time ?? playback?.item?.duration_ms ?? row.time+5000;
-    const span=Math.max(0,Math.min(next-row.time,Math.max(1000,Math.min(8500,weight*125))));
+    const row=syncedLyrics[idx];if(!row)return [];
+    const next=syncedLyrics[idx+1]?.time??playback?.item?.duration_ms??row.time+5000;
+    if(row.words?.length)return row.words.filter(word=>word.word.trim()).map((word,i,all)=>({...word,index:i,end:word.end??Math.max(word.start+1,all[i+1]?.start??row.end??Math.min(Math.max(next,word.start+180),word.start+Math.max(180,word.word.length*90))),timing:"word",confidence:1}));
+    const matches=[...row.text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)];
+    if(!matches.length||/^\s*[\[(].*[\])]\s*$/.test(row.text))return [];
+    const weights=matches.map(m=>{const syllables=(m[0].match(/[aeiouyäöü]+/gi)||[]).length;return Math.max(1,syllables)+(/([aeiouäöü])\1{2,}/i.test(m[0])?2:0)});
+    const gaps=matches.map((m,i)=>{const tail=row.text.slice(m.index+m[0].length,matches[i+1]?.index??row.text.length);return /[.!?]/.test(tail)?180:/[,;:]/.test(tail)?105:35});
+    const available=Math.max(0,(row.end??next)-row.time),sum=weights.reduce((a,b)=>a+b,0);
+    const span=Math.min(available,Math.max(700,Math.min(matches.length>25?25000:14000,sum*260+gaps.reduce((a,b)=>a+b,0))));
+    const gapScale=Math.min(1,span*.18/Math.max(1,gaps.reduce((a,b)=>a+b,0))),speech=Math.max(0,span-gaps.reduce((a,b)=>a+b*gapScale,0));
     let cursor=row.time;
-    return words.map((word,i)=>{
-      const duration=span*weights[i]/weight;
-      const token={word,start:cursor,end:cursor+duration,index:i};
-      cursor+=duration;
-      return token;
-    });
+    return matches.map((match,i)=>{const duration=speech*weights[i]/sum;const token={word:match[0],start:cursor,end:cursor+duration,index:i,timing:"estimated",confidence:available>span*1.8?.35:.6};cursor+=duration+gaps[i]*gapScale;return token});
   }
 
   function showVibeScene(theme,positionMs,triggerWord=""){
@@ -2058,9 +2227,10 @@
       vibeFace.dataset.accessory=theme.key==="water" ? "snorkel" : "shades";
       vibeAccessoryTimer=setTimeout(()=>{delete vibeFace.dataset.accessory;vibeAccessoryTimer=null},theme.key==="water" ? 2600 : 4200);
     }
-    const sceneExpressions={sun:"sweat",snow:"lookUp",love:"grin",party:"laugh",magic:"surprise",fly:"lookUp",sad:"sad",happy:"laugh",rap:"skeptic",power:"determined",time:"thinking"};
+    const choices={sun:["sweat","grin"],snow:["lookUp","curious"],love:["bashful","shy","grin"],party:["party","laugh","proud"],magic:["surprise","curious"],fly:["lookUp","curious"],sad:["sad","dreamy"],happy:["laugh","grin","proud"],rap:["skeptic","cheeky"],power:["determined","proud"],time:["thinking"],sleep:["yawn","sleepy"],fire:["startled","sweat"],water:["curious","sideRight"],fear:["startled","surprise"]};
+    const sceneExpressions=Object.fromEntries(Object.entries(choices).map(([key,list])=>[key,list[Math.floor(Math.random()*list.length)]]));
     if(theme.key==="food" && /^(coffee|kaffee|tea|tee)$/i.test(triggerWord)) startVibeExpression("coffee",4200);
-    else if(sceneExpressions[theme.key]) startVibeExpression(sceneExpressions[theme.key],theme.key==="party" ? 4500 : 3200);
+    else if(sceneExpressions[theme.key]) startVibeExpression(sceneExpressions[theme.key],theme.key==="party" ? 4500 : 3200,3);
     vibeSceneTimer=setTimeout(()=>{
       faceScene.classList.remove("visible");
       delete vibeFace.dataset.scene;
@@ -2070,7 +2240,9 @@
   }
 
   function updateVibeVocalReaction(positionMs=getCurrentPositionMs()){
-    if(!vibeFace) return;
+    if(!vibeFace)return;
+    if(!ownPlayback.active){vibeSpeech={open:0,round:0,wide:0,long:false};vibeFace.classList.remove("singing");return}
+    positionMs-=facePreferences.lyricsOffset;
     const trackId=playback?.item?.id || null;
     if(trackId!==vibeSpeechTrack || Math.abs(positionMs-vibeSceneLastPosition)>1800){
       resetVibeLyrics();
@@ -2094,6 +2266,7 @@
       vibeLyricIndex=idx;
       vibeSpeechPlan=buildVibeSpeechPlan(idx);
       vibeSceneWord=-1;
+      if(syncedLyrics[idx]?.refrain)queueEffect({kind:"emotion",name:"party",key:"chorus",priority:1,cooldown:35000,ttl:1000});
     }
     const token=vibeSpeechPlan.find(word=>positionMs>=word.start && positionMs<word.end);
     if(token){
@@ -2105,25 +2278,19 @@
       const vowel=/[aeiouyäöü]/i.test(char);
       const closed=/[bmp]/i.test(char);
       vibeSpeech={open:envelope*(long ? .86 : vowel ? .76 : closed ? .05 : .32),round:/[ouöüw]/i.test(char)?1:.12,wide:/[aeä]/i.test(char)?1:0,long};
-      if(token.index!==vibeSceneWord){
+      const eligible=token.timing==="word"?positionMs>=token.start:positionMs>=token.start+Math.min(120,(token.end-token.start)*.35);
+      if(eligible&&token.index!==vibeSceneWord){
         vibeSceneWord=token.index;
-        if(positionMs-vibeSceneStart>=8000){
-          let theme=vibeThemes.find(theme=>theme.words.test(token.word));
-          // A rapid, word-dense line is only a rap-style cue, not a genre detector.
-          const row=syncedLyrics[idx];
-          const lineDuration=(syncedLyrics[idx+1]?.time ?? row.time+6000)-row.time;
-          const denseLine=vibeSpeechPlan.length>=10 && lineDuration>0 && vibeSpeechPlan.length/(lineDuration/1000)>=2.8;
-          if(!theme && denseLine) theme=vibeThemes.find(theme=>theme.key==="rap");
-          const lastUsed=theme ? vibeThemeLastUsed.get(theme.key) ?? -Infinity : 0;
-          if(theme && positionMs-lastUsed>=(theme.key==="water" ? 22000 : 14000)) showVibeScene(theme,positionMs,token.word);
-        }
+        const theme=matchVibeTheme(token.word);
+        if(theme)queueWordReaction(theme,token,positionMs);
       }
     }
     vibeFace.classList.toggle("singing",vibeSpeech.open>.08);
   }
 
   function updateLyricsPosition(positionMs=getCurrentPositionMs(),forceScroll=false){
-    if(!syncedLyrics.length || !lyrics.classList.contains("open")) return;
+    if(!ownPlayback.active||!syncedLyrics.length||!lyrics.classList.contains("open"))return;
+    positionMs-=facePreferences.lyricsOffset;
     const idx=getSyncedLyricIndex(positionMs);
     if(idx===currentLyricIndex && !forceScroll) return;
     currentLyricIndex=idx;
@@ -2142,15 +2309,12 @@
   }
 
   function ensureBackgroundLyrics(){
-    const item=playback?.item;
-    if(!item || item.type!=="track") return;
-    if(lyricsLoadingTrack===item.id) return;
-    if(lyricsTrackId===item.id && ["loaded","unavailable"].includes(lyricsLoadState)) return;
-    if(performance.now()<lyricsRetryAt) return;
-    void loadLyrics(false);
+    if(!ownPlayback.active)return;
+    if(syncedLyrics!==ownPlayback.lyrics)renderSyncedLyrics(ownPlayback.lyrics);
   }
 
   async function loadLyrics(force=false){
+    if(ownPlayback.active){lyricsTitle.textContent=ownPlayback.file?.name||"Eigene Audioquelle";lyricsArtist.textContent="Lokale Lyricsdatei";renderSyncedLyrics(ownPlayback.lyrics);updateLyricsPosition(ownedPosition(),true);return}
     const item=playback?.item;
     if(!item || item.type!=="track"){
       lyricsTitle.textContent="Lyrics";
@@ -2222,10 +2386,10 @@
         return;
       }
 
-      const lines=parseLrc(d.syncedLyrics);
+      const lines=parseLyricsRecord(d);
       if(lines.length){
-        renderSyncedLyrics(lines);
-        updateLyricsPosition(getCurrentPositionMs(),true);
+        // Spotify lyrics remain readable, but are not synchronized to its recordings.
+        renderPlainLyrics(d.plainLyrics||lines.map(line=>line.text).join("\n"));
       }else if(d.plainLyrics){
         renderPlainLyrics(d.plainLyrics);
       }else{
@@ -2269,6 +2433,7 @@
   }
 
   async function setVolume(v){
+    if(ownPlayback.active){ownedAudio.volume=clamp(Number(v)/100,0,1);volumeValue.textContent=`${v}%`;return}
     if(isLocalPlayback()){
       try{const nextVolume=Math.max(0,Math.min(1,v/100));await localPlayer.setVolume(nextVolume);localVolume=nextVolume}catch{showToast("Die Lautstärke bitte direkt am Gerät ändern.")}
       return;
@@ -2425,8 +2590,8 @@
     vibeEggTaps=[];
     const layer=$("faceEasteregg");
     if(layer){
-      const confetti=["✨","🎵","🎉","💜","🎶","⭐","🎊","💚","✨","🪩"];
-      layer.innerHTML=confetti.map((icon,i)=>`<span class="egg-confetti" style="--egg-x:${7+i*9}%;--egg-delay:${(-i*.31).toFixed(2)}s;--egg-drift:${i%2 ? 20 : -20}px">${icon}</span>`).join("")+`<span class="egg-caption">VIBE OVERDRIVE</span>`;
+      const confetti=facePreferences.halloween?["🎃","👻","✨","🦇","🍬","⭐","🎃","🕸️","✨","🔮"]:["✨","🎵","🎉","💜","🎶","⭐","🎊","💚","✨","🪩"];
+      layer.innerHTML=confetti.map((icon,i)=>`<span class="egg-confetti" style="--egg-x:${7+i*9}%;--egg-delay:${(-i*.31).toFixed(2)}s;--egg-drift:${i%2 ? 20 : -20}px">${icon}</span>`).join("")+`<span class="egg-caption">${facePreferences.halloween?"BOO OVERDRIVE":"VIBE OVERDRIVE"}</span>`;
     }
     delete vibeFace.dataset.accessory;
     faceScene?.classList.remove("visible");
@@ -2494,10 +2659,14 @@
     if(!event.repeat) registerVibeTap();
   });
 
-  function startVibeExpression(name,duration=3000){
+  function startVibeExpression(name,duration=3000,priority=0){
+    if(performance.now()<vibeTapReactionUntil&&name===vibeTapReactionLast)priority=10;
+    if(name==="party"&&performance.now()<vibeEggUntil)priority=100;
+    if(performance.now()<vibeExpressionEnd&&vibeExpressionPriority>priority)return false;
     if(performance.now()<vibeEggUntil && name!=="party") return;
     if(performance.now()<vibeTapReactionUntil && name!==vibeTapReactionLast && name!=="party") return;
     vibeExpression=name;
+    vibeExpressionPriority=priority;
     vibeExpressionStart=performance.now();
     vibeExpressionEnd=vibeExpressionStart+duration;
     vibeNextExpression=vibeExpressionEnd+11000+Math.random()*15000;
@@ -2547,6 +2716,9 @@
       case "curious":x=Math.sin(progress*Math.PI*1.5)*3*envelope;y=-2*envelope;tilt=5*envelope;brow=-8*envelope;browOpacity=.6*envelope;break;
       case "crossEyed":eye=left=1-.15*envelope;open=.16*envelope;tilt=-3*envelope;break;
       case "dreamy":eye=left=1-.45*envelope;y=-1.8*envelope;x=Math.sin(progress*Math.PI)*2*envelope;smile=5*envelope;tilt=4*envelope;break;
+      case "startled":eye=left=1+.18*envelope;y=-2*envelope;open=.56*envelope;tilt=-4*envelope;break;
+      case "duck":eye=left=1-.5*envelope;y=3*envelope;tilt=4*envelope;smile=-10*envelope;break;
+      case "vampire":eye=left=1-.22*envelope;brow=12*envelope;browOpacity=.6*envelope;smile=4*envelope;open=.15*envelope;break;
       case "yawn":eye=left=1-.72*envelope;open=.65*envelope;y=-2*envelope;tilt=-2*envelope;break;
     }
     const ease=1-Math.exp(-dt/95);
@@ -2569,28 +2741,36 @@
     const now=performance.now();
     const dt=Math.min(50,Math.max(8,now-vibeMotionLast));
     vibeMotionLast=now;
-    const playing=!!playback?.is_playing;
-    updateVibeExpression(now,dt,playing);
+    const playing=!!playback?.is_playing || (effects.active && ["skeleton","pumpkin"].includes(effects.active.name));
+    updateVibeExpression(now,dt,!!playing);
     const singing=playing && vibeSpeech.long;
     let targetX=0, targetY=0, targetRotate=0, targetScaleX=1, targetScaleY=1;
 
     if(playing){
-      const beat=Math.max(320,vibeTempoMs);
-      const beatPosition=positionMs/beat;
-      const phase=beatPosition-Math.floor(beatPosition);
-      const arc=Math.pow(Math.max(0,Math.sin(Math.PI*phase)),1.75);
-      const landing=Math.exp(-phase*16)+Math.exp(-(1-phase)*16);
-      const swayPhase=beatPosition*Math.PI*.82;
+      const rhythm=beatEngine.state(now),beatPosition=rhythm.beats,phase=rhythm.phase;
+      const energy=ownPlayback.active?rhythm.energy:clamp(.45+.10*Math.sin(now/17000),.2,.7);
+      vibeEnergy+=(energy-vibeEnergy)*.08;
+      const arc=Math.pow(Math.max(0,Math.sin(Math.PI*phase)),1.4);
+      const landing=Math.exp(-phase*22)+Math.exp(-(1-phase)*22);
+      const swayPhase=beatPosition*Math.PI;
+      vibeFace.style.setProperty("--beat-eye",String(1-landing*vibeEnergy*.055*motionLevel()));
       targetX=Math.sin(swayPhase)*(2.2+vibeEnergy*5.2)+Math.sin(now/1450)*1.1;
-      targetY=-(3.5+vibeEnergy*8.5)*arc+Math.sin(now/980)*.7;
+      targetY=-(7+vibeEnergy*18)*arc+landing*(1+vibeEnergy*2)+Math.sin(now/980)*.7;
       targetRotate=Math.sin(swayPhase-.55)*(1.0+vibeEnergy*1.9)+Math.sin(now/1750)*.55;
-      targetScaleX=1+landing*(.018+vibeEnergy*.016)-arc*.006;
-      targetScaleY=1-landing*(.016+vibeEnergy*.013)+arc*(.012+vibeEnergy*.009);
+      targetScaleX=1+landing*(.025+vibeEnergy*.025)-arc*.012;
+      targetScaleY=1-landing*(.025+vibeEnergy*.026)+arc*(.016+vibeEnergy*.015);
+      const pattern=facePreferences.dance;
+      const swayMix=pattern==="sway"?1:pattern==="auto"?(.5+.5*Math.sin(now/17000))*.65:0;
+      targetX*=1+swayMix*1.4;targetY*=1-swayMix*.55;
+      if(pattern==="shuffle"){targetX+=Math.sin(swayPhase*.5)*5*arc;targetRotate+=Math.sin(swayPhase)*2.5*arc}
+      if(vibeExpression==="duck")targetY+=vibeExpressionPose.y*3;
+      if(vibeExpression==="startled")targetY-=Math.max(0,vibeExpressionPose.eye-1)*25;
       if(singing){
         targetX+=Math.sin(now/175)*2.4;
         targetRotate+=Math.sin(now/230)*1.15;
       }
     }else{
+      vibeFace.style.setProperty("--beat-eye","1");
       targetX=Math.sin(now/1700)*1.1;
       targetY=-1.1+Math.sin(now/1250)*1.1;
       targetRotate=Math.sin(now/2100)*.42;
@@ -2672,33 +2852,353 @@
   }
 
   async function loadVibeAudio(trackId){
-    if(!trackId) return;
-    if(vibeAudioCache[trackId]){
-      ({tempoMs:vibeTempoMs, energy:vibeEnergy} = vibeAudioCache[trackId]);
-      startVibeFace();
-      return;
-    }
-
-    try{
-      const res = await api(`/audio-features/${trackId}`);
-      if(!res.ok) throw new Error("audio-features");
-      const data = await res.json();
-      if(trackId!==lastVibeTrackId) return;
-      const tempo = Number(data?.tempo || 0);
-      const rawEnergy=Number(data?.energy ?? .55);
-      const energy=Number.isFinite(rawEnergy) ? Math.max(0,Math.min(1,rawEnergy)) : .55;
-      const tempoMs = tempo > 1 ? Math.max(320, Math.min(900, Math.round(60000/tempo))) : 620;
-
-      vibeAudioCache[trackId] = {tempoMs, energy};
-      vibeTempoMs = tempoMs;
-      vibeEnergy = energy;
-    }catch{
-      if(trackId!==lastVibeTrackId) return;
-      vibeTempoMs = 620;
-      vibeEnergy = 0.55;
-    }
+    if(!ownPlayback.active){beatEngine.reset("free");renderBeatDiagnostic(true)}
     startVibeFace();
   }
+
+  // One clock and one RAF drive music-independent personality, owned-audio beats and effects.
+  const partyFields={halloween:$("halloweenSetting"),party:$("partySetting"),effects:$("halloweenEffects"),ambient:$("ambientSetting"),surprises:$("surpriseSetting"),dance:$("dancePattern")};
+  const partyExit=$("partyExit"),halloweenLayer=$("halloweenLayer"),coverGhost=$("coverGhost");
+  const beatDiagnostic=$("beatDiagnostic"),manualBpm=$("manualBpm"),beatOffset=$("beatOffset"),lyricsOffset=$("lyricsOffset"),tempoFactor=$("tempoFactor");
+  const ownedAudio=$("ownedAudio"),ownedFile=$("ownedFile"),ownedLyrics=$("ownedLyrics"),ownedRights=$("ownedRights"),ownedStatus=$("ownedStatus");
+  const ownPlayback={active:false,url:null,file:null,context:null,source:null,analyser:null,bins:null,previousBins:null,flux:[],lastOnset:-Infinity,lastAnalysis:0,lyrics:[],previous:null,epoch:0};
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const numberIn=(v,a,b,fallback=0)=>Number.isFinite(Number(v))?clamp(Number(v),a,b):fallback;
+  class BeatEngine{
+    constructor(){this.reset()}
+    reset(kind="free"){
+      this.kind=kind;this.bpm=null;this.source="none";this.confidence=0;this.offset=0;this.factor=1;
+      this.position=0;this.anchorAt=performance.now();this.running=false;this.correction=0;this.taps=[];this.onsets=[];this.energy=.3;
+    }
+    positionAt(now=performance.now()){
+      if(!this.running)return this.position;
+      const dt=Math.max(0,now-this.anchorAt);
+      const correction=clamp(this.correction,-dt*.04,dt*.04);
+      return Math.max(0,this.position+(this.running?dt:0)+correction);
+    }
+    anchor(position,playing,now=performance.now(),force=false){
+      const predicted=this.positionAt(now),drift=position-predicted;
+      if(force || this.running!==!!playing || Math.abs(drift)>1200){this.position=position;this.correction=0;this.onsets=[]}
+      else{this.position=predicted;this.correction=drift}
+      this.anchorAt=now;this.running=!!playing;
+    }
+    setTempo(bpm,source="manual",confidence=1){
+      if(!Number.isFinite(bpm)||bpm<30||bpm>400) return false;
+      this.bpm=bpm;this.source=source;this.confidence=clamp(confidence,0,1);return true;
+    }
+    danceBpm(){
+      let bpm=this.bpm || 96;
+      while(bpm<80)bpm*=2;
+      while(bpm>160)bpm/=2;
+      return bpm*this.factor;
+    }
+    state(now=performance.now()){
+      const period=60000/this.danceBpm();
+      const position=this.kind==="owned"&&this.bpm!==null?this.positionAt(now):now;
+      const beats=(position-this.offset)/period;
+      return {period,beats,phase:((beats%1)+1)%1,measured:this.bpm!==null,energy:this.energy};
+    }
+    tap(now=performance.now()){
+      if(this.taps.length && now-this.taps.at(-1)>2200)this.taps=[];
+      if(this.taps.length && now-this.taps.at(-1)<140)return false;
+      this.taps.push(now);this.taps=this.taps.slice(-9);
+      if(this.taps.length<4)return false;
+      const intervals=this.taps.slice(1).map((time,i)=>time-this.taps[i]).sort((a,b)=>a-b);
+      const median=intervals[Math.floor(intervals.length/2)];
+      const deviation=intervals.reduce((sum,v)=>sum+Math.abs(v-median),0)/intervals.length;
+      this.setTempo(60000/median,"tap",clamp(1-deviation/median,.1,.98));
+      this.offset=this.positionAt(now);return true;
+    }
+    onset(position,strength=1){
+      if(this.onsets.length && position-this.onsets.at(-1)<150)return;
+      this.onsets.push(position);this.onsets=this.onsets.slice(-32);
+      if(this.onsets.length<6 || ["manual","tap"].includes(this.source))return;
+      const votes=[];
+      for(let i=1;i<this.onsets.length;i++)for(let lag=1;lag<=Math.min(4,i);lag++){
+        const interval=(this.onsets[i]-this.onsets[i-lag])/lag;
+        if(interval<150||interval>2200)continue;
+        let bpm=60000/interval;while(bpm<80)bpm*=2;while(bpm>160)bpm/=2;
+        votes.push(bpm);
+      }
+      if(!votes.length)return;
+      let best=0,score=0;
+      for(const candidate of votes){const agreement=votes.filter(v=>Math.abs(v-candidate)<candidate*.035).length;if(agreement>score){score=agreement;best=candidate}}
+      const confidence=score/votes.length*Math.min(1,this.onsets.length/14);
+      if(confidence<.35)return;
+      const bpm=this.bpm?this.bpm+clamp(best-this.bpm,-2,2):best;
+      this.setTempo(bpm,"onset",confidence);
+      const period=60000/this.danceBpm(),phase=((position-this.offset)%period+period)%period;
+      const error=phase>period/2?phase-period:phase;
+      this.offset+=clamp(error*.12*strength,-18,18);
+    }
+  }
+  const beatEngine=new BeatEngine();
+  let diagnosticAt=0,partyLastInput=performance.now(),partyHidden=false;
+  const effects={queue:[],active:null,nextAt:performance.now()+60000,last:new Map(),lastKind:"",lastWordKey:""};
+  const halloweenKinds=["ghost","bat","pumpkin","vampire","magic","skeleton","coverGhost","spider","shadow","flyingPumpkin"];
+  function sceneGap(){const ranges={few:[75000,90000],normal:[45000,75000],many:[30000,45000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return a+Math.random()*(b-a)}
+  function persistPartyPreferences(){
+    try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
+  }
+  function applyPartyPreferences(){
+    app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party);
+    app.dataset.ambient=String(facePreferences.ambient);app.dataset.dance=facePreferences.dance;
+    for(const [key,field]of Object.entries(partyFields)){
+      if(["halloween","party","ambient","surprises"].includes(key))field.checked=facePreferences[key];else field.value=facePreferences[key];
+    }
+    partyExit.hidden=!facePreferences.party;
+    beatOffset.value=facePreferences.beatOffset;lyricsOffset.value=facePreferences.lyricsOffset;
+    tempoFactor.value=String(facePreferences.tempoFactor);manualBpm.value=facePreferences.manualBpm || "";
+    beatEngine.factor=facePreferences.tempoFactor;beatEngine.offset=facePreferences.beatOffset;
+    if(!facePreferences.halloween)clearHalloween();
+    effects.nextAt=performance.now()+sceneGap();showPartyControls();persistPartyPreferences();renderBeatDiagnostic(true);
+  }
+  function renderBeatDiagnostic(force=false){
+    const now=performance.now();if(!force && now<diagnosticAt)return;diagnosticAt=now+500;
+    const sources={none:"Kein erkanntes Tempo",manual:"Manuell eingegeben",tap:"Tap-Tempo",onset:"Onset-Erkennung · geschätzt"};
+    $("tapTempo").textContent="Tap-Tempo · mindestens 4 × tippen";
+    const source=ownPlayback.active?sources[beatEngine.source]:"Freie Animation · keine Spotify-Synchronisierung";
+    const bpm=ownPlayback.active&&beatEngine.bpm?`${beatEngine.bpm.toFixed(1)} BPM · Tanz ${beatEngine.danceBpm().toFixed(1)} BPM`:"Kein gemessenes BPM";
+    const quality=ownPlayback.active&&beatEngine.bpm?` · Konfidenz ${Math.round(beatEngine.confidence*100)} % (keine Genauigkeitsgarantie)`:"";
+    const message=`${bpm}. ${source}${quality}. Beatversatz ${Math.round(beatEngine.offset)} ms; Lyricsversatz ${facePreferences.lyricsOffset} ms. ${ownPlayback.active?lyricsTimingLabel():"Emotionen und Überraschungen bleiben eigenständig aktiv."}`;
+    if(beatDiagnostic.textContent!==message)beatDiagnostic.textContent=message;
+  }
+  function lyricsTimingLabel(){return syncedLyrics.some(row=>row.words?.length)?"Wortzeitstempel vorhanden.":syncedLyrics.length?"Wortzeitpunkte aus Zeilen geschätzt.":"Keine synchronisierten Lyrics."}
+  function parseLyricsfile(input){
+    if(typeof input!=="string"||input.length>1000000)throw Error("Lyricsfile ist leer oder zu groß.");
+    // The draft discourages anchors/aliases. Reject them before parsing to bound expansion.
+    if(/(?:^|\s)[&*][^\s,\[\]{}]+/m.test(input))throw Error("YAML-Anker und Aliase werden nicht unterstützt.");
+    const doc=jsyaml.load(input,{schema:jsyaml.JSON_SCHEMA});
+    if(!doc||typeof doc!=="object"||Array.isArray(doc)||String(doc.version)!=="1.0")throw Error("Lyricsfile-Version nicht unterstützt.");
+    if(!doc.metadata||typeof doc.metadata!=="object"||typeof doc.metadata.title!=="string"||typeof doc.metadata.artist!=="string")throw Error("Titel und Interpret fehlen im Lyricsfile.");
+    if(doc.metadata.duration_ms!=null&&(!Number.isSafeInteger(doc.metadata.duration_ms)||doc.metadata.duration_ms<0))throw Error("Ungültige Aufnahmedauer im Lyricsfile.");
+    if(doc.metadata.instrumental===true&&(doc.lines?.length||doc.plain))throw Error("Instrumentale Lyricsdatei enthält Gesangstext.");
+    if(doc.metadata?.offset_ms)throw Error("Lyricsfile-offset_ms ist im Entwurf uneindeutig. Bitte den Lyricsversatz in SpotDeck verwenden.");
+    if(!Array.isArray(doc.lines))return [];
+    if(doc.lines.length>5000)throw Error("Zu viele Lyricszeilen.");
+    let count=0;
+    const time=v=>Number.isSafeInteger(v)&&v>=0&&v<=86400000;
+    return doc.lines.map(row=>{
+      if(!row||typeof row.text!=="string"||row.text.length>10000||!time(row.start_ms)||(row.end_ms!=null&&(!time(row.end_ms)||row.end_ms<row.start_ms)))throw Error("Ungültige Zeilenzeit im Lyricsfile.");
+      const line={time:row.start_ms,end:row.end_ms??null,text:row.text,timing:"line"};
+      if(row.words!=null){
+        if(!Array.isArray(row.words))throw Error("Ungültige Wortliste.");
+        line.words=row.words.map(word=>{
+          if(++count>50000||!word||typeof word.text!=="string"||word.text.length>1000||!time(word.start_ms)||word.start_ms<row.start_ms||(row.end_ms!=null&&word.start_ms>row.end_ms)||(word.end_ms!=null&&(!time(word.end_ms)||word.end_ms<word.start_ms||(row.end_ms!=null&&word.end_ms>row.end_ms))))throw Error("Ungültige Wortzeit im Lyricsfile.");
+          return {word:word.text,start:word.start_ms,end:word.end_ms??null,timing:"word",confidence:1};
+        }).sort((a,b)=>a.start-b.start);
+        line.timing=line.words.length?"word":"line";
+      }
+      return line;
+    }).sort((a,b)=>a.time-b.time);
+  }
+  function parseLyricsRecord(record){
+    if(record?.hasWordSync && record.lyricsfile){try{const rows=parseLyricsfile(record.lyricsfile);if(rows.some(row=>row.words?.length))return rows}catch{/* A bad word file never destroys the line/plain fallback. */}}
+    return parseLrc(record?.syncedLyrics);
+  }
+  function normalizedWord(word){
+    return word.normalize("NFKC").toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,"");
+  }
+  function matchVibeTheme(word){
+    const normalized=normalizedWord(word),variants=[normalized];
+    const lemmas={geliebt:"liebe",liebte:"liebe",liebten:"liebe",verliebt:"liebe",fröhlich:"happy",freuen:"happy",freust:"happy",erschrocken:"angst",angstvoll:"angst",schläft:"schlaf",schläfst:"schlaf",geträumt:"traum",träumt:"traum",regnete:"regen",dunkelheit:"dunkel",nächte:"nacht",nächten:"nacht",hexerei:"magie",toten:"tod"};
+    if(lemmas[normalized])variants.push(lemmas[normalized]);
+    if(normalized.length>4){for(const suffix of ["ing","ed","en","er","es","e","n","s"]){if(normalized.endsWith(suffix))variants.push(normalized.slice(0,-suffix.length))}if(/ed$/.test(normalized))variants.push(normalized.slice(0,-1));if(/ing$/.test(normalized))variants.push(normalized.slice(0,-3)+"e")}
+    return vibeThemes.find(theme=>(theme.key!=="halloween"||facePreferences.halloween)&&variants.some(value=>theme.words.test(value)));
+  }
+  function queueEffect(event){
+    const now=performance.now();
+    if(event.kind==="halloween"&&!facePreferences.halloween)return false;
+    const key=event.key||`${event.kind}:${event.name}`;
+    if(effects.queue.some(item=>item.key===key)||now-(effects.last.get(key)??-Infinity)<(event.cooldown??14000))return false;
+    effects.queue.push({...event,key,priority:event.priority??1,expires:now+(event.ttl??1400),created:now});
+    effects.queue.sort((a,b)=>b.priority-a.priority||a.created-b.created);effects.queue=effects.queue.slice(0,8);return true;
+  }
+  function clearHalloween(){
+    effects.active=null;effects.queue=effects.queue.filter(event=>event.kind!=="halloween");
+    halloweenLayer.innerHTML="";delete vibeFace.dataset.halloweenScene;delete vibeFace.dataset.halloweenStage;
+    coverGhost.classList.remove("visible");delete app.dataset.halloweenScene;
+  }
+  const ghostSvg='<svg viewBox="0 0 100 110" aria-hidden="true"><path d="M18 96V43a32 32 0 0 1 64 0v53l-16-9-16 10-16-10Z" fill="#edf3ffd9" stroke="#fff" stroke-width="2"/><ellipse cx="39" cy="44" rx="5" ry="7" fill="#473955"/><ellipse cx="62" cy="44" rx="5" ry="7" fill="#473955"/><path d="M44 66q7 6 13-1" fill="none" stroke="#665576" stroke-width="3" stroke-linecap="round"/></svg>';
+  const batSvg='<svg viewBox="0 0 160 90" aria-hidden="true"><path d="M77 34 65 19 65 40Q26 2 4 9q8 31 20 40 17-10 24 12 17-7 26 13h12q9-20 26-13 7-22 24-12 12-9 20-40-22-7-61 31V19L83 34Z" fill="#8b74aa" stroke="#d6c4eb" stroke-width="2"/><circle cx="75" cy="47" r="3" fill="#fff2c7"/><circle cx="86" cy="47" r="3" fill="#fff2c7"/></svg>';
+  const hats={pumpkin:'<svg viewBox="0 0 140 85"><path d="m70 14 7-13" stroke="#a8c787" stroke-width="8" stroke-linecap="round"/><ellipse cx="70" cy="44" rx="58" ry="31" fill="#e8a358"/><ellipse cx="70" cy="44" rx="31" ry="31" fill="#f7b56b"/><path d="m43 39 10-8 9 8m17 0 10-8 9 8M55 52q15 15 30 0" fill="none" stroke="#5d3c40" stroke-width="4" stroke-linecap="round"/></svg>',magic:'<svg viewBox="0 0 140 100"><path d="m31 75 38-70 29 69" fill="#8163a3" stroke="#d0b5e7" stroke-width="2"/><path d="m46 51 42 8-3 13-44-9" fill="#e4a25d"/><ellipse cx="70" cy="78" rx="62" ry="12" fill="#b493cd"/><path d="m70 26 2 6 7 1-6 4 1 7-5-4-6 3 2-7-5-5 7 1Z" fill="#fff3b8"/></svg>'};
+  function beginHalloween(name,now=performance.now()){
+    if(!facePreferences.halloween||effects.active||now<vibeEggUntil)return false;
+    const duration={ghost:6200,bat:5600,pumpkin:8200,vampire:6200,magic:8200,skeleton:7200,coverGhost:7000,spider:6500,shadow:4200,flyingPumpkin:5200}[name];
+    if(!duration)return false;
+    effects.active={name,start:now,end:now+duration,stage:-1};effects.lastKind=name;
+    vibeFace.dataset.halloweenScene=name;app.dataset.halloweenScene=name;
+    const visual=name==="ghost"?`<div class="halloween-ghost">${ghostSvg}</div>`:name==="bat"||name==="shadow"?`<div class="halloween-bat">${batSvg}</div>`:hats[name]?`<div class="halloween-hat">${hats[name]}</div>${name==="magic"?'<span class="magic-mishap">🐸</span>':""}`:name==="vampire"?'<svg class="halloween-fangs" viewBox="0 0 100 100"><path d="m34 61 4 10 5-10m14 0 5 10 4-10" fill="#fffbef"/></svg>':name==="skeleton"?'<span class="halloween-skeleton">💀<span>╋</span><span>╱╲</span></span>':name==="spider"?'<span class="halloween-spider"><i></i>🕷️</span>':name==="flyingPumpkin"?'<span class="flying-pumpkin">🎃</span>':"";
+    halloweenLayer.innerHTML=visual;
+    if(name==="coverGhost"){coverGhost.innerHTML=ghostSvg;coverGhost.classList.add("visible")}
+    effects.nextAt=now+duration+sceneGap();return true;
+  }
+  function tickEffects(now){
+    effects.queue=effects.queue.filter(event=>event.expires>now);
+    if(now<vibeEggUntil){if(effects.active)clearHalloween();return}
+    if(facePreferences.halloween&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
+      const choices=halloweenKinds.filter(name=>name!==effects.lastKind);
+      queueEffect({kind:"halloween",name:choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
+    }
+    if(effects.active){
+      const scene=effects.active,age=now-scene.start;
+      if(now>=scene.end){clearHalloween();return}
+      const stage=age<1200?0:age<3000?1:age<4700?2:3;
+      vibeFace.style.setProperty("--spook-progress",String(clamp(age/(scene.end-scene.start),0,1)));
+      vibeFace.style.setProperty("--spook-sway",`${Math.sin(now/260)*7}deg`);
+      if(stage!==scene.stage && now>=vibeTapReactionUntil){
+        scene.stage=stage;vibeFace.dataset.halloweenStage=String(stage);
+        const gestures={ghost:["startled","curious","sideRight","grin"],bat:["duck","lookUp","curious","cheeky"],pumpkin:["proud","confused","thinking","proud"],vampire:["vampire","angry","cheeky","grin"],magic:["thinking","surprise","confused","proud"],skeleton:["curious","party","party","laugh"],coverGhost:["sideLeft","curious","sideLeft","grin"],spider:["lookUp","curious","sideRight","laugh"],shadow:["surprise","sideLeft","curious","grin"],flyingPumpkin:["startled","duck","lookUp","laugh"]};
+        startVibeExpression(gestures[scene.name][stage],Math.min(1900,scene.end-now),5);
+      }
+      return;
+    }
+    if(now<vibeTapReactionUntil)return;
+    const event=effects.queue.shift();if(!event)return;
+    if(event.kind==="halloween"){
+      if(beginHalloween(event.name,now))effects.last.set(event.key,now);
+    }else if(event.kind==="theme"){
+      if(faceScene.classList.contains("visible")){effects.queue.unshift(event);return}
+      effects.last.set(event.key,now);showVibeScene(event.theme,event.position,event.word);
+    }else{if(startVibeExpression(event.name,event.duration||3000,event.priority))effects.last.set(event.key,now)}
+  }
+  function queueWordReaction(theme,token,positionMs){
+    if(!ownPlayback.active)return;
+    const word=normalizedWord(token.word);
+    const ambiguous=/^(night|nacht|dark|dunkel|dead|tod|moon|mond|bat|grab)$/i.test(word);
+    if(ambiguous && token.timing!=="word")return;
+    if(ambiguous){queueEffect({kind:"emotion",name:/night|nacht|dead|tod/.test(word)?"dreamy":"curious",key:"ambiguous-word",priority:1,ttl:900,cooldown:18000});return}
+    if(theme.key==="halloween"){
+      const choices=/ghost|geist|monster|fear|angst|scream|schrei/.test(word)?["ghost","coverGhost"]:/witch|hexe|magic|magie/.test(word)?["magic","spider"]:/vamp/.test(word)?["vampire"]:/skel/.test(word)?["skeleton"]:/pump|kürb/.test(word)?["pumpkin","flyingPumpkin"]:/spider|spinn/.test(word)?["spider"]:["bat","shadow"];
+      if(performance.now()>=effects.nextAt)queueEffect({kind:"halloween",name:choices[Math.floor(Math.random()*choices.length)],priority:3,ttl:900});
+      return;
+    }
+    queueEffect({kind:"theme",name:theme.key,key:`lyric:${theme.key}`,theme,word:token.word,position:positionMs,priority:theme.key==="fear"?4:2,ttl:1100,cooldown:theme.key==="water"?22000:14000});
+  }
+  function showPartyControls(){
+    partyLastInput=performance.now();partyHidden=false;app.dataset.controlsHidden="false";
+    for(const element of [document.querySelector(".controls"),document.querySelector(".mini-actions"),$("progress")])if(element)element.inert=false;
+  }
+  function tickParty(now){
+    if(!facePreferences.party || partyHidden || now-partyLastInput<8000)return;
+    if(settings.classList.contains("open")||library.classList.contains("open")||lyrics.classList.contains("open"))return;
+    partyHidden=true;app.dataset.controlsHidden="true";
+    for(const element of [document.querySelector(".controls"),document.querySelector(".mini-actions"),$("progress")])if(element){if(element.contains?.(document.activeElement))document.activeElement.blur?.();element.inert=true}
+  }
+  function partyKey(event){
+    if(!facePreferences.party)return;
+    const wasHidden=partyHidden;showPartyControls();
+    if(wasHidden){event.preventDefault();event.stopImmediatePropagation?.();return}
+    if(!["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(event.key)||event.target.closest?.("input,select,textarea,[role=slider]")||settings.classList.contains("open")||library.classList.contains("open")||lyrics.classList.contains("open"))return;
+    const candidates=[...document.querySelectorAll(".ctrl,.mini,#partyExit,#vibeFace")].filter(el=>!el.hidden&&!el.disabled&&el.getClientRects().length);
+    const current=document.activeElement,origin=current?.getBoundingClientRect?.();
+    let next;
+    if(!origin||!candidates.includes(current))next=playPauseBtn;
+    else{
+      const x=origin.left+origin.width/2,y=origin.top+origin.height/2;
+      const dx=event.key==="ArrowRight"?1:event.key==="ArrowLeft"?-1:0,dy=event.key==="ArrowDown"?1:event.key==="ArrowUp"?-1:0;
+      next=candidates.filter(el=>el!==current).map(el=>{const r=el.getBoundingClientRect(),a=r.left+r.width/2-x,b=r.top+r.height/2-y;return {el,forward:a*dx+b*dy,side:Math.abs(a*dy-b*dx)}}).filter(v=>v.forward>8).sort((a,b)=>(a.forward+a.side*3)-(b.forward+b.side*3))[0]?.el;
+    }
+    event.preventDefault();event.stopImmediatePropagation?.();next?.focus();
+  }
+  function ownedPosition(){return Math.max(0,(Number(ownedAudio.currentTime)||0)*1000)}
+  function ownedDuration(){return Number.isFinite(ownedAudio.duration)?ownedAudio.duration*1000:0}
+  async function pauseSpotifyForOwnedAudio(){
+    if(!loadSession())return;
+    const r=await api("/me/player/pause",{method:"PUT"});
+    if(!r.ok&&r.status!==404)throw Error("Spotify bitte zuerst pausieren. Die Testquelle startet erst, wenn die Wiedergabe pausiert werden konnte.");
+  }
+  async function startOwnedAudio(){
+    if(!ownPlayback.file||!ownedRights.checked){ownedStatus.textContent="Bitte eine eigene oder entsprechend lizenzierte Datei wählen und die Nutzungsrechte bestätigen.";return}
+    const epoch=++ownPlayback.epoch;
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    try{
+      if(AudioCtx&&!ownPlayback.context){
+        const context=new AudioCtx(),source=context.createMediaElementSource(ownedAudio),analyser=context.createAnalyser();analyser.fftSize=1024;analyser.smoothingTimeConstant=.35;
+        source.connect(analyser);analyser.connect(context.destination);
+        Object.assign(ownPlayback,{context,source,analyser,bins:new Uint8Array(analyser.frequencyBinCount),previousBins:new Float32Array(analyser.frequencyBinCount)});
+      }
+      if(ownPlayback.context)await ownPlayback.context.resume();
+      if(epoch!==ownPlayback.epoch)return;
+      await pauseSpotifyForOwnedAudio();if(epoch!==ownPlayback.epoch)return;
+      if(!ownPlayback.active){ownedAudio.volume=numberIn(volumeSlider.value,0,100,50)/100;ownPlayback.previous=playback;ownPlayback.active=true;app.dataset.audioSource="owned";beatEngine.reset("owned");beatEngine.factor=facePreferences.tempoFactor;beatEngine.offset=facePreferences.beatOffset;if(facePreferences.manualBpm)beatEngine.setTempo(facePreferences.manualBpm,"manual");resetVibeLyrics();syncedLyrics=[];effects.queue=[];ownPlayback.flux=[];ownPlayback.lastOnset=-Infinity}
+      await ownedAudio.play();if(epoch!==ownPlayback.epoch){ownedAudio.pause();return}
+      renderOwnedPlayback();renderSyncedLyrics(ownPlayback.lyrics);beatEngine.anchor(ownedPosition(),true,performance.now(),true);
+      ownedStatus.textContent=ownPlayback.analyser?"Lokale Testquelle aktiv. Die Analyse bleibt auf diesem Gerät; automatische BPM sind eine Schätzung.":"Lokale Testquelle aktiv. Web Audio nicht verfügbar; bitte BPM eingeben oder Tap-Tempo nutzen.";
+      app.classList.remove("disconnected");renderBeatDiagnostic(true);
+    }catch(error){if(epoch===ownPlayback.epoch){if(ownPlayback.active)stopOwnedAudio();else if(ownPlayback.context)void ownPlayback.context.suspend();ownedStatus.textContent=error.message||"Testquelle konnte nicht starten. Bitte erneut tippen."}}
+  }
+  function stopOwnedAudio(){
+    ownPlayback.epoch++;ownedAudio.pause?.();
+    if(ownPlayback.context)void ownPlayback.context.suspend();
+    if(!ownPlayback.active)return;
+    ownPlayback.active=false;delete app.dataset.audioSource;beatEngine.reset("free");effects.queue=[];resetVibeLyrics();syncedLyrics=[];
+    for(const button of [prevBtn,nextBtn,shuffleBtn,likeBtn])button.disabled=false;
+    const previous=ownPlayback.previous;ownPlayback.previous=null;
+    if(previous){renderPlayback({...previous,is_playing:false})}else{playback=null;title.textContent="SpotDeck";artists.textContent="Verbinde Spotify oder starte eine Testquelle";album.textContent="Spotify";art.removeAttribute?.("src");bg.style.backgroundImage="";setDisconnected()}
+    if(loadSession())void poll();startVibeFace();renderBeatDiagnostic(true);ownedStatus.textContent="Testquelle beendet. Spotify wird nicht automatisch fortgesetzt.";
+  }
+  function renderOwnedPlayback(){
+    if(!ownPlayback.active)return;
+    const data={spotdeck_source:"owned",is_playing:!ownedAudio.paused,progress_ms:ownedPosition(),device:{id:"owned-audio",name:"Eigene Audioquelle",volume_percent:Math.round((ownedAudio.volume??1)*100)},item:{id:"owned-audio",type:"track",name:ownPlayback.file?.name||"Eigene Audioquelle",duration_ms:ownedDuration(),artists:[{name:"Lokaler Synchronisationstest"}],album:{name:"Eigene / lizenzierte Aufnahme",images:[]}}};
+    renderPlayback(data);art.dataset.src="";art.src="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#6b4977"/><stop offset="1" stop-color="#142822"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M235 125v140a38 38 0 1 1-18-32V113l70-17v28Z" fill="#e6f0df"/><text x="30" y="355" fill="#e6f0df" font-family="sans-serif" font-size="18" letter-spacing="4">EIGENE MUSIK</text></svg>');bg.style.backgroundImage="";
+    for(const button of [prevBtn,nextBtn,shuffleBtn,likeBtn])button.disabled=true;
+  }
+  function analyseOwnedAudio(now){
+    if(!ownPlayback.active)return;
+    beatEngine.anchor(ownedPosition(),!ownedAudio.paused,now);
+    if(!ownPlayback.analyser||ownedAudio.paused||now-ownPlayback.lastAnalysis<32)return;
+    ownPlayback.lastAnalysis=now;const {bins,previousBins,analyser}=ownPlayback;analyser.getByteFrequencyData(bins);
+    let flux=0,energy=0;
+    for(let i=1;i<Math.min(bins.length,180);i++){const value=bins[i]/255;flux+=Math.max(0,value-previousBins[i]);energy+=value*value;previousBins[i]=value}
+    flux/=180;energy=Math.sqrt(energy/180);beatEngine.energy+=(clamp(energy*2.5,0,1)-beatEngine.energy)*.12;
+    ownPlayback.flux.push(flux);ownPlayback.flux=ownPlayback.flux.slice(-48);
+    const mean=ownPlayback.flux.reduce((a,b)=>a+b,0)/ownPlayback.flux.length;
+    const variance=ownPlayback.flux.reduce((a,b)=>a+(b-mean)**2,0)/ownPlayback.flux.length;
+    const position=ownedPosition();
+    if(ownPlayback.flux.length>12&&energy>.025&&flux>mean+Math.max(.006,Math.sqrt(variance)*1.2)&&position-ownPlayback.lastOnset>190){ownPlayback.lastOnset=position;beatEngine.onset(position,clamp(flux/Math.max(.001,mean),.4,2))}
+  }
+  async function importOwnedLyrics(file){
+    if(!file)return;
+    if(file.size>1000000){ownedStatus.textContent="Lyricsdatei ist zu groß (max. 1 MB).";return}
+    const epoch=ownPlayback.epoch;
+    try{
+      const text=await file.text();if(epoch!==ownPlayback.epoch)return;
+      const rows=/\.lrc$/i.test(file.name)?parseLrc(text):parseLyricsfile(text);
+      ownPlayback.lyrics=rows;
+      if(ownPlayback.active){renderSyncedLyrics(rows);resetVibeLyrics();effects.queue=[]}
+      ownedStatus.textContent=`${rows.length} Lyricszeilen lokal geladen. ${rows.some(row=>row.words?.length)?"Echte Wortzeitstempel.":"Wortzeitpunkte werden vorsichtig geschätzt."}`;renderBeatDiagnostic(true);
+    }catch(error){ownedStatus.textContent=`Lyricsdatei konnte nicht gelesen werden: ${error.message}`}
+  }
+  for(const [key,field]of Object.entries(partyFields))field.addEventListener("change",()=>{facePreferences[key]=["halloween","party","ambient","surprises"].includes(key)?field.checked:field.value;applyPartyPreferences()});
+  partyExit.addEventListener("click",()=>{facePreferences.party=false;applyPartyPreferences()});
+  ["pointermove","pointerdown","touchstart"].forEach(type=>document.addEventListener(type,showPartyControls,{passive:true}));
+  document.addEventListener("keydown",partyKey,true);
+  $("tapTempo").addEventListener("click",()=>{if(!ownPlayback.active){showToast("Tap-Tempo ist für eigene Testquellen verfügbar.");return}if(beatEngine.tap()){facePreferences.manualBpm=0;manualBpm.value="";renderBeatDiagnostic(true)}else $("tapTempo").textContent=`Noch ${Math.max(1,4-beatEngine.taps.length)} × tippen`});
+  $("autoTempo").addEventListener("click",()=>{facePreferences.manualBpm=0;manualBpm.value="";beatEngine.bpm=null;beatEngine.source="none";beatEngine.confidence=0;beatEngine.taps=[];beatEngine.onsets=[];persistPartyPreferences();renderBeatDiagnostic(true)});
+  manualBpm.addEventListener("change",()=>{facePreferences.manualBpm=numberIn(manualBpm.value,30,400,0);if(!manualBpm.value)facePreferences.manualBpm=0;if(ownPlayback.active){if(facePreferences.manualBpm)beatEngine.setTempo(facePreferences.manualBpm,"manual");else{beatEngine.bpm=null;beatEngine.source="none";beatEngine.confidence=0;beatEngine.onsets=[]}}persistPartyPreferences();renderBeatDiagnostic(true)});
+  beatOffset.addEventListener("change",()=>{facePreferences.beatOffset=numberIn(beatOffset.value,-2000,2000);beatEngine.offset=facePreferences.beatOffset;persistPartyPreferences();renderBeatDiagnostic(true)});
+  lyricsOffset.addEventListener("change",()=>{facePreferences.lyricsOffset=numberIn(lyricsOffset.value,-5000,5000);resetVibeLyrics();effects.queue=[];persistPartyPreferences();renderBeatDiagnostic(true)});
+  tempoFactor.addEventListener("change",()=>{facePreferences.tempoFactor=[.5,1,2].includes(Number(tempoFactor.value))?Number(tempoFactor.value):1;beatEngine.factor=facePreferences.tempoFactor;persistPartyPreferences();renderBeatDiagnostic(true)});
+  ownedFile.addEventListener("change",()=>{
+    stopOwnedAudio();if(ownPlayback.url)URL.revokeObjectURL(ownPlayback.url);ownPlayback.url=null;ownPlayback.file=null;ownPlayback.lyrics=[];
+    ownedRights.checked=false;
+    const file=ownedFile.files?.[0];if(!file)return;
+    if(!file.type.startsWith("audio/")&&!/\.(mp3|wav|ogg|m4a|aac|flac|opus)$/i.test(file.name)){ownedStatus.textContent="Bitte eine Audiodatei auswählen.";return}
+    ownPlayback.file=file;ownPlayback.url=URL.createObjectURL(file);ownedAudio.src=ownPlayback.url;ownedAudio.load();ownedStatus.textContent=`${file.name} lokal vorbereitet. Noch keine Wiedergabe oder Analyse.`;
+  });
+  ownedLyrics.addEventListener("change",()=>{void importOwnedLyrics(ownedLyrics.files?.[0])});
+  ownedRights.addEventListener("change",()=>{if(!ownedRights.checked)stopOwnedAudio()});
+  $("ownedStart").addEventListener("click",()=>{void startOwnedAudio()});$("ownedStop").addEventListener("click",stopOwnedAudio);
+  ownedAudio.addEventListener("pause",()=>{if(ownPlayback.active){beatEngine.anchor(ownedPosition(),false);renderOwnedPlayback()}});
+  ownedAudio.addEventListener("play",()=>{if(ownPlayback.active){beatEngine.anchor(ownedPosition(),true);renderOwnedPlayback()}});
+  ownedAudio.addEventListener("seeking",()=>{if(ownPlayback.active){beatEngine.anchor(ownedPosition(),!ownedAudio.paused,performance.now(),true);beatEngine.onsets=[];ownPlayback.flux=[];ownPlayback.lastOnset=-Infinity;effects.queue=[];resetVibeLyrics()}});
+  ownedAudio.addEventListener("ended",()=>{if(ownPlayback.active){beatEngine.anchor(ownedPosition(),false);renderOwnedPlayback()}});
+  ownedAudio.addEventListener("error",()=>{if(ownPlayback.active)stopOwnedAudio();ownedStatus.textContent="Der Browser kann diese Audiodatei nicht abspielen."});
+  document.addEventListener("visibilitychange",()=>{app.dataset.pageHidden=String(document.visibilityState!=="visible");if(document.visibilityState==="hidden"){clearHalloween();effects.queue=[]}else{effects.nextAt=performance.now()+sceneGap();showPartyControls();if(ownPlayback.active)beatEngine.anchor(ownedPosition(),!ownedAudio.paused,performance.now(),true)}});
+  window.addEventListener("pagehide",()=>{stopOwnedAudio();clearHalloween();effects.queue=[];if(ownPlayback.url){URL.revokeObjectURL(ownPlayback.url);ownPlayback.url=null}});
+  window.addEventListener("pageshow",()=>{if(ownPlayback.file&&!ownPlayback.url){ownPlayback.url=URL.createObjectURL(ownPlayback.file);ownedAudio.src=ownPlayback.url;ownedAudio.load()}});
+
 
   async function boot(){
     const q=new URLSearchParams(location.search);
@@ -2763,6 +3263,7 @@
   window.addEventListener("pagehide",()=>{teardownLocalPlayer();if(faceAudioContext) void faceAudioContext.suspend()});
   window.addEventListener("pageshow",()=>{startProgressAnimation();scheduleBlink()});
   applyFacePreferences();
+  applyPartyPreferences();
   startVibeFace();
   boot();
 </script>
