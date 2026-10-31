@@ -854,6 +854,7 @@
     .halloween-layer{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:visible}
     .face-eye,.face-mouth{z-index:1}
     [data-halloween-scene="ghost"] .halloween-layer{z-index:0}
+    .halloween-layer > :is(.halloween-ghost,.halloween-bat,.halloween-hat,.halloween-skeleton,.flying-pumpkin){will-change:transform}
     .halloween-layer svg{width:100%;height:100%;overflow:visible}
     .halloween-ghost{position:absolute;width:30%;height:36%;left:64%;top:28%;opacity:.9;transform:translate(calc((1 - var(--spook-progress,0)) * -18cqw),calc(var(--spook-progress,0) * -15cqw)) rotate(var(--spook-sway,0deg))}
     .halloween-bat{position:absolute;left:0;top:13%;width:38%;height:24%;transform:translateX(calc(var(--spook-progress,0) * 68cqw)) rotate(var(--spook-sway,0deg))}
@@ -929,6 +930,7 @@
 
     /* Keep paint-heavy effects off the moving face. */
     .vibe-face{filter:none;transition:opacity .22s ease}
+    .face-mouth{filter:none}
     .face-eye{box-shadow:0 4px 8px #0005}
     .face-orb{filter:none;background:radial-gradient(ellipse,#ffffff0d,transparent 68%)}
     .bg{filter:blur(28px) saturate(.9) brightness(.56)}
@@ -1460,7 +1462,7 @@ THE SOFTWARE.
     if(!runtime.windowAt)runtime.windowAt=now;
     if(now-runtime.windowAt>=5000){
       runtime.fps=runtime.frames*1000/(now-runtime.windowAt);runtime.meanFrame=runtime.frameTotal/Math.max(1,runtime.frames-1);runtime.meanWork=runtime.workTotal/runtime.frames;
-      const expectedInterval=motionLevel()===0?65:1000/30;
+      const expectedInterval=motionLevel()===0?65:effectivePerformance()==="tv"?1000/30:1000/60;
       const slow=runtime.meanFrame>expectedInterval*1.35||runtime.maxWork>40;
       runtime.slowWindows=slow?runtime.slowWindows+1:0;
       if(facePreferences.performance==="auto"&&runtime.slowWindows>=2&&!runtime.autoTV){runtime.autoTV=true;applyPerformance();diagnose("automatic-performance")}
@@ -1980,7 +1982,7 @@ THE SOFTWARE.
   function spotDeckFrame(now){
     animFrame=null;
     if(document.visibilityState==="hidden") return;
-    const interval=motionLevel()===0 ? 65 : effectivePerformance()==="tv"||facePreferences.performance==="auto" ? 1000/30 : 1000/60;
+    const interval=motionLevel()===0 ? 65 : effectivePerformance()==="tv" ? 1000/30 : 1000/60;
     if(now-frameLast>=interval){
       frameLast=now-(now-frameLast)%interval;
       const workStart=performance.now();
@@ -1995,10 +1997,11 @@ THE SOFTWARE.
         updateLyricsPosition(pos);
       }
       timedSection("audio-analysis",()=>analyseOwnedAudio(now));
+      // Facial cues and scene transforms share the body cadence; metadata stays throttled.
+      timedSection("vocal",()=>updateVibeVocalReaction(pos));
+      timedSection("effects",()=>tickEffects(now));
       if(now-runtime.lastAux>=(effectivePerformance()==="tv"?100:50)){
         runtime.lastAux=now;
-        timedSection("vocal",()=>updateVibeVocalReaction(pos));
-        timedSection("effects",()=>tickEffects(now));
         tickMetadataLookups(now);renderBeatDiagnostic();
       }
       timedSection("body-mouth",()=>updateVibeMotion(pos));
@@ -2979,7 +2982,6 @@ THE SOFTWARE.
     setFaceProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
     setFaceProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
 
-    if(effectivePerformance()==="tv"&&now-runtime.lastMouth<50)return;
     const mouthDt=runtime.lastMouth?Math.min(100,now-runtime.lastMouth):dt;runtime.lastMouth=now;
     const mouthEase=1-Math.exp(-mouthDt/105);
     vibeMouthBlend+=(Math.max(playing?vibeSpeech.open:0,vibeExpressionPose.open)-vibeMouthBlend)*mouthEase;
@@ -3205,6 +3207,8 @@ THE SOFTWARE.
     effects.active={name,start:now,end:now+duration,stage:-1};effects.lastKind=name;
     vibeFace.dataset.halloweenScene=name;app.dataset.halloweenScene=name;
     const visual=name==="ghost"?`<div class="halloween-ghost">${ghostSvg}</div>`:name==="bat"||name==="shadow"?`<div class="halloween-bat">${batSvg}</div>`:hats[name]?`<div class="halloween-hat">${hats[name]}</div>${name==="magic"?'<span class="magic-mishap">🐸</span>':""}`:name==="vampire"?'<svg class="halloween-fangs" viewBox="0 0 100 100"><path d="m34 61 4 10 5-10m14 0 5 10 4-10" fill="#fffbef"/></svg>':name==="skeleton"?'<span class="halloween-skeleton">💀<span>╋</span><span>╱╲</span></span>':name==="spider"?'<span class="halloween-spider"><i></i>🕷️</span>':name==="flyingPumpkin"?'<span class="flying-pumpkin">🎃</span>':"";
+    halloweenLayer.style.setProperty("--spook-progress","0");
+    halloweenLayer.style.setProperty("--spook-sway","0deg");
     halloweenLayer.innerHTML=visual;
     if(name==="coverGhost"){coverGhost.innerHTML=ghostSvg;coverGhost.classList.add("visible")}
     effects.nextAt=now+duration+sceneGap();return true;
@@ -3220,8 +3224,9 @@ THE SOFTWARE.
       const scene=effects.active,age=now-scene.start;
       if(now>=scene.end){clearHalloween();return}
       const stage=age<1200?0:age<3000?1:age<4700?2:3;
-      setFaceProperty("--spook-progress",String(clamp(age/(scene.end-scene.start),0,1)));
-      setFaceProperty("--spook-sway",`${Math.sin(now/260)*7}deg`);
+      // Scope changing scene properties to the effect subtree, not the whole face.
+      halloweenLayer.style.setProperty("--spook-progress",clamp(age/(scene.end-scene.start),0,1).toFixed(5));
+      halloweenLayer.style.setProperty("--spook-sway",`${(Math.sin(now/260)*7).toFixed(2)}deg`);
       if(stage!==scene.stage && now>=vibeTapReactionUntil){
         scene.stage=stage;vibeFace.dataset.halloweenStage=String(stage);
         const gestures={ghost:["startled","curious","sideRight","grin"],bat:["duck","lookUp","curious","cheeky"],pumpkin:["proud","confused","thinking","proud"],vampire:["vampire","angry","cheeky","grin"],magic:["thinking","surprise","confused","proud"],skeleton:["curious","party","party","laugh"],coverGhost:["sideLeft","curious","sideLeft","grin"],spider:["lookUp","curious","sideRight","laugh"],shadow:["surprise","sideLeft","curious","grin"],flyingPumpkin:["startled","duck","lookUp","laugh"]};

@@ -139,6 +139,29 @@ function setupOwned(h){
   const importing=late.run('importOwnedLyrics(lyricFile)');late.run('ownPlayback.epoch++');finishRead(yaml);await importing;
   assert.equal(late.run('ownPlayback.lyrics.length'),0,'A late lyric import cannot overwrite a changed source');
   console.log('PASS preference validation, frequency bounds, ambiguous-word restraint, word variants, repeated-line detection, auto-tempo reset and stale import cancellation.');
+  // Measure actual DOM updates against the common frame clock on a 60 Hz display.
+  for(const [profile,motion,min,max]of [['auto','normal',55,61],['quality','normal',55,61],['tv','normal',28,31],['quality','reduced',14,16]]){
+    const smooth=harness({preferences:{performance:profile,motion,halloween:true,surprises:false,tempoLookup:false}});
+    smooth.run('playback={is_playing:true,progress_ms:0,item:{id:"smooth",duration_ms:30000}};syncedLyrics=[{time:0,text:"Synthetic vowel movement"},{time:5000,text:"next"}];setDebug(true);beginHalloween("bat")');
+    let mouthWrites=0,effectWrites=0,maxMouthGap=0,maxEffectGap=0,lastMouthAt=0,lastEffectAt=0;
+    const mouth=smooth.nodes.get('faceMouthPath'),setAttribute=mouth.setAttribute;
+    mouth.setAttribute=function(key,value){if(key==='d'){const now=smooth.run('performance.now()');maxMouthGap=Math.max(maxMouthGap,now-lastMouthAt);lastMouthAt=now;mouthWrites++}setAttribute.call(this,key,value)};
+    const layer=smooth.nodes.get('halloweenLayer'),setProperty=layer.style.setProperty;
+    layer.style.setProperty=function(key,value){if(key==='--spook-progress'){const now=smooth.run('performance.now()');maxEffectGap=Math.max(maxEffectGap,now-lastEffectAt);lastEffectAt=now;effectWrites++}setProperty.call(this,key,value)};
+    smooth.step(1000,1000/60);
+    const frames=smooth.run('runtime.sections["body-mouth"].count');
+    assert(frames>=min&&frames<=max,profile+' '+motion+' frame cadence: '+frames);
+    assert.equal(mouthWrites,frames,'Mouth morphs on every body frame');
+    assert.equal(effectWrites,frames,'Halloween transforms update on every body frame');
+    assert.equal(smooth.run('runtime.sections.vocal.count'),frames,'Fresh vocal target on each frame');
+    assert.equal(smooth.run('runtime.sections.effects.count'),frames,'Scene lifecycle shares the frame');
+    assert(maxMouthGap<=(motion==='reduced'?84:profile==='tv'?51:35));
+    assert(maxEffectGap<=(motion==='reduced'?84:profile==='tv'?51:35));
+    assert.equal(smooth.nodes.get('vibeFace').style['--spook-progress'],undefined,'Scene properties stay within the effect subtree');
+    assert.equal(smooth.frames.size,1,'No additional animation loop');
+    smooth.document.visibilityState='hidden';smooth.event(smooth.document,'visibilitychange');assert.equal(smooth.frames.size,0);
+  }
+  console.log('PASS 60 Hz auto/quality, 30 Hz TV and reduced-motion cadence; mouth, vocal cues and Halloween share every body frame, with hidden-tab cleanup.');
   const optimized=harness({preferences:{party:true,halloween:true,performance:'tv',motion:'normal'}});
   let gridWrites=0;
   const appStyle=optimized.nodes.get('app').style;

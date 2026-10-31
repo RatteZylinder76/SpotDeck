@@ -197,3 +197,5 @@ Lyrics service errors now distinguish overload, rate limits and connection/timeo
 
 
 The Memories regression fixes title matching with parenthesized guest-artist credits, rechecks old static-cache choices and reads line-timed YAML fallback. Spotify lyrics can also trigger word-reaction props again, with memory-themed scenes added. See [specific reproduction and verification limits](docs/lyrics-sync.md).
+
+Mouth morphing, lyric-driven vocal targets and Halloween movement now share the body animation cadence: up to 60 updates/s in quality/automatic quality and 30 in TV mode. Automatic mode can still reduce effects after measured slow frames. Reduced-motion and hidden-tab behavior are retained. The changing mouth no longer carries a drop-shadow filter, and moving Halloween properties are scoped to the effect layer. See [verification and limits](docs/lyrics-sync.md).
