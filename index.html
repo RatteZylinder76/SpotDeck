@@ -2550,7 +2550,7 @@ THE SOFTWARE.
       lyricsLoadState="loading";lyricsRetryCount=previousRetries;
     }else renderLyricsState("Passender Songtext wird gesucht …");
     try{
-      const result=await searchLyrics(identity,controller.signal);if(!current())return;
+      const result=chooseLyricDefault(identity,await searchLyrics(identity,controller.signal));if(!current())return;
       lyricCache.put(identity.key,{signature:identity.signature,result,timingPolicy:4},!result.timingSearchIncomplete&&["found","alternative"].includes(result.status)?7*86400000:15*60000);
       applyLyricResult(identity,result);
     }catch(error){
@@ -3675,7 +3675,35 @@ THE SOFTWARE.
     const unique=[...new Map(records.map(record=>[record.id!=null?String(record.id):JSON.stringify([record.trackName,record.artistName,record.duration]),record])).values()];
     return {...preferTimedLyrics(identity,unique),source:"LRCLIB",timingSearchIncomplete:!!timingSearchError};
   }
+  function chooseLyricDefault(identity,result){
+    if(result?.status!=="ambiguous")return result;
+    const candidates=(result.candidates||[]).map(candidate=>({...candidate,match:compareRecording(identity,candidate.record)})).filter(candidate=>candidate.match.compatible);
+    candidates.sort((a,b)=>{
+      const timedA=syncedRowsFor(identity,{status:"found",...a}).length>0,timedB=syncedRowsFor(identity,{status:"found",...b}).length>0;
+      return Number(timedB)-Number(timedA)||Number(b.match.safe)-Number(a.match.safe)||Number(b.match.sameVersion)-Number(a.match.sameVersion)||b.match.score-a.match.score||(a.match.delta??Infinity)-(b.match.delta??Infinity)||String(a.record.id||"").localeCompare(String(b.record.id||""));
+    });
+    if(!candidates.length)return {status:"missing",candidates:[],source:result.source||"LRCLIB"};
+    const chosen=candidates[0];
+    return {...result,...chosen,status:chosen.match.alternative?"alternative":"found",automatic:true,candidates};
+  }
+  function renderLyricChoices(identity,result){
+    const candidates=(result.candidates||[]).slice(0,5).filter(candidate=>usableLyrics(candidate.record)).map(candidate=>({...candidate,match:compareRecording(identity,candidate.record)})).filter(candidate=>candidate.match.compatible);
+    lookupState.lyricsIdentity=identity;lookupState.lyricsCandidates=candidates;
+    lyricsChoices.replaceChildren();lyricsChoices.hidden=candidates.length<2;
+    if(lyricsChoices.hidden)return;
+    const same=(record)=>record===result.record||(record.id!=null&&record.id===result.record.id);
+    const selected=Math.max(0,candidates.findIndex(candidate=>same(candidate.record)));
+    candidates.forEach((candidate,index)=>{
+      const record=candidate.record,option=document.createElement("option");option.value=String(index);
+      const timed=syncedRowsFor(identity,{status:"found",...candidate}).length>0;
+      option.textContent=`${record.trackName||record.title} · ${record.artistName||""} · ${record.duration?Math.round(record.duration)+" s":"Dauer unbekannt"} · ${timed?"synchronisiert":"nur Text"}${candidate.match.alternative?" · andere Version":""}${index===selected?(result.selected?" · selbst gewählt":" · vorausgewählt"):""}`;
+      lyricsChoices.append(option);
+    });
+    lyricsChoices.value=String(selected);
+    lyricsChoices.setAttribute("aria-label","Songtextversion ändern");
+  }
   function applyLyricResult(identity,result){
+    result=chooseLyricDefault(identity,result);
     if(result.status==="found"||result.status==="alternative"){
       lyricsLoadState="loaded";lyricsRetryCount=0;lyricsNotice.hidden=false;
       const alternative=result.status==="alternative"||result.match?.alternative;
@@ -3684,16 +3712,12 @@ THE SOFTWARE.
       diagnose("lyrics-timing",runtime.lyricsTiming);
       lyricsNotice.textContent=alternative?"Lyrics: LRCLIB · Andere Version":timedRows.length?"Lyrics: LRCLIB · synchronisiert":"Lyrics: LRCLIB · nur Text";
       $("lyricsInfo").textContent=alternative?`Andere Version: „${result.record.trackName||result.record.title}“ · ${result.record.artistName||""}. Nur Text; Zeitmarken werden nicht übernommen.` :timedRows.length?"Passende Aufnahme mit Zeitmarken. Die aktuelle Zeile folgt der gemeldeten Spotify-Wiedergabeposition. Die Quelle ist LRCLIB, nicht Spotify." :result.timingSearchIncomplete?"Die Zeitmarkensuche war vorübergehend nicht erreichbar. Bereits gefundener Text bleibt verfügbar; später erneut aktualisieren.":"Für diese Aufnahme fehlen passende Zeitmarken. Der Text kann frei gescrollt werden.";
-      lyricsChoices.hidden=true;lookupState.lyricsCandidates=[];
+      renderLyricChoices(identity,result);
+      if(lookupState.lyricsCandidates.length>1)$("lyricsInfo").textContent+=(result.selected?" Diese Songtextversion wurde von dir gewählt.":" Diese Songtextversion wurde automatisch vorausgewählt.")+" Die Auswahl kann jederzeit geändert werden.";
       if(result.record.instrumental)renderLyricsState("Diese Aufnahme ist als instrumental gekennzeichnet.");
       else if(timedRows.length){renderSyncedLyrics(timedRows);updateLyricsPosition(getCurrentPositionMs(),true)}
       else renderPlainLyrics(lyricText(result.record));
       if(result.timingSearchIncomplete&&!timedRows.length){lyricsLoadState="retry";lyricsRetryAt=Math.max(performance.now()+30000,metadataQuota("lyrics").blocked)}
-    }else if(result.status==="ambiguous"){
-      lyricsLoadState="choice";lookupState.lyricsIdentity=identity;lookupState.lyricsCandidates=result.candidates||[];
-      renderLyricsState("Mehrere mögliche Texte gefunden. Wähle die passende Aufnahme oben aus.");lyricsNotice.hidden=false;lyricsNotice.textContent="Lyrics: LRCLIB · Version auswählen";
-      lyricsChoices.replaceChildren();const blank=document.createElement("option");blank.value="";blank.textContent="Passenden Songtext auswählen …";lyricsChoices.append(blank);
-      lookupState.lyricsCandidates.forEach((candidate,index)=>{const option=document.createElement("option");option.value=String(index);const record=candidate.record;option.textContent=`${record.trackName||record.title} · ${record.artistName||""} · ${record.duration?Math.round(record.duration)+" s":"Dauer unbekannt"}${candidate.match.alternative?" · andere Version":""}`;lyricsChoices.append(option)});lyricsChoices.hidden=false;
     }else{lyricsLoadState="unavailable";lyricsNotice.hidden=false;lyricsNotice.textContent="Kein passender Text · lokale Datei im ⋯-Menü";lyricsChoices.hidden=true;renderLyricsState("Für diesen Song wurde noch kein passender Text gefunden.")}
   }
   function resetLyricLookup(){
@@ -3705,7 +3729,7 @@ THE SOFTWARE.
   $("refreshTempo").addEventListener("click",()=>{if(!ownPlayback.active&&playback?.item)tempoRequest(playback.item,true);else renderTempoStatus()});
   tempoLookupSetting.addEventListener("change",()=>{facePreferences.tempoLookup=tempoLookupSetting.checked;persistPartyPreferences();if(playback?.item)tempoRequest(playback.item,true);else cancelTempoLookup()});
   tempoCandidates.addEventListener("change",()=>{const state=lookupState.tempo,candidate=state.candidates[Number(tempoCandidates.value)];if(tempoCandidates.value===""||!candidate||!state.identity)return;const result={status:"found",...candidate,selected:true,candidates:[]};storeTempoResult(state.identity,result);setTempoMetadata(result)});
-  lyricsChoices.addEventListener("change",()=>{const candidate=lookupState.lyricsCandidates[Number(lyricsChoices.value)],identity=lookupState.lyricsIdentity;if(lyricsChoices.value===""||!candidate||!identity||identity.id!==playback?.item?.id)return;const result={status:candidate.match.alternative?"alternative":"found",...candidate,source:"LRCLIB",selected:true};lyricCache.put(identity.key,{signature:identity.signature,result,timingPolicy:4},7*86400000);applyLyricResult(identity,result)});
+  lyricsChoices.addEventListener("change",()=>{const candidate=lookupState.lyricsCandidates[Number(lyricsChoices.value)],identity=lookupState.lyricsIdentity;if(lyricsChoices.value===""||!candidate||!identity||identity.id!==playback?.item?.id)return;const result={status:candidate.match.alternative?"alternative":"found",...candidate,source:"LRCLIB",selected:true,automatic:false,candidates:lookupState.lyricsCandidates.slice()};lyricCache.put(identity.key,{signature:identity.signature,result,timingPolicy:4},7*86400000);applyLyricResult(identity,result)});
   $("localTextFile").addEventListener("change",async()=>{
     const file=$("localTextFile").files?.[0];if(!file||file.size>1000000)return;
     const epoch=++lookupState.lyricsEpoch,track=playback?.item?.id;lyricsAbort?.abort();

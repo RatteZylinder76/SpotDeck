@@ -12,7 +12,7 @@ Search now gives priority to timed LRCLIB records for the same recording. An exa
 
 ## Recording and position checks
 
-Synchronization requires a found match, matching version, existing high-confidence title/artist checks and a confirmed duration difference of at most two seconds. Alternate recording versions, unknown durations, invalid/out-of-range timestamps and text-only results remain plain. Several distinct plausible results still require a selection. A duration match does not guarantee perfect alignment; community timestamps can contain mistakes.
+Synchronization requires a found match, matching version, existing high-confidence title/artist checks and a confirmed duration difference of at most two seconds. Alternate recording versions, unknown durations, invalid/out-of-range timestamps and text-only results remain plain. When several plausible results remain, SpotDeck automatically chooses the best compatible candidate, preferring safely synchronized timing, then recording/version confidence and duration. The menu remains available for manual correction. A duration match does not guarantee perfect alignment; community timestamps can contain mistakes.
 
 Rendered lines follow reported Spotify position through the existing central RAF: position progresses while playing, freezes when paused, and a new position/seek changes the highlighted line. Opening mid-song immediately selects the current line. No extra polling, RAF or audio processing is added. Saved local-audio lyric offsets are not applied to Spotify. Reduced motion uses immediate scrolling; normal motion scrolls smoothly.
 
@@ -47,3 +47,11 @@ Line-only Lyricsfile YAML is now parsed when LRC is absent, even when hasWordSyn
 Word reaction scenes had a separate local-audio-only guard. They now accept playing Spotify tracks with verified synced rows. Existing cooldowns, bounded queues, pause behavior and the one-RAF architecture remain. Memory/remember/Erinnerung vocabulary adds restrained photo/thought/sparkle scenes; the actual Memories text otherwise mainly matched ambiguous night words, which were deliberately suppressed for estimated word timing.
 
 Validation: all three suites pass. New fixtures test featured metadata, old-cache upgrade, timed line highlighting, positive mouth motion, actual visible scene markup/accessory state, memory vocabulary, line-only YAML, rejection of a different remix, basic-to-detailed search and retry of incomplete timing. A separate local run fed the actual retrieved Memories record through a simulated Spotify clock for the full duration: all 37 lines became active, mouth reactions occurred, memory scenes appeared, and exactly one RAF remained. Actual audible audio alignment, browser pixel rendering and physical TV playback remain unverified. Real song lyrics were not added to repository fixtures.
+
+## Automatic lyric-version selection
+
+Party playback no longer waits for a manual choice when multiple compatible lyric records remain. A safely timed match is preferred, followed by recording/version confidence, match score and duration difference, with stable tie-breaking. Incompatible artists are excluded. Alternate recordings and uncertain timing remain plain text under the existing synchronization safeguards.
+
+The selector stays available whenever multiple usable candidates exist, labels synchronized versus plain text versions and marks the current automatic or manual choice. A manual choice keeps the alternatives and is cached for normal reloads under the existing seven-day expiry. Refresh can request a new search. Existing cached ambiguous results receive an automatic default on display.
+
+Synthetic Like a Prayer fixtures (340 seconds) verify automatic timed selection, manual changes, persistence through a reload without another lookup, timed-versus-plain ranking, alternate-version timing rejection, wrong-artist rejection and the single animation loop. All three regression suites pass. These checks do not certify alignment of the user’s active Madonna recording or audible/TV behavior.
