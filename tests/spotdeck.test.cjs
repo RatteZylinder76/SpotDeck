@@ -21,7 +21,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   const localStorage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
   if(storage)for(const [key,value]of Object.entries(storage))store.set(key,String(value));
   if(preferences)store.set('spotdeck.facePreferences',JSON.stringify(preferences));
-  const response=(data,status=200)=>({ok:status>=200&&status<300,status,json:async()=>data});
+  const response=(data,status=200)=>({ok:status>=200&&status<300,status,json:async()=>data,text:async()=>typeof data==='string'?data:JSON.stringify(data)});
   if(session)store.set('spotdeck.session',JSON.stringify({access_token:'TEST_ONLY',refresh_token:'TEST_REFRESH',auth_version:2,expires_at:Date.now()+3600000,scopes:['streaming','user-read-email','user-read-private']}));
   class MockPlayer{
     constructor(options){this.options=options;this.events={};this.calls=[];players.push(this)}

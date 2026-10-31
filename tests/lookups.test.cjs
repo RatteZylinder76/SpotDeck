@@ -102,6 +102,7 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   timed.context.item=track();
   const foundTimed=await runAsync(timed,'searchLyrics(trackIdentity(item),new AbortController().signal)');
   assert.equal(foundTimed.record.id,22,'An exact plain-text result cannot hide a matching synchronized record');
+  assert(!timed.requests.some(r=>r.url.includes('lrc.red')),'A usable primary timing match avoids secondary requests');
   timed.context.result=foundTimed;
   timed.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};timed.run('renderPlayback(data);lyrics.classList.add("open")');
   const cueNodes=Array.from({length:3},(_,i)=>{const node=timed.document.createElement('p');node.dataset.lyricIndex=String(i);node.offsetTop=i*100;return node});
@@ -260,6 +261,92 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   assert.equal(memories.run('lyricsLoadState'),'retry','A temporarily incomplete timing search cannot freeze on static text for the whole track');
   assert(memories.run('lyricsRetryAt>performance.now()'));
   console.log('PASS Memories feature-credit reproduction, old-cache upgrade, timed display, singing, visible word props, YAML line timing and remix exclusion.');
+
+
+  const redISRC='DEA811900592';
+  const redItem={...track('Pieces',195.03),id:'pieces-fixture',artists:[{name:'AVAION'}],external_ids:{isrc:redISRC}};
+  const redMeta={isrc:redISRC,title:'Pieces',artist:'AVAION',album:'Selfreflection',duration:195.03,sync:'line'};
+  const redYaml="version: '1.0'\nmetadata:\n  title: Pieces\n  artist: AVAION\nlines:\n  - text: water\n    start_ms: 1000\n    end_ms: 3000\n  - text: sunshine\n    start_ms: 4000\n    end_ms: 6500\n";
+  function redFetcher({primaryStatus=503,metadata=redMeta,yaml=redYaml,secondaryStatus=200,searchHits=[metadata]}={}){
+    return async(url,opts,res)=>{
+      if(url.includes('lrclib.net'))return res(null,primaryStatus);
+      if(url.includes('lrc.red/search.json'))return res({hits:searchHits},secondaryStatus);
+      if(url.includes('.lyricsfile.yaml'))return res(yaml,secondaryStatus);
+      if(url.includes('lrc.red/s/'))return res(metadata,secondaryStatus);
+      return res(null,204);
+    };
+  }
+  const failover=harness({preferences:{tempoLookup:false,surprises:false},fetcher:redFetcher()});
+  failover.context.item=redItem;
+  failover.context.data={item:redItem,is_playing:true,progress_ms:0,device:{id:'external'}};
+  failover.run('renderPlayback(data)');await runAsync(failover,'loadLyrics()');
+  assert.equal(failover.run('lyricsLoadState'),'loaded');
+  assert.equal(failover.run('syncedLyrics.length'),2);
+  assert(failover.nodes.get('lyricsNotice').textContent.includes('lrc.red'));
+  assert(failover.nodes.get('lyricsBody').innerHTML.includes('href="https://lrc.red/"'));
+  assert.equal(failover.requests.filter(r=>r.url.includes('lrclib.net')).length,1,'503 does not lead to repeated primary requests');
+  assert(failover.requests.filter(r=>r.url.includes('lrc.red')).every(r=>r.options.headers['X-Client-ID']?.includes('SpotDeck')&&r.options.credentials==='omit'&&!r.options.headers.Authorization));
+  failover.run('vibeSpeechTrack=item.id;vibeSceneLastPosition=1500;updateVibeVocalReaction(1500);updateVibeMotion(1500)');
+  assert(failover.run('vibeSpeech.open')>0,'Fallback timestamps drive singing');
+  assert(failover.run('effects.queue.length')>0,'Fallback words still drive emoji scenes');
+  failover.run('tickEffects(performance.now())');
+  assert(failover.nodes.get('faceScene').innerHTML.includes('scene-prop'),'Fallback cue produces visible props');
+  const cachedFallback=failover.store.get('spotdeck.lyricCache.v3');
+  const failoverReload=harness({preferences:{tempoLookup:false},storage:{'spotdeck.lyricCache.v3':cachedFallback,'spotdeck.lookupBackoff.v1':failover.store.get('spotdeck.lookupBackoff.v1')},fetcher:async(url,opts,res)=>res(null,503)});
+  failoverReload.context.data={item:redItem,is_playing:true,progress_ms:0,device:{id:'external'}};
+  failoverReload.run('renderPlayback(data)');await runAsync(failoverReload,'loadLyrics()');
+  assert.equal(failoverReload.run('syncedLyrics.length'),2);
+  assert(!failoverReload.requests.some(r=>/lrclib.net|lrc.red/.test(r.url)),'Cached fallback remains available during outage after reload');
+  assert(failoverReload.nodes.get('lyricsNotice').textContent.includes('lrc.red'));
+
+  const searched=harness({preferences:{tempoLookup:false},fetcher:redFetcher({primaryStatus:404})});
+  searched.context.item={...redItem,external_ids:{}};
+  const searchedResult=await runAsync(searched,'searchLyrics(trackIdentity(item),new AbortController().signal)');
+  assert.equal(searchedResult.source,'lrc.red');
+  assert(searched.requests.some(r=>r.url.includes('lrc.red/search.json')),'Title/artist search works without an ISRC');
+  assert(searched.requests.find(r=>r.url.includes('lrc.red/search.json')).url.includes('AVAION'));
+
+  for(const metadata of [{...redMeta,artist:'Another Singer'},{...redMeta,title:'Pieces (Club Remix)'},{...redMeta,duration:220},{...redMeta,isrc:'USAAA2000001'}]){
+    const unsafe=harness({preferences:{tempoLookup:false},fetcher:redFetcher({primaryStatus:404,metadata,searchHits:metadata.isrc===redISRC?[metadata]:[]})});unsafe.context.item=redItem;
+    const rejected=await runAsync(unsafe,'searchLyrics(trackIdentity(item),new AbortController().signal)');
+    assert.equal(rejected.status,'missing');
+    assert(!unsafe.requests.some(r=>r.url.includes('.lyricsfile.yaml')),'Wrong artist, version, duration or ISRC does not fetch/adopt timing');
+  }
+  const noTimed=harness({preferences:{tempoLookup:false},fetcher:redFetcher({primaryStatus:404,yaml:"version: '1.0'\nlines: []"})});noTimed.context.item=redItem;
+  assert.equal((await runAsync(noTimed,'searchLyrics(trackIdentity(item),new AbortController().signal)')).status,'missing');
+
+  const plainFirst=harness({preferences:{tempoLookup:false},fetcher:redFetcher()});plainFirst.context.item=redItem;
+  plainFirst.run('searchLrclibLyrics=async()=>({status:"found",record:{trackName:"Pieces",artistName:"AVAION",duration:195.03,plainLyrics:"Synthetic plain fallback"},source:"LRCLIB"})');
+  assert.equal((await runAsync(plainFirst,'searchLyrics(trackIdentity(item),new AbortController().signal)')).source,'lrc.red','Secondary timing takes priority over plain primary text');
+  const primaryOnly=harness({preferences:{tempoLookup:false},fetcher:redFetcher({searchHits:[],metadata:{...redMeta,duration:250}})});primaryOnly.context.item=redItem;
+  primaryOnly.run('searchLrclibLyrics=async()=>({status:"found",record:{trackName:"Pieces",artistName:"AVAION",duration:195.03,plainLyrics:"Synthetic retained plain text"},source:"LRCLIB"})');
+  assert.equal((await runAsync(primaryOnly,'searchLyrics(trackIdentity(item),new AbortController().signal)')).record.plainLyrics,'Synthetic retained plain text','A secondary miss cannot discard available primary text');
+  const pausedPrimary=harness({preferences:{tempoLookup:false},fetcher:redFetcher()});
+  pausedPrimary.context.item=redItem;pausedPrimary.run('metadataQuota("lyrics").blocked=performance.now()+60000');
+  assert.equal((await runAsync(pausedPrimary,'searchLyrics(trackIdentity(item),new AbortController().signal)')).source,'lrc.red','Primary backoff does not block independent provider');
+  assert(!pausedPrimary.requests.some(r=>r.url.includes('lrclib.net')));
+
+  const bothBusy=harness({preferences:{tempoLookup:false},fetcher:redFetcher({secondaryStatus:429})});
+  bothBusy.context.data={item:redItem,is_playing:true,progress_ms:0,device:{id:'external'}};
+  bothBusy.run('renderPlayback(data)');await runAsync(bothBusy,'loadLyrics()');
+  assert.equal(bothBusy.run('lyricsLoadState'),'retry');
+  assert(bothBusy.nodes.get('lyricsNotice').textContent.includes('Ersatzquelle'));
+  const requestCount=bothBusy.requests.length;await runAsync(bothBusy,'loadLyrics(true)');
+  assert.equal(bothBusy.requests.length,requestCount,'Refresh respects both providers backoff');
+  assert(JSON.parse(bothBusy.store.get('spotdeck.lookupBackoff.v1')).lyricsRed>Date.now(),'Fallback quota persists');
+
+  let releaseRed;
+  const lateFallback=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>{
+    if(url.includes('lrclib.net'))return res(null,503);
+    if(url.includes('lrc.red'))return new Promise(resolve=>{releaseRed=()=>resolve(res(redMeta))});
+    return res(null,204);
+  }});
+  lateFallback.context.data={item:redItem,is_playing:true,progress_ms:0,device:{id:'external'}};
+  lateFallback.run('renderPlayback(data)');const pendingFallback=lateFallback.run('loadLyrics()');await lateFallback.flush();
+  assert(releaseRed);lateFallback.run('resetLyricLookup();playback.item={id:"changed",name:"Different",type:"episode"}');releaseRed();await pendingFallback;
+  assert.equal(lateFallback.run('syncedLyrics.length'),0,'Aborted fallback cannot install old cues');
+  assert.equal(failover.frames.size,1);
+  console.log('PASS independent timed-lyrics failover, matching safeguards, source attribution, singing and props, cached reload, quota isolation/backoff and stale cancellation.');
 
   const prayerItem={...track('Like a Prayer',340),id:'prayer-fixture',artists:[{name:'Madonna'}]};
   const prayerRecord=(id,duration,first)=>({id,trackName:'Like a Prayer',artistName:'Madonna',duration,plainLyrics:first+'\nSynthetic ending',syncedLyrics:`[00:01.00]${first}\n[00:05.00]Synthetic ending`});
