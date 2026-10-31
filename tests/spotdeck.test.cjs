@@ -56,10 +56,10 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   vm.runInContext(script,context,{filename:'index.html'});
   function run(code){return vm.runInContext(code,context)}
   function event(target,type,props={}){let stopped=false;const event={target,preventDefault(){this.defaultPrevented=true},stopPropagation(){},stopImmediatePropagation(){stopped=true},button:0,isPrimary:true,pointerId:1,clientX:30,clientY:30,...props};for(const fn of [...(target.captureHandlers[type]||[]),...(target.handlers[type]||[])]){fn(event);if(stopped)break}return event}
-  function step(ms){
+  function step(ms,frameMs=34){
     const end=now+ms;
     while(now<end){
-      now=Math.min(end,now+34);
+      now=Math.min(end,now+frameMs);
       for(const [id,t]of [...timers])if(t.at<=now){timers.delete(id);if(t.delay)timers.set(id,{...t,at:now+t.delay});t.fn()}
       const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(now));
     }
