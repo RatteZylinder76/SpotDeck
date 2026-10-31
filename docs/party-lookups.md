@@ -16,6 +16,7 @@ The user preferred a free, keyless service. The implementation uses the document
 | AcousticBrainz | Public CC0 acoustic metadata, including BPM; data collection ended in 2022. | Free BPM metadata when a suitable archived recording exists. |
 | GetSongBPM | Free with registration/key and mandatory backlink; documented limit 3,000 requests/hour. Search by song/artist. The published schema does not promise recording ISRC/duration or beat timestamps. | Evaluated but not enabled, because no account/key/proxy exists. A private key would require an independently configured backend, never public HTML. |
 | LRCLIB | Public, no-key lyrics API with exact/search endpoints and line/word timing fields. | Primary lyrics source. |
+| lrc.red | Public, keyless ISRC/search and timed Lyricsfile API, with client identification and linked attribution. | Automatic independent timed-lyrics fallback; recording checks remain mandatory. |
 | Musixmatch | Official licensed catalog/API requiring an account, applicable access rights and a secret key. | Evaluated; not enabled and no plan purchased. |
 
 Sources: [MusicBrainz recording model](https://musicbrainz.org/doc/Recording), [rate limiting](https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting), [AcousticBrainz availability and license](https://acousticbrainz.org/), [partial bulk API](https://acousticbrainz.readthedocs.io/api.html), [GetSongBPM API](https://getsongbpm.com/api), [LRCLIB API](https://lrclib.net/docs), [official Musixmatch SDK information](https://github.com/musixmatch/musixmatch-sdk).
@@ -34,7 +35,7 @@ The normal Tempo view shows a short status and refresh action. Local audio, tap/
 
 ## Multi-stage lyrics and caching
 
-Lyrics first use `/api/get` with the full title, artist, album and duration. On a miss, bounded `/api/search` stages try full/cleaned names, the base title and a relevant alternate artist or normalized spelling. Ranking compares the same identity criteria. High-confidence entries are selected automatically; a sole strong original-version text can be displayed with a clear alternative-version warning. Multiple plausible texts require a selection. Wrong artists and unrelated titles are rejected. Instrumental matches are reported explicitly.
+Lyrics first use `/api/get` with the full title, artist, album and duration. On a miss, bounded `/api/search` stages try full/cleaned names, the base title and a relevant alternate artist or normalized spelling. Ranking compares the same identity criteria. High-confidence entries are selected automatically; a sole strong original-version text can be displayed with a clear alternative-version warning. Multiple plausible texts receive an automatic default and remain manually changeable. Wrong artists and unrelated titles are rejected. Instrumental matches are reported explicitly.
 
 SpotDeck now prefers synchronized LRCLIB lyrics for verified recording/version matches with duration within two seconds. The current line follows Spotify's reported playback position, pauses and seeks. The official Spotify APIs do not expose the Spotify app's lyrics, so the source remains LRCLIB. Plain text is a fallback; other recording versions never inherit timing. Local files remain available. The existing local-audio singing path is unchanged. See [lyrics timing and validation](lyrics-sync.md).
 
@@ -70,3 +71,5 @@ Both steady Party states were measured in the browser on 2026-10-30:
 | 3840 × 2160 | 880 px | 1240 px | None |
 
 The face remained square and inside the viewport. The exit's hidden visibility and explicit inert attribute, keyboard wake, and Escape closing a dialog without exiting Party were checked in the actual browser. All three test suites pass. Safari, independent Firefox/Edge, physical TV/remote hardware and real Premium audio were not newly certified by these checks.
+
+Later revisions add background Spotify lyric loading, automatic version selection and the lrc.red synchronized fallback; those behaviors supersede the earlier view-only lookup description above. See [current lyric behavior and validation](lyrics-sync.md).
