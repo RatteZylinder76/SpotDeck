@@ -185,6 +185,40 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   assert.equal(retrySinger.run('syncedLyrics.length'),3,'A background load retries after a temporary failure without opening Lyrics');
   assert.equal(lyricAttempts,2);assert.equal(retrySinger.frames.size,1);
   console.log('PASS background lyric loading, closed-view singing, line/word mouth timing, pause/gaps, saved local offsets and one RAF.');
+
+  let overload=false,attempts=0;
+  const recovery=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>{
+    if(url.includes('/api/get?')){attempts++;return overload?Object.assign(res(null,503),{headers:{get:name=>name==='Retry-After'?'1':null}}):res(timedRecord)}
+    return res(null,204);
+  }});
+  recovery.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};recovery.run('renderPlayback(data);setDebug(true)');
+  await runAsync(recovery,'loadLyrics()');assert.equal(recovery.run('syncedLyrics.length'),3);
+  const retainedMarkup=recovery.nodes.get('lyricsBody').innerHTML;
+  overload=true;await runAsync(recovery,'loadLyrics(true)');
+  assert.equal(recovery.nodes.get('lyricsBody').innerHTML,retainedMarkup,'A refresh failure preserves the matching text and timestamps');
+  assert.match(recovery.nodes.get('lyricsNotice').textContent,/LRCLIB.*überlastet.*503/);
+  assert.equal(recovery.run('playback.is_playing'),true);
+  assert.equal(recovery.run('lyricsRetryCount'),1);
+  assert(recovery.run('lyricsRetryAt-performance.now()')>=10000,'503 Retry-After: 1 does not cause a one-second retry storm');
+  const firstDelay=recovery.run('lyricsRetryAt-performance.now()');
+  const requestsBeforeWait=attempts;recovery.step(5000);await recovery.flush();assert.equal(attempts,requestsBeforeWait);
+  recovery.step(Math.max(0,recovery.run('lyricsRetryAt-performance.now()'))+100);
+  for(let i=0;i<20&&recovery.run('lyricsRetryCount')<2;i++){await recovery.flush();recovery.step(50)}
+  assert.equal(recovery.run('lyricsRetryCount'),2);
+  assert(recovery.run('lyricsRetryAt-performance.now()')>firstDelay,'Repeated failures increase the wait even when cached lyrics remain usable');
+  assert.equal(recovery.run('syncedLyrics.length'),3);
+  assert(recovery.run('runtime.events.some(event=>event.kind==="lyrics-error"&&event.status===503)'));
+  overload=false;recovery.step(Math.max(0,recovery.run('lyricsRetryAt-performance.now()'))+100);
+  for(let i=0;i<20&&recovery.run('lyricsLoadState')!=='loaded';i++){await recovery.flush();recovery.step(50)}
+  assert.equal(recovery.run('lyricsLoadState'),'loaded','Automatic retry revalidates rather than stopping at retained cache');
+  assert.equal(recovery.run('lyricsRetryCount'),0);
+  assert.match(recovery.nodes.get('lyricsNotice').textContent,/synchronisiert/);assert.equal(recovery.frames.size,1);
+
+  const limitedLyrics=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>Object.assign(res(null,429),{headers:{get:name=>name==='Retry-After'?'120':null}})});
+  limitedLyrics.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};limitedLyrics.run('renderPlayback(data)');
+  await runAsync(limitedLyrics,'loadLyrics()');assert.match(limitedLyrics.nodes.get('lyricsNotice').textContent,/429/);
+  assert(limitedLyrics.run('lyricsRetryAt-performance.now()')>=120000,'Provider Retry-After is never shortened');
+  console.log('PASS explicit overload/rate-limit messages, retained synchronized cache, exponential jittered waits, provider minimum and eventual recovery.');
   // Structural layout contract; real pixel geometry still requires browser/device QA.
   const {html}=require('./spotdeck.test.cjs');
   const lyricsHead=html.slice(html.indexOf('<div class="lyrics-head">'),html.indexOf('<div class="lyrics-body"'));

@@ -2534,23 +2534,34 @@ THE SOFTWARE.
     if(!force&&lyricsLoadingTrack===item.id)return;
     if(!force&&lyricsTrackId===item.id&&lyricsLoadState==="retry"&&performance.now()<lyricsRetryAt)return;
     if(!force&&lyricsTrackId===item.id&&["loaded","choice"].includes(lyricsLoadState))return;
+    const revalidate=force||lyricsLoadState==="retry";
     resetLyricLookup();const epoch=lookupState.lyricsEpoch;
     const controller=new AbortController();lyricsAbort=controller;lyricsTrackId=item.id;lyricsLoadingTrack=item.id;lyricsLoadState="loading";
     const current=()=>!controller.signal.aborted&&lookupState.lyricsEpoch===epoch&&!ownPlayback.active&&playback?.item?.id===item.id&&trackIdentity(playback.item).signature===identity.signature;
-    renderLyricsState("Passender Songtext wird gesucht …");
-    const cached=!force&&lyricCache.get(identity.key);
-    if(cached?.signature===identity.signature&&validLyricResult(cached.result)){
-      if(current())applyLyricResult(identity,cached.result);lyricsLoadingTrack=null;return;
-    }
+    const cached=lyricCache.get(identity.key);
+    const cachedMatch=cached?.signature===identity.signature&&validLyricResult(cached.result);
+    const retained=cachedMatch&&["found","alternative"].includes(cached.result.status);
+    if(cachedMatch){
+      const previousRetries=lyricsRetryCount;
+      if(current())applyLyricResult(identity,cached.result);
+      if(!revalidate){lyricsLoadingTrack=null;return}
+      lyricsLoadState="loading";lyricsRetryCount=previousRetries;
+    }else renderLyricsState("Passender Songtext wird gesucht …");
     try{
       const result=await searchLyrics(identity,controller.signal);if(!current())return;
       lyricCache.put(identity.key,{signature:identity.signature,result},!result.timingSearchIncomplete&&["found","alternative"].includes(result.status)?7*86400000:15*60000);
       applyLyricResult(identity,result);
     }catch(error){
       if(error.name==="AbortError"||!current())return;
-      lyricsLoadState="retry";lyricsRetryAt=performance.now()+(error.retryMs||30000);
-      lyricsNotice.hidden=false;lyricsNotice.textContent=error.retryMs?"Der Lyrics-Dienst macht eine kurze Pause. Bitte später aktualisieren.":"Der Lyrics-Dienst ist gerade nicht erreichbar. Aktualisieren versucht es erneut.";
-      renderLyricsState("Der Songtext konnte gerade nicht geladen werden.");
+      lyricsLoadState="retry";lyricsRetryCount++;
+      const baseDelay=Math.max(error.retryMs||0,Math.min(120000,10000*2**Math.min(lyricsRetryCount-1,4)));
+      const retryDelay=Math.round(baseDelay*(1.1+Math.random()*.2));
+      lyricsRetryAt=performance.now()+retryDelay;
+      const reason=error.status===503?"LRCLIB ist gerade überlastet (503).":error.status===429?"LRCLIB begrenzt gerade Anfragen (429).":error.code==="timeout"?"Die Antwort von LRCLIB dauert zu lange.":error.status?`LRCLIB meldet einen Fehler (${error.status}).`:"LRCLIB konnte nicht erreicht werden (Netzwerk oder Browser).";
+      lyricsNotice.hidden=false;lyricsNotice.textContent=`${reason} Neuer Versuch in ${Math.ceil(retryDelay/1000)} s.`;
+      $("lyricsInfo").textContent=`${lyricsNotice.textContent}${retained?" Der bereits geladene Text bleibt verfügbar.":" Spotify-Wiedergabe und Lyrics-Abruf sind unabhängig."}`;
+      diagnose("lyrics-error",{status:error.status||null,errorType:error.code||"request",attempt:lyricsRetryCount,retryMs:retryDelay});
+      if(!retained)renderLyricsState(reason+" SpotDeck versucht es automatisch erneut.");
     }finally{if(lyricsAbort===controller)lyricsLoadingTrack=null}
   }
 
@@ -3520,7 +3531,7 @@ THE SOFTWARE.
       const remaining=Number(response.headers?.get?.("X-RateLimit-Remaining")),reset=Number(response.headers?.get?.("X-RateLimit-Reset-In"));
       if(response.headers?.get?.("X-RateLimit-Remaining")!=null&&remaining===0&&reset>0)window.next=Math.max(window.next,performance.now()+reset*1000);
       return await response.json();
-    }catch(error){if(signal?.aborted)throw aborted();if(error.name==="AbortError")throw new Error("Die Musikdatensuche hat zu lange gedauert.");throw error}
+    }catch(error){if(signal?.aborted)throw aborted();if(error.name==="AbortError")throw Object.assign(new Error("Die Musikdatensuche hat zu lange gedauert."),{code:"timeout"});throw error}
     finally{clearTimeout(timer);signal?.removeEventListener("abort",cancel)}
   }
   function tempoRequest(item,force=false){
