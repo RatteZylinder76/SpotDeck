@@ -191,3 +191,6 @@ Matching synchronized LRCLIB lyrics now take priority over plain text. They foll
 
 
 The synchronized lyric timeline also drives Vibe Face singing again, even with the text view closed. Lyrics load in the background and transient errors retry with backoff. Word-level timing is used when available; mouth timing within line-only lyrics is estimated. The dance remains independent.
+
+
+Lyrics service errors now distinguish overload, rate limits and connection/timeout failures. Refresh failures keep matching cached lyrics and singing timestamps; retries use growing waits with jitter while honoring the provider delay. See the [availability notes](docs/lyrics-sync.md).

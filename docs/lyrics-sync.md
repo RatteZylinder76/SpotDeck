@@ -27,3 +27,11 @@ Fixtures use invented test lines, not song lyrics. No live Spotify session, spec
 ## Singing restoration verification
 
 The three suites also verify positive Spotify mouth opening, actual mouth-path morphing in the existing RAF, closed-view background loads, pause and word-gap closure, ignoring local-file offsets, plain fallback restraint and delayed background retry without request storms. No new real-audio or device verification was performed.
+
+## Provider availability, 2026-10-31
+
+A direct public /api/get request returned HTTP 503 with JSON error name ServerOverloaded and Retry-After: 1; CORS allowed the supplied browser origin. This verifies provider overload from the test connection, not the exact network condition on the user device. The provider documents 503 as temporary overload: https://lrclib.net/docs.txt.
+
+The UI now distinguishes overload (503), rate limits (429), timeouts, other HTTP errors and network/browser failures. Automatic retries respect Retry-After and use a growing client delay (10 seconds doubling to a 120-second base, plus 10–30% jitter) instead of repeating a busy endpoint every second. Matching cached text/timestamps remain usable during refresh failures; automatic retry still revalidates them. Successful fetch resets the failure count. Opt-in diagnosis records sanitized error category, HTTP status, attempt and wait. No alternate proxy, credential or account was introduced.
+
+All three offline suites pass, including cached timing retention, repeated failure spacing, provider minimum delay and recovery. External service restoration and the user device connection cannot be guaranteed by application changes.
