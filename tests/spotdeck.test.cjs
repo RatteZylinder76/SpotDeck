@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 new Function(script);
-function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,preferences}={}){
+function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,preferences,storage}={}){
   let now=0,nextId=0;
   const timers=new Map(),frames=new Map(),nodes=new Map(),store=new Map(),requests=[],players=[];
   function node(id=''){
@@ -19,6 +19,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   for(const match of html.matchAll(/\bid="([^"]+)"/g))nodes.set(match[1],node(match[1]));
   const document=node('document');Object.assign(document,{visibilityState:'visible',getElementById:id=>nodes.get(id),createElement:()=>node(),head:node(),documentElement:node(),body:node()});
   const localStorage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
+  if(storage)for(const [key,value]of Object.entries(storage))store.set(key,String(value));
   if(preferences)store.set('spotdeck.facePreferences',JSON.stringify(preferences));
   const response=(data,status=200)=>({ok:status>=200&&status<300,status,json:async()=>data});
   if(session)store.set('spotdeck.session',JSON.stringify({access_token:'TEST_ONLY',refresh_token:'TEST_REFRESH',auth_version:2,expires_at:Date.now()+3600000,scopes:['streaming','user-read-email','user-read-private']}));
