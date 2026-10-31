@@ -219,6 +219,47 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   await runAsync(limitedLyrics,'loadLyrics()');assert.match(limitedLyrics.nodes.get('lyricsNotice').textContent,/429/);
   assert(limitedLyrics.run('lyricsRetryAt-performance.now()')>=120000,'Provider Retry-After is never shortened');
   console.log('PASS explicit overload/rate-limit messages, retained synchronized cache, exponential jittered waits, provider minimum and eventual recovery.');
+
+  const memoriesItem={id:'memories-regression',type:'track',name:'Memories (feat. Kid Cudi)',duration_ms:210000,artists:[{name:'David Guetta'},{name:'Kid Cudi'}],album:{name:'One Love'}};
+  // Invented words exercise the real metadata mismatch without embedding song lyrics.
+  const memoriesRecord={id:141520,trackName:'Memories',artistName:'David Guetta',albumName:'Compilation',duration:209,plainLyrics:'water\nsun',syncedLyrics:'[00:01.00]water\n[00:04.00]sun'};
+  const memories=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>url.includes('/api/get?')?res(memoriesRecord):res(null,204)});
+  memories.context.item=memoriesItem;memories.context.record=memoriesRecord;
+  assert.equal(memories.run('compareRecording(trackIdentity(item),record).safe'),true,'A guest-artist credit is not a different recording version');
+  memories.run('lyricCache.put(trackIdentity(item).key,{signature:trackIdentity(item).signature,result:{status:"alternative",record,match:{alternative:true}}},700000)');
+  memories.context.data={is_playing:true,progress_ms:1200,device:{id:'external'},item:memoriesItem};memories.run('renderPlayback(data);lyrics.classList.add("open")');
+  await runAsync(memories,'loadLyrics()');
+  assert(memories.requests.some(request=>new URL(request.url).searchParams.get('track_name')==='Memories'),'Lookup removes the guest credit while retaining recording qualifiers');
+  assert.equal(memories.run('syncedLyrics.length'),2,'An old cached alternative/plain selection is upgraded');
+  memories.run('updateLyricsPosition(1200,true);updateVibeVocalReaction(1200)');
+  assert.equal(memories.run('currentLyricIndex'),0);assert(memories.run('vibeSpeech.open')>0);
+  assert(memories.run('effects.queue.some(event=>event.kind==="theme"&&event.theme.key==="water")||vibeFace.dataset.scene==="water"'),'Spotify lyrics queue or already show word-driven props');
+  memories.run('tickEffects(performance.now())');
+  assert(memories.nodes.get('faceScene').classList.contains('visible'));assert(memories.nodes.get('faceScene').innerHTML.includes('scene-prop'));
+  assert.equal(memories.nodes.get('vibeFace').dataset.accessory,'snorkel');
+  memories.context.wrong={...memoriesRecord,trackName:'Memories (2021 Remix)'};
+  assert.equal(memories.run('compareRecording(trackIdentity(item),wrong).safe'),false,'Remixes remain distinct from guest credits');
+  assert.equal(memories.frames.size,1);
+  memories.context.lineFile={...memoriesRecord,syncedLyrics:null,hasWordSync:false,lyricsfile:"version: '1.0'\nmetadata:\n  title: Memories\n  artist: David Guetta\n  duration_ms: 209000\nlines:\n  - text: water\n    start_ms: 1000\n    end_ms: 3000\n"};
+  assert.equal(memories.run('parseLyricsRecord(lineFile).length'),1,'Line-only YAML carries valid timing even without the word-sync flag');
+  assert.equal(memories.run('matchVibeTheme("memories").key'),'memory');
+  assert.equal(memories.run('matchVibeTheme("Erinnerungen").key'),'memory');
+  const detailed=harness({preferences:{tempoLookup:false},fetcher:async(url,opts,res)=>{
+    const params=new URL(url).searchParams;
+    if(url.includes('/api/get?'))return res(params.has('duration')?memoriesRecord:{...memoriesRecord,trackName:'Memories (2021 Remix)',duration:163});
+    return res(null,204);
+  }});
+  detailed.context.item=memoriesItem;
+  const detailedResult=await runAsync(detailed,'searchLyrics(trackIdentity(item),new AbortController().signal)');
+  assert.equal(detailedResult.record.duration,209,'A wrong basic result is rejected before a detailed match is used');
+  assert.equal(detailed.requests.filter(request=>request.url.includes('/api/get?')).length,2);
+  assert(!new URL(detailed.requests[0].url).searchParams.has('duration'));
+  assert(new URL(detailed.requests[1].url).searchParams.has('duration'));
+  memories.context.incomplete={status:'found',record:{...memoriesRecord,syncedLyrics:null},timingSearchIncomplete:true};
+  memories.run('applyLyricResult(trackIdentity(item),incomplete)');
+  assert.equal(memories.run('lyricsLoadState'),'retry','A temporarily incomplete timing search cannot freeze on static text for the whole track');
+  assert(memories.run('lyricsRetryAt>performance.now()'));
+  console.log('PASS Memories feature-credit reproduction, old-cache upgrade, timed display, singing, visible word props, YAML line timing and remix exclusion.');
   // Structural layout contract; real pixel geometry still requires browser/device QA.
   const {html}=require('./spotdeck.test.cjs');
   const lyricsHead=html.slice(html.indexOf('<div class="lyrics-head">'),html.indexOf('<div class="lyrics-body"'));

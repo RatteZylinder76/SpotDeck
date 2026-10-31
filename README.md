@@ -194,3 +194,6 @@ The synchronized lyric timeline also drives Vibe Face singing again, even with t
 
 
 Lyrics service errors now distinguish overload, rate limits and connection/timeout failures. Refresh failures keep matching cached lyrics and singing timestamps; retries use growing waits with jitter while honoring the provider delay. See the [availability notes](docs/lyrics-sync.md).
+
+
+The Memories regression fixes title matching with parenthesized guest-artist credits, rechecks old static-cache choices and reads line-timed YAML fallback. Spotify lyrics can also trigger word-reaction props again, with memory-themed scenes added. See [specific reproduction and verification limits](docs/lyrics-sync.md).
