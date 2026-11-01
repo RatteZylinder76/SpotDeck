@@ -962,13 +962,35 @@
     .lyrics-body{padding-top:clamp(10px,2vh,22px)}
     .lyrics-plain{font-size:clamp(20px,min(3.2vw,5vh),54px);line-height:1.45}
     @media(max-height:600px){.lyrics-top{padding-top:calc(var(--safe-t) + 5px);padding-bottom:5px}.lyrics-top .round-action{width:36px;height:36px}.lyrics-head strong{font-size:18px}.lyrics-head span{margin-top:2px;font-size:11px}.lyrics-body{padding-top:10px}.lyrics-tools .setting-field{margin:3px auto;padding:6px 10px}}
-  </style>
+      /* Winter uses the shared clock; the overlay never captures player input. */
+    #winterSnow{position:fixed;inset:0;width:100%;height:100%;z-index:35;pointer-events:none}
+    .app[data-season="winter"]{--bg:#081b23;--glass:rgba(20,47,56,.57);--glass-clear:rgba(205,239,244,.10);--glass2:rgba(11,32,41,.96);--glass-edge:#c6edf56b}
+    .app[data-season="winter"] .tint{background:radial-gradient(ellipse at 15% 12%,#acdfe121,transparent 50%),radial-gradient(ellipse at 85% 80%,#4d7f9630,transparent 55%),linear-gradient(125deg,#09212699,#08131da8)}
+    .app[data-season="winter"][data-transparency="reduced"]{--glass:#183640fa;--glass-clear:#27464ffa;--glass2:#102831fb}
+    .winter-layer{position:absolute;inset:0;pointer-events:none;z-index:6}
+    .winter-layer svg{width:100%;height:100%;overflow:visible}
+    .winter-layer > *{position:absolute;will-change:transform}
+    .winter-hat{left:12%;top:-16%;width:76%;height:39%;transform:rotate(-8deg)}
+    .winter-scarf{left:3%;top:77%;width:94%;height:40%;transform:rotate(3deg)}
+    .winter-sleigh{left:-35%;top:-27%;width:62%;height:30%;transform:translateX(calc(var(--winter-progress,0) * 245%)) rotate(-5deg)}
+    .winter-ice{inset:-5%;width:110%;height:110%;opacity:.8}
+    .winter-snowman{left:72%;top:58%;width:33%;height:49%;transform:translateY(calc((1 - var(--winter-rise,1)) * 20%)) rotate(var(--winter-sway,0deg))}
+    .winter-breath{left:65%;top:53%;width:38%;height:20%;opacity:var(--winter-breath,.4);transform:translateX(calc(var(--winter-progress,0) * 18%))}
+    .winter-snowcap{position:absolute;left:12%;top:-9%;width:76%;height:24%;overflow:visible;z-index:7;pointer-events:none;opacity:0}
+    .vibe-face[data-motion="reduced"] .winter-sleigh{transform:translateX(90%) rotate(-5deg)}
+    .vibe-face[data-motion="reduced"] .winter-snowman{transform:none}
+    .winter-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+    .app:not([data-season="winter"]) .winter-controls{display:none}
+    @media(prefers-reduced-transparency:reduce){.app[data-season="winter"]{--glass:#183640fa;--glass-clear:#27464ffa;--glass2:#102831fb}}
+
+</style>
 </head>
 <body>
 <div class="app disconnected" id="app">
   <div class="bg" id="bg"></div>
   <div class="tint"></div>
   <div class="shade"></div>
+  <canvas id="winterSnow" aria-hidden="true" hidden></canvas>
   <div class="halloween-ambient" aria-hidden="true"><span class="ambient-moon"></span><span class="ambient-pumpkin">🎃</span></div>
   <button class="glass glass-clear" id="partyExit" aria-label="Party-Modus beenden" hidden>Party-Modus beenden</button>
 
@@ -1034,6 +1056,8 @@
             </svg>
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
             <div class="halloween-layer" id="halloweenLayer" aria-hidden="true"></div>
+            <div class="winter-layer" id="winterLayer" aria-hidden="true"></div>
+            <svg class="winter-snowcap" id="winterSnowCap" viewBox="0 0 100 30" aria-hidden="true"><path id="winterCapPath" fill="#f1faff" d="M0 27H100Z"/></svg>
             <div class="face-easteregg" id="faceEasteregg" aria-hidden="true"></div>
             <svg class="expression-props" viewBox="0 0 100 100" aria-hidden="true">
               <g class="expression-brows"><path class="brow-left" d="M 23 29 Q 30 27 37 29"/><path class="brow-right" d="M 63 29 Q 70 27 77 29"/></g>
@@ -1194,11 +1218,13 @@
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <section class="party-section" aria-labelledby="partyTitle">
-        <h3 id="partyTitle">Party &amp; Halloween</h3>
-        <label class="setting-row"><span>Halloween-Modus</span><input type="checkbox" id="halloweenSetting"></label>
+        <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
+        <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
+        <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
+        <div class="winter-controls"><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button></div></div>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
-        <label class="label" for="halloweenEffects">Halloween-Effekte</label>
+        <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
         <select class="setting-field" id="halloweenEffects"><option value="few">Wenig · etwa 75–90 Sekunden Pause</option><option value="normal">Normal · etwa 45–75 Sekunden Pause</option><option value="many">Viele · etwa 30–45 Sekunden Pause</option></select>
         <label class="setting-row"><span>Ambient-Hintergrund</span><input type="checkbox" id="ambientSetting"></label>
         <label class="setting-row"><span>Automatische Überraschungen</span><input type="checkbox" id="surpriseSetting"></label>
@@ -1379,6 +1405,7 @@ THE SOFTWARE.
     {key:"love",words:/^(love|loving|liebe|lieben|liebst|heart|hearts|herz|herzen|kiss|kisses|kuss|küssen|baby|darling|schatz)$/i,props:["💕","💗","💖","💘","💌","💋","🌹"],kind:"scene-rise"},
     {key:"fire",words:/^(fire|flame|flames|feuer|flammen|burn|burning|brennen|brennt|heat|hitze)$/i,props:["🔥","✨","❤️‍🔥","☄️","💥"],kind:"scene-rise"},
     {key:"night",words:/^(moon|moonlight|mond|night|nacht|stars|star|sterne|stern|dream|dreams|träume|traum)$/i,props:["🌙","⭐","✨","🌠","💫","🌌","🌛"],kind:""},
+    {key:"christmas",words:/^(christmas|xmas|weihnacht(?:en|szeit)?|santa|claus|schlitten|sleigh|reindeer|rentier|geschenke?|presents?|mistletoe|mistel)$/i,props:["🎄","🎁","🦌","✨"],kind:""},
     {key:"snow",words:/^(snow|snowing|schnee|schneit|winter|ice|eis|frozen|gefroren|cold|kalt)$/i,props:["❄️","☃️","🌨️","🧊","⛄","🏔️"],kind:"scene-rain"},
     {key:"nature",words:/^(flowers?|blume|blumen|bloom|blossom|spring|frühling|butterfly|schmetterling|garden|garten|trees?|baum|bäume|forest|wald)$/i,props:["🦋","🌸","🌼","🌿","🌷","🍃","🌳","🌺"],kind:""},
     {key:"fly",words:/^(fly|flying|fliegen|flieg|fliegst|sky|himmel|clouds?|wolken|wings|flügel|birds?|vogel|vögel)$/i,props:["☁️","🕊️","🪶","🦅","🪽","🪁"],kind:""},
@@ -1408,14 +1435,16 @@ THE SOFTWARE.
   }
 
   function readFacePreferences(){
-    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto"};
+    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto"};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
       if(!saved||typeof saved!=="object")return defaults;
       for(const [key,choices]of Object.entries({performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
-      for(const key of ["sound","halloween","party","ambient","surprises","tempoLookup"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
+      for(const key of ["sound","party","ambient","surprises","tempoLookup"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
       for(const [key,a,b]of [["manualBpm",30,400],["beatOffset",-2000,2000],["lyricsOffset",-5000,5000]])if(typeof saved[key]==="number"&&Number.isFinite(saved[key])&&saved[key]>=a&&saved[key]<=b)defaults[key]=saved[key];
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
+      if(["winter","halloween","off"].includes(saved.season))defaults.season=saved.season;
+      defaults.halloween=defaults.season==="halloween";
       return defaults;
     }catch{return defaults}
   }
@@ -1432,6 +1461,7 @@ THE SOFTWARE.
   function applyPerformance(){
     app.dataset.performance=effectivePerformance();document.documentElement.dataset.performance=effectivePerformance();
     $("performanceSetting").value=facePreferences.performance;
+    runtime.winterSnow?.configure();
     $("performanceStatus").textContent=facePreferences.performance==="auto"?(runtime.autoTV?"Automatisch: vereinfachte Effekte nach gemessenen Frame-Lücken.":"Automatisch: Laufzeit wird beobachtet; keine Geräteerkennung."):(effectivePerformance()==="tv"?"Weniger Blur und Partikel; Körperbewegung bis 30 Bilder/s.":"Volle Effekte; Körperbewegung bis 60 Bilder/s.");
   }
   function diagnose(kind,detail={}){
@@ -2006,6 +2036,7 @@ THE SOFTWARE.
       }
       timedSection("body-mouth",()=>updateVibeMotion(pos));
       timedSection("party",()=>tickParty(now));
+      timedSection("winter-snow",()=>winterSnow.tick(now));
       observeFrame(now,performance.now()-workStart);
       if(vibeEggUntil && performance.now()>=vibeEggUntil){
         vibeFace.classList.remove("easteregg");
@@ -2759,13 +2790,13 @@ THE SOFTWARE.
     vibeEggTaps=[];
     const layer=$("faceEasteregg");
     if(layer){
-      const confetti=facePreferences.halloween?["🎃","👻","✨","🦇","🍬","⭐","🎃","🕸️","✨","🔮"]:["✨","🎵","🎉","💜","🎶","⭐","🎊","💚","✨","🪩"];
+      const confetti=activeSeason()==="winter"?["❄️","⭐","🎄","✨","🎁","❄️","⛄","🦌","✨","❄️"]:facePreferences.halloween?["🎃","👻","✨","🦇","🍬","⭐","🎃","🕸️","✨","🔮"]:["✨","🎵","🎉","💜","🎶","⭐","🎊","💚","✨","🪩"];
       const positions=[[12,18],[32,7],[57,5],[81,14],[91,39],[87,67],[70,85],[35,88],[8,68],[3,42]];
       const count=effectivePerformance()==="tv"?6:confetti.length;
       layer.innerHTML=Array.from({length:count},(_,i)=>{
         const index=Math.floor(i*positions.length/count),[x,y]=positions[index];
         return `<span class="egg-confetti" style="--egg-x:${x}%;--egg-y:${y}%;--egg-delay:${(-i*.31).toFixed(2)}s;--egg-drift:${x<50?-5:5}cqw">${confetti[index]}</span>`;
-      }).join("")+`<span class="egg-caption">${facePreferences.halloween?"BOO OVERDRIVE":"VIBE OVERDRIVE"}</span>`;
+      }).join("")+`<span class="egg-caption">${activeSeason()==="winter"?"SNOW OVERDRIVE":facePreferences.halloween?"BOO OVERDRIVE":"VIBE OVERDRIVE"}</span>`;
     }
     delete vibeFace.dataset.accessory;
     faceScene?.classList.remove("visible");
@@ -2970,6 +3001,7 @@ THE SOFTWARE.
       targetY-=Math.abs(Math.sin(eggBeat))*9*eggEnvelope;
       targetRotate+=Math.sin(eggBeat*.5)*8*eggEnvelope;
     }
+    const winterPose=winterMotion(now);targetX+=winterPose.x;targetRotate+=winterPose.rotate;
     targetRotate+=vibeExpressionPose.tilt;
     targetX*=level*faceMotionScale;targetY*=level*faceMotionScale;targetRotate*=level;
     targetScaleX=1+(targetScaleX-1)*level;targetScaleY=1+(targetScaleY-1)*level;
@@ -3112,12 +3144,184 @@ THE SOFTWARE.
   const partyPresentation={value:0,from:0,target:0,start:0};
   let partyWakeKey=null;
   const effects={queue:[],active:null,nextAt:performance.now()+60000,last:new Map(),lastKind:"",lastWordKey:""};
+  function activeSeason(){return facePreferences.halloween?"halloween":facePreferences.season==="winter"?"winter":"off"}
+  const winterLayer=$("winterLayer"),winterSnowCanvas=$("winterSnow"),winterCap=$("winterSnowCap");
+  const winterKinds=["sleigh","hat","scarf","freeze","snowman","shake"];
+  const winterVisuals={
+    sleigh:'<div class="winter-sleigh"><svg viewBox="0 0 220 90"><path d="M12 47q18-20 35 0m-21-3 2-22m-2 8-10-9m13 6 9-13" fill="none" stroke="#d1b38b" stroke-width="5" stroke-linecap="round"/><path d="m45 45 50 6m-70 8 10 13m7-15 9 14" fill="none" stroke="#d1b38b" stroke-width="3"/><path d="M100 48h74l-5 22h-59Z" fill="#b94c59"/><path d="M99 77h90q13-1 15-10m-85 3v7m45-7v7" fill="none" stroke="#e4bc70" stroke-width="4" stroke-linecap="round"/><circle cx="142" cy="32" r="12" fill="#f0c7a2"/><path d="m128 25 8-20 23 19" fill="#bd4c60"/><path d="M126 43q16-13 32 0l7 15h-45Z" fill="#bd4c60"/><path d="M134 35q8 15 17 0" fill="#fff5dd"/><path d="m185 44 12-20 12 21" fill="#3d8467"/><circle cx="191" cy="43" r="3" fill="#eccd76"/></svg></div>',
+    hat:'<div class="winter-hat"><svg viewBox="0 0 160 90"><path d="M22 69Q36 8 87 10q35 2 46 41-20-12-37-4L80 72Z" fill="#bc5261" stroke="#f1a0a4" stroke-width="2"/><path d="M25 63q47-12 89 1l-3 16q-44-9-89-1Z" fill="#fff4df"/><circle cx="134" cy="51" r="13" fill="#fff4df"/><path d="M46 49q12-20 28-24" fill="none" stroke="#e2818d" stroke-width="4" stroke-linecap="round"/></svg></div>',
+    scarf:'<div class="winter-scarf"><svg viewBox="0 0 170 90"><path d="m111 20 20 8-7 57-27-9Z" fill="#b74c5b"/><path d="M12 14q70 28 145-1l2 24Q81 64 11 38Z" fill="#bc5261"/><path d="m35 23 2 24m32-15 2 23m32-24 2 22m29-31 2 22m-25 17 16 6m-18 8 17 6" stroke="#eac883" stroke-width="8"/><path d="m100 76-3 9m11-6-2 9m11-6-1 8" stroke="#b74c5b" stroke-width="3"/></svg></div>',
+    freeze:'<svg class="winter-ice" viewBox="0 0 100 100"><path d="M12 8 84 4 96 19 91 88 74 98 8 90 4 23Z" fill="#a6e9f42b" stroke="#b8f5ffb3" stroke-width="2"/><path d="m12 8 13 25-16 20m75-49-16 25 24-10M8 90l21-19 12 20m50-3L73 64l8-24M25 33l10 6m38 25-10 1" fill="none" stroke="#d5f9ff99" stroke-width="1.3"/></svg><div class="winter-breath"><svg viewBox="0 0 100 45"><ellipse cx="45" cy="24" rx="38" ry="16" fill="#e8fbff55"/><ellipse cx="72" cy="17" rx="24" ry="13" fill="#e8fbff33"/></svg></div>',
+    snowman:'<div class="winter-snowman"><svg viewBox="0 0 100 140"><circle cx="50" cy="99" r="34" fill="#e5f2ed"/><circle cx="49" cy="57" r="25" fill="#f5fbef"/><path d="m28 39 3-26h34l7 27" fill="#384b58"/><path d="m24 39 52 1" stroke="#384b58" stroke-width="7" stroke-linecap="round"/><circle cx="42" cy="54" r="2.5" fill="#344c54"/><circle cx="58" cy="54" r="2.5" fill="#344c54"/><path d="m49 59 22 6-22 3Z" fill="#de9861"/><path d="M30 75q21 9 41-1l-3 12q-23 7-39-1Z" fill="#bd5261"/><path d="m66 82 5 21-12 2-2-22" fill="#bd5261"/><circle cx="49" cy="97" r="3" fill="#456068"/><circle cx="49" cy="111" r="3" fill="#456068"/><path d="m20 92-18-13m76 12 19-18" stroke="#997d63" stroke-width="3"/></svg></div>',
+    shake:''
+  };
+  function beginWinter(name,now=performance.now()){
+    if(activeSeason()!=="winter"||effects.active||now<vibeEggUntil||!winterKinds.includes(name))return false;
+    const duration={sleigh:7200,hat:9200,scarf:8500,freeze:7200,snowman:7600,shake:2100}[name];
+    effects.active={kind:"winter",name,start:now,end:now+duration,stage:-1,released:false};effects.lastKind=name;
+    vibeFace.dataset.winterScene=name;winterLayer.innerHTML=winterVisuals[name];
+    winterLayer.style.setProperty("--winter-progress","0");effects.nextAt=now+duration+sceneGap();
+    return true;
+  }
+  function tickWinterScene(now){
+    const scene=effects.active;if(!scene||scene.kind!=="winter")return;
+    if(now>=scene.end){clearHalloween();return}
+    const age=now-scene.start,p=clamp(age/(scene.end-scene.start),0,1),stage=Math.min(3,Math.floor(p*4));
+    winterLayer.style.setProperty("--winter-progress",p.toFixed(4));
+    winterLayer.style.setProperty("--winter-rise",Math.min(1,p*6,(1-p)*6).toFixed(3));
+    winterLayer.style.setProperty("--winter-sway",(motionLevel()?Math.sin(now/560)*4:0).toFixed(2)+"deg");
+    winterLayer.style.setProperty("--winter-breath",(.3+.2*Math.sin(now/220)).toFixed(3));
+    if(scene.name==="shake"&&age>=450&&!scene.released){scene.released=true;winterSnow.releaseHead()}
+    if(stage!==scene.stage&&now>=vibeTapReactionUntil){
+      scene.stage=stage;
+      const gestures={sleigh:["lookUp","sideRight","curious","grin"],hat:["curious","proud","cheeky","grin"],scarf:["shy","dreamy","proud","grin"],freeze:["startled","confused","shy","grin"],snowman:["sideRight","curious","laugh","grin"],shake:["confused","determined","surprise","grin"]};
+      startVibeExpression(gestures[scene.name][stage],Math.min(1900,scene.end-now),4);
+    }
+  }
+  function winterMotion(now){
+    const scene=effects.active;if(scene?.kind!=="winter")return {x:0,rotate:0};
+    if(scene.name==="sleigh"&&now>=vibeTapReactionUntil){
+      const p=clamp((now-scene.start)/(scene.end-scene.start),0,1);
+      setFaceProperty("--gaze-x",((p*18-9)*faceMotionScale).toFixed(2)+"px");
+      setFaceProperty("--gaze-y",(-5*faceMotionScale).toFixed(2)+"px");
+    }
+    if(!motionLevel())return {x:0,rotate:0};
+    const age=now-scene.start;
+    if(scene.name==="freeze")return {x:Math.sin(age/32)*1.1,rotate:Math.sin(age/40)*.5};
+    if(scene.name==="shake"){const e=Math.sin(Math.PI*clamp(age/2100,0,1));return {x:Math.sin(age/65)*6*e,rotate:Math.sin(age/65)*7*e}}
+    return {x:0,rotate:0};
+  }
+
+  class WinterSnow{
+    constructor(canvas,cap){
+      this.canvas=canvas;this.cap=cap;this.ctx=canvas.getContext?.("2d")||null;
+      this.width=0;this.height=0;this.floor=new Float64Array(128);this.head=new Float64Array(16);
+      this.flakes=[];this.chunks=[];this.last=0;this.capAt=0;this.geometryDirty=true;this.enabled=false;this.face=null;this.brush=null;
+    }
+    resize(width=window.innerWidth||document.documentElement.clientWidth||800,height=window.innerHeight||document.documentElement.clientHeight||600){
+      this.width=Math.max(1,width);this.height=Math.max(1,height);
+      const ratio=Math.min(window.devicePixelRatio||1,effectivePerformance()==="tv"?1:1.5,Math.sqrt(2100000/(this.width*this.height)));
+      this.canvas.width=Math.round(this.width*ratio);this.canvas.height=Math.round(this.height*ratio);
+      this.ctx?.setTransform(ratio,0,0,ratio,0,0);
+      for(const flake of this.flakes){flake.x=clamp(flake.x,0,this.width);flake.y=clamp(flake.y,-10,this.height)}
+      this.geometryDirty=true;
+    }
+    measure(){
+      if(!this.geometryDirty)return;this.geometryDirty=false;
+      const rect=vibeFace.getBoundingClientRect();
+      this.face=rect.width>0?{left:rect.left-vibeMotion.x,top:rect.top-vibeMotion.y,width:rect.width,height:rect.height}:null;
+    }
+    configure(){
+      const enabled=activeSeason()==="winter"&&facePreferences.ambient;
+      this.canvas.hidden=!enabled;
+      if(this.profile!==effectivePerformance()){this.profile=effectivePerformance();this.resize()}
+      if(enabled!==this.enabled){this.enabled=enabled;this.last=0;if(!enabled)this.clear();else this.resize()}
+      const limit=effectivePerformance()==="tv"?44:window.innerWidth<600?68:110;
+      while(this.flakes.length>limit)this.flakes.pop();
+      while(this.flakes.length<limit&&enabled)this.flakes.push(this.flake(true));
+    }
+    flake(initial=false){return {x:Math.random()*this.width,y:initial?Math.random()*this.height:-10,r:1+Math.random()*1.9,v:24+Math.random()*32,phase:Math.random()*Math.PI*2}}
+    floorY(index){const mass=this.floor[clamp(index,0,this.floor.length-1)],cell=this.width/this.floor.length,limit=Math.min(50,this.height*.065);return this.height-2-limit*(1-Math.exp(-mass/(cell*limit)))}
+    deposit(x,mass){const i=clamp(Math.floor(x/this.width*this.floor.length),0,this.floor.length-1);this.floor[i]+=mass}
+    totalMass(){return this.floor.reduce((a,b)=>a+b,0)+this.head.reduce((a,b)=>a+b,0)+this.chunks.reduce((a,b)=>a+b.mass,0)}
+    headGeometry(){
+      const face=this.face;if(!face)return null;
+      return {left:face.left+vibeMotion.x+face.width*.15,top:face.top+vibeMotion.y+face.height*.015,width:face.width*.7};
+    }
+    headTop(x){const head=this.headGeometry();if(!head||x<head.left||x>head.left+head.width)return null;const p=(x-head.left)/head.width;return {index:clamp(Math.floor(p*this.head.length),0,this.head.length-1),y:head.top+Math.pow(Math.abs(p-.5)*2,2)*head.width*.12}}
+    releaseHead(){
+      const head=this.headGeometry();
+      for(let i=0;i<this.head.length;i++){
+        const mass=this.head[i];this.head[i]=0;if(!mass)continue;
+        if(head)this.addChunk(head.left+(i+.5)/this.head.length*head.width,head.top,((i/this.head.length)-.5)*110,-35-Math.random()*35,mass);
+        else this.deposit(this.width*(i+.5)/this.head.length,mass);
+      }
+      this.capAt=performance.now();this.drawCap();
+    }
+    addChunk(x,y,vx,vy,mass){
+      if(this.chunks.length>=64){const chunk=this.chunks[this.chunks.length-1];chunk.mass+=mass;return}
+      this.chunks.push({x,y,vx,vy,mass});
+    }
+    push(x,y,dx=0){
+      if(!this.enabled||!motionLevel()||!Number.isFinite(x)||!Number.isFinite(y))return;
+      const cell=this.width/this.floor.length,near=Math.floor(x/cell),direction=dx<0?-1:1;
+      if(y<this.floorY(near)-26)return;
+      const radius=Math.max(2,Math.ceil(24/cell)),moves=[];
+      for(let i=Math.max(0,near-radius);i<=Math.min(this.floor.length-1,near+radius);i++){
+        const mass=this.floor[i]*.6;this.floor[i]-=mass;
+        moves.push({x:(i+.5)*cell,mass,target:clamp(i+direction*(radius*2+1),0,this.floor.length-1)});
+      }
+      for(const move of moves){this.floor[move.target]+=move.mass*.6;if(move.mass>0)this.addChunk(move.x,y,direction*65,-45,move.mass*.4)}
+    }
+    drawCap(){
+      const head=this.headGeometry(),cell=(head?.width||150)/this.head.length;
+      const heights=Array.from(this.head,mass=>Math.min(12,mass/cell));
+      const visible=heights.some(h=>h>.05);this.cap.style.opacity=visible?"1":"0";
+      let d="M 0 27";for(let i=0;i<heights.length;i++)d+=" L "+((i+.5)/heights.length*100).toFixed(2)+" "+(18-heights[i]*1.4+Math.pow(Math.abs((i+.5)/heights.length-.5)*2,2)*7).toFixed(2);
+      d+=" L 100 27 Q 50 18 0 27Z";$("winterCapPath").setAttribute("d",d);
+    }
+    step(dt,now){
+      const headMass=this.head.reduce((a,b)=>a+b,0);
+      for(let i=0;i<this.flakes.length;i++){
+        const f=this.flakes[i],before=f.y;f.y+=f.v*dt;f.x+=(Math.sin(now/1200+f.phase)*8+6)*dt;
+        if(f.x>this.width+4)f.x=-3;if(f.x< -4)f.x=this.width+3;
+        const head=this.headTop(f.x),mass=f.r*f.r*2;
+        if(head&&before<=head.y&&f.y>=head.y){this.head[head.index]+=mass;Object.assign(f,this.flake());continue}
+        const index=clamp(Math.floor(f.x/this.width*this.floor.length),0,this.floor.length-1);
+        if(f.y>=this.floorY(index)){this.deposit(f.x,mass);Object.assign(f,this.flake())}
+      }
+      for(let i=this.chunks.length-1;i>=0;i--){
+        const c=this.chunks[i];c.vy+=220*dt;c.x=clamp(c.x+c.vx*dt,0,this.width-1);c.y+=c.vy*dt;
+        if(c.y>=this.floorY(Math.floor(c.x/this.width*this.floor.length))){this.deposit(c.x,c.mass);this.chunks.splice(i,1)}
+      }
+      // Pairwise transfer conserves deposited mass while softening the drift's slope.
+      for(let i=0;i<this.floor.length-1;i++){const flow=(this.floor[i]-this.floor[i+1])*Math.min(.14,dt*2);this.floor[i]-=flow;this.floor[i+1]+=flow}
+      const head=this.headGeometry(),threshold=(head?.width||150)*2.4;
+      if(headMass>threshold&&now-this.capAt>18000&&!effects.active&&now>=vibeTapReactionUntil&&facePreferences.surprises)beginWinter("shake",now);
+      this.drawCap();
+    }
+    draw(moving=true){
+      const ctx=this.ctx;if(!ctx)return;ctx.clearRect(0,0,this.width,this.height);
+      ctx.fillStyle="#effaff";
+      if(moving){ctx.globalAlpha=.65;ctx.beginPath();for(const f of this.flakes){ctx.moveTo(f.x+f.r,f.y);ctx.arc(f.x,f.y,f.r,0,Math.PI*2)}ctx.fill()}
+      ctx.globalAlpha=.94;ctx.beginPath();ctx.moveTo(0,this.height);
+      for(let i=0;i<this.floor.length;i++)ctx.lineTo((i+.5)/this.floor.length*this.width,this.floorY(i));
+      ctx.lineTo(this.width,this.height);ctx.closePath();ctx.fill();
+      for(const c of this.chunks){const r=clamp(Math.sqrt(c.mass)*.45,2,8);ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);ctx.fill()}
+      ctx.globalAlpha=1;
+    }
+    tick(now){
+      if(!this.enabled||document.visibilityState!=="visible"){this.last=0;return}
+      if(!this.width)this.resize();this.measure();
+      const dt=this.last?Math.min(.05,Math.max(0,(now-this.last)/1000)):0;this.last=now;
+      if(motionLevel()>0)this.step(dt,now);
+      this.draw(motionLevel()>0);
+    }
+    clear(){this.floor.fill(0);this.head.fill(0);this.chunks=[];this.last=0;this.capAt=performance.now();this.cap.style.opacity="0";this.ctx?.clearRect(0,0,this.width,this.height)}
+  }
+  const winterSnow=new WinterSnow(winterSnowCanvas,winterCap);
+  runtime.winterSnow=winterSnow;
+  window.addEventListener("resize",()=>winterSnow.resize());
+  if(typeof ResizeObserver!=="undefined")new ResizeObserver(()=>{winterSnow.geometryDirty=true}).observe(vibeFace);
+  document.addEventListener("pointermove",event=>{
+    const previous=winterSnow.brush;winterSnow.brush={x:event.clientX,y:event.clientY};
+    if(event.target?.closest?.("input,select,button,textarea,[role=slider]"))return;
+    winterSnow.push(event.clientX,event.clientY,previous?event.clientX-previous.x:0);
+  },{passive:true});
+  $("clearSnow").addEventListener("click",()=>winterSnow.clear());
+  $("previewWinter").addEventListener("click",()=>{clearHalloween();beginWinter(winterKinds[Math.floor(Math.random()*winterKinds.length)])});
+  document.addEventListener("visibilitychange",()=>{winterSnow.last=0});
+
+  $("seasonSetting").addEventListener("change",()=>{facePreferences.season=$("seasonSetting").value;facePreferences.halloween=facePreferences.season==="halloween";applyPartyPreferences()});
   const halloweenKinds=["ghost","bat","pumpkin","vampire","magic","skeleton","coverGhost","spider","shadow","flyingPumpkin"];
   function sceneGap(){const ranges={few:[75000,90000],normal:[45000,75000],many:[30000,45000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return a+Math.random()*(b-a)}
   function persistPartyPreferences(){
     try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
   }
   function applyPartyPreferences(){
+    if(facePreferences.halloween)facePreferences.season="halloween";else if(facePreferences.season==="halloween")facePreferences.season="off";
+    app.dataset.season=activeSeason();$("seasonSetting").value=activeSeason();
+    winterSnow.configure();
     app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party);
     app.dataset.ambient=String(facePreferences.ambient);app.dataset.dance=facePreferences.dance;
     for(const [key,field]of Object.entries(partyFields)){
@@ -3128,7 +3332,7 @@ THE SOFTWARE.
     beatOffset.value=facePreferences.beatOffset;lyricsOffset.value=facePreferences.lyricsOffset;
     tempoFactor.value=String(facePreferences.tempoFactor);manualBpm.value=facePreferences.manualBpm || "";
     beatEngine.factor=facePreferences.tempoFactor;beatEngine.offset=facePreferences.beatOffset;
-    if(!facePreferences.halloween)clearHalloween();
+    if(effects.active&&effects.active.kind!==activeSeason())clearHalloween();
     effects.nextAt=performance.now()+sceneGap();showPartyControls();persistPartyPreferences();renderBeatDiagnostic(true);
   }
   function renderBeatDiagnostic(force=false){
@@ -3185,11 +3389,12 @@ THE SOFTWARE.
     const lemmas={geliebt:"liebe",liebte:"liebe",liebten:"liebe",verliebt:"liebe",fröhlich:"happy",freuen:"happy",freust:"happy",erschrocken:"angst",angstvoll:"angst",schläft:"schlaf",schläfst:"schlaf",geträumt:"traum",träumt:"traum",regnete:"regen",dunkelheit:"dunkel",nächte:"nacht",nächten:"nacht",hexerei:"magie",toten:"tod"};
     if(lemmas[normalized])variants.push(lemmas[normalized]);
     if(normalized.length>4){for(const suffix of ["ing","ed","en","er","es","e","n","s"]){if(normalized.endsWith(suffix))variants.push(normalized.slice(0,-suffix.length))}if(/ed$/.test(normalized))variants.push(normalized.slice(0,-1));if(/ing$/.test(normalized))variants.push(normalized.slice(0,-3)+"e")}
-    return vibeThemes.find(theme=>(theme.key!=="halloween"||facePreferences.halloween)&&variants.some(value=>theme.words.test(value)));
+    return vibeThemes.find(theme=>(theme.key!=="halloween"||facePreferences.halloween)&&(theme.key!=="christmas"||activeSeason()==="winter")&&variants.some(value=>theme.words.test(value)));
   }
   function queueEffect(event){
     const now=performance.now();
     if(event.kind==="halloween"&&!facePreferences.halloween)return false;
+    if(event.kind==="winter"&&activeSeason()!=="winter")return false;
     const key=event.key||`${event.kind}:${event.name}`;
     if(effects.queue.some(item=>item.key===key)||now-(effects.last.get(key)??-Infinity)<(event.cooldown??14000))return false;
     effects.queue.push({...event,key,priority:event.priority??1,expires:now+(event.ttl??1400),created:now});
@@ -3199,6 +3404,7 @@ THE SOFTWARE.
     effects.active=null;effects.queue=effects.queue.filter(event=>event.kind!=="halloween");
     halloweenLayer.innerHTML="";delete vibeFace.dataset.halloweenScene;delete vibeFace.dataset.halloweenStage;
     coverGhost.classList.remove("visible");delete app.dataset.halloweenScene;
+    winterLayer.innerHTML="";delete vibeFace.dataset.winterScene;
   }
   const ghostSvg='<svg viewBox="0 0 100 110" aria-hidden="true"><path d="M18 96V43a32 32 0 0 1 64 0v53l-16-9-16 10-16-10Z" fill="#edf3ffd9" stroke="#fff" stroke-width="2"/><ellipse cx="39" cy="44" rx="5" ry="7" fill="#473955"/><ellipse cx="62" cy="44" rx="5" ry="7" fill="#473955"/><path d="M44 66q7 6 13-1" fill="none" stroke="#665576" stroke-width="3" stroke-linecap="round"/></svg>';
   const batSvg='<svg viewBox="0 0 160 90" aria-hidden="true"><path d="M77 34 65 19 65 40Q26 2 4 9q8 31 20 40 17-10 24 12 17-7 26 13h12q9-20 26-13 7-22 24-12 12-9 20-40-22-7-61 31V19L83 34Z" fill="#8b74aa" stroke="#d6c4eb" stroke-width="2"/><circle cx="75" cy="47" r="3" fill="#fff2c7"/><circle cx="86" cy="47" r="3" fill="#fff2c7"/></svg>';
@@ -3207,7 +3413,7 @@ THE SOFTWARE.
     if(!facePreferences.halloween||effects.active||now<vibeEggUntil)return false;
     const duration={ghost:6200,bat:5600,pumpkin:8200,vampire:6200,magic:8200,skeleton:7200,coverGhost:7000,spider:6500,shadow:4200,flyingPumpkin:5200}[name];
     if(!duration)return false;
-    effects.active={name,start:now,end:now+duration,stage:-1};effects.lastKind=name;
+    effects.active={kind:"halloween",name,start:now,end:now+duration,stage:-1};effects.lastKind=name;
     vibeFace.dataset.halloweenScene=name;app.dataset.halloweenScene=name;
     const visual=name==="ghost"?`<div class="halloween-ghost">${ghostSvg}</div>`:name==="bat"||name==="shadow"?`<div class="halloween-bat">${batSvg}</div>`:hats[name]?`<div class="halloween-hat">${hats[name]}</div>${name==="magic"?'<span class="magic-mishap">🐸</span>':""}`:name==="vampire"?'<svg class="halloween-fangs" viewBox="0 0 100 100"><path d="m34 61 4 10 5-10m14 0 5 10 4-10" fill="#fffbef"/></svg>':name==="skeleton"?'<span class="halloween-skeleton">💀<span>╋</span><span>╱╲</span></span>':name==="spider"?'<span class="halloween-spider"><i></i>🕷️</span>':name==="flyingPumpkin"?'<span class="flying-pumpkin">🎃</span>':"";
     halloweenLayer.style.setProperty("--spook-progress","0");
@@ -3219,10 +3425,11 @@ THE SOFTWARE.
   function tickEffects(now){
     effects.queue=effects.queue.filter(event=>event.expires>now);
     if(now<vibeEggUntil){if(effects.active)clearHalloween();return}
-    if(facePreferences.halloween&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
-      const choices=halloweenKinds.filter(name=>name!==effects.lastKind);
-      queueEffect({kind:"halloween",name:choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
+    if(activeSeason()!=="off"&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
+      const kind=activeSeason(),choices=(kind==="winter"?winterKinds:halloweenKinds).filter(name=>name!==effects.lastKind);
+      queueEffect({kind,name:choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
     }
+    if(effects.active?.kind==="winter"){tickWinterScene(now);return}
     if(effects.active){
       const scene=effects.active,age=now-scene.start;
       if(now>=scene.end){clearHalloween();return}
@@ -3239,7 +3446,9 @@ THE SOFTWARE.
     }
     if(now<vibeTapReactionUntil)return;
     const event=effects.queue.shift();if(!event)return;
-    if(event.kind==="halloween"){
+    if(event.kind==="winter"){
+      if(beginWinter(event.name,now))effects.last.set(event.key,now);
+    }else if(event.kind==="halloween"){
       if(beginHalloween(event.name,now))effects.last.set(event.key,now);
     }else if(event.kind==="theme"){
       if(faceScene.classList.contains("visible")){effects.queue.unshift(event);return}
@@ -3252,6 +3461,10 @@ THE SOFTWARE.
     const ambiguous=/^(night|nacht|dark|dunkel|dead|tod|moon|mond|bat|grab)$/i.test(word);
     if(ambiguous && token.timing!=="word")return;
     if(ambiguous){queueEffect({kind:"emotion",name:/night|nacht|dead|tod/.test(word)?"dreamy":"curious",key:"ambiguous-word",priority:1,ttl:900,cooldown:18000});return}
+    if(activeSeason()==="winter"&&["snow","christmas"].includes(theme.key)){
+      const choices=/ice|eis|frozen|cold|kalt|gefroren/.test(word)?["freeze","scarf"]:/santa|weihnacht|christmas|sleigh|schlitten/.test(word)?["sleigh","hat"]:["snowman","hat"];
+      if(performance.now()>=effects.nextAt)queueEffect({kind:"winter",name:choices[Math.floor(Math.random()*choices.length)],priority:3,ttl:1000});
+    }
     if(theme.key==="halloween"){
       const choices=/ghost|geist|monster|fear|angst|scream|schrei/.test(word)?["ghost","coverGhost"]:/witch|hexe|magic|magie/.test(word)?["magic","spider"]:/vamp/.test(word)?["vampire"]:/skel/.test(word)?["skeleton"]:/pump|kürb/.test(word)?["pumpkin","flyingPumpkin"]:/spider|spinn/.test(word)?["spider"]:["bat","shadow"];
       if(performance.now()>=effects.nextAt)queueEffect({kind:"halloween",name:choices[Math.floor(Math.random()*choices.length)],priority:3,ttl:900});
@@ -3265,6 +3478,7 @@ THE SOFTWARE.
     partyPresentation.from=partyPresentation.value;partyPresentation.target=target;partyPresentation.start=performance.now();
     const panel=document.querySelector(".face-panel");
     const before=panel?.getBoundingClientRect(),beforeFace=panel?vibeFace.getBoundingClientRect():null;
+    if(typeof winterSnow!=="undefined")winterSnow.geometryDirty=true;
     partyPresentation.animation?.cancel();
     app.style.setProperty("--party-expansion",String(target));
     if(panel&&before&&motionLevel()>0&&panel.animate){
