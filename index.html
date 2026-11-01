@@ -976,7 +976,7 @@
     .winter-ice{inset:-5%;width:110%;height:110%;opacity:.8}
     .winter-snowman{left:72%;top:58%;width:33%;height:49%;transform:translateY(calc((1 - var(--winter-rise,1)) * 20%)) rotate(var(--winter-sway,0deg))}
     .winter-breath{left:65%;top:53%;width:38%;height:20%;opacity:var(--winter-breath,.4);transform:translateX(calc(var(--winter-progress,0) * 18%))}
-    .winter-snowcap{position:absolute;left:12%;top:-9%;width:76%;height:24%;overflow:visible;z-index:7;pointer-events:none;opacity:0}
+    .winter-snowcap{position:absolute;left:12%;top:3%;width:76%;height:20%;overflow:visible;z-index:7;pointer-events:none;opacity:0}
     .vibe-face[data-motion="reduced"] .winter-sleigh{transform:translateX(90%) rotate(-5deg)}
     .vibe-face[data-motion="reduced"] .winter-snowman{transform:none}
     .winter-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
@@ -3226,7 +3226,7 @@ THE SOFTWARE.
     totalMass(){return this.floor.reduce((a,b)=>a+b,0)+this.head.reduce((a,b)=>a+b,0)+this.chunks.reduce((a,b)=>a+b.mass,0)}
     headGeometry(){
       const face=this.face;if(!face)return null;
-      return {left:face.left+vibeMotion.x+face.width*.15,top:face.top+vibeMotion.y+face.height*.015,width:face.width*.7};
+      return {left:face.left+vibeMotion.x+face.width*.15,top:face.top+vibeMotion.y+face.height*.15,width:face.width*.7};
     }
     headTop(x){const head=this.headGeometry();if(!head||x<head.left||x>head.left+head.width)return null;const p=(x-head.left)/head.width;return {index:clamp(Math.floor(p*this.head.length),0,this.head.length-1),y:head.top+Math.pow(Math.abs(p-.5)*2,2)*head.width*.12}}
     releaseHead(){
@@ -3257,7 +3257,9 @@ THE SOFTWARE.
       const head=this.headGeometry(),cell=(head?.width||150)/this.head.length;
       const heights=Array.from(this.head,mass=>Math.min(12,mass/cell));
       const visible=heights.some(h=>h>.05);this.cap.style.opacity=visible?"1":"0";
-      let d="M 0 27";for(let i=0;i<heights.length;i++)d+=" L "+((i+.5)/heights.length*100).toFixed(2)+" "+(18-heights[i]*1.4+Math.pow(Math.abs((i+.5)/heights.length-.5)*2,2)*7).toFixed(2);
+      const points=heights.map((height,i)=>({x:(i+.5)/heights.length*100,y:18-height*1.4+Math.pow(Math.abs((i+.5)/heights.length-.5)*2,2)*7}));
+      let d="M 0 27 L 0 "+points[0].y.toFixed(2);
+      for(let i=0;i<points.length;i++){const point=points[i],next=points[i+1]||{x:100,y:point.y};d+=" Q "+point.x.toFixed(2)+" "+point.y.toFixed(2)+" "+((point.x+next.x)/2).toFixed(2)+" "+((point.y+next.y)/2).toFixed(2)}
       d+=" L 100 27 Q 50 18 0 27Z";$("winterCapPath").setAttribute("d",d);
     }
     step(dt,now){

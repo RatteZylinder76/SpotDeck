@@ -42,7 +42,7 @@ const {harness,html}=require('./spotdeck.test.cjs');
   assert(Math.abs(h.run('winterSnow.totalMass()')-pushedMass)<1e-6,'Pointer displacement conserves mass');
   h.run('winterSnow.resize(390,844)');assert(Math.abs(h.run('winterSnow.totalMass()')-pushedMass)<1e-6,'Resize keeps the stored piles');
   assert(beforePush>0);
-  h.run('winterSnow.clear();winterSnow.resize(800,600);winterSnow.face={left:200,top:100,width:200,height:200};winterSnow.geometryDirty=false;winterSnow.flakes=[{x:300,y:101,r:2,v:50,phase:0}]');
+  h.run('winterSnow.clear();winterSnow.resize(800,600);winterSnow.face={left:200,top:100,width:200,height:200};winterSnow.geometryDirty=false;winterSnow.flakes=[{x:300,y:128,r:2,v:50,phase:0}]');
   h.run('winterSnow.step(.05,1000)');
   assert(h.run('winterSnow.head.reduce((a,b)=>a+b,0)')>0,'Falling flakes accumulate on the head');
   h.run('winterSnow.flakes=[];winterSnow.head.fill(100);facePreferences.surprises=true;winterSnow.capAt=-60000;effects.active=null;winterSnow.step(.02,performance.now())');
