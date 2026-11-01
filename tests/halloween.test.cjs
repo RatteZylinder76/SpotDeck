@@ -113,7 +113,7 @@ function setupOwned(h){
   assert(!spotify.requests.some(r=>r.url.includes('/audio-features')),'No deprecated Spotify audio analysis requests');
   console.log('PASS no protected stream analysis, failed Spotify pause blocks test audio, and no false fixed-BPM detection.');
 
-  const party=harness({preferences:{party:true,halloween:true,surprises:false}});
+  const party=harness({preferences:{party:true,halloween:true,season:"halloween",surprises:false}});
   party.step(8500);assert.equal(party.nodes.get('app').dataset.controlsHidden,'true');
   party.event(party.document,'pointermove');assert.equal(party.nodes.get('app').dataset.controlsHidden,'false');
   party.step(8500);party.event(party.document,'keydown',{key:'Enter'});assert.equal(party.nodes.get('app').dataset.controlsHidden,'false');
@@ -141,7 +141,7 @@ function setupOwned(h){
   console.log('PASS preference validation, frequency bounds, ambiguous-word restraint, word variants, repeated-line detection, auto-tempo reset and stale import cancellation.');
   // Measure actual DOM updates against the common frame clock on a 60 Hz display.
   for(const [profile,motion,min,max]of [['auto','normal',55,61],['quality','normal',55,61],['tv','normal',28,31],['quality','reduced',14,16]]){
-    const smooth=harness({preferences:{performance:profile,motion,halloween:true,surprises:false,tempoLookup:false}});
+    const smooth=harness({preferences:{performance:profile,motion,halloween:true,season:"halloween",surprises:false,tempoLookup:false}});
     smooth.run('playback={is_playing:true,progress_ms:0,item:{id:"smooth",duration_ms:30000}};syncedLyrics=[{time:0,text:"Synthetic vowel movement"},{time:5000,text:"next"}];setDebug(true);beginHalloween("bat")');
     let mouthWrites=0,effectWrites=0,maxMouthGap=0,maxEffectGap=0,lastMouthAt=0,lastEffectAt=0;
     const mouth=smooth.nodes.get('faceMouthPath'),setAttribute=mouth.setAttribute;
@@ -162,7 +162,7 @@ function setupOwned(h){
     smooth.document.visibilityState='hidden';smooth.event(smooth.document,'visibilitychange');assert.equal(smooth.frames.size,0);
   }
   console.log('PASS 60 Hz auto/quality, 30 Hz TV and reduced-motion cadence; mouth, vocal cues and Halloween share every body frame, with hidden-tab cleanup.');
-  const optimized=harness({preferences:{party:true,halloween:true,performance:'tv',motion:'normal'}});
+  const optimized=harness({preferences:{party:true,halloween:true,season:"halloween",performance:'tv',motion:'normal'}});
   let gridWrites=0;
   const appStyle=optimized.nodes.get('app').style;
   const write=appStyle.setProperty;

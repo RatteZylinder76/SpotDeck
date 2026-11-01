@@ -3,12 +3,13 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 new Function(script);
-function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,preferences,storage}={}){
+function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,preferences,storage,width=1024,height=768,dpr=1}={}){
   let now=0,nextId=0;
   const timers=new Map(),frames=new Map(),nodes=new Map(),store=new Map(),requests=[],players=[];
   function node(id=''){
     const classes=new Set(),handlers={},captureHandlers={};
-    return {id,value:'',textContent:'',innerHTML:'',hidden:false,disabled:false,checked:false,dataset:{},children:[],handlers,captureHandlers,
+    const paint={calls:0,setTransform(){},clearRect(){this.calls++},beginPath(){},moveTo(){},arc(){},fill(){this.calls++},lineTo(){},closePath(){}};
+    return {getContext:()=>paint,id,value:'',textContent:'',innerHTML:'',hidden:false,disabled:false,checked:false,dataset:{},children:[],handlers,captureHandlers,
       style:{setProperty(k,v){this[k]=v}},classList:{add(...v){v.forEach(x=>classes.add(x))},remove(...v){v.forEach(x=>classes.delete(x))},contains:x=>classes.has(x),toggle(x,on){if(on===undefined)on=!classes.has(x);on?classes.add(x):classes.delete(x)}},
       addEventListener(name,fn,options){const registry=options===true||options?.capture?captureHandlers:handlers;(registry[name] ||= []).push(fn)},
       setAttribute(k,v){this[k]=v},getAttribute(k){return this[k]},focus(){document.activeElement=this},
@@ -36,7 +37,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
     async setVolume(value){this.calls.push(['volume',value])}
     async getCurrentState(){this.calls.push('state');return this.state||null}
   }
-  const window=node('window');Object.assign(window,{isSecureContext:true,PointerEvent:pointer?function(){}:undefined,Spotify:{Player:MockPlayer}});
+  const window=node('window');Object.assign(window,{innerWidth:width,innerHeight:height,devicePixelRatio:dpr,isSecureContext:true,PointerEvent:pointer?function(){}:undefined,Spotify:{Player:MockPlayer}});
   const context=vm.createContext({window,document,localStorage,sessionStorage:localStorage,location:{origin:'http://127.0.0.1:8765',pathname:'/index.html',search:'',href:''},history:{replaceState(){}},
     navigator:drm?{requestMediaKeySystemAccess(){}}:{},
     matchMedia:()=>({matches:reduced,addEventListener(){},addListener(){}}),performance:{now:()=>now},console,URL,URLSearchParams,AbortController,Image:class{},Uint8Array,Date,Math,
