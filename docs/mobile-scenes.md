@@ -1,0 +1,13 @@
+# Responsive animation staging
+
+Animations share cached scene bounds derived from CSS safe-area insets and the visual viewport. Snow, hanging decorations and canvas stories stay inside these bounds; the ground sits above the phone home indicator or visible playback dock. Resize, rotation, fullscreen, visual-viewport resize/scroll, and observed layout changes invalidate geometry. Measurements run when invalidated in the existing animation loop, rather than per particle or per frame in steady operation.
+
+Placement protects both album cover and track information. A bounded region partition chooses the nearest available area and scales stationary actors when necessary. Flight corridors use free vertical bands and shrink actors in short landscape views. Canvas clipping is a final boundary guard; sizing/placement do the actual fit. Entrance and exit trajectories intentionally cross the stage edge.
+
+Candles have a lower density on short displays. Baubles and their interaction positions share clamped horizontal coordinates. Strings, frost, forests and villages use the safe screen edges. The previous candle-versus-lights/baubles rotation remains in force. Story sizes also depend on available height. Sleigh and broom flights use viewport-relative routes, the elf's hat/ladder use a safe ceiling, and the reindeer is placed clear of cover/text. The snow globe radius accounts for the ground and nearest screen edges. Wizard accessory sparkles are bounded independently of the original face.
+
+Face-adjacent seasonal decorations and small reaction/confetti layers receive their own fit offsets/scales on geometry changes or scene activation. The base face, eyes, smile, mouth path and lyric timing are unchanged. Round wizard glasses and fangs retain alignment to the original face. Themed sun travel is bounded by face size. Halloween hats are rechecked on their stage transitions.
+
+Validation: `node tests/mobile-scenes.test.cjs` exercises all 25 major winter/magic scenes and seven ambient features at 320×568, 375×667, 390×844, 430×932, 667×375, 844×390, 932×430 and 1920×1080. It checks safe areas, cover/text exclusion, fitted flight corridors, visible/hidden dock modes, visual viewport changes, snow mass preservation, accessory fitting and the existing single RAF. The other eight integration suites pass too. The festive dock test now expects an 8-pixel safe lower margin instead of the old 6-pixel edge.
+
+Browser previews use actual deployed controls at portrait and landscape viewport sizes without a Spotify login. Browser emulation does not verify physical Safari safe-area values or every device's refresh rate; safe-area calculations are additionally exercised with simulated phone insets.
