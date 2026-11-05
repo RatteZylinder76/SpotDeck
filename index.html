@@ -1228,7 +1228,7 @@
         <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
         <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
-        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
+        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schwebende Kerzen wechseln sich mit Lichterkette und Weihnachtskugeln ab. Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
           <button class="setting-action glass glass-clear" id="previewShovel">Schneehaufen &amp; Kind zeigen</button></div></div>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
@@ -3614,7 +3614,24 @@ THE SOFTWARE.
     skyY(y,r=40){const c=this.cover;if(!c||y+r<c.top||y-r>c.bottom)return y;const below=c.bottom+r+12,above=c.top-r-12;if(below<this.height-r)return below;if(above>r+30)return above;return below}
     groundX(x,r=35){const c=this.cover,y=this.groundY();if(!c||x+r<c.left||x-r>c.right||y-r>c.bottom||y<c.top)return x;return c.right+r*2+24<this.width?c.right+r+12:Math.max(r+12,c.left-r-12)}
     groundY(){return typeof app!=="undefined"&&app.dataset.controlsHidden!=="true"&&this.dockTop?this.dockTop:this.height-6}
-    ambientOn(id,now){return this.enabled&&((facePreferences.ambient&&festiveEnabled(id))||(this.previewFeature===id&&now<this.previewUntil))}
+    hangingGroup(now){
+      // The repair scene draws its own light string, so candles must yield there too.
+      if(this.story?.name==="elf")return "christmas";
+      if(now<this.previewUntil){
+        if(this.previewFeature==="candles")return "candles";
+        if(["lights","baubles"].includes(this.previewFeature))return "christmas";
+      }
+      const candles=facePreferences.ambient&&festiveEnabled("candles");
+      const christmas=facePreferences.ambient&&(festiveEnabled("lights")||festiveEnabled("baubles"));
+      if(!candles)return "christmas";if(!christmas)return "candles";
+      // Reuse the shared animation clock. Reduced motion keeps one stable arrangement.
+      return motionLevel()>0&&Math.floor(now/45000)%2===1?"candles":"christmas";
+    }
+    ambientOn(id,now){
+      const on=this.enabled&&((facePreferences.ambient&&festiveEnabled(id))||(this.previewFeature===id&&now<this.previewUntil));
+      if(!on||!["candles","lights","baubles"].includes(id))return on;
+      return this.hangingGroup(now)===(id==="candles"?"candles":"christmas");
+    }
     choose(){
       const eligible=winterKinds.filter(id=>!festiveById.has(id)||festiveEnabled(id));
       this.bag=this.bag.filter(id=>eligible.includes(id));

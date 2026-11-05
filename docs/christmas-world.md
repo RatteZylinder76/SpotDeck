@@ -1,5 +1,7 @@
 # Twenty Christmas additions
 
+Hanging decorations alternate in 45-second slots: floating candles are exclusive with the light string and baubles. Explicit previews select their group immediately, and the elf light-repair scene suppresses candles too. Individual switches and ambient-off remain respected; if only one group is enabled it remains visible. Reduced motion keeps a stable arrangement. `node tests/decor-rotation.test.cjs` verifies the combinations without adding another timer or animation loop.
+
 All additions retain the existing white face. The previous six winter scenes, accumulating snow, lyric-driven singing and playback remain available. No audio, lyrics provider, Spotify scope or external dependency was added.
 
 | Idea | Identifier | Behavior |
