@@ -44,7 +44,7 @@
       position:fixed;inset:0;
       min-width:100vw;min-height:100dvh;
       background:var(--bg);
-      overflow:hidden;
+      overflow:hidden;overflow:clip;
       isolation:isolate;
     }
     .bg{
@@ -2684,13 +2684,15 @@ THE SOFTWARE.
   function openSettingsPanel(){
     settingsReturnFocus=document.activeElement;
     settings.classList.add("open");
-    closeSettings.focus?.();
+    app.scrollTop=0;app.scrollLeft=0;sceneViewport.dirty=true;
+    closeSettings.focus?.({preventScroll:true});
     void refreshSpotifyDevices();
   }
   function closeSettingsPanel(){
     if(!settings.classList.contains("open")) return;
     settings.classList.remove("open");
-    (settingsReturnFocus || settingsBtn).focus?.();
+    (settingsReturnFocus || settingsBtn).focus?.({preventScroll:true});
+    app.scrollTop=0;app.scrollLeft=0;sceneViewport.dirty=true;
   }
   settingsBtn.addEventListener("click",openSettingsPanel);
   closeSettings.addEventListener("click",closeSettingsPanel);
