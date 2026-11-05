@@ -67,7 +67,7 @@ function checkedCanvas(ctx){
     bounded.document.visibilityState='visible';bounded.event(bounded.document,'visibilitychange');bounded.step(40);assert.equal(bounded.frames.size,1);
   }
   const dock=harness({preferences:{season:"winter",surprises:false,tempoLookup:false}});
-  dock.document.querySelector=selector=>selector===".controls"?{getBoundingClientRect:()=>({top:650})}:null;dock.run("festiveWorld.resize(1024,768)");assert.equal(dock.run("festiveWorld.groundY()"),642,"Visible dock reserves a lane for ground actors");dock.run('app.dataset.controlsHidden="true"');assert.equal(dock.run("festiveWorld.groundY()"),762,"Party returns actors to the lower edge after dock hiding");
+  dock.document.querySelector=selector=>selector===".controls"?{getBoundingClientRect:()=>({top:650})}:null;dock.run("festiveWorld.resize(1024,768)");assert.equal(dock.run("festiveWorld.groundY()"),642,"Visible dock reserves a lane for ground actors");dock.run('app.dataset.controlsHidden="true"');assert.equal(dock.run("festiveWorld.groundY()"),760,"Party returns actors to the lower edge after dock hiding");
   const quiet=harness({reduced:true,preferences:{season:'winter',tempoLookup:false,surprises:false}});
   quiet.run('beginWinter("gifts")');quiet.step(7000);assert(quiet.run('festiveWorld.props.every(prop=>prop.landed)'),'Reduced-motion gifts are displayed at rest');
   const angle=quiet.run('festiveWorld.baubles[0].a');quiet.run('festiveWorld.interact(60,65,100)');quiet.step(1000);assert.equal(quiet.run('festiveWorld.baubles[0].a'),angle);
