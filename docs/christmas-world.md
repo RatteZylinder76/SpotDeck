@@ -27,15 +27,15 @@ All additions retain the existing white face. The previous six winter scenes, ac
 
 ## Controls and scheduling
 
-Settings → Party & Jahreszeiten contains a direct preview selector and twenty-five individual switches inside the collapsed customization section. A preview can inspect a disabled feature without changing its automatic-play preference. Switching a feature off cancels its current scene and removes owned leftover scenery. The ambient master controls the seven background effects; automatic surprises controls the large-scene scheduler. Manual previews remain possible with these masters off. Decorations can be cleared explicitly.
+Settings → Party & Jahreszeiten contains a direct preview selector and twenty-six individual switches inside the collapsed customization section. A preview can inspect a disabled feature without changing its automatic-play preference. Switching a feature off cancels its current scene and removes owned leftover scenery. The ambient master controls the seven background effects; automatic surprises controls the large-scene scheduler. Manual previews remain possible with these masters off. Decorations can be cleared explicitly.
 
-The six background additions run independently of the one-large-scene slot. The eighteen new stories share that slot with the six existing winter scenes. A shuffled bag schedules all twenty-four eligible major scenes before repeating. Automatic head shakes do not restart the long scene gap, preventing them from indefinitely postponing the other stories. Lyrics and explicit face taps retain their existing behavior and gaze priority.
+The six background additions run independently of the one-large-scene slot. The nineteen new stories share that slot with the six existing winter scenes. A shuffled bag schedules all twenty-five eligible major scenes before repeating. Automatic head shakes do not restart the long scene gap, preventing them from indefinitely postponing the other stories. Lyrics and explicit face taps retain their existing behavior and gaze priority.
 
 ## Rendering and bounds
 
 Two pointer-transparent canvas layers use the existing application RAF: a background and a story/scenery layer. Their backing budgets are at most approximately 1.2 million pixels each in quality and 650,000 each in TV mode. Background repainting is throttled to about 30/s in quality or 10/s in TV mode. There is no per-object timer or additional application animation loop. Decorations sit behind the existing player shell and retain its input handling.
 
-Temporary scenery is capped at eight objects, wipes at sixteen, hanging pendulums at four and the scheduling bag at twenty-four entries. Scenery expires after 100 seconds; frost regrows after wiping. Gift and train interactions reuse the existing snow-displacement model, preserving deposited mass. Geometry is refreshed on resize, not read from layout every frame. Hidden tabs stop rendering and reset frame interpolation before resuming. Reduced motion uses still compositions, gifts at rest and non-swinging baubles.
+Temporary scenery is capped at eight objects, wipes at sixteen, hanging pendulums at four and the scheduling bag at twenty-five entries. Scenery expires after 100 seconds; frost regrows after wiping. Gift and train interactions reuse the existing snow-displacement model, preserving deposited mass. Geometry is refreshed on resize, not read from layout every frame. Hidden tabs stop rendering and reset frame interpolation before resuming. Reduced motion uses still compositions, gifts at rest and non-swinging baubles.
 
 ## Validation
 
@@ -45,9 +45,9 @@ These checks exercise the model and drawing calls. They do not certify hour-long
 
 The live browser check led to two placement refinements: the elf repairs a lamp near the free right edge, and ground actors use a snow-profile ledge above the visible dock. When Party hides the dock, they use the lower screen edge instead. The ledge mirrors the existing snow profile without adding or deleting snow mass. This keeps the figures visible rather than hiding behind album art or player controls.
 
-## Five additional wizard-school animations
+## Six additional wizard-school animations
 
-The original face and all twenty Christmas features remain. Five separately switchable additions extend the catalog to 25 features (seven ambient layers, eighteen new stories plus the six original winter scenes in the rotation). The settings section is now named 25 Winter- und Zauberideen anpassen.
+The original face and all twenty Christmas features remain. Six separately switchable additions extend the catalog to 26 features (seven ambient layers, eighteen new stories plus the six original winter scenes in the rotation). The settings section is now named 26 Winter- und Zauberideen anpassen.
 
 | Identifier | Animation | Behavior |
 | --- | --- | --- |
@@ -58,3 +58,7 @@ The original face and all twenty Christmas features remain. Five separately swit
 | candles | Schwebende Kerzen | Four candles in TV mode or eight in quality float at the upper edge with slow, non-strobing flames; reduced motion uses a still composition. |
 
 The additions use the same canvas layers, single application clock, preview controls, persisted switches and existing resource bounds. No additional service, audio or external artwork is loaded. Run `node tests/magic.test.cjs` alongside the previous five suites. The dedicated checks cover levitation, interruption and settling, broom gaze, reduced motion, candle drawing, saved switches, manual preview and season cleanup.
+
+A sixth magic scene adds round spectacles and a small golden lightning scar above the right eye as a temporary face-relative accessory. Base eyes, mouth, colors and face geometry are retained.
+
+Album-cover bounds are measured on resize and Party layout changes. Wand/star/broom sky lanes, book/chimney/constellation/gift placements and hanging decorations use cover-aware staging; ground scenery can move sideways where necessary. The magic regression suite checks portrait/landscape cover clearance and accessory cleanup. This avoids placing recognizable actors behind the cover without moving or replacing the album itself.
