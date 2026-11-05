@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const {harness}=require('./spotdeck.test.cjs');
 (async()=>{
   const h=harness({preferences:{season:'winter',tempoLookup:false,surprises:false}});
-  assert.deepEqual(Array.from(h.run('festiveFeatures.filter(f=>f.group==="magic").map(f=>f.id)')),['wand','levitate','spellbook','broom','candles']);
+  assert.deepEqual(Array.from(h.run('festiveFeatures.filter(f=>f.group==="magic").map(f=>f.id)')),['wand','levitate','spellbook','broom','candles','wizardlook']);
   h.run('beginWinter("levitate")');h.step(4000);
   assert.equal(h.run('festiveWorld.props.length'),3);
   assert(h.run('festiveWorld.props.every(p=>p.enchanted&&!p.landed&&p.y<festiveWorld.floorAt(p.x*festiveWorld.width)-35)'),'The spell lifts the parcels above the floor');
@@ -13,8 +13,14 @@ const {harness}=require('./spotdeck.test.cjs');
   assert(h.run('festiveWorld.props.every(p=>!p.enchanted&&!p.landed)'),'Interrupting a spell releases its hovering props');h.step(6000);assert(h.run('festiveWorld.props.every(p=>p.landed)'));
   h.run('festiveWorld.clearResidue();beginWinter("broom")');h.step(2000);const gaze=h.nodes.get('vibeFace').style['--gaze-x'];h.step(3500);assert.notEqual(h.nodes.get('vibeFace').style['--gaze-x'],gaze,'The original eyes follow the broom');
   assert.equal(h.frames.size,1);assert(h.timers.size<12);
-  console.log('PASS five wizard features, actual levitation/orbit, normal and interrupted gravity release, broom gaze and single RAF.');
+  console.log('PASS six wizard features, actual levitation/orbit, normal and interrupted gravity release, broom gaze and single RAF.');
 
+  h.run('clearHalloween();beginWinter("wizardlook")');assert(h.nodes.get('winterLayer').innerHTML.includes('cx="30" cy="41" r="15"'));assert(h.nodes.get('winterLayer').innerHTML.includes('m68 18-5 8h6l-5 8'),'The accessory includes a small lightning scar above the right eye');h.step(13000);assert.equal(h.nodes.get('winterLayer').innerHTML,'','Glasses and scar are removed with the scene');
+  h.run('festiveWorld.resize(856,854);festiveWorld.cover={left:100,top:72,right:272,bottom:244}');
+  const safe=h.run('festiveWorld.safePoint(180,180,80)');assert(safe.y-80>244||safe.x-80>272||safe.x+80<100||safe.y+80<72,'Actors are routed outside the album rectangle');
+  assert(h.run('festiveWorld.skyY(180,65)-65>festiveWorld.cover.bottom'),'Full-width flights use a lane below the cover');
+  h.run('festiveWorld.cover={left:25,top:110,right:295,bottom:380};festiveWorld.resize(1024,600);festiveWorld.cover={left:25,top:110,right:295,bottom:380}');assert(h.run('festiveWorld.skyY(180,55)-55>festiveWorld.cover.bottom'),'Landscape flight lane also clears the album');
+  console.log('PASS round-glasses/scar accessory cleanup and album-cover-safe staging in portrait and landscape.');
   const quiet=harness({reduced:true,preferences:{season:'winter',tempoLookup:false,surprises:false}});
   quiet.run('beginWinter("levitate")');quiet.step(4000);
   assert.equal(quiet.run('festiveWorld.props.length'),3);assert(quiet.run('festiveWorld.props.every(p=>p.landed&&!p.enchanted)'),'Reduced motion keeps magic gifts at rest');

@@ -972,6 +972,7 @@
     .app[data-season="winter"] .tint{background:radial-gradient(ellipse at 15% 12%,#acdfe121,transparent 50%),radial-gradient(ellipse at 85% 80%,#4d7f9630,transparent 55%),linear-gradient(125deg,#09212699,#08131da8)}
     .app[data-season="winter"][data-transparency="reduced"]{--glass:#183640fa;--glass-clear:#27464ffa;--glass2:#102831fb}
     .winter-layer{position:absolute;inset:0;pointer-events:none;z-index:6}
+    .winter-wizard-look{inset:0}
     .winter-layer svg{width:100%;height:100%;overflow:visible}
     .winter-layer > *{position:absolute;will-change:transform}
     .winter-hat{left:12%;top:-16%;width:76%;height:39%;transform:rotate(-8deg)}
@@ -1227,7 +1228,7 @@
         <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
         <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
-        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>25 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button></div></div>
+        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button></div></div>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
         <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
@@ -1451,7 +1452,7 @@ THE SOFTWARE.
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
       if(["winter","halloween","off"].includes(saved.season))defaults.season=saved.season;
       defaults.halloween=defaults.season==="halloween";
-      const festiveKeys=["aurora","lights","star","gifts","reindeer","train","elf","baubles","frost","gingerbread","tree","chimney","forest","village","globe","constellation","angel","candy","bells","unwrap","wand","levitate","spellbook","broom","candles"];
+      const festiveKeys=["aurora","lights","star","gifts","reindeer","train","elf","baubles","frost","gingerbread","tree","chimney","forest","village","globe","constellation","angel","candy","bells","unwrap","wand","levitate","spellbook","broom","candles","wizardlook"];
       if(Array.isArray(saved.festiveDisabled))defaults.festiveDisabled=[...new Set(saved.festiveDisabled.filter(key=>festiveKeys.includes(key)))];
       return defaults;
     }catch{return defaults}
@@ -3162,7 +3163,8 @@ THE SOFTWARE.
     scarf:'<div class="winter-scarf"><svg viewBox="0 0 170 90"><path d="m111 20 20 8-7 57-27-9Z" fill="#b74c5b"/><path d="M12 14q70 28 145-1l2 24Q81 64 11 38Z" fill="#bc5261"/><path d="m35 23 2 24m32-15 2 23m32-24 2 22m29-31 2 22m-25 17 16 6m-18 8 17 6" stroke="#eac883" stroke-width="8"/><path d="m100 76-3 9m11-6-2 9m11-6-1 8" stroke="#b74c5b" stroke-width="3"/></svg></div>',
     freeze:'<svg class="winter-ice" viewBox="0 0 100 100"><path d="M12 8 84 4 96 19 91 88 74 98 8 90 4 23Z" fill="#a6e9f42b" stroke="#b8f5ffb3" stroke-width="2"/><path d="m12 8 13 25-16 20m75-49-16 25 24-10M8 90l21-19 12 20m50-3L73 64l8-24M25 33l10 6m38 25-10 1" fill="none" stroke="#d5f9ff99" stroke-width="1.3"/></svg><div class="winter-breath"><svg viewBox="0 0 100 45"><ellipse cx="45" cy="24" rx="38" ry="16" fill="#e8fbff55"/><ellipse cx="72" cy="17" rx="24" ry="13" fill="#e8fbff33"/></svg></div>',
     snowman:'<div class="winter-snowman"><svg viewBox="0 0 100 140"><circle cx="50" cy="99" r="34" fill="#e5f2ed"/><circle cx="49" cy="57" r="25" fill="#f5fbef"/><path d="m28 39 3-26h34l7 27" fill="#384b58"/><path d="m24 39 52 1" stroke="#384b58" stroke-width="7" stroke-linecap="round"/><circle cx="42" cy="54" r="2.5" fill="#344c54"/><circle cx="58" cy="54" r="2.5" fill="#344c54"/><path d="m49 59 22 6-22 3Z" fill="#de9861"/><path d="M30 75q21 9 41-1l-3 12q-23 7-39-1Z" fill="#bd5261"/><path d="m66 82 5 21-12 2-2-22" fill="#bd5261"/><circle cx="49" cy="97" r="3" fill="#456068"/><circle cx="49" cy="111" r="3" fill="#456068"/><path d="m20 92-18-13m76 12 19-18" stroke="#997d63" stroke-width="3"/></svg></div>',
-    shake:''
+    shake:'',
+    wizardlook:"<svg class=\"winter-wizard-look\" viewBox=\"0 0 100 100\" aria-hidden=\"true\"><g fill=\"#d9eef007\" stroke=\"#e8d5a7\" stroke-width=\"1.7\"><circle cx=\"30\" cy=\"41\" r=\"15\"/><circle cx=\"70\" cy=\"41\" r=\"15\"/><path d=\"M45 39q5-4 10 0M15 38l-7-2M85 38l7-2\" fill=\"none\"/></g><path d=\"m68 18-5 8h6l-5 8\" fill=\"none\" stroke=\"#f2d07a\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"m20 34 5-4m35 4 5-4\" fill=\"none\" stroke=\"#ffffff70\" stroke-width=\"1.2\" stroke-linecap=\"round\"/></svg>"
   };
   function beginWinter(name,now=performance.now(),preview=false){
     if(activeSeason()!=="winter"||effects.active||now<vibeEggUntil||!winterKinds.includes(name)||(!preview&&festiveById.has(name)&&!festiveEnabled(name)))return false;
@@ -3324,7 +3326,7 @@ THE SOFTWARE.
     winterSnow.push(event.clientX,event.clientY,previous?event.clientX-previous.x:0);
   },{passive:true});
   $("clearSnow").addEventListener("click",()=>winterSnow.clear());
-  // Twenty Christmas additions and five magic additions; independent switches.
+  // Twenty Christmas additions and six magic additions; independent switches.
   const festiveFeatures=[
     {id:"aurora",label:"Nordlichter",type:"ambient"},
     {id:"lights",label:"Lebendige Lichterkette",type:"ambient"},
@@ -3350,7 +3352,8 @@ THE SOFTWARE.
     {id:"levitate",label:"Schwebende Geschenke",duration:13000,group:"magic"},
     {id:"spellbook",label:"Fliegendes Zauberbuch",duration:12500,group:"magic"},
     {id:"broom",label:"Magischer Besenflug",duration:10500,group:"magic"},
-    {id:"candles",label:"Schwebende Kerzen",type:"ambient",group:"magic"}
+    {id:"candles",label:"Schwebende Kerzen",type:"ambient",group:"magic"},
+    {id:"wizardlook",label:"Runde Zauberbrille & Blitznarbe",duration:12000,group:"magic"}
   ];
   const festiveById=new Map(festiveFeatures.map(feature=>[feature.id,feature]));
   const festivePalette={snow:"#e9f6f3",gold:"#e8c98b",red:"#bf5d70",green:"#528c76",wood:"#b09176",dark:"#173541",ice:"#b7e3e9",ink:"#223d49"};
@@ -3399,8 +3402,12 @@ THE SOFTWARE.
       const ratio=Math.min(window.devicePixelRatio||1,1.25,Math.sqrt(pixels/(this.width*this.height)));
       for(const [canvas,ctx]of [[this.ambientCanvas,this.bg],[this.storyCanvas,this.ctx]]){canvas.width=Math.round(this.width*ratio);canvas.height=Math.round(this.height*ratio);ctx?.setTransform(ratio,0,0,ratio,0,0)}
       const dock=document.querySelector(".controls")?.getBoundingClientRect();this.dockTop=dock?.top>this.height*.5?dock.top-8:null;
-      this.lastAmbient=-Infinity;
+      this.measureCover();this.lastAmbient=-Infinity;
     }
+    measureCover(){const rect=document.querySelector(".art-wrap")?.getBoundingClientRect();this.cover=rect?.width>0&&rect?.height>0?{left:rect.left,top:rect.top,right:rect.left+rect.width,bottom:rect.top+rect.height}:null}
+    safePoint(x,y,r=30){const c=this.cover;if(!c||x+r<c.left||x-r>c.right||y+r<c.top||y-r>c.bottom)return {x,y};if(c.bottom+r+12<this.groundY()-r*.2)return {x,y:c.bottom+r+12};if(c.right+r*2+24<this.width)return {x:c.right+r+12,y};if(c.top-r-12>r+30)return {x,y:c.top-r-12};return {x:Math.max(r+12,c.left-r-12),y}}
+    skyY(y,r=40){const c=this.cover;if(!c||y+r<c.top||y-r>c.bottom)return y;const below=c.bottom+r+12,above=c.top-r-12;if(below<this.height-r)return below;if(above>r+30)return above;return below}
+    groundX(x,r=35){const c=this.cover,y=this.groundY();if(!c||x+r<c.left||x-r>c.right||y-r>c.bottom||y<c.top)return x;return c.right+r*2+24<this.width?c.right+r+12:Math.max(r+12,c.left-r-12)}
     groundY(){return typeof app!=="undefined"&&app.dataset.controlsHidden!=="true"&&this.dockTop?this.dockTop:this.height-6}
     ambientOn(id,now){return this.enabled&&((facePreferences.ambient&&festiveEnabled(id))||(this.previewFeature===id&&now<this.previewUntil))}
     choose(){
@@ -3425,7 +3432,7 @@ THE SOFTWARE.
     advance(scene,now){
       const p=clamp((now-scene.start)/(scene.end-scene.start),0,1),cue=(id,at,fn)=>{if(p>=at&&!scene.cues.has(id)){scene.cues.add(id);fn()}};
       if(scene.name==="gifts")for(let i=0;i<3;i++)cue('gift'+i,.08+i*.2,()=>this.addProp('gift',i%2?.91:.08+i*.05,-50,now,{size:22+i*4}));
-      if(scene.name==="chimney")cue('present',.62,()=>this.addProp('gift',.17,this.height*.52,now,{size:25}));
+      if(scene.name==="chimney")cue('present',.62,()=>{const point=this.safePoint(this.width*.17,this.height*.58,Math.min(90,this.width*.14)*1.35);this.addProp('gift',point.x/this.width,point.y-25,now,{size:25})});
       if(scene.name==="tree")cue('tree',.86,()=>this.addProp('tree',.1,0,now,{size:Math.min(140,this.width*.21)}));
       if(scene.name==="elf")cue('fixed',.65,()=>{this.brokenLight=-1;this.waveAt=now});
       if(scene.name==="angel")cue('imprint',.6,()=>{this.addProp('angel',.79,0,now,{size:Math.min(90,this.width*.13)});winterSnow.releaseHead()});
@@ -3455,7 +3462,7 @@ THE SOFTWARE.
       if(this.ambientOn('baubles',now))this.baubles.forEach((ball,i)=>{const anchor=this.ballAnchor(i),bx=anchor.x+Math.sin(ball.a)*anchor.length,by=anchor.length*Math.cos(ball.a)+10;if(Math.hypot(x-bx,y-by)<32)ball.v=clamp(ball.v+dx*.035,-3,3)});
       for(const prop of this.props)if(prop.type==='gift'&&prop.landed&&Math.abs(x-prop.x*this.width)<35&&Math.abs(y-prop.y)<40)prop.vx=clamp(dx*10,-100,100);
     }
-    ballAnchor(i){return {x:this.width*([.065,.19,.81,.935][i]),length:54+(i%2)*32}}
+    ballAnchor(i){const x=this.width*([.065,.19,.81,.935][i]),point=this.safePoint(x,64+(i%2)*32,18);return {x:point.x,length:point.y-10}}
     transform(ctx,x,y,scale,fn,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);fn();ctx.restore()}
     drawAmbient(now){
       const ctx=this.bg;if(!ctx)return;const w=this.width,h=this.height,t=motionLevel()?now/1000:0,tv=effectivePerformance()==="tv";
@@ -3476,7 +3483,7 @@ THE SOFTWARE.
       if(this.ambientOn('candles',now)){
         const count=tv?4:8;
         for(let i=0;i<count;i++){
-          const x=(i+.5)/count*w,y=h*(.1+(i*3%5)*.034)+(motionLevel()?Math.sin(t*.8+i*1.7)*5:0),length=23+i%3*7;
+          const candlePosition=this.safePoint((i+.5)/count*w,h*(.1+(i*3%5)*.034),40),x=candlePosition.x,y=candlePosition.y+(motionLevel()?Math.sin(t*.8+i*1.7)*5:0),length=23+i%3*7;
           ctx.fillStyle='#edca7e16';ctx.beginPath();ctx.ellipse(x,y-9,13,19,0,0,Math.PI*2);ctx.fill();
           ctx.fillStyle='#e7dbc2';ctx.fillRect(x-4,y,8,length);ctx.fillStyle='#d6c9ae';ctx.fillRect(x+1,y+2,3,length-2);ctx.fillStyle='#f5e9cf';ctx.beginPath();ctx.ellipse(x,y,4,2,0,0,Math.PI*2);ctx.fill();
           ctx.strokeStyle='#b4a48c';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y-4);ctx.stroke();ctx.fillStyle='#edc179';ctx.beginPath();ctx.moveTo(x,y-17-(motionLevel()?Math.sin(t*1.5+i)*1.2:0));ctx.quadraticCurveTo(x+7,y-6,x,y-4);ctx.quadraticCurveTo(x-6,y-7,x,y-17);ctx.fill();ctx.fillStyle='#fff0bd';ctx.beginPath();ctx.ellipse(x,y-7,2,4,0,0,Math.PI*2);ctx.fill();
@@ -3497,7 +3504,7 @@ THE SOFTWARE.
     }
     drawProps(ctx,now){
       if(this.dockTop&&this.groundY()<this.height-10&&(this.props.length||["train","gingerbread","tree","candy","angel","gifts"].includes(this.story?.name))){ctx.save();ctx.fillStyle="#e9f6f38c";ctx.beginPath();ctx.moveTo(0,this.groundY()+3);for(let i=0;i<=32;i++)ctx.lineTo(i/32*this.width,this.floorAt(i/32*this.width));ctx.lineTo(this.width,this.groundY()+3);ctx.closePath();ctx.fill();ctx.restore()}
-      for(const prop of this.props){ctx.save();ctx.globalAlpha=clamp((prop.until-now)/1500,0,1);const x=prop.x*this.width,y=prop.type==='gift'?prop.y:this.floorAt(x);
+      for(const prop of this.props){ctx.save();ctx.globalAlpha=clamp((prop.until-now)/1500,0,1);const x=this.groundX(prop.x*this.width,prop.type==='tree'?(prop.size||90):35),y=prop.type==='gift'?prop.y:this.floorAt(x);
         if(prop.type==='gift'){if(prop.enchanted){ctx.strokeStyle='#d8c2ef88';ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(x,y+6,prop.size*.7,5,0,0,Math.PI*2);ctx.stroke();festiveStar(ctx,x-prop.size*.7,y-prop.size*.5,3,'#e2d0f2')}festiveGift(ctx,x,y,prop.size||24,0,prop.x>.5?festivePalette.green:festivePalette.red);}
         if(prop.type==='tree')festiveTree(ctx,x,y,prop.size||90,1);
         if(prop.type==='angel'){ctx.strokeStyle="#a1c6d0aa";ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x-prop.size*.25,y-10,prop.size*.3,9,-.35,0,Math.PI*2);ctx.ellipse(x+prop.size*.25,y-10,prop.size*.3,9,.35,0,Math.PI*2);ctx.moveTo(x,y-25);ctx.lineTo(x,y-1);ctx.stroke()}
@@ -3511,7 +3518,7 @@ THE SOFTWARE.
         const face=winterSnow.face||{left:this.width*.6,top:this.height*.3,width:200,height:200};
         const positions={star:[this.width*p,this.height*.2],reindeer:[this.width*(1-.18*envelope),this.height*.44],train:[this.width*(1.3*p-.15),this.height-80],elf:[this.width*.23,this.height*.17],gingerbread:[this.width*p,this.height-45],tree:[this.width*.1,this.height*.75],chimney:[this.width*.17,this.height*.52],constellation:[this.width*.35,this.height*.28],bells:[this.width*.5,this.height*.14],unwrap:[this.width*.24,this.height*.65],gifts:[this.width*.12,this.height*p]};
         positions.elf=[this.width*.8125,this.height*.17];
-        positions.wand=[this.width*(.25+.55*p),this.height*.21];positions.levitate=[this.width*.26,this.groundY()-100];positions.spellbook=[this.width*.21,this.height*.43];positions.broom=[this.width*(-.12+1.24*p),this.height*(.32-.11*Math.sin(Math.PI*p))];
+        positions.wand=[this.width*(.25+.55*p),this.skyY(this.height*.28,this.height*.065+20)];positions.levitate=[this.width*.26,this.groundY()-100];const bookPosition=this.safePoint(this.width*.21,this.height*.43,Math.min(90,this.width*.14)*1.8);positions.spellbook=[bookPosition.x,bookPosition.y];positions.broom=[this.width*(-.12+1.24*p),this.skyY(this.height*.24,65)+Math.sin(Math.PI*p)*Math.min(22,this.height*.025)];
         const target=positions[scene.name];if(target){setFaceProperty('--gaze-x',(clamp((target[0]-(face.left+face.width/2))/face.width*10,-10,10)*faceMotionScale).toFixed(2)+'px');setFaceProperty('--gaze-y',(clamp((target[1]-(face.top+face.height/2))/face.height*7,-5,5)*faceMotionScale).toFixed(2)+'px')}
       }
       if(!motionLevel())return {x:0,y:0,rotate:0};
@@ -3533,9 +3540,9 @@ THE SOFTWARE.
       const w=this.width,h=this.height,raw=clamp((now-scene.start)/(scene.end-scene.start),0,1),p=motionLevel()?raw:.55,t=motionLevel()?(now-scene.start)/1000:0;
       const alpha=Math.min(1,raw*8,(1-raw)*8),size=Math.min(90,w*.14);ctx.save();ctx.globalAlpha=alpha;
       if(scene.name==='wand'){
-        const x=w*.17,y=h*.33,s=size,angle=-.6+Math.sin(t*.9)*.18;
+        const s=size,spellLane=this.skyY(h*.28,h*.065+20),x=w*.17,y=spellLane+s*.5,angle=-.6+Math.sin(t*.9)*.18;
         this.transform(ctx,x,y,1,()=>{ctx.lineCap='round';ctx.strokeStyle='#ad8d75';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-s*.35,s*.3);ctx.lineTo(s*.3,-s*.35);ctx.stroke();ctx.strokeStyle='#e6d9fa';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(s*.22,-s*.27);ctx.lineTo(s*.35,-s*.4);ctx.stroke()},angle);
-        const count=effectivePerformance()==='tv'?24:42,progress=festiveEase(clamp((p-.1)/.7,0,1)),startX=x+s*.12,startY=y-s*.5;
+        const count=effectivePerformance()==='tv'?24:42,progress=festiveEase(clamp((p-.1)/.7,0,1)),startX=x+s*.12,startY=spellLane;
         ctx.strokeStyle='#c7b6efb3';ctx.lineWidth=2;ctx.beginPath();
         for(let i=0;i<=count;i++){const q=i/count*progress,xx=startX+q*w*.57,yy=startY-Math.sin(q*Math.PI*3)*h*.065;if(i)ctx.lineTo(xx,yy);else ctx.moveTo(xx,yy)}ctx.stroke();
         const tipX=startX+progress*w*.57,tipY=startY-Math.sin(progress*Math.PI*3)*h*.065;festiveStar(ctx,tipX,tipY,9+Math.sin(p*Math.PI)*4,'#e5d8ff');
@@ -3546,20 +3553,23 @@ THE SOFTWARE.
         for(let i=0;i<3;i++){const q=(t*.16+i/3)%1;ctx.globalAlpha=alpha*(1-q)*.55;ctx.beginPath();ctx.ellipse(w*(.13+i*.13),this.groundY()-55-q*80,20+q*12,6,0,0,Math.PI*2);ctx.stroke()}ctx.globalAlpha=alpha;
         festiveStar(ctx,x,y,8,'#dfc8fa');
       }else if(scene.name==='spellbook'){
-        const x=w*.21,y=h*.43+(motionLevel()?Math.sin(t*1.2)*6:0),s=size,open=festiveEase((p-.08)/.27),spread=s*(.2+open*.6);
+        const bookPosition=this.safePoint(w*.21,h*.43,size*1.8),x=bookPosition.x,y=bookPosition.y+(motionLevel()?Math.sin(t*1.2)*6:0),s=size,open=festiveEase((p-.08)/.27),spread=s*(.2+open*.6);
         this.transform(ctx,x,y,1,()=>{ctx.fillStyle='#70566f';ctx.beginPath();ctx.moveTo(-spread-5,-s*.47);ctx.lineTo(0,-s*.37);ctx.lineTo(spread+5,-s*.47);ctx.lineTo(spread+5,s*.39);ctx.lineTo(0,s*.49);ctx.lineTo(-spread-5,s*.39);ctx.closePath();ctx.fill();
           for(const side of [-1,1]){ctx.fillStyle='#e8dfc6';ctx.beginPath();ctx.moveTo(0,-s*.33);ctx.quadraticCurveTo(side*spread*.55,-s*.57,side*spread,-s*.4);ctx.lineTo(side*spread,s*.32);ctx.quadraticCurveTo(side*spread*.5,s*.25,0,s*.42);ctx.closePath();ctx.fill();ctx.strokeStyle='#ac9b80';ctx.lineWidth=1;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(side*8,-s*.21+i*s*.095);ctx.quadraticCurveTo(side*spread*.5,-s*.31+i*s*.095,side*(spread-7),-s*.2+i*s*.095);ctx.stroke()}}
           ctx.strokeStyle='#f4e6be';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-s*.33);ctx.lineTo(0,s*.42);ctx.stroke();
         },motionLevel()?Math.sin(t*.65)*.07:0);
         if(p>.25)for(let i=0;i<6;i++){const q=(t*.17+i/6)%1,xx=x+Math.sin(i*2.2+q*2)*s*.65,yy=y-s*.5-q*s*1.25;ctx.globalAlpha=alpha*Math.sin(Math.PI*q);ctx.strokeStyle='#dac5f1';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(xx,yy-6);ctx.lineTo(xx+5,yy+4);ctx.lineTo(xx-5,yy+4);ctx.closePath();ctx.moveTo(xx-7,yy);ctx.lineTo(xx+7,yy);ctx.stroke()}ctx.globalAlpha=alpha;
       }else if(scene.name==='broom'){
-        const x=w*(-.12+1.24*p),y=h*(.32-.11*Math.sin(Math.PI*p)),s=Math.min(130,w*.25);
+        const x=w*(-.12+1.24*p),y=this.skyY(h*.24,65)+Math.sin(Math.PI*p)*Math.min(22,h*.025),s=Math.min(130,w*.25);
         this.transform(ctx,x,y,1,()=>{ctx.strokeStyle='#a9896d';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-s*.27,0);ctx.quadraticCurveTo(s*.16,-s*.04,s*.54,-s*.17);ctx.stroke();
           ctx.strokeStyle='#d2b77c';ctx.lineWidth=2.4;for(let i=0;i<9;i++){ctx.beginPath();ctx.moveTo(-s*.23,0);ctx.quadraticCurveTo(-s*.44,(i-4)*s*.025,-s*.7,(i-4)*s*.045);ctx.stroke()}ctx.strokeStyle='#785a59';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-s*.33,-s*.08);ctx.lineTo(-s*.33,s*.08);ctx.stroke();
         },motionLevel()?-.1+Math.sin(p*Math.PI*3)*.15:0);
         for(let i=0;i<5;i++)festiveStar(ctx,x-size*.9-i*17,y+Math.sin(t+i)*6,2+i%2,'#ceb9ed');
+      }else if(scene.name==='wizardlook'){
+        const face=winterSnow.face||{left:w*.6,top:h*.3,width:170,height:170},cx=face.left+face.width*.5+vibeMotion.x,cy=face.top+face.height*.4+vibeMotion.y;
+        for(let i=0;i<4;i++){const angle=i*Math.PI/2+t*.25;festiveStar(ctx,cx+Math.cos(angle)*face.width*.58,cy+Math.sin(angle)*face.height*.35,3+i%2,'#e9d4a3')}
       }else if(scene.name==='star'){
-        const x=w*(.08+.84*festiveEase(p)),y=h*(.18+.04*Math.sin(p*Math.PI*2));ctx.strokeStyle='#e8c98b55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-90,y+10);ctx.quadraticCurveTo(x-40,y+22,x,y);ctx.stroke();festiveStar(ctx,x,y,size*.3);for(let i=0;i<5;i++)festiveStar(ctx,x-20-i*17,y+Math.sin(i)*9,2+i%2);
+        const x=w*(.08+.84*festiveEase(p)),y=this.skyY(h*.18,size*.4+h*.04+15)+h*.04*Math.sin(p*Math.PI*2);ctx.strokeStyle='#e8c98b55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-90,y+10);ctx.quadraticCurveTo(x-40,y+22,x,y);ctx.stroke();festiveStar(ctx,x,y,size*.3);for(let i=0;i<5;i++)festiveStar(ctx,x-20-i*17,y+Math.sin(i)*9,2+i%2);
       }else if(scene.name==='gifts'){
         for(let i=0;i<5;i++)festiveStar(ctx,w*(.1+i*.2),h*.15+Math.sin(t+i)*8,3);
       }else if(scene.name==='reindeer'){
@@ -3577,16 +3587,16 @@ THE SOFTWARE.
         ctx.fillStyle='#c7a379';ctx.beginPath();ctx.arc(x+s*.9,y-s*.25,s*.23,t,Math.PI*2+t);ctx.fill();ctx.fillStyle='#654b3d';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x+s*.9+Math.cos(i*2.3)*s*.12,y-s*.25+Math.sin(i*2.3)*s*.12,2,0,Math.PI*2);ctx.fill()}
         this.transform(ctx,x,y,1,()=>{ctx.lineCap='round';ctx.strokeStyle='#b78660';ctx.lineWidth=s*.22;ctx.beginPath();ctx.moveTo(0,-s*.55);ctx.lineTo(0,-s*.2);ctx.moveTo(-s*.35,-s*.42);ctx.lineTo(s*.35,-s*.42);ctx.moveTo(0,-s*.2);ctx.lineTo(-s*.22,Math.sin(t*8)*4);ctx.moveTo(0,-s*.2);ctx.lineTo(s*.22,-Math.sin(t*8)*4);ctx.stroke();ctx.fillStyle='#bd9168';ctx.beginPath();ctx.arc(0,-s*.79,s*.22,0,Math.PI*2);ctx.fill();ctx.fillStyle=festivePalette.snow;for(const xx of [-s*.08,s*.08]){ctx.beginPath();ctx.arc(xx,-s*.82,2,0,Math.PI*2);ctx.fill()}ctx.strokeStyle=festivePalette.snow;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-s*.76,s*.09,0,Math.PI);ctx.stroke();ctx.fillStyle=festivePalette.red;ctx.beginPath();ctx.arc(0,-s*.45,3,0,Math.PI*2);ctx.fill()},-slip*1.3);
       }else if(scene.name==='tree'){
-        const scale=festiveEase(p/.25);festiveTree(ctx,w*.1,this.groundY(),Math.min(140,w*.21)*scale,clamp((p-.2)/.6,0,1));
+        const scale=festiveEase(p/.25);festiveTree(ctx,this.groundX(w*.1,Math.min(140,w*.21)),this.groundY(),Math.min(140,w*.21)*scale,clamp((p-.2)/.6,0,1));
       }else if(scene.name==='chimney'){
-        const x=w*.17,y=h*.58,s=size;ctx.fillStyle='#855e68';ctx.fillRect(x-s*.45,y-s*.65,s*.9,s*.7);ctx.fillStyle='#ac8182';ctx.fillRect(x-s*.55,y-s*.7,s*1.1,s*.16);ctx.strokeStyle='#c69c9d';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x-s*.4,y-i*s*.18);ctx.lineTo(x+s*.4,y-i*s*.18);ctx.stroke()}
+        const chimneyPosition=this.safePoint(w*.17,h*.58,size*1.35),x=chimneyPosition.x,y=chimneyPosition.y,s=size;ctx.fillStyle='#855e68';ctx.fillRect(x-s*.45,y-s*.65,s*.9,s*.7);ctx.fillStyle='#ac8182';ctx.fillRect(x-s*.55,y-s*.7,s*1.1,s*.16);ctx.strokeStyle='#c69c9d';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x-s*.4,y-i*s*.18);ctx.lineTo(x+s*.4,y-i*s*.18);ctx.stroke()}
         if(p<.88){ctx.strokeStyle=festivePalette.red;ctx.lineWidth=s*.17;ctx.lineCap='round';for(const side of [-1,1]){const kick=motionLevel()?Math.sin(t*5+side)*.12:0;ctx.beginPath();ctx.moveTo(x+side*s*.15,y-s*.65);ctx.lineTo(x+side*s*(.2+kick),y-s*1.15);ctx.stroke();ctx.strokeStyle=festivePalette.ink;ctx.beginPath();ctx.moveTo(x+side*s*(.2+kick),y-s*1.15);ctx.lineTo(x+side*s*(.4+kick),y-s*1.15);ctx.stroke();ctx.strokeStyle=festivePalette.red}}
       }else if(scene.name==='globe'){
         const face=winterSnow.face||{left:w*.6,top:h*.3,width:180,height:180},x=face.left+face.width/2+vibeMotion.x,y=face.top+face.height*.48+vibeMotion.y,r=Math.min(face.width*.67,w*.32,h*.32);
         ctx.strokeStyle='#d8f4f29c';ctx.lineWidth=2;ctx.fillStyle='#c1edf00b';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.save();ctx.beginPath();ctx.arc(x,y,r-2,0,Math.PI*2);ctx.clip();ctx.fillStyle='#eaf8f2b3';for(let i=0;i<(effectivePerformance()==='tv'?18:36);i++){const xx=x+Math.sin(i*7.2+t*(1-p))*r*.9,yy=y-r+((i*31+t*25)%(r*2));ctx.beginPath();ctx.arc(xx,yy,1+i%2,0,Math.PI*2);ctx.fill()}ctx.restore();ctx.fillStyle='#8b6876';ctx.fillRect(x-r*.65,y+r*.85,r*1.3,r*.18);
       }else if(scene.name==='constellation'){
         const shapes=[[[0,-1],[-.5,-.2],[-.25,-.2],[-.7,.4],[-.3,.4],[-.3,1],[.3,1],[.3,.4],[.7,.4],[.25,-.2],[.5,-.2],[0,-1]],[[-.65,-.5],[.65,-.5],[.65,.65],[-.65,.65],[-.65,-.5],[0,-.5],[0,.65],[0,-.5],[-.4,-.95],[0,-.5],[.4,-.95]],[[0,-1],[.22,-.3],[.95,-.3],[.38,.12],[.6,.85],[0,.4],[-.6,.85],[-.38,.12],[-.95,-.3],[-.22,-.3],[0,-1]],[[-.8,.4],[-.45,.1],[.15,.1],[.4,-.5],[.7,-.4],[.5,-.6],[.6,-.95],[.4,-.7],[.25,-.95],[.35,-.55],[.15,.1],[.2,.8],[0,.1],[-.45,.1],[-.6,.8],[-.45,.1],[-.8,-.1]]];
-        const points=shapes[Math.floor(p*4)%shapes.length],n=Math.min(points.length,Math.floor((p*4%1)*points.length*1.7)+1),x=w*.32,y=h*.28,s=Math.min(95,w*.17);ctx.strokeStyle='#dec99488';ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<n;i++){const point=points[i];if(i)ctx.lineTo(x+point[0]*s,y+point[1]*s);else ctx.moveTo(x+point[0]*s,y+point[1]*s)}ctx.stroke();for(let i=0;i<n;i++)festiveStar(ctx,x+points[i][0]*s,y+points[i][1]*s,3);
+        const points=shapes[Math.floor(p*4)%shapes.length],n=Math.min(points.length,Math.floor((p*4%1)*points.length*1.7)+1),s=Math.min(95,w*.17),constellationPosition=this.safePoint(w*.32,h*.28,s*1.25),x=constellationPosition.x,y=constellationPosition.y;ctx.strokeStyle='#dec99488';ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<n;i++){const point=points[i];if(i)ctx.lineTo(x+point[0]*s,y+point[1]*s);else ctx.moveTo(x+point[0]*s,y+point[1]*s)}ctx.stroke();for(let i=0;i<n;i++)festiveStar(ctx,x+points[i][0]*s,y+points[i][1]*s,3);
       }else if(scene.name==='angel'){
         const x=w*.79,y=this.groundY(),s=Math.min(90,w*.13);ctx.strokeStyle='#d9edef70';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(x,y-10,s*.6,15,0,0,Math.PI*2);ctx.stroke();
       }else if(scene.name==='candy'){
@@ -3595,7 +3605,7 @@ THE SOFTWARE.
         for(let i=0;i<2;i++){const x=w*.5+(i?1:-1)*size*.6,y=h*.15,angle=motionLevel()?Math.sin(t*2.2+i)*.25:0;this.transform(ctx,x,y,1,()=>{ctx.strokeStyle='#d7dcc36b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-45);ctx.lineTo(0,-20);ctx.stroke();ctx.fillStyle=festivePalette.gold;ctx.beginPath();ctx.moveTo(-size*.3,size*.3);ctx.quadraticCurveTo(-size*.28,-size*.27,0,-size*.27);ctx.quadraticCurveTo(size*.28,-size*.27,size*.3,size*.3);ctx.closePath();ctx.fill();ctx.fillStyle='#bba06c';ctx.beginPath();ctx.ellipse(0,size*.3,size*.34,size*.08,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=festivePalette.gold;ctx.beginPath();ctx.arc(0,size*.33,size*.07,0,Math.PI*2);ctx.fill()},angle)}
         for(let i=0;i<3;i++){const q=(t*.5+i/3)%1;ctx.globalAlpha=alpha*(1-q)*.25;ctx.strokeStyle=festivePalette.gold;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(w*.5,h*.18,size*(1+q*2),size*(.5+q),0,0,Math.PI*2);ctx.stroke()}
       }else if(scene.name==='unwrap'){
-        const x=w*.24,y=h*.66,s=Math.min(85,w*.15),open=festiveEase((p-.25)/.4);festiveGift(ctx,x,y,s,open);if(open>.1)for(let i=0;i<9;i++){const q=(p-.25)*1.4,xx=x+Math.sin(i*2.4)*s*q*1.4,yy=y-s-s*q*(.5+i%3*.3);ctx.globalAlpha=alpha*Math.sin(Math.PI*clamp(q,0,1));festiveStar(ctx,xx,yy,4+i%3)}ctx.globalAlpha=alpha;
+        const presentPosition=this.safePoint(w*.24,h*.66,Math.min(85,w*.15)*1.5),x=presentPosition.x,y=presentPosition.y,s=Math.min(85,w*.15),open=festiveEase((p-.25)/.4);festiveGift(ctx,x,y,s,open);if(open>.1)for(let i=0;i<9;i++){const q=(p-.25)*1.4,xx=x+Math.sin(i*2.4)*s*q*1.4,yy=y-s-s*q*(.5+i%3*.3);ctx.globalAlpha=alpha*Math.sin(Math.PI*clamp(q,0,1));festiveStar(ctx,xx,yy,4+i%3)}ctx.globalAlpha=alpha;
       }
       ctx.restore();
     }
@@ -3785,6 +3795,7 @@ THE SOFTWARE.
     if(typeof winterSnow!=="undefined")winterSnow.geometryDirty=true;
     partyPresentation.animation?.cancel();
     app.style.setProperty("--party-expansion",String(target));
+    runtime.festiveWorld?.measureCover();
     if(panel&&before&&motionLevel()>0&&panel.animate){
       const after=panel.getBoundingClientRect(),afterFace=vibeFace.getBoundingClientRect();
       const scale=afterFace.width&&beforeFace?.width?beforeFace.width/afterFace.width:1;
