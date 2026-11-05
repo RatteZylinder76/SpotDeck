@@ -1228,7 +1228,8 @@
         <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
         <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
-        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button></div></div>
+        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
+          <button class="setting-action glass glass-clear" id="previewShovel">Schneehaufen &amp; Kind zeigen</button></div></div>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
         <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
@@ -1246,7 +1247,13 @@
         <button class="setting-action glass glass-clear" id="refreshTempo">Tempo neu suchen</button>
         <select class="setting-field" id="tempoCandidates" aria-label="Passende Aufnahme für Tempo auswählen" hidden></select>
         <div class="lookup-credit"><a href="https://musicbrainz.org" target="_blank" rel="noopener">MusicBrainz</a><a href="https://acousticbrainz.org" target="_blank" rel="noopener">AcousticBrainz · freies Archiv bis 2022</a></div>
-        <p class="setting-note">Die kostenlose Suche übermittelt Titel, Interpret und gegebenenfalls ISRC. Datenbank-BPM sind Metadaten und bestätigen keine genaue Beatphase. Spotify-Audio wird nicht analysiert. Der Mund folgt vorhandenen Lyrics-Zeitmarken; der Tanz bleibt frei.</p>
+        <p class="setting-note">Die kostenlose Suche übermittelt Titel, Interpret und gegebenenfalls ISRC. Datenbank-BPM bestätigen keine genaue Beatphase. Für einen gemessenen Takt kannst du unten eine Audioquelle freigeben. Der Mund folgt weiterhin den Lyrics-Zeitmarken.</p>
+        <h4>Musik live im Takt erkennen</h4>
+        <label class="label" for="liveBeatSource">Audioquelle für den Takt</label>
+        <select class="setting-field" id="liveBeatSource"><option value="microphone">Mikrofon · Musik aus den Lautsprechern</option><option value="tab">Browser-Tab mit Ton · falls unterstützt</option></select>
+        <div class="setting-row"><button class="setting-action glass glass-clear" id="liveBeatStart">Takterkennung starten</button><button class="setting-action glass glass-clear" id="liveBeatStop" disabled>Takterkennung stoppen</button></div>
+        <p class="setting-note" id="liveBeatStatus" role="status">Aus. Die Erkennung startet erst nach deiner Browser-Freigabe. Ton wird nur hier ausgewertet, weder gespeichert noch hochgeladen.</p>
+        <p class="setting-note">Beim Mikrofon muss die Musik hörbar sein. Beim Teilen eines Tabs bitte den Musik-Tab wählen und „Ton teilen“ aktivieren. Der Browser zeigt dabei auch eine Bildschirmfreigabe an; SpotDeck wertet keine Bilder aus. Geschützter Ton kann stumm bleiben. Bei Stille oder unsicherem Takt tanzt das Gesicht wieder frei.</p>
         <details class="advanced-settings" id="tempoAdvanced">
           <summary>Eigene Musik &amp; Tempo selbst korrigieren</summary>
           <p class="setting-note">Bei eigenen bzw. entsprechend lizenzierten Dateien hört SpotDeck automatisch auf den Rhythmus. Die folgenden Korrekturen sind optional.</p>
@@ -1271,7 +1278,7 @@
             <div><label class="label" for="beatOffset">Bewegung verschieben (ms)</label><input class="setting-field" id="beatOffset" type="number" min="-2000" max="2000" step="10"></div>
             <div><label class="label" for="lyricsOffset">Text verschieben (ms)</label><input class="setting-field" id="lyricsOffset" type="number" min="-5000" max="5000" step="10"></div>
           </div>
-          <p class="setting-note">Positive Werte verzögern Bewegung bzw. Text. Diese Korrekturen gelten für eigene Musik. Automatisch geschätzte Werte können abweichen.</p>
+          <p class="setting-note">Positive Werte verzögern Bewegung bzw. Text. Bewegungskorrekturen gelten auch für die Live-Erkennung, Textkorrekturen für eigene Musik. Halbes oder doppeltes Tempo kannst du hier anpassen.</p>
           <p class="diagnostic" id="beatDiagnostic" role="note" aria-label="Tempostatus"></p>
         </details>
       </section>
@@ -2035,7 +2042,7 @@ THE SOFTWARE.
         track.setAttribute("aria-valuetext",`${msToTime(pos)} von ${msToTime(dur)}`);
         updateLyricsPosition(pos);
       }
-      timedSection("audio-analysis",()=>analyseOwnedAudio(now));
+      timedSection("audio-analysis",()=>{analyseOwnedAudio(now);analyseLiveBeat(now)});
       // Facial cues and scene transforms share the body cadence; metadata stays throttled.
       timedSection("vocal",()=>updateVibeVocalReaction(pos));
       timedSection("effects",()=>tickEffects(now));
@@ -2963,7 +2970,7 @@ THE SOFTWARE.
 
     if(playing){
       const rhythm=beatEngine.state(now),beatPosition=rhythm.beats,phase=rhythm.phase;
-      const energy=ownPlayback.active?rhythm.energy:clamp(.45+.10*Math.sin(now/17000),.2,.7);
+      const energy=ownPlayback.active||liveBeat.active&&rhythm.measured?rhythm.energy:clamp(.45+.10*Math.sin(now/17000),.2,.7);
       vibeEnergy+=(energy-vibeEnergy)*.08;
       const arc=Math.pow(Math.max(0,Math.sin(Math.PI*phase)),1.4);
       const landing=Math.exp(-phase*22)+Math.exp(-(1-phase)*22);
@@ -3069,7 +3076,7 @@ THE SOFTWARE.
   }
 
   async function loadVibeAudio(trackId){
-    if(!ownPlayback.active){beatEngine.reset("free");renderBeatDiagnostic(true)}
+    if(!ownPlayback.active){if(liveBeat.active)resetLiveBeat();else beatEngine.reset("free");renderBeatDiagnostic(true)}
     startVibeFace();
   }
 
@@ -3085,7 +3092,7 @@ THE SOFTWARE.
     constructor(){this.reset()}
     reset(kind="free"){
       this.kind=kind;this.bpm=null;this.source="none";this.confidence=0;this.offset=0;this.factor=1;
-      this.position=0;this.anchorAt=performance.now();this.running=false;this.correction=0;this.taps=[];this.onsets=[];this.energy=.3;
+      this.position=0;this.anchorAt=performance.now();this.running=false;this.correction=0;this.taps=[];this.onsets=[];this.energy=.3;this.phaseOrigin=0;
     }
     positionAt(now=performance.now()){
       if(!this.running)return this.position;
@@ -3105,6 +3112,7 @@ THE SOFTWARE.
     }
     danceBpm(){
       let bpm=this.bpm || 96;
+      if(this.kind==="live"&&this.bpm)return bpm*this.factor;
       while(bpm<80)bpm*=2;
       while(bpm>160)bpm/=2;
       return bpm*this.factor;
@@ -3112,7 +3120,7 @@ THE SOFTWARE.
     state(now=performance.now()){
       const period=60000/this.danceBpm();
       const position=this.kind==="owned"&&this.bpm!==null?this.positionAt(now):now;
-      const beats=(position-this.offset)/period;
+      const beats=(position-this.offset-this.phaseOrigin)/period;
       return {period,beats,phase:((beats%1)+1)%1,measured:this.bpm!==null,energy:this.energy};
     }
     tap(now=performance.now()){
@@ -3150,6 +3158,114 @@ THE SOFTWARE.
     }
   }
   const beatEngine=new BeatEngine();
+  // Local, bounded spectral-flux tracker. It estimates tempo AND the beat grid.
+  class LivePulseTracker{
+    constructor(){this.reset()}
+    reset(){this.peaks=[];this.history=[];this.previous=null;this.lastPeak=-Infinity;this.lastFrame=0;this.bpm=null;this.confidence=0;this.origin=0;this.energy=0}
+    sample(bins,wave,sampleRate,fftSize,now){
+      if(this.lastFrame&&now-this.lastFrame>600)this.reset();this.lastFrame=now;
+      if(!this.previous||this.previous.length!==bins.length)this.previous=new Float32Array(bins.length);
+      let bass=0,mid=0,bassCount=0,midCount=0,power=0;
+      for(let i=1;i<bins.length;i++){
+        const hz=i*sampleRate/fftSize,value=bins[i]/255,diff=Math.max(0,value-this.previous[i]);this.previous[i]=value;
+        if(hz>=40&&hz<190){bass+=diff;bassCount++}else if(hz>=190&&hz<2500){mid+=diff;midCount++}
+      }
+      for(const value of wave)power+=((value-128)/128)**2;
+      this.energy=Math.sqrt(power/Math.max(1,wave.length));
+      const flux=bass/Math.max(1,bassCount)+.35*mid/Math.max(1,midCount);
+      const mean=this.history.reduce((a,b)=>a+b,0)/Math.max(1,this.history.length);
+      const variance=this.history.reduce((a,b)=>a+(b-mean)**2,0)/Math.max(1,this.history.length);
+      if(this.history.length>=12&&this.energy>.008&&flux>mean+Math.max(.009,Math.sqrt(variance)*1.35)&&now-this.lastPeak>210)this.onset(now,clamp(flux/.12,.3,2));
+      this.history.push(flux);if(this.history.length>48)this.history.shift();
+      this.expire(now);return this.bpm;
+    }
+    expire(now){if(now-this.lastPeak>Math.max(1800,this.bpm?150000/this.bpm:1800)){this.bpm=null;this.confidence=0;this.peaks=[]}}
+    onset(now,strength=1){
+      if(now-this.lastPeak<210)return;
+      if(now-this.lastPeak>2200){this.peaks=[];this.bpm=null;this.confidence=0}
+      this.lastPeak=now;this.peaks.push({time:now,weight:clamp(strength,.3,2)});
+      this.peaks=this.peaks.filter(p=>now-p.time<16000).slice(-48);
+      if(this.peaks.length<8||now-this.peaks[0].time<3500)return;
+      const peaks=this.peaks.slice(-24),sum=peaks.reduce((a,p)=>a+p.weight,0);
+      let best=null;
+      for(let bpm=70;bpm<=180;bpm+=.5){
+        const period=60000/bpm;
+        for(const anchor of peaks.slice(-5)){
+          let fit=0;
+          for(const peak of peaks){const d=(peak.time-anchor.time)/period;fit+=peak.weight*Math.exp(-.5*((d-Math.round(d))/.075)**2)}
+          const agreement=fit/sum;
+          // Prefer continuity; without it favour the slower compatible pulse over subdivisions.
+          const score=agreement+(this.bpm&&Math.abs(bpm-this.bpm)<3?.025:0)-bpm*.00012;
+          if(!best||score>best.score)best={bpm,period,origin:anchor.time,agreement,score};
+        }
+      }
+      if(best.agreement<.78){this.confidence*=.7;if(this.confidence<.5)this.bpm=null;return}
+      const changed=!this.bpm||Math.abs(best.bpm-this.bpm)>8,oldPeriod=60000/(this.bpm||best.bpm);
+      const oldBeats=(now-this.origin)/oldPeriod,localBeats=((oldBeats%2)+2)%2;
+      this.bpm=changed?best.bpm:this.bpm*.7+best.bpm*.3;
+      if(changed)this.origin=best.origin;
+      else{const period=60000/this.bpm;this.origin=now-localBeats*period;const d=(best.origin-this.origin)/period;this.origin+=clamp((d-Math.round(d))*period*.3,-22,22)}
+      this.confidence=best.agreement*Math.min(1,peaks.length/12);
+    }
+  }
+  const liveBeat={epoch:0,active:false,pending:false,stream:null,context:null,source:null,analyser:null,sink:null,bins:null,wave:null,lastAnalysis:0,tracker:new LivePulseTracker(),track:null};
+  function resetLiveBeat(){
+    liveBeat.tracker.reset();beatEngine.reset(liveBeat.active?"live":"free");
+    beatEngine.factor=facePreferences.tempoFactor;beatEngine.offset=facePreferences.beatOffset;
+  }
+  function releaseLiveResources(stream,context,source,sink){
+    for(const track of stream?.getTracks()||[])track.stop();
+    source?.disconnect?.();sink?.disconnect?.();if(context&&context.state!=="closed")void context.close().catch(()=>{});
+  }
+  function stopLiveBeat(message="Aus. Mikrofon und Tonfreigabe sind beendet."){
+    liveBeat.epoch++;releaseLiveResources(liveBeat.stream,liveBeat.context,liveBeat.source,liveBeat.sink);
+    Object.assign(liveBeat,{active:false,pending:false,stream:null,context:null,source:null,analyser:null,sink:null,bins:null,wave:null});
+    if(!ownPlayback.active)resetLiveBeat();
+    $("liveBeatStatus").textContent=message;$("liveBeatStart").disabled=false;$("liveBeatStop").disabled=true;$("liveBeatSource").disabled=false;
+    renderBeatDiagnostic(true);
+  }
+  async function startLiveBeat(){
+    if(liveBeat.active||liveBeat.pending)return;
+    if(ownPlayback.active){$("liveBeatStatus").textContent="Bitte zuerst die eigene Testquelle beenden. Diese hat bereits eine eigene Takterkennung.";return}
+    const mode=$("liveBeatSource").value,devices=navigator.mediaDevices,AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx||!devices||(mode==="tab"?!devices.getDisplayMedia:!devices.getUserMedia)){stopLiveBeat("Diese Audioquelle ist in diesem Browser nicht verfügbar. Probiere das Mikrofon oder einen anderen Browser.");return}
+    const epoch=++liveBeat.epoch;liveBeat.pending=true;$("liveBeatStart").disabled=true;$("liveBeatStop").disabled=false;$("liveBeatSource").disabled=true;
+    $("liveBeatStatus").textContent="Bitte die Audioquelle im Browser freigeben …";
+    let stream,context,source,sink;
+    try{
+      // Both calls remain directly in the user's click gesture. No auto-start or persisted grant.
+      context=new AudioCtx();liveBeat.context=context;const resumed=context.resume();resumed.catch(()=>{});
+      stream=await(mode==="tab"?devices.getDisplayMedia({video:true,audio:true,systemAudio:"include"}):devices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false}));
+      if(epoch!==liveBeat.epoch){releaseLiveResources(stream,context);return}
+      await resumed;
+      if(epoch!==liveBeat.epoch){releaseLiveResources(stream,context);return}
+      if(!stream.getAudioTracks().length)throw Error("NO_AUDIO");
+      source=context.createMediaStreamSource(stream);const analyser=context.createAnalyser();analyser.fftSize=2048;analyser.smoothingTimeConstant=0;
+      sink=context.createGain();sink.gain.value=0;source.connect(analyser);analyser.connect(sink);sink.connect(context.destination);
+      Object.assign(liveBeat,{active:true,pending:false,stream,context,source,sink,analyser,bins:new Uint8Array(analyser.frequencyBinCount),wave:new Uint8Array(analyser.fftSize),lastAnalysis:0,track:playback?.item?.id||null});resetLiveBeat();
+      for(const track of stream.getTracks())track.addEventListener("ended",()=>{if(epoch===liveBeat.epoch)stopLiveBeat("Die Tonfreigabe wurde beendet. Das Gesicht tanzt wieder frei.")});
+      $("liveBeatStatus").textContent="Hört lokal auf den Rhythmus. Bitte einige Sekunden Musik laufen lassen …";renderBeatDiagnostic(true);
+    }catch(error){
+      releaseLiveResources(stream,context,source,sink);
+      if(epoch===liveBeat.epoch)stopLiveBeat(error.message==="NO_AUDIO"?"Kein Ton freigegeben. Wähle einen Tab mit „Ton teilen“ oder nutze das Mikrofon.":error.name==="NotAllowedError"?"Nicht freigegeben. Du kannst die Erkennung bei Bedarf erneut starten.":"Audioquelle konnte nicht starten. Bitte erneut versuchen oder eine andere Quelle wählen.");
+    }
+  }
+  function analyseLiveBeat(now){
+    if(!liveBeat.active||now-liveBeat.lastAnalysis<20)return;
+    liveBeat.lastAnalysis=now;
+    const track=playback?.item?.id||null;
+    if(liveBeat.track!==track){liveBeat.track=track;resetLiveBeat()}
+    if(liveBeat.context.state!=="running"){resetLiveBeat();return}
+    liveBeat.analyser.getByteFrequencyData(liveBeat.bins);liveBeat.analyser.getByteTimeDomainData(liveBeat.wave);
+    const tracker=liveBeat.tracker;tracker.sample(liveBeat.bins,liveBeat.wave,liveBeat.context.sampleRate,liveBeat.analyser.fftSize,now);
+    if(tracker.bpm&&tracker.confidence>=.5){
+      if(!["manual","tap"].includes(beatEngine.source)){beatEngine.setTempo(tracker.bpm,"live",tracker.confidence);beatEngine.phaseOrigin=tracker.origin}
+    }else if(beatEngine.source==="live"){beatEngine.bpm=null;beatEngine.confidence=0;beatEngine.source="none";beatEngine.phaseOrigin=0}
+    beatEngine.energy=clamp(tracker.energy*3,0,1);
+  }
+  $("liveBeatStart").addEventListener("click",()=>{void startLiveBeat()});$("liveBeatStop").addEventListener("click",()=>stopLiveBeat());
+  window.addEventListener("pagehide",()=>stopLiveBeat());logoutBtn.addEventListener("click",()=>stopLiveBeat());
+  document.addEventListener("visibilitychange",()=>{if(liveBeat.active){resetLiveBeat();if(document.visibilityState!=="visible")$("liveBeatStatus").textContent="Takterkennung pausiert, solange SpotDeck im Hintergrund ist. Die Tonfreigabe bleibt bis zum Stoppen aktiv."}});
   let diagnosticAt=0,partyLastInput=performance.now(),partyHidden=false;
   const partyPresentation={value:0,from:0,target:0,start:0};
   let partyWakeKey=null;
@@ -3212,6 +3328,7 @@ THE SOFTWARE.
       this.canvas=canvas;this.cap=cap;this.ctx=canvas.getContext?.("2d")||null;
       this.width=0;this.height=0;this.floor=new Float64Array(128);this.head=new Float64Array(16);
       this.flakes=[];this.chunks=[];this.last=0;this.capAt=0;this.geometryDirty=true;this.enabled=false;this.face=null;this.brush=null;
+      this.shoveler=null;this.shovelNext=0;
     }
     resize(width=window.innerWidth||document.documentElement.clientWidth||800,height=window.innerHeight||document.documentElement.clientHeight||600){
       this.width=Math.max(1,width);this.height=Math.max(1,height);
@@ -3231,6 +3348,7 @@ THE SOFTWARE.
       this.canvas.hidden=!enabled;
       if(this.profile!==effectivePerformance()){this.profile=effectivePerformance();this.resize()}
       if(enabled!==this.enabled){this.enabled=enabled;this.last=0;if(!enabled)this.clear();else this.resize()}
+      if(!facePreferences.surprises)this.stopShoveler(performance.now());
       const limit=effectivePerformance()==="tv"?44:window.innerWidth<600?68:110;
       while(this.flakes.length>limit)this.flakes.pop();
       while(this.flakes.length<limit&&enabled)this.flakes.push(this.flake(true));
@@ -3238,7 +3356,84 @@ THE SOFTWARE.
     flake(initial=false){return {x:Math.random()*this.width,y:initial?Math.random()*this.height:-10,r:1+Math.random()*1.9,v:24+Math.random()*32,phase:Math.random()*Math.PI*2}}
     floorY(index){const mass=this.floor[clamp(index,0,this.floor.length-1)],cell=this.width/this.floor.length,limit=Math.min(50,this.height*.065);return this.height-2-limit*(1-Math.exp(-mass/(cell*limit)))}
     deposit(x,mass){const i=clamp(Math.floor(x/this.width*this.floor.length),0,this.floor.length-1);this.floor[i]+=mass}
-    totalMass(){return this.floor.reduce((a,b)=>a+b,0)+this.head.reduce((a,b)=>a+b,0)+this.chunks.reduce((a,b)=>a+b.mass,0)}
+    totalMass(){return this.floor.reduce((a,b)=>a+b,0)+this.head.reduce((a,b)=>a+b,0)+this.chunks.reduce((a,b)=>a+b.mass,0)+(this.shoveler?.load||0)}
+    shovelTarget(){
+      const cell=this.width/this.floor.length,ground=festiveWorld.groundY(),cover=festiveWorld.cover;
+      let best=null;
+      // Leave the side bank alone. The child and its whole route stay clear of the cover.
+      for(let i=10;i<this.floor.length-10;i++){
+        const x=(i+.5)*cell,height=this.height-2-this.floorY(i);
+        if(height<12||x>this.width-70||x<45)continue;
+        if(cover&&ground-90<cover.bottom&&ground>cover.top&&x-45<cover.right)continue;
+        if(!best||height>best.height+.01||Math.abs(height-best.height)<.01&&i>best.index)best={index:i,x,height};
+      }
+      return best;
+    }
+    stopShoveler(now){
+      if(this.shoveler?.load)this.deposit(this.shoveler.x,this.shoveler.load);
+      this.shoveler=null;this.shovelNext=now+25000;
+    }
+    stepShoveler(dt,now){
+      if(!facePreferences.surprises){this.stopShoveler(now);return}
+      let child=this.shoveler;
+      if(!child){
+        if(now<this.shovelNext||effects.active)return;
+        const target=this.shovelTarget();if(!target)return;
+        child=this.shoveler={x:this.width+40,target:target.x,state:"walk",age:0,load:0,trips:0};
+      }
+      const cover=festiveWorld.cover,ground=festiveWorld.groundY();
+      if(cover&&ground-90<cover.bottom&&ground>cover.top&&Math.min(child.x,child.target)-45<cover.right){this.stopShoveler(now);return}
+      child.x=Math.min(child.x,this.width+40);child.target=clamp(child.target,45,this.width-70);child.age+=dt;
+      if(child.state==="walk"||child.state==="carry"||child.state==="exit"){
+        const destination=child.state==="walk"?child.target:child.state==="carry"?this.width-16:this.width+50;
+        const distance=destination-child.x;child.x+=Math.sign(distance)*Math.min(Math.abs(distance),dt*(child.state==="carry"?72:100));
+        if(Math.abs(destination-child.x)<.1){
+          if(child.state==="exit"){this.stopShoveler(now);return}
+          child.state=child.state==="walk"?"scoop":"throw";child.age=0;
+        }
+      }else if(child.state==="scoop"&&child.age>=.9){
+        const cell=this.width/this.floor.length,index=Math.floor(child.x/cell),radius=Math.max(2,Math.ceil(22/cell));
+        for(let i=Math.max(8,index-radius);i<=Math.min(this.floor.length-9,index+radius);i++){
+          const portion=Math.min(this.floor[i]*.35,cell*9);this.floor[i]-=portion;child.load+=portion;
+        }
+        child.state="carry";child.age=0;
+      }else if(child.state==="throw"&&child.age>=.65){
+        // The snow visibly leaves the shovel, then lands in the right-hand bank.
+        if(child.load)this.addChunk(this.width-22,festiveWorld.groundY()-55,36,-65,child.load);
+        child.load=0;child.trips++;
+        const next=this.shovelTarget();
+        if(next&&child.trips<3){child.target=next.x;child.state="walk"}else child.state="exit";
+        child.age=0;
+      }
+    }
+    drawShoveler(ctx){
+      const child=this.shoveler;if(!child)return;
+      const walking=["walk","carry","exit"].includes(child.state),stride=walking?Math.sin(child.age*10):0;
+      const scoop=child.state==="scoop"?Math.sin(Math.min(1,child.age/.9)*Math.PI):0;
+      const toss=child.state==="throw"?Math.sin(Math.min(1,child.age/.65)*Math.PI):0;
+      const ground=festiveWorld.groundY(),cover=festiveWorld.cover;
+      if(ground<this.height-10){
+        const left=cover&&ground-90<cover.bottom&&ground>cover.top?cover.right+45:0;
+        ctx.fillStyle="#effaff";ctx.beginPath();ctx.moveTo(left,ground+2);
+        for(let x=left;x<=this.width;x+=this.width/128)ctx.lineTo(x,ground-(this.height-2-this.floorY(Math.min(127,Math.floor(x/this.width*128)))));
+        ctx.lineTo(this.width,ground+2);ctx.closePath();ctx.fill();
+      }
+      const y=ground-Math.min(20,this.height-2-this.floorY(Math.floor(clamp(child.x,0,this.width-1)/this.width*128)));
+      ctx.save();ctx.translate(child.x,y);ctx.scale(.85,.85);ctx.lineCap="round";
+      ctx.strokeStyle="#294756";ctx.lineWidth=8;
+      for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(side*7,-21);ctx.lineTo(side*7+stride*side*6,-5);ctx.lineTo(side*7+stride*side*6+5,-3);ctx.stroke()}
+      ctx.save();ctx.translate(0,scoop*7+(walking?Math.abs(stride)*2:0));ctx.rotate(scoop*.2-toss*.12);
+      ctx.fillStyle="#bf6578";ctx.beginPath();ctx.moveTo(-13,-47);ctx.quadraticCurveTo(0,-55,13,-47);ctx.lineTo(16,-22);ctx.quadraticCurveTo(0,-17,-15,-23);ctx.closePath();ctx.fill();
+      ctx.fillStyle="#efc9aa";ctx.beginPath();ctx.arc(0,-61,11,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#538d8b";ctx.beginPath();ctx.arc(0,-65,12,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-13,-66,26,5);ctx.beginPath();ctx.arc(0,-80,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#273c45";ctx.beginPath();ctx.arc(child.state==="walk"?-4:4,-61,1.2,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle="#e9c584";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-12,-47);ctx.lineTo(13,-44);ctx.stroke();
+      ctx.strokeStyle="#bc6379";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(8,-43);ctx.lineTo(19,-34-scoop*2);ctx.stroke();
+      ctx.save();ctx.translate(18,-31);ctx.rotate(-scoop*.55-toss*1.7);ctx.strokeStyle="#c3a47c";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-4,-15);ctx.lineTo(17,23);ctx.stroke();
+      ctx.fillStyle="#9dc5d3";ctx.beginPath();ctx.moveTo(8,17);ctx.lineTo(28,14);ctx.lineTo(32,27);ctx.quadraticCurveTo(21,37,13,29);ctx.closePath();ctx.fill();
+      if(child.load){ctx.fillStyle="#effaff";ctx.beginPath();ctx.ellipse(21,20,12,6,-.1,0,Math.PI*2);ctx.fill()}
+      ctx.restore();ctx.restore();ctx.restore();
+    }
     headGeometry(){
       const face=this.face;if(!face)return null;
       return {left:face.left+vibeMotion.x+face.width*.15,top:face.top+vibeMotion.y+face.height*.15,width:face.width*.7};
@@ -3295,7 +3490,7 @@ THE SOFTWARE.
       for(let i=0;i<this.floor.length-1;i++){const flow=(this.floor[i]-this.floor[i+1])*Math.min(.14,dt*2);this.floor[i]-=flow;this.floor[i+1]+=flow}
       const head=this.headGeometry(),threshold=(head?.width||150)*2.4;
       if(headMass>threshold&&now-this.capAt>18000&&!effects.active&&now>=vibeTapReactionUntil&&facePreferences.surprises)beginWinter("shake",now);
-      this.drawCap();
+      this.stepShoveler(dt,now);this.drawCap();
     }
     draw(moving=true){
       const ctx=this.ctx;if(!ctx)return;ctx.clearRect(0,0,this.width,this.height);
@@ -3305,7 +3500,7 @@ THE SOFTWARE.
       for(let i=0;i<this.floor.length;i++)ctx.lineTo((i+.5)/this.floor.length*this.width,this.floorY(i));
       ctx.lineTo(this.width,this.height);ctx.closePath();ctx.fill();
       for(const c of this.chunks){const r=clamp(Math.sqrt(c.mass)*.45,2,8);ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);ctx.fill()}
-      ctx.globalAlpha=1;
+      ctx.globalAlpha=1;this.drawShoveler(ctx);
     }
     tick(now){
       if(!this.enabled||document.visibilityState!=="visible"){this.last=0;return}
@@ -3314,7 +3509,7 @@ THE SOFTWARE.
       if(motionLevel()>0)this.step(dt,now);
       this.draw(motionLevel()>0);
     }
-    clear(){this.floor.fill(0);this.head.fill(0);this.chunks=[];this.last=0;this.capAt=performance.now();this.cap.style.opacity="0";this.ctx?.clearRect(0,0,this.width,this.height)}
+    clear(){this.floor.fill(0);this.head.fill(0);this.chunks=[];this.shoveler=null;this.shovelNext=0;this.last=0;this.capAt=performance.now();this.cap.style.opacity="0";this.ctx?.clearRect(0,0,this.width,this.height)}
   }
   const winterSnow=new WinterSnow(winterSnowCanvas,winterCap);
   runtime.winterSnow=winterSnow;
@@ -3326,6 +3521,16 @@ THE SOFTWARE.
     winterSnow.push(event.clientX,event.clientY,previous?event.clientX-previous.x:0);
   },{passive:true});
   $("clearSnow").addEventListener("click",()=>winterSnow.clear());
+  $("previewShovel").addEventListener("click",()=>{
+    if(!winterSnow.enabled||!facePreferences.surprises||!motionLevel()){showToast("Bitte Winter, Schneefall und Überraschungen mit Bewegung einschalten.");return}
+    const cell=winterSnow.width/128,ground=festiveWorld.groundY(),cover=festiveWorld.cover;
+    const x=Math.min(winterSnow.width-80,Math.max(winterSnow.width*.8,cover&&ground-90<cover.bottom&&ground>cover.top?cover.right+55:0));
+    if(cover&&ground-90<cover.bottom&&ground>cover.top&&x-45<cover.right){showToast("Hier fehlt Platz neben dem Cover. Bitte die Ansicht vergrößern.");return}
+    const limit=Math.min(50,winterSnow.height*.065);if(limit<=16){showToast("Bitte für diese Szene die Ansicht vergrößern.");return}
+    const mass=-cell*limit*Math.log(1-16/limit),index=Math.floor(x/cell);
+    for(let i=Math.max(10,index-4);i<=Math.min(117,index+4);i++)winterSnow.floor[i]=Math.max(winterSnow.floor[i],mass);
+    winterSnow.shovelNext=0;closeSettingsPanel();
+  });
   // Twenty Christmas additions and six magic additions; independent switches.
   const festiveFeatures=[
     {id:"aurora",label:"Nordlichter",type:"ambient"},
@@ -3650,12 +3855,12 @@ THE SOFTWARE.
   }
   function renderBeatDiagnostic(force=false){
     const now=performance.now();if(!force && now<diagnosticAt)return;diagnosticAt=now+500;
-    const sources={none:"Kein erkanntes Tempo",manual:"Manuell eingegeben",tap:"Tap-Tempo",onset:"Onset-Erkennung · geschätzt"};
+    const sources={none:"Kein erkanntes Tempo",manual:"Manuell eingegeben",tap:"Tap-Tempo",onset:"Onset-Erkennung · geschätzt",live:"Live aus dem Ton geschätzt"};
     $("tapTempo").textContent=beatEngine.taps.length>0&&beatEngine.taps.length<4?`Noch ${4-beatEngine.taps.length} × im Takt tippen`:"Im Takt tippen";
     renderTempoStatus();
-    const source=ownPlayback.active?sources[beatEngine.source]:syncedLyrics.length?"Freier Tanz · Mitsingen nach Lyrics":"Freie Animation · keine Spotify-Synchronisierung";
-    const bpm=ownPlayback.active&&beatEngine.bpm?`${beatEngine.bpm.toFixed(1)} BPM · Tanz ${beatEngine.danceBpm().toFixed(1)} BPM`:"Kein gemessenes BPM";
-    const quality=ownPlayback.active&&beatEngine.bpm?` · Konfidenz ${Math.round(beatEngine.confidence*100)} % (keine Genauigkeitsgarantie)`:"";
+    const source=ownPlayback.active||liveBeat.active?sources[beatEngine.source]:syncedLyrics.length?"Freier Tanz · Mitsingen nach Lyrics":"Freie Animation · keine Spotify-Synchronisierung";
+    const bpm=(ownPlayback.active||liveBeat.active)&&beatEngine.bpm?`${beatEngine.bpm.toFixed(1)} BPM · Tanz ${beatEngine.danceBpm().toFixed(1)} BPM`:"Kein gemessenes BPM";
+    const quality=(ownPlayback.active||liveBeat.active)&&beatEngine.bpm?` · Konfidenz ${Math.round(beatEngine.confidence*100)} % (keine Genauigkeitsgarantie)`:"";
     const message=`${bpm}. ${source}${quality}. Beatversatz ${Math.round(beatEngine.offset)} ms; Lyricsversatz ${ownPlayback.active?facePreferences.lyricsOffset:0} ms. ${ownPlayback.active||syncedLyrics.length?lyricsTimingLabel():"Emotionen und Überraschungen bleiben eigenständig aktiv."}`;
     if(beatDiagnostic.textContent!==message)beatDiagnostic.textContent=message;
   }
@@ -3852,6 +4057,7 @@ THE SOFTWARE.
   }
   async function startOwnedAudio(){
     if(!ownPlayback.file||!ownedRights.checked){ownedStatus.textContent="Bitte eine eigene oder entsprechend lizenzierte Datei wählen und die Nutzungsrechte bestätigen.";return}
+    stopLiveBeat();
     const epoch=++ownPlayback.epoch;
     const AudioCtx=window.AudioContext||window.webkitAudioContext;
     try{
@@ -3918,9 +4124,9 @@ THE SOFTWARE.
   ["pointermove","pointerdown","touchstart"].forEach(type=>document.addEventListener(type,showPartyControls,{passive:true}));
   document.addEventListener("keydown",partyKey,true);
   document.addEventListener("keyup",event=>{if(partyWakeKey===(event.code||event.key))partyWakeKey=null},true);
-  $("tapTempo").addEventListener("click",()=>{if(!ownPlayback.active){showToast("Tap-Tempo ist für eigene Testquellen verfügbar.");return}if(beatEngine.tap()){facePreferences.manualBpm=0;manualBpm.value="";renderBeatDiagnostic(true)}else $("tapTempo").textContent=`Noch ${Math.max(1,4-beatEngine.taps.length)} × tippen`});
-  $("autoTempo").addEventListener("click",()=>{facePreferences.manualBpm=0;manualBpm.value="";beatEngine.bpm=null;beatEngine.source="none";beatEngine.confidence=0;beatEngine.taps=[];beatEngine.onsets=[];persistPartyPreferences();renderBeatDiagnostic(true)});
-  manualBpm.addEventListener("change",()=>{facePreferences.manualBpm=numberIn(manualBpm.value,30,400,0);if(!manualBpm.value)facePreferences.manualBpm=0;if(ownPlayback.active){if(facePreferences.manualBpm)beatEngine.setTempo(facePreferences.manualBpm,"manual");else{beatEngine.bpm=null;beatEngine.source="none";beatEngine.confidence=0;beatEngine.onsets=[]}}persistPartyPreferences();renderBeatDiagnostic(true)});
+  $("tapTempo").addEventListener("click",()=>{if(!ownPlayback.active&&!liveBeat.active){showToast("Starte eine Audioquelle für Tap-Tempo.");return}if(beatEngine.tap()){if(liveBeat.active){beatEngine.phaseOrigin=performance.now();beatEngine.offset=facePreferences.beatOffset}facePreferences.manualBpm=0;manualBpm.value="";renderBeatDiagnostic(true)}else $("tapTempo").textContent=`Noch ${Math.max(1,4-beatEngine.taps.length)} × tippen`});
+  $("autoTempo").addEventListener("click",()=>{facePreferences.manualBpm=0;manualBpm.value="";beatEngine.bpm=null;beatEngine.source="none";beatEngine.confidence=0;beatEngine.taps=[];beatEngine.onsets=[];if(liveBeat.active)resetLiveBeat();persistPartyPreferences();renderBeatDiagnostic(true)});
+  manualBpm.addEventListener("change",()=>{facePreferences.manualBpm=numberIn(manualBpm.value,30,400,0);if(!manualBpm.value)facePreferences.manualBpm=0;if(ownPlayback.active||liveBeat.active){if(facePreferences.manualBpm)beatEngine.setTempo(facePreferences.manualBpm,"manual");else{beatEngine.bpm=null;beatEngine.source="none";beatEngine.confidence=0;beatEngine.onsets=[]}}persistPartyPreferences();renderBeatDiagnostic(true)});
   beatOffset.addEventListener("change",()=>{facePreferences.beatOffset=numberIn(beatOffset.value,-2000,2000);beatEngine.offset=facePreferences.beatOffset;persistPartyPreferences();renderBeatDiagnostic(true)});
   lyricsOffset.addEventListener("change",()=>{facePreferences.lyricsOffset=numberIn(lyricsOffset.value,-5000,5000);resetVibeLyrics();effects.queue=[];persistPartyPreferences();renderBeatDiagnostic(true)});
   tempoFactor.addEventListener("change",()=>{facePreferences.tempoFactor=[.5,1,2].includes(Number(tempoFactor.value))?Number(tempoFactor.value):1;beatEngine.factor=facePreferences.tempoFactor;persistPartyPreferences();renderBeatDiagnostic(true)});
@@ -4143,7 +4349,13 @@ THE SOFTWARE.
   }
   function renderTempoStatus(){
     let state="idle",message="Starte einen Song, um verfügbare Tempoangaben zu suchen.";
-    if(ownPlayback.active){
+    if(liveBeat.active){
+      state=beatEngine.bpm?(["manual","tap"].includes(beatEngine.source)?"manual":"analysed"):"searching";
+      message=beatEngine.bpm?`Live-Takt: ${beatEngine.bpm.toFixed(1)} BPM · ${Math.round(beatEngine.confidence*100)} % Übereinstimmung. Halbes/doppeltes Tempo und Versatz sind unten anpassbar.`:"Noch kein stabiler Live-Takt. Bitte hörbare Musik freigeben; das Gesicht tanzt bis dahin frei.";
+      if(state==="manual")message=`${beatEngine.source==="tap"?"Getipptes":"Selbst festgelegtes"} Tempo: ${beatEngine.bpm.toFixed(1)} BPM. „Zurück auf automatisch“ hört wieder auf die Musik.`;
+      const status=liveBeat.context?.state!=="running"?"Die Audioquelle ist pausiert. Stoppe und starte die Erkennung erneut.":message;
+      if($("liveBeatStatus").textContent!==status)$("liveBeatStatus").textContent=status;
+    }else if(ownPlayback.active){
       if(beatEngine.bpm){state=["manual","tap"].includes(beatEngine.source)?"manual":"analysed";message=beatEngine.source==="manual"?`Tempo selbst festgelegt: ${beatEngine.bpm.toFixed(1)} BPM.`:beatEngine.source==="tap"?`Dein getipptes Tempo: ${beatEngine.bpm.toFixed(1)} BPM.`:`Aus deiner Audiodatei geschätzt: ${beatEngine.bpm.toFixed(1)} BPM.`}
       else if(ownPlayback.analyser&&ownedPosition()<12000&&!ownedAudio.paused){state="searching";message="Der Rhythmus deiner Audiodatei wird noch gesucht …"}
       else if(ownPlayback.analyser){state="unavailable";message="Bisher wurde kein verlässliches Tempo gefunden. Du kannst weiterhören oder unten im Takt tippen."}
@@ -4160,7 +4372,8 @@ THE SOFTWARE.
     }
     tempoSummary.dataset.state=state;if(tempoSummary.textContent!==message)tempoSummary.textContent=message;
     $("refreshTempo").disabled=ownPlayback.active;
-    for(const field of [manualBpm,tempoFactor,beatOffset,lyricsOffset,$("tapTempo"),$("autoTempo")])field.disabled=!ownPlayback.active;
+    for(const field of [manualBpm,tempoFactor,beatOffset,$("tapTempo"),$("autoTempo")])field.disabled=!ownPlayback.active&&!liveBeat.active;
+    lyricsOffset.disabled=!ownPlayback.active;
   }
   function lyricText(record){
     if(typeof record?.plainLyrics==="string"&&record.plainLyrics.trim())return record.plainLyrics;

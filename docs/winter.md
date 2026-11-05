@@ -1,5 +1,7 @@
 # Winter and Christmas season
 
+The later [snow-shovelling child and optional local live-beat detector](live-beat.md) add automatic pile clearing and opt-in audio analysis. The original seasonal behaviour below remains available.
+
 ## Scope and original face
 
 The November revision adds a season selector (Winter & Christmas, Halloween, Off). Winter is the new default and replaces a legacy Halloween-only preference on the first update. An explicit season selection persists normally. Party, transparency, motion, sound and tempo preferences are preserved. The original face, eye positioning, white eye/mouth colors, mouth contour and base movement remain; seasonal clothes and scenery are separate decorative layers. No lyric lookup or direct SDK playback behavior is changed by this revision.
