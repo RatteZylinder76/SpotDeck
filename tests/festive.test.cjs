@@ -1,7 +1,8 @@
 const assert=require('node:assert/strict');
 const {harness,html}=require('./spotdeck.test.cjs');
 function checkedCanvas(ctx){
-  let depth=0,ops=0;
+  let depth=0,ops=0,alpha=1;
+  Object.defineProperty(ctx,"globalAlpha",{configurable:true,get:()=>alpha,set:value=>{assert(Number.isFinite(value)&&value>=0&&value<=1,"Canvas opacity must be finite and within range");alpha=value}});
   for(const method of ['translate','rotate','scale','moveTo','lineTo','quadraticCurveTo','fillRect','arc','ellipse']){const original=ctx[method];ctx[method]=function(...values){assert(values.every(Number.isFinite),method+' received a nonfinite coordinate');if(method==='arc')assert(values[2]>=0);if(method==='ellipse')assert(values[2]>=0&&values[3]>=0);ops++;return original.apply(this,values)}}
   const save=ctx.save,restore=ctx.restore;ctx.save=function(){depth++;save.call(this)};ctx.restore=function(){depth--;assert(depth>=0,'Canvas restore underflow');restore.call(this)};
   return {get depth(){return depth},get ops(){return ops}};
@@ -65,6 +66,8 @@ function checkedCanvas(ctx){
     bounded.document.visibilityState='hidden';bounded.event(bounded.document,'visibilitychange');const count=bounded.nodes.get('festiveAmbient').getContext().calls;bounded.step(20000);assert.equal(bounded.nodes.get('festiveAmbient').getContext().calls,count);assert.equal(bounded.frames.size,0);
     bounded.document.visibilityState='visible';bounded.event(bounded.document,'visibilitychange');bounded.step(40);assert.equal(bounded.frames.size,1);
   }
+  const dock=harness({preferences:{season:"winter",surprises:false,tempoLookup:false}});
+  dock.document.querySelector=selector=>selector===".controls"?{getBoundingClientRect:()=>({top:650})}:null;dock.run("festiveWorld.resize(1024,768)");assert.equal(dock.run("festiveWorld.groundY()"),642,"Visible dock reserves a lane for ground actors");dock.run('app.dataset.controlsHidden="true"');assert.equal(dock.run("festiveWorld.groundY()"),762,"Party returns actors to the lower edge after dock hiding");
   const quiet=harness({reduced:true,preferences:{season:'winter',tempoLookup:false,surprises:false}});
   quiet.run('beginWinter("gifts")');quiet.step(7000);assert(quiet.run('festiveWorld.props.every(prop=>prop.landed)'),'Reduced-motion gifts are displayed at rest');
   const angle=quiet.run('festiveWorld.baubles[0].a');quiet.run('festiveWorld.interact(60,65,100)');quiet.step(1000);assert.equal(quiet.run('festiveWorld.baubles[0].a'),angle);
