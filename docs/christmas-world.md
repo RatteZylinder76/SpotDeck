@@ -27,15 +27,15 @@ All additions retain the existing white face. The previous six winter scenes, ac
 
 ## Controls and scheduling
 
-Settings → Party & Jahreszeiten contains a direct preview selector and twenty individual switches inside the collapsed customization section. A preview can inspect a disabled feature without changing its automatic-play preference. Switching a feature off cancels its current scene and removes owned leftover scenery. The ambient master controls the six background effects; automatic surprises controls the large-scene scheduler. Manual previews remain possible with these masters off. Decorations can be cleared explicitly.
+Settings → Party & Jahreszeiten contains a direct preview selector and twenty-five individual switches inside the collapsed customization section. A preview can inspect a disabled feature without changing its automatic-play preference. Switching a feature off cancels its current scene and removes owned leftover scenery. The ambient master controls the seven background effects; automatic surprises controls the large-scene scheduler. Manual previews remain possible with these masters off. Decorations can be cleared explicitly.
 
-The six background additions run independently of the one-large-scene slot. The fourteen new stories share that slot with the six existing winter scenes. A shuffled bag schedules all twenty eligible major scenes before repeating. Automatic head shakes do not restart the long scene gap, preventing them from indefinitely postponing the other stories. Lyrics and explicit face taps retain their existing behavior and gaze priority.
+The six background additions run independently of the one-large-scene slot. The eighteen new stories share that slot with the six existing winter scenes. A shuffled bag schedules all twenty-four eligible major scenes before repeating. Automatic head shakes do not restart the long scene gap, preventing them from indefinitely postponing the other stories. Lyrics and explicit face taps retain their existing behavior and gaze priority.
 
 ## Rendering and bounds
 
 Two pointer-transparent canvas layers use the existing application RAF: a background and a story/scenery layer. Their backing budgets are at most approximately 1.2 million pixels each in quality and 650,000 each in TV mode. Background repainting is throttled to about 30/s in quality or 10/s in TV mode. There is no per-object timer or additional application animation loop. Decorations sit behind the existing player shell and retain its input handling.
 
-Temporary scenery is capped at eight objects, wipes at sixteen, hanging pendulums at four and the scheduling bag at twenty entries. Scenery expires after 100 seconds; frost regrows after wiping. Gift and train interactions reuse the existing snow-displacement model, preserving deposited mass. Geometry is refreshed on resize, not read from layout every frame. Hidden tabs stop rendering and reset frame interpolation before resuming. Reduced motion uses still compositions, gifts at rest and non-swinging baubles.
+Temporary scenery is capped at eight objects, wipes at sixteen, hanging pendulums at four and the scheduling bag at twenty-four entries. Scenery expires after 100 seconds; frost regrows after wiping. Gift and train interactions reuse the existing snow-displacement model, preserving deposited mass. Geometry is refreshed on resize, not read from layout every frame. Hidden tabs stop rendering and reset frame interpolation before resuming. Reduced motion uses still compositions, gifts at rest and non-swinging baubles.
 
 ## Validation
 
@@ -44,3 +44,17 @@ Run the existing four suites plus `node tests/festive.test.cjs`. The new integra
 These checks exercise the model and drawing calls. They do not certify hour-long GPU performance on every phone or TV, real Spotify audio, or pixel-perfect alignment of every scene on every device.
 
 The live browser check led to two placement refinements: the elf repairs a lamp near the free right edge, and ground actors use a snow-profile ledge above the visible dock. When Party hides the dock, they use the lower screen edge instead. The ledge mirrors the existing snow profile without adding or deleting snow mass. This keeps the figures visible rather than hiding behind album art or player controls.
+
+## Five additional wizard-school animations
+
+The original face and all twenty Christmas features remain. Five separately switchable additions extend the catalog to 25 features (seven ambient layers, eighteen new stories plus the six original winter scenes in the rotation). The settings section is now named 25 Winter- und Zauberideen anpassen.
+
+| Identifier | Animation | Behavior |
+| --- | --- | --- |
+| wand | Zauberstab & Sternenzauber | A wooden wand draws a lavender star trail, finishes with a spell ring and sends a light wave through enabled lamps. |
+| levitate | Schwebende Geschenke | Three parcels lift off, drift in small orbits, then return to gravity and settle. Interruption releases them too; reduced motion keeps them at rest. |
+| spellbook | Fliegendes Zauberbuch | An opening book floats gently and releases luminous abstract glyphs. |
+| broom | Magischer Besenflug | An enchanted broom sweeps over the sky with a star trail; the existing face follows it with its eyes. |
+| candles | Schwebende Kerzen | Four candles in TV mode or eight in quality float at the upper edge with slow, non-strobing flames; reduced motion uses a still composition. |
+
+The additions use the same canvas layers, single application clock, preview controls, persisted switches and existing resource bounds. No additional service, audio or external artwork is loaded. Run `node tests/magic.test.cjs` alongside the previous five suites. The dedicated checks cover levitation, interruption and settling, broom gaze, reduced motion, candle drawing, saved switches, manual preview and season cleanup.

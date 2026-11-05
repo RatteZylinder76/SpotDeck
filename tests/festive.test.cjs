@@ -9,11 +9,11 @@ function checkedCanvas(ctx){
 }
 (async()=>{
   const h=harness({preferences:{season:'winter',tempoLookup:false,surprises:false}});
-  assert.equal(h.run('festiveFeatures.length'),20);
-  assert.equal(h.run('new Set(festiveFeatures.map(f=>f.id)).size'),20);
-  assert.equal(h.run('festiveFeatures.filter(f=>f.type==="ambient").length'),6);
-  assert.equal(h.nodes.get('festiveFeatureList').children.length,20);
-  assert.equal(h.nodes.get('winterPreviewChoice').children.length,26);
+  assert.equal(h.run('festiveFeatures.length'),25);
+  assert.equal(h.run('new Set(festiveFeatures.map(f=>f.id)).size'),25);
+  assert.equal(h.run('festiveFeatures.filter(f=>f.type==="ambient").length'),7);
+  assert.equal(h.nodes.get('festiveFeatureList').children.length,25);
+  assert.equal(h.nodes.get('winterPreviewChoice').children.length,31);
   const ambient=checkedCanvas(h.nodes.get('festiveAmbient').getContext()),story=checkedCanvas(h.nodes.get('festiveStory').getContext());
   const ids=h.run('festiveFeatures.filter(f=>f.duration).map(f=>f.id)');
   for(const id of ids){
@@ -32,7 +32,7 @@ function checkedCanvas(ctx){
     h.step(15000);assert.equal(h.run('effects.active'),null);assert.equal(h.run('festiveWorld.story'),null);assert.equal(h.frames.size,1);
   }
   assert(ambient.ops>0);assert(h.timers.size<12);
-  console.log('PASS all 20 catalog entries, controls, 14 story renderers, finite canvas geometry, balanced drawing state, semantic cues, expiry and single RAF.');
+  console.log('PASS all 25 catalog entries, controls, 18 story renderers, finite canvas geometry, balanced drawing state, semantic cues, expiry and single RAF.');
 
   h.run('clearHalloween();festiveWorld.clearResidue();festiveWorld.addProp("gift",.1,-20,performance.now(),{size:25})');
   h.step(10000);assert(h.run('festiveWorld.props[0].landed'),'Gifts settle on the existing floor');
@@ -46,8 +46,8 @@ function checkedCanvas(ctx){
   h.step(105000);assert.equal(h.run('festiveWorld.props.length'),0,'Residue expires');assert.equal(h.run('festiveWorld.wipes.length'),0);
   console.log('PASS gift landing/pushing, bauble pendulum, wipeable frost and bounded/expiring scenery.');
 
-  h.run('festiveWorld.bag=[]');const rotation=Array.from({length:20},()=>h.run('festiveWorld.choose()'));
-  assert.equal(new Set(rotation).size,20,'Every enabled major scene receives a turn before repeats');
+  h.run('festiveWorld.bag=[]');const rotation=Array.from({length:24},()=>h.run('festiveWorld.choose()'));
+  assert.equal(new Set(rotation).size,24,'Every enabled major scene receives a turn before repeats');
   h.nodes.get('festiveFeatureList').children[2].children[1].checked=false;
   h.event(h.nodes.get('festiveFeatureList').children[2].children[1],'change');
   assert.equal(h.run('festiveEnabled("star")'),false);assert(JSON.parse(h.store.get('spotdeck.facePreferences')).festiveDisabled.includes('star'));
