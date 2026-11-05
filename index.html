@@ -3633,14 +3633,15 @@ THE SOFTWARE.
     }
     measureCover(){
       const box=selector=>{const r=document.querySelector(selector)?.getBoundingClientRect();return r?.width>0&&r?.height>0?{left:r.left,top:r.top,right:r.left+r.width,bottom:r.top+r.height}:null};
-      this.cover=box(".art-wrap");this.metaBounds=box(".meta");
+      this.cover=box(".art-wrap");this.metaBounds=box(".meta");this.toolbarBounds=box(".mini-actions");
       const dock=document.querySelector(".controls")?.getBoundingClientRect();this.dockTop=dock?.top>this.height*.5?dock.top-8:null;
     }
+    sceneObstacles(){return [this.cover,this.metaBounds,app.dataset.controlsHidden!=="true"?this.toolbarBounds:null].filter(Boolean)}
     safePoint(x,y,rx=30,ry=rx){
       const v=sceneViewport,bottom=this.groundY()-4;
       let regions=[{left:v.left+4,right:v.right-4,top:v.top+4,bottom}];
       // Partition around cover AND song information, then use the nearest fitting region.
-      for(const obstacle of [this.cover,this.metaBounds].filter(Boolean)){
+      for(const obstacle of this.sceneObstacles()){
         const c={left:obstacle.left-10,right:obstacle.right+10,top:obstacle.top-10,bottom:obstacle.bottom+10},next=[];
         for(const r of regions){
           if(c.right<=r.left||c.left>=r.right||c.bottom<=r.top||c.top>=r.bottom){next.push(r);continue}
@@ -3661,7 +3662,7 @@ THE SOFTWARE.
     skyLane(y,r=40){
       const v=sceneViewport;
       let bands=[{top:v.top,bottom:this.groundY()}];
-      for(const c of [this.cover,this.metaBounds].filter(Boolean))bands=bands.flatMap(b=>c.bottom+10<=b.top||c.top-10>=b.bottom?[b]:[{top:b.top,bottom:Math.min(b.bottom,c.top-10)},{top:Math.max(b.top,c.bottom+10),bottom:b.bottom}]).filter(b=>b.bottom>b.top);
+      for(const c of this.sceneObstacles())bands=bands.flatMap(b=>c.bottom+10<=b.top||c.top-10>=b.bottom?[b]:[{top:b.top,bottom:Math.min(b.bottom,c.top-10)},{top:Math.max(b.top,c.bottom+10),bottom:b.bottom}]).filter(b=>b.bottom>b.top);
       const choices=bands.map(b=>{const scale=Math.min(1,(b.bottom-b.top)/(r*2)),cy=clamp(y,b.top+r*scale,b.bottom-r*scale);return {y:cy,scale,score:(1-scale)*this.height*3+Math.abs(cy-y)}});
       return choices.sort((a,b)=>a.score-b.score)[0]||{y:v.top,scale:0};
     }
@@ -3857,7 +3858,7 @@ THE SOFTWARE.
         ctx.fillStyle=festivePalette.ink;for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(x+s*.3-i*s*.58,y,Math.max(3,s*.12),0,Math.PI*2);ctx.fill()}
         for(let i=0;i<4;i++){ctx.globalAlpha=alpha*(.3-i*.05);ctx.fillStyle=festivePalette.snow;ctx.beginPath();ctx.arc(x-s*.3-i*14,y-s*(1.2+i*.18)-Math.sin(t+i)*3,7+i*2,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=alpha;
       }else if(scene.name==='elf'){
-        const s=size*.75,x=clamp(sceneViewport.left+(sceneViewport.right-sceneViewport.left)*.8125,sceneViewport.left+s,sceneViewport.right-s),ceiling=sceneViewport.top+Math.max(70,s*1.4),top=Math.max(ceiling,Math.min(180,h*.25));this.drawLights(ctx,now,true);ctx.strokeStyle=festivePalette.wood;ctx.lineWidth=3;for(const dx of [-s*.2,s*.2]){ctx.beginPath();ctx.moveTo(x+dx,top+65);ctx.lineTo(x+dx,sceneViewport.top+27);ctx.stroke()}for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(x-s*.2,top+50-i*Math.max(8,(top+23-sceneViewport.top)/5));ctx.lineTo(x+s*.2,top+50-i*22);ctx.stroke()}
+        const s=size*.75,elfSpot=this.safePoint(sceneViewport.left+(sceneViewport.right-sceneViewport.left)*.8125,sceneViewport.top+Math.max(70,s*1.4)-s*.65,s*.6,s*.75),x=elfSpot.x,ceiling=elfSpot.y+s*.65,top=Math.max(ceiling,Math.min(180,h*.25));if(this.brokenLight>=0)this.brokenLight=(x-sceneViewport.left)/(sceneViewport.right-sceneViewport.left);this.drawLights(ctx,now,true);ctx.strokeStyle=festivePalette.wood;ctx.lineWidth=3;for(const dx of [-s*.2,s*.2]){ctx.beginPath();ctx.moveTo(x+dx,top+65);ctx.lineTo(x+dx,sceneViewport.top+27);ctx.stroke()}for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(x-s*.2,top+50-i*Math.max(8,(top+23-sceneViewport.top)/5));ctx.lineTo(x+s*.2,top+50-i*22);ctx.stroke()}
         const yy=p<.3?top+65-(p/.3)*(top+65-ceiling):p<.7?ceiling:ceiling+(p-.7)/.3*(top+65-ceiling);festivePerson(ctx,x,yy,s,Math.sin(t*2)*.04,true);if(p>.6)for(let i=0;i<5;i++)festiveStar(ctx,x+Math.cos(i*1.3)*32,sceneViewport.top+27+Math.sin(i*1.3)*18,3);
       }else if(scene.name==='gingerbread'){
         const x=w*(-.1+1.2*p),y=this.groundY(),s=size*.62,slip=festiveEase((p-.4)/.1)*(1-festiveEase((p-.65)/.12));
@@ -3910,7 +3911,7 @@ THE SOFTWARE.
   }
   if(typeof ResizeObserver!=="undefined"){
     const sceneObserver=new ResizeObserver(invalidateSceneGeometry);
-    for(const node of [$("sceneSafeArea"),vibeFace,document.querySelector(".now"),document.querySelector(".art-wrap"),document.querySelector(".meta")])if(node)sceneObserver.observe(node);
+    for(const node of [$("sceneSafeArea"),vibeFace,document.querySelector(".now"),document.querySelector(".art-wrap"),document.querySelector(".meta"),document.querySelector(".mini-actions")])if(node)sceneObserver.observe(node);
   }
   window.addEventListener('resize',()=>festiveWorld.resize());
   document.addEventListener('visibilitychange',()=>{festiveWorld.last=0;festiveWorld.lastAmbient=-Infinity});

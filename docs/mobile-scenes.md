@@ -13,3 +13,5 @@ Validation: `node tests/mobile-scenes.test.cjs` exercises all 25 major winter/ma
 Browser previews use actual deployed controls at portrait and landscape viewport sizes without a Spotify login. Browser emulation does not verify physical Safari safe-area values or every device's refresh rate; safe-area calculations are additionally exercised with simulated phone insets.
 
 The deployed portrait check also exposed focus-driven scrolling of the clipped root after using settings: the app accumulated an 80.5-pixel scroll offset while the document stayed at zero. The root now uses non-scrolling overflow clipping (with a hidden fallback), settings focus uses preventScroll, and opening/closing resets root offsets. Child overlay scrollers remain independent. The regression test checks origin restoration.
+
+Foreground placement and flight corridors also avoid the visible top toolbar. The elf chooses a clear position and the broken-light marker follows it; hiding party controls releases this area. Toolbar size is observed with the same geometry invalidation.
