@@ -207,3 +207,9 @@ Synchronized lyrics now have an automatic independent fallback: if LRCLIB fails,
 The original white Vibe Face now has a seasonal Winter/Christmas mode with falling snow, a persistent floor pile, snow collecting on its head and visible falling snow when it shakes. Mouse/touch pointer movement can shift the floor pile. Six scenes add a sleigh with following gaze, a Santa hat, scarf, ice/shivering, snowman and shaking. The face itself is retained. Settings → Party & Jahreszeiten selects Winter, Halloween or Off and offers scene preview and Snow clear.
 
 Winter replaces the old Halloween-only default while preserving existing Party, transparency and motion choices. Snow and scenes share the existing animation clock, with fixed particle/pile budgets, reduced-motion support and a lighter TV mode. The observed direct-SpotDeck-output lyrics issue is recorded separately and was not modified here. See [winter behavior, limits and verification](docs/winter.md).
+
+## Twenty Christmas additions
+
+Winter now includes the twenty agreed additions: aurora, light string, traveling star, falling gifts, reindeer, train, repair elf, interactive baubles, wipeable frost, gingerbread chase, decorating tree, chimney Santa, parallax forest, village, snow globe, constellations, snow angel, candy dominoes, visual bells and unwrapping. The existing white face stays unchanged.
+
+Settings → Party & Jahreszeiten offers a direct preview selector and twenty individual switches. Six ambient layers can run alongside one of the fourteen new stories; stories rotate fairly with the existing winter scenes. Gifts and decorations can remain briefly, be nudged or explicitly cleared. Effects share the existing clock and have TV/reduced-motion variants and fixed resource bounds. See [behavior, mapping and verification](docs/christmas-world.md).

@@ -8,7 +8,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   const timers=new Map(),frames=new Map(),nodes=new Map(),store=new Map(),requests=[],players=[];
   function node(id=''){
     const classes=new Set(),handlers={},captureHandlers={};
-    const paint={calls:0,setTransform(){},clearRect(){this.calls++},beginPath(){},moveTo(){},arc(){},fill(){this.calls++},lineTo(){},closePath(){}};
+    const paint={calls:0,setTransform(){},clearRect(){this.calls++},save(){},restore(){},translate(){},rotate(){},scale(){},clip(){},beginPath(){},moveTo(){},arc(){},ellipse(){},quadraticCurveTo(){},fillRect(){this.calls++},stroke(){this.calls++},fill(){this.calls++},lineTo(){},closePath(){}};
     return {getContext:()=>paint,id,value:'',textContent:'',innerHTML:'',hidden:false,disabled:false,checked:false,dataset:{},children:[],handlers,captureHandlers,
       style:{setProperty(k,v){this[k]=v}},classList:{add(...v){v.forEach(x=>classes.add(x))},remove(...v){v.forEach(x=>classes.delete(x))},contains:x=>classes.has(x),toggle(x,on){if(on===undefined)on=!classes.has(x);on?classes.add(x):classes.delete(x)}},
       addEventListener(name,fn,options){const registry=options===true||options?.capture?captureHandlers:handlers;(registry[name] ||= []).push(fn)},

@@ -963,6 +963,10 @@
     .lyrics-plain{font-size:clamp(20px,min(3.2vw,5vh),54px);line-height:1.45}
     @media(max-height:600px){.lyrics-top{padding-top:calc(var(--safe-t) + 5px);padding-bottom:5px}.lyrics-top .round-action{width:36px;height:36px}.lyrics-head strong{font-size:18px}.lyrics-head span{margin-top:2px;font-size:11px}.lyrics-body{padding-top:10px}.lyrics-tools .setting-field{margin:3px auto;padding:6px 10px}}
       /* Winter uses the shared clock; the overlay never captures player input. */
+    #festiveAmbient,#festiveStory{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+    .festive-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 16px;margin-top:8px}
+    .festive-list .setting-row{min-width:0}
+    .festive-list span{overflow-wrap:anywhere}
     #winterSnow{position:fixed;inset:0;width:100%;height:100%;z-index:35;pointer-events:none}
     .app[data-season="winter"]{--bg:#081b23;--glass:rgba(20,47,56,.57);--glass-clear:rgba(205,239,244,.10);--glass2:rgba(11,32,41,.96);--glass-edge:#c6edf56b}
     .app[data-season="winter"] .tint{background:radial-gradient(ellipse at 15% 12%,#acdfe121,transparent 50%),radial-gradient(ellipse at 85% 80%,#4d7f9630,transparent 55%),linear-gradient(125deg,#09212699,#08131da8)}
@@ -990,6 +994,8 @@
   <div class="bg" id="bg"></div>
   <div class="tint"></div>
   <div class="shade"></div>
+  <canvas id="festiveAmbient" aria-hidden="true" hidden></canvas>
+  <canvas id="festiveStory" aria-hidden="true" hidden></canvas>
   <canvas id="winterSnow" aria-hidden="true" hidden></canvas>
   <div class="halloween-ambient" aria-hidden="true"><span class="ambient-moon"></span><span class="ambient-pumpkin">🎃</span></div>
   <button class="glass glass-clear" id="partyExit" aria-label="Party-Modus beenden" hidden>Party-Modus beenden</button>
@@ -1221,7 +1227,7 @@
         <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
         <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
-        <div class="winter-controls"><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button></div></div>
+        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>20 Weihnachtsideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button></div></div>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
         <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
@@ -1435,7 +1441,7 @@ THE SOFTWARE.
   }
 
   function readFacePreferences(){
-    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto"};
+    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
       if(!saved||typeof saved!=="object")return defaults;
@@ -1445,6 +1451,8 @@ THE SOFTWARE.
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
       if(["winter","halloween","off"].includes(saved.season))defaults.season=saved.season;
       defaults.halloween=defaults.season==="halloween";
+      const festiveKeys=["aurora","lights","star","gifts","reindeer","train","elf","baubles","frost","gingerbread","tree","chimney","forest","village","globe","constellation","angel","candy","bells","unwrap"];
+      if(Array.isArray(saved.festiveDisabled))defaults.festiveDisabled=[...new Set(saved.festiveDisabled.filter(key=>festiveKeys.includes(key)))];
       return defaults;
     }catch{return defaults}
   }
@@ -1461,7 +1469,7 @@ THE SOFTWARE.
   function applyPerformance(){
     app.dataset.performance=effectivePerformance();document.documentElement.dataset.performance=effectivePerformance();
     $("performanceSetting").value=facePreferences.performance;
-    runtime.winterSnow?.configure();
+    runtime.winterSnow?.configure();runtime.festiveWorld?.configure();
     $("performanceStatus").textContent=facePreferences.performance==="auto"?(runtime.autoTV?"Automatisch: vereinfachte Effekte nach gemessenen Frame-Lücken.":"Automatisch: Laufzeit wird beobachtet; keine Geräteerkennung."):(effectivePerformance()==="tv"?"Weniger Blur und Partikel; Körperbewegung bis 30 Bilder/s.":"Volle Effekte; Körperbewegung bis 60 Bilder/s.");
   }
   function diagnose(kind,detail={}){
@@ -2037,6 +2045,7 @@ THE SOFTWARE.
       timedSection("body-mouth",()=>updateVibeMotion(pos));
       timedSection("party",()=>tickParty(now));
       timedSection("winter-snow",()=>winterSnow.tick(now));
+      timedSection("christmas-world",()=>festiveWorld.tick(now));
       observeFrame(now,performance.now()-workStart);
       if(vibeEggUntil && performance.now()>=vibeEggUntil){
         vibeFace.classList.remove("easteregg");
@@ -3001,7 +3010,7 @@ THE SOFTWARE.
       targetY-=Math.abs(Math.sin(eggBeat))*9*eggEnvelope;
       targetRotate+=Math.sin(eggBeat*.5)*8*eggEnvelope;
     }
-    const winterPose=winterMotion(now);targetX+=winterPose.x;targetRotate+=winterPose.rotate;
+    const winterPose=winterMotion(now);targetX+=winterPose.x;targetY+=winterPose.y||0;targetRotate+=winterPose.rotate;
     targetRotate+=vibeExpressionPose.tilt;
     targetX*=level*faceMotionScale;targetY*=level*faceMotionScale;targetRotate*=level;
     targetScaleX=1+(targetScaleX-1)*level;targetScaleY=1+(targetScaleY-1)*level;
@@ -3155,12 +3164,14 @@ THE SOFTWARE.
     snowman:'<div class="winter-snowman"><svg viewBox="0 0 100 140"><circle cx="50" cy="99" r="34" fill="#e5f2ed"/><circle cx="49" cy="57" r="25" fill="#f5fbef"/><path d="m28 39 3-26h34l7 27" fill="#384b58"/><path d="m24 39 52 1" stroke="#384b58" stroke-width="7" stroke-linecap="round"/><circle cx="42" cy="54" r="2.5" fill="#344c54"/><circle cx="58" cy="54" r="2.5" fill="#344c54"/><path d="m49 59 22 6-22 3Z" fill="#de9861"/><path d="M30 75q21 9 41-1l-3 12q-23 7-39-1Z" fill="#bd5261"/><path d="m66 82 5 21-12 2-2-22" fill="#bd5261"/><circle cx="49" cy="97" r="3" fill="#456068"/><circle cx="49" cy="111" r="3" fill="#456068"/><path d="m20 92-18-13m76 12 19-18" stroke="#997d63" stroke-width="3"/></svg></div>',
     shake:''
   };
-  function beginWinter(name,now=performance.now()){
-    if(activeSeason()!=="winter"||effects.active||now<vibeEggUntil||!winterKinds.includes(name))return false;
-    const duration={sleigh:7200,hat:9200,scarf:8500,freeze:7200,snowman:7600,shake:2100}[name];
-    effects.active={kind:"winter",name,start:now,end:now+duration,stage:-1,released:false};effects.lastKind=name;
-    vibeFace.dataset.winterScene=name;winterLayer.innerHTML=winterVisuals[name];
-    winterLayer.style.setProperty("--winter-progress","0");effects.nextAt=now+duration+sceneGap();
+  function beginWinter(name,now=performance.now(),preview=false){
+    if(activeSeason()!=="winter"||effects.active||now<vibeEggUntil||!winterKinds.includes(name)||(!preview&&festiveById.has(name)&&!festiveEnabled(name)))return false;
+    const duration={sleigh:7200,hat:9200,scarf:8500,freeze:7200,snowman:7600,shake:2100}[name]||festiveById.get(name)?.duration;
+    effects.active={kind:"winter",name,start:now,end:now+duration,stage:-1,released:false,preview};effects.lastKind=name;
+    vibeFace.dataset.winterScene=name;winterLayer.innerHTML=winterVisuals[name]||"";
+    winterLayer.style.setProperty("--winter-progress","0");
+    if(festiveById.has(name))festiveWorld.start(effects.active);
+    effects.nextAt=name==="shake"?Math.max(effects.nextAt,now+duration):now+duration+sceneGap();
     return true;
   }
   function tickWinterScene(now){
@@ -3171,15 +3182,17 @@ THE SOFTWARE.
     winterLayer.style.setProperty("--winter-rise",Math.min(1,p*6,(1-p)*6).toFixed(3));
     winterLayer.style.setProperty("--winter-sway",(motionLevel()?Math.sin(now/560)*4:0).toFixed(2)+"deg");
     winterLayer.style.setProperty("--winter-breath",(.3+.2*Math.sin(now/220)).toFixed(3));
+    if(festiveById.has(scene.name))festiveWorld.advance(scene,now);
     if(scene.name==="shake"&&age>=450&&!scene.released){scene.released=true;winterSnow.releaseHead()}
     if(stage!==scene.stage&&now>=vibeTapReactionUntil){
       scene.stage=stage;
       const gestures={sleigh:["lookUp","sideRight","curious","grin"],hat:["curious","proud","cheeky","grin"],scarf:["shy","dreamy","proud","grin"],freeze:["startled","confused","shy","grin"],snowman:["sideRight","curious","laugh","grin"],shake:["confused","determined","surprise","grin"]};
-      startVibeExpression(gestures[scene.name][stage],Math.min(1900,scene.end-now),4);
+      startVibeExpression((gestures[scene.name]||["curious","lookUp","surprise","grin"])[stage],Math.min(1900,scene.end-now),4);
     }
   }
   function winterMotion(now){
     const scene=effects.active;if(scene?.kind!=="winter")return {x:0,rotate:0};
+    if(festiveById.has(scene.name))return festiveWorld.facePose(scene,now);
     if(scene.name==="sleigh"&&now>=vibeTapReactionUntil){
       const p=clamp((now-scene.start)/(scene.end-scene.start),0,1);
       setFaceProperty("--gaze-x",((p*18-9)*faceMotionScale).toFixed(2)+"px");
@@ -3311,8 +3324,247 @@ THE SOFTWARE.
     winterSnow.push(event.clientX,event.clientY,previous?event.clientX-previous.x:0);
   },{passive:true});
   $("clearSnow").addEventListener("click",()=>winterSnow.clear());
-  $("previewWinter").addEventListener("click",()=>{clearHalloween();beginWinter(winterKinds[Math.floor(Math.random()*winterKinds.length)])});
+  // Twenty independent additions; ambient layers and stories have separate switches.
+  const festiveFeatures=[
+    {id:"aurora",label:"Nordlichter",type:"ambient"},
+    {id:"lights",label:"Lebendige Lichterkette",type:"ambient"},
+    {id:"star",label:"Wandernder Weihnachtsstern",duration:10500},
+    {id:"gifts",label:"Geschenke vom Himmel",duration:10500},
+    {id:"reindeer",label:"Neugieriges Rentier",duration:10500},
+    {id:"train",label:"Weihnachtszug",duration:13000},
+    {id:"elf",label:"Wichtel repariert das Licht",duration:14000},
+    {id:"baubles",label:"Weihnachtskugeln zum Anschubsen",type:"ambient"},
+    {id:"frost",label:"Eisblumen zum Freiwischen",type:"ambient"},
+    {id:"gingerbread",label:"Lebkuchen auf Keksjagd",duration:12000},
+    {id:"tree",label:"Weihnachtsbaum schmücken",duration:13500},
+    {id:"chimney",label:"Weihnachtsmann im Schornstein",duration:12000},
+    {id:"forest",label:"Winterwald mit Tiefe",type:"ambient"},
+    {id:"village",label:"Weihnachtsdorf erwacht",type:"ambient"},
+    {id:"globe",label:"Smiley in der Schneekugel",duration:11000},
+    {id:"constellation",label:"Weihnachtliche Sternbilder",duration:13000},
+    {id:"angel",label:"Schneeengel",duration:10000},
+    {id:"candy",label:"Zuckerstangen-Domino",duration:11500},
+    {id:"bells",label:"Schwingende Weihnachtsglocken",duration:11000},
+    {id:"unwrap",label:"Geschenk auspacken",duration:12500}
+  ];
+  const festiveById=new Map(festiveFeatures.map(feature=>[feature.id,feature]));
+  const festivePalette={snow:"#e9f6f3",gold:"#e8c98b",red:"#bf5d70",green:"#528c76",wood:"#b09176",dark:"#173541",ice:"#b7e3e9",ink:"#223d49"};
+  function festiveEnabled(id){return !(facePreferences.festiveDisabled||[]).includes(id)}
+  const festiveEase=p=>{p=clamp(p,0,1);return p*p*(3-2*p)};
+  function festiveStar(ctx,x,y,r,color=festivePalette.gold){
+    ctx.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,d=i%2?r*.43:r;const px=x+Math.cos(a)*d,py=y+Math.sin(a)*d;if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py)}ctx.closePath();ctx.fillStyle=color;ctx.fill();
+  }
+  function festiveGift(ctx,x,y,size,open=0,color=festivePalette.red){
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=color;ctx.fillRect(-size*.5,-size,size,size);ctx.fillStyle=festivePalette.gold;ctx.fillRect(-size*.065,-size,size*.13,size);
+    ctx.save();ctx.translate(open*size*.5,-open*size*.8);ctx.rotate(-open*.6);ctx.fillStyle=color;ctx.fillRect(-size*.55,-size*1.12,size*1.1,size*.23);ctx.strokeStyle=festivePalette.gold;ctx.lineWidth=Math.max(1,size*.05);ctx.beginPath();ctx.ellipse(-size*.13,-size*1.22,size*.19,size*.11,-.3,0,Math.PI*2);ctx.ellipse(size*.13,-size*1.22,size*.19,size*.11,.3,0,Math.PI*2);ctx.stroke();ctx.restore();ctx.restore();
+  }
+  function festiveTree(ctx,x,y,size,decorated=1){
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=festivePalette.wood;ctx.fillRect(-size*.065,-size*.17,size*.13,size*.17);
+    for(let i=0;i<3;i++){const top=-size*(1-i*.22),half=size*(.24+i*.11),bottom=top+size*.53;ctx.fillStyle=i%2?"#457a69":"#3d6e60";ctx.beginPath();ctx.moveTo(0,top);ctx.lineTo(half,bottom);ctx.lineTo(-half,bottom);ctx.closePath();ctx.fill();ctx.strokeStyle="#d9eeeb85";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-half,bottom);ctx.quadraticCurveTo(0,bottom-size*.07,half,bottom);ctx.stroke()}
+    for(let i=0;i<9*decorated;i++){const yy=-size*(.2+i*.075),xx=Math.sin(i*2.5)*size*(.32-i*.022);ctx.fillStyle=i%2?festivePalette.gold:festivePalette.red;ctx.beginPath();ctx.arc(xx,yy,Math.max(2,size*.035),0,Math.PI*2);ctx.fill()}
+    if(decorated>.9)festiveStar(ctx,0,-size*1.03,size*.11);ctx.restore();
+  }
+  function festivePerson(ctx,x,y,size,pose=0,elf=false){
+    ctx.save();ctx.translate(x,y);ctx.rotate(pose);ctx.lineCap="round";ctx.strokeStyle=festivePalette.ink;ctx.lineWidth=size*.12;ctx.beginPath();ctx.moveTo(-size*.14,-size*.22);ctx.lineTo(-size*.23,0);ctx.moveTo(size*.14,-size*.22);ctx.lineTo(size*.23,0);ctx.stroke();
+    ctx.fillStyle=elf?festivePalette.green:festivePalette.red;ctx.beginPath();ctx.moveTo(0,-size*.77);ctx.lineTo(size*.3,-size*.18);ctx.lineTo(-size*.3,-size*.18);ctx.closePath();ctx.fill();ctx.fillStyle="#edc7a2";ctx.beginPath();ctx.arc(0,-size*.8,size*.18,0,Math.PI*2);ctx.fill();ctx.fillStyle=elf?festivePalette.green:festivePalette.red;ctx.beginPath();ctx.moveTo(-size*.22,-size*.87);ctx.lineTo(0,-size*1.27);ctx.lineTo(size*.27,-size*.87);ctx.closePath();ctx.fill();ctx.fillStyle=festivePalette.snow;ctx.fillRect(-size*.22,-size*.92,size*.47,size*.07);ctx.beginPath();ctx.arc(0,-size*1.27,size*.065,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  function festiveReindeer(ctx,x,y,size,peek=0){
+    ctx.save();ctx.translate(x,y);ctx.rotate(peek);ctx.strokeStyle=festivePalette.wood;ctx.lineWidth=size*.07;ctx.lineCap="round";
+    for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(side*size*.21,-size*.5);ctx.lineTo(side*size*.37,-size*1.04);ctx.moveTo(side*size*.32,-size*.87);ctx.lineTo(side*size*.55,-size*.94);ctx.moveTo(side*size*.36,-size*.98);ctx.lineTo(side*size*.22,-size*1.15);ctx.stroke();ctx.fillStyle="#b79a7f";ctx.beginPath();ctx.ellipse(side*size*.4,-size*.48,size*.22,size*.11,side*.4,0,Math.PI*2);ctx.fill()}
+    ctx.fillStyle="#ad9076";ctx.beginPath();ctx.ellipse(0,-size*.35,size*.34,size*.46,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#d3b49a";ctx.beginPath();ctx.ellipse(0,-size*.13,size*.28,size*.18,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=festivePalette.ink;for(const side of [-1,1]){ctx.beginPath();ctx.arc(side*size*.13,-size*.45,size*.035,0,Math.PI*2);ctx.fill()}ctx.fillStyle=festivePalette.red;ctx.beginPath();ctx.arc(0,-size*.17,size*.085,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  class FestiveWorld{
+    constructor(ambientCanvas,storyCanvas){
+      this.ambientCanvas=ambientCanvas;this.storyCanvas=storyCanvas;this.bg=ambientCanvas.getContext?.("2d")||null;this.ctx=storyCanvas.getContext?.("2d")||null;
+      this.width=0;this.height=0;this.last=0;this.lastAmbient=-Infinity;this.enabled=false;this.props=[];this.wipes=[];this.bag=[];this.pointer={x:.5,y:.5};this.parallax=0;this.previewFeature=null;this.brokenLight=-1;this.waveAt=-Infinity;this.story=null;this.lastPlow=0;this.previewUntil=0;
+      this.baubles=Array.from({length:4},(_,i)=>({a:Math.sin(i)*.12,v:0}));
+    }
+    configure(){
+      const enabled=activeSeason()==="winter";
+      if(this.enabled&&!enabled)this.clear();this.enabled=enabled;
+      const profile=effectivePerformance(),signature=(facePreferences.festiveDisabled||[]).join('|');
+      if(this.profile!==profile||!this.width){this.profile=profile;this.resize()}
+      if(this.signature!==signature){this.signature=signature;this.bag=[];this.previewFeature=null}
+      this.ambientCanvas.hidden=!enabled;this.storyCanvas.hidden=!enabled;
+      if(this.story&&!festiveEnabled(this.story.name))clearHalloween();
+      this.props=this.props.filter(prop=>!prop.owner||festiveEnabled(prop.owner));
+    }
+    resize(width=window.innerWidth||800,height=window.innerHeight||600){
+      this.width=Math.max(1,width);this.height=Math.max(1,height);const pixels=effectivePerformance()==="tv"?650000:1200000;
+      const ratio=Math.min(window.devicePixelRatio||1,1.25,Math.sqrt(pixels/(this.width*this.height)));
+      for(const [canvas,ctx]of [[this.ambientCanvas,this.bg],[this.storyCanvas,this.ctx]]){canvas.width=Math.round(this.width*ratio);canvas.height=Math.round(this.height*ratio);ctx?.setTransform(ratio,0,0,ratio,0,0)}
+      this.lastAmbient=-Infinity;
+    }
+    ambientOn(id,now){return this.enabled&&((facePreferences.ambient&&festiveEnabled(id))||(this.previewFeature===id&&now<this.previewUntil))}
+    choose(){
+      const eligible=winterKinds.filter(id=>!festiveById.has(id)||festiveEnabled(id));
+      this.bag=this.bag.filter(id=>eligible.includes(id));
+      if(!this.bag.length){this.bag=eligible.slice();for(let i=this.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.bag[i],this.bag[j]]=[this.bag[j],this.bag[i]]}}
+      if(this.bag.length>1&&this.bag[this.bag.length-1]===effects.lastKind)[this.bag[0],this.bag[this.bag.length-1]]=[this.bag[this.bag.length-1],this.bag[0]];
+      return this.bag.pop();
+    }
+    preview(id){
+      if(activeSeason()!=="winter")return false;clearHalloween();
+      const feature=festiveById.get(id);
+      if(feature?.type==="ambient"){this.previewFeature=id;this.previewUntil=performance.now()+12000;this.lastAmbient=-Infinity;return true}
+      this.previewFeature=null;return beginWinter(id,performance.now(),true);
+    }
+    start(scene){this.story=scene;scene.cues=new Set();scene.preview=!!scene.preview;this.previewFeature=null;if(scene.name==="elf")this.brokenLight=5;this.lastPlow=0}
+    stop(){this.story=null;this.brokenLight=-1;this.ctx?.clearRect(0,0,this.width,this.height)}
+    clearResidue(){this.props=[];this.wipes=[];this.brokenLight=-1;this.waveAt=-Infinity}
+    clear(){this.clearResidue();this.stop();this.last=0;this.previewFeature=null;this.bag=[];this.bg?.clearRect(0,0,this.width,this.height)}
+    addProp(type,x,y,now,extra={}){if(this.props.length>=8)this.props.shift();this.props.push({type,x:clamp(x,.025,.975),y:type==="gift"&&!motionLevel()?this.floorAt(x*this.width)-1:y,vy:0,vx:0,landed:type!=="gift"||!motionLevel(),until:now+100000,owner:this.story?.name,...extra})}
+    floorAt(x){return winterSnow.floorY(Math.floor(x/winterSnow.width*winterSnow.floor.length))}
+    advance(scene,now){
+      const p=clamp((now-scene.start)/(scene.end-scene.start),0,1),cue=(id,at,fn)=>{if(p>=at&&!scene.cues.has(id)){scene.cues.add(id);fn()}};
+      if(scene.name==="gifts")for(let i=0;i<3;i++)cue('gift'+i,.08+i*.2,()=>this.addProp('gift',i%2?.91:.08+i*.05,-50,now,{size:22+i*4}));
+      if(scene.name==="chimney")cue('present',.62,()=>this.addProp('gift',.17,this.height*.52,now,{size:25}));
+      if(scene.name==="tree")cue('tree',.86,()=>this.addProp('tree',.1,0,now,{size:Math.min(140,this.width*.21)}));
+      if(scene.name==="elf")cue('fixed',.65,()=>{this.brokenLight=-1;this.waveAt=now});
+      if(scene.name==="angel")cue('imprint',.6,()=>{this.addProp('angel',.79,0,now,{size:Math.min(90,this.width*.13)});winterSnow.releaseHead()});
+      if(scene.name==="unwrap")cue('surprise',.74,()=>this.addProp('tree',.9,0,now,{size:65}));
+      if(scene.name==="train"&&motionLevel()>0&&now-this.lastPlow>100){this.lastPlow=now;const x=this.width*(1.3*p-.15);winterSnow.push(x,this.height-5,15)}
+    }
+    step(dt,now){
+      this.wipes=this.wipes.filter(w=>now-w.at<18000);this.props=this.props.filter(prop=>prop.until>now);
+      for(const prop of this.props){
+        if(prop.type!=="gift")continue;
+        if(!prop.landed){prop.vy+=150*dt;prop.y+=prop.vy*dt;const floor=this.floorAt(prop.x*this.width);if(prop.y>=floor-1){prop.y=floor-1;prop.landed=true;prop.vy=0;winterSnow.push(prop.x*this.width,this.height-4,15)}}
+        else{prop.x=clamp(prop.x+prop.vx*dt/this.width,.025,.975);prop.vx*=Math.exp(-dt*3);prop.y=this.floorAt(prop.x*this.width)-1}
+      }
+      for(const ball of this.baubles){ball.v+=(-ball.a*5-ball.v*1.8)*dt;ball.a+=ball.v*dt;ball.a=clamp(ball.a,-.7,.7)}
+      this.parallax+=(this.pointer.x-.5-this.parallax)*(1-Math.exp(-dt*3));
+    }
+    interact(x,y,dx=0,now=performance.now()){
+      if(!this.enabled||!Number.isFinite(x)||!Number.isFinite(y))return;
+      this.pointer={x:clamp(x/this.width,0,1),y:clamp(y/this.height,0,1)};
+      if(this.ambientOn('frost',now)&&(x<100||x>this.width-100)&&(y<120||y>this.height-120)){
+        if(!this.wipes.length||Math.hypot(x-this.wipes[this.wipes.length-1].x,y-this.wipes[this.wipes.length-1].y)>12){this.wipes.push({x,y,at:now});if(this.wipes.length>16)this.wipes.shift();this.lastAmbient=-Infinity}
+      }
+      if(!motionLevel())return;
+      if(this.ambientOn('baubles',now))this.baubles.forEach((ball,i)=>{const anchor=this.ballAnchor(i),bx=anchor.x+Math.sin(ball.a)*anchor.length,by=anchor.length*Math.cos(ball.a)+10;if(Math.hypot(x-bx,y-by)<32)ball.v=clamp(ball.v+dx*.035,-3,3)});
+      for(const prop of this.props)if(prop.type==='gift'&&prop.landed&&Math.abs(x-prop.x*this.width)<35&&Math.abs(y-prop.y)<40)prop.vx=clamp(dx*10,-100,100);
+    }
+    ballAnchor(i){return {x:this.width*([.065,.19,.81,.935][i]),length:54+(i%2)*32}}
+    transform(ctx,x,y,scale,fn,angle=0){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);fn();ctx.restore()}
+    drawAmbient(now){
+      const ctx=this.bg;if(!ctx)return;const w=this.width,h=this.height,t=motionLevel()?now/1000:0,tv=effectivePerformance()==="tv";
+      ctx.clearRect(0,0,w,h);
+      if(this.ambientOn('aurora',now)){
+        for(let band=0;band<3;band++){ctx.beginPath();for(let i=0;i<=24;i++){const x=w*i/24,y=h*(.12+band*.065)+Math.sin(i*.3+t*.17+band)*h*.055;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)}for(let i=24;i>=0;i--){const x=w*i/24,y=h*(.24+band*.065)+Math.sin(i*.3+t*.17+band)*h*.055;ctx.lineTo(x,y)}ctx.closePath();ctx.fillStyle=["#79cbb515","#7ab4d915","#b89edc10"][band];ctx.fill()}
+      }
+      if(this.ambientOn('forest',now)){
+        for(let layer=0;layer<2;layer++){const count=tv?7:12;ctx.globalAlpha=layer?.3:.14;for(let i=0;i<count;i++){const size=h*(.1+((i*13)%7)*.015)*(layer?1:.8),x=(i+.3)/count*w+(motionLevel()?this.parallax*(layer?12:5):0);festiveTree(ctx,x,h-3-layer*14,size,0)}}ctx.globalAlpha=1;
+      }
+      if(this.ambientOn('village',now))for(let i=0;i<(w<600?3:5);i++){
+        const size=Math.min(62,w*.09),x=(i+.5)/(w<600?3:5)*w,y=h-6;ctx.fillStyle=["#355462","#3f555b","#4c4855"][i%3];ctx.fillRect(x-size*.45,y-size*.65,size*.9,size*.65);ctx.beginPath();ctx.moveTo(x-size*.6,y-size*.65);ctx.lineTo(x,y-size*1.1);ctx.lineTo(x+size*.6,y-size*.65);ctx.closePath();ctx.fill();ctx.strokeStyle="#d8e9e6a0";ctx.lineWidth=3;ctx.stroke();
+        for(let j=0;j<3;j++){ctx.fillStyle=((Math.floor(t/8)+i+j)%5!==0)?"#efcc8599":"#16313b";ctx.fillRect(x+size*(j*.23-.31),y-size*.48,size*.14,size*.19)}
+        if(!tv){ctx.strokeStyle="#dbe8e12b";ctx.lineWidth=2;ctx.beginPath();for(let k=0;k<7;k++){const yy=y-size*1.1-k*5,xx=x+size*.22+Math.sin(k*.5+t)*4;if(k)ctx.lineTo(xx,yy);else ctx.moveTo(xx,yy)}ctx.stroke()}
+      }
+      if(this.ambientOn('lights',now))this.drawLights(ctx,now);
+      if(this.ambientOn('baubles',now))this.baubles.forEach((ball,i)=>{const a=this.ballAnchor(i),x=a.x+Math.sin(ball.a)*a.length,y=10+Math.cos(ball.a)*a.length;ctx.strokeStyle="#cce0db70";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,0);ctx.lineTo(x,y-13);ctx.stroke();ctx.fillStyle=i%2?festivePalette.gold:festivePalette.red;ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ffffff55";ctx.beginPath();ctx.arc(x-4,y-4,3,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#e8efe4a0";ctx.beginPath();ctx.arc(x,y-15,3,Math.PI,0);ctx.stroke()});
+      if(this.ambientOn('frost',now)){
+        const count=tv?12:22;ctx.strokeStyle="#b9e5ec";ctx.lineWidth=1;
+        for(const [cornerX,cornerY,sx,sy]of [[0,0,1,1],[w,0,-1,1],[0,h,1,-1],[w,h,-1,-1]])for(let i=0;i<count;i++){
+          const x=cornerX+sx*(i*11%90),y=cornerY+sy*(i*17%110);let alpha=.18*(.7+.3*Math.sin(t*.03+i));for(const wipe of this.wipes){const distance=Math.hypot(x-wipe.x,y-wipe.y);if(distance<65)alpha*=clamp((now-wipe.at-6000)/12000,0,1)}ctx.globalAlpha=alpha;
+          ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+sx*17,y+sy*25);ctx.moveTo(x+sx*8,y+sy*13);ctx.lineTo(x+sx*18,y+sy*10);ctx.moveTo(x+sx*8,y+sy*13);ctx.lineTo(x+sx*3,y+sy*23);ctx.stroke();
+        }ctx.globalAlpha=1;
+      }
+    }
+    drawLights(ctx,now,short=false){
+      const w=this.width,count=short?8:effectivePerformance()==="tv"?16:26,t=motionLevel()?now/1000:0;
+      ctx.strokeStyle="#6c8c7b99";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,8);ctx.quadraticCurveTo(w*.5,45,w,8);ctx.stroke();
+      for(let i=0;i<count;i++){const x=(i+.5)/count*w,y=12+Math.sin((i+.5)/count*Math.PI)*17,phase=(now-this.waveAt)/110-i*.3;ctx.globalAlpha=i===this.brokenLight?.16:.64+Math.sin(t*.65+i*.4)*.16+Math.max(0,Math.sin(phase))*.15;ctx.fillStyle=[festivePalette.gold,festivePalette.red,festivePalette.ice,festivePalette.green][i%4];ctx.beginPath();ctx.ellipse(x,y+5,3.5,6,0,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+    }
+    drawProps(ctx,now){
+      for(const prop of this.props){ctx.save();ctx.globalAlpha=clamp((prop.until-now)/1500,0,1);const x=prop.x*this.width,y=prop.type==='gift'?prop.y:this.floorAt(x);
+        if(prop.type==='gift')festiveGift(ctx,x,y,prop.size||24,0,prop.x>.5?festivePalette.green:festivePalette.red);
+        if(prop.type==='tree')festiveTree(ctx,x,y,prop.size||90,1);
+        if(prop.type==='angel'){ctx.strokeStyle="#a1c6d0aa";ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x-prop.size*.25,y-10,prop.size*.3,9,-.35,0,Math.PI*2);ctx.ellipse(x+prop.size*.25,y-10,prop.size*.3,9,.35,0,Math.PI*2);ctx.moveTo(x,y-25);ctx.lineTo(x,y-1);ctx.stroke()}
+        ctx.restore();
+      }
+    }
+    facePose(scene,now){
+      if(!scene||!festiveById.has(scene.name))return {x:0,y:0,rotate:0};
+      const p=clamp((now-scene.start)/(scene.end-scene.start),0,1),envelope=Math.sin(Math.PI*p);
+      if(now>=vibeTapReactionUntil){
+        const face=winterSnow.face||{left:this.width*.6,top:this.height*.3,width:200,height:200};
+        const positions={star:[this.width*p,this.height*.2],reindeer:[this.width*(1-.18*envelope),this.height*.44],train:[this.width*(1.3*p-.15),this.height-80],elf:[this.width*.23,this.height*.17],gingerbread:[this.width*p,this.height-45],tree:[this.width*.1,this.height*.75],chimney:[this.width*.17,this.height*.52],constellation:[this.width*.35,this.height*.28],bells:[this.width*.5,this.height*.14],unwrap:[this.width*.24,this.height*.65],gifts:[this.width*.12,this.height*p]};
+        const target=positions[scene.name];if(target){setFaceProperty('--gaze-x',(clamp((target[0]-(face.left+face.width/2))/face.width*10,-10,10)*faceMotionScale).toFixed(2)+'px');setFaceProperty('--gaze-y',(clamp((target[1]-(face.top+face.height/2))/face.height*7,-5,5)*faceMotionScale).toFixed(2)+'px')}
+      }
+      if(!motionLevel())return {x:0,y:0,rotate:0};
+      if(scene.name==='angel'){const face=winterSnow.face;const descent=face?Math.max(0,this.height-90-face.top-face.height*.65):80;return {x:Math.sin(p*Math.PI*8)*4*envelope,y:Math.min(this.height*.35,descent)/faceMotionScale*Math.sin(Math.PI*p),rotate:Math.sin(p*Math.PI*8)*10*envelope}}
+      if(scene.name==='reindeer')return {x:-5*envelope,y:0,rotate:-4*envelope};
+      if(scene.name==='gingerbread')return {x:0,y:0,rotate:Math.sin(p*Math.PI*3)*2};
+      return {x:0,y:0,rotate:0};
+    }
+    tick(now){
+      if(!this.enabled||document.visibilityState!=='visible'){this.last=0;return}
+      const dt=this.last?clamp((now-this.last)/1000,0,.05):0;this.last=now;
+      if(motionLevel())this.step(dt,now);else this.props=this.props.filter(prop=>prop.until>now);
+      if(now-this.lastAmbient>=(effectivePerformance()==='tv'?100:34)){this.lastAmbient=now;this.drawAmbient(now)}
+      if(this.ctx){this.ctx.clearRect(0,0,this.width,this.height);this.drawProps(this.ctx,now);if(this.story)this.drawStory(this.ctx,this.story,now)}
+    }
+    // Story drawing methods are below; all use this same accepted application frame.
+    drawStory(ctx,scene,now){
+      const w=this.width,h=this.height,raw=clamp((now-scene.start)/(scene.end-scene.start),0,1),p=motionLevel()?raw:.55,t=motionLevel()?(now-scene.start)/1000:0;
+      const alpha=Math.min(1,raw*8,(1-raw)*8),size=Math.min(90,w*.14);ctx.save();ctx.globalAlpha=alpha;
+      if(scene.name==='star'){
+        const x=w*(.08+.84*festiveEase(p)),y=h*(.18+.04*Math.sin(p*Math.PI*2));ctx.strokeStyle='#e8c98b55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-90,y+10);ctx.quadraticCurveTo(x-40,y+22,x,y);ctx.stroke();festiveStar(ctx,x,y,size*.3);for(let i=0;i<5;i++)festiveStar(ctx,x-20-i*17,y+Math.sin(i)*9,2+i%2);
+      }else if(scene.name==='gifts'){
+        for(let i=0;i<5;i++)festiveStar(ctx,w*(.1+i*.2),h*.15+Math.sin(t+i)*8,3);
+      }else if(scene.name==='reindeer'){
+        const reveal=Math.sin(Math.PI*p);festiveReindeer(ctx,w+size*.4-reveal*size*.95,h*.45,size*1.45,Math.sin(t*1.2)*.07);
+      }else if(scene.name==='train'){
+        const x=w*(1.3*p-.15),y=h-18,s=Math.min(65,w*.11);ctx.fillStyle=festivePalette.green;ctx.fillRect(x-s*.5,y-s*.65,s,s*.5);ctx.fillRect(x+s*.1,y-s,s*.45,s*.85);ctx.fillStyle=festivePalette.gold;ctx.fillRect(x+s*.18,y-s*.9,s*.23,s*.25);ctx.fillStyle=festivePalette.ink;ctx.fillRect(x-s*.37,y-s*.95,s*.18,s*.35);
+        for(let car=0;car<3;car++){const xx=x-(car+1)*s*1.18;ctx.fillStyle=car%2?festivePalette.red:'#496f85';ctx.fillRect(xx-s*.5,y-s*.75,s,s*.65);for(let j=0;j<3;j++){ctx.fillStyle='#e8c98bc0';ctx.fillRect(xx+s*(j*.27-.36),y-s*.6,s*.17,s*.22)}festiveGift(ctx,xx,y-s*.82,s*.25,0,festivePalette.green)}
+        ctx.fillStyle=festivePalette.ink;for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(x+s*.3-i*s*.58,y,Math.max(3,s*.12),0,Math.PI*2);ctx.fill()}
+        for(let i=0;i<4;i++){ctx.globalAlpha=alpha*(.3-i*.05);ctx.fillStyle=festivePalette.snow;ctx.beginPath();ctx.arc(x-s*.3-i*14,y-s*(1.2+i*.18)-Math.sin(t+i)*3,7+i*2,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=alpha;
+      }else if(scene.name==='elf'){
+        const x=w*.23,top=Math.min(180,h*.25),s=size*.75;this.drawLights(ctx,now,true);ctx.strokeStyle=festivePalette.wood;ctx.lineWidth=3;for(const dx of [-s*.2,s*.2]){ctx.beginPath();ctx.moveTo(x+dx,top+65);ctx.lineTo(x+dx,35);ctx.stroke()}for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(x-s*.2,top+50-i*22);ctx.lineTo(x+s*.2,top+50-i*22);ctx.stroke()}
+        const yy=p<.3?top+65-(p/.3)*(top-5):p<.7?70:70+(p-.7)/.3*(top-5);festivePerson(ctx,x,yy,s,Math.sin(t*2)*.04,true);if(p>.6)for(let i=0;i<5;i++)festiveStar(ctx,x+Math.cos(i*1.3)*32,35+Math.sin(i*1.3)*25,3);
+      }else if(scene.name==='gingerbread'){
+        const x=w*(-.1+1.2*p),y=h-22,s=size*.62,slip=festiveEase((p-.4)/.1)*(1-festiveEase((p-.65)/.12));
+        ctx.fillStyle='#c7a379';ctx.beginPath();ctx.arc(x+s*.9,y-s*.25,s*.23,t,Math.PI*2+t);ctx.fill();ctx.fillStyle='#654b3d';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(x+s*.9+Math.cos(i*2.3)*s*.12,y-s*.25+Math.sin(i*2.3)*s*.12,2,0,Math.PI*2);ctx.fill()}
+        this.transform(ctx,x,y,1,()=>{ctx.lineCap='round';ctx.strokeStyle='#b78660';ctx.lineWidth=s*.22;ctx.beginPath();ctx.moveTo(0,-s*.55);ctx.lineTo(0,-s*.2);ctx.moveTo(-s*.35,-s*.42);ctx.lineTo(s*.35,-s*.42);ctx.moveTo(0,-s*.2);ctx.lineTo(-s*.22,Math.sin(t*8)*4);ctx.moveTo(0,-s*.2);ctx.lineTo(s*.22,-Math.sin(t*8)*4);ctx.stroke();ctx.fillStyle='#bd9168';ctx.beginPath();ctx.arc(0,-s*.79,s*.22,0,Math.PI*2);ctx.fill();ctx.fillStyle=festivePalette.snow;for(const xx of [-s*.08,s*.08]){ctx.beginPath();ctx.arc(xx,-s*.82,2,0,Math.PI*2);ctx.fill()}ctx.strokeStyle=festivePalette.snow;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-s*.76,s*.09,0,Math.PI);ctx.stroke();ctx.fillStyle=festivePalette.red;ctx.beginPath();ctx.arc(0,-s*.45,3,0,Math.PI*2);ctx.fill()},-slip*1.3);
+      }else if(scene.name==='tree'){
+        const scale=festiveEase(p/.25);festiveTree(ctx,w*.1,h-5,Math.min(140,w*.21)*scale,clamp((p-.2)/.6,0,1));
+      }else if(scene.name==='chimney'){
+        const x=w*.17,y=h*.58,s=size;ctx.fillStyle='#855e68';ctx.fillRect(x-s*.45,y-s*.65,s*.9,s*.7);ctx.fillStyle='#ac8182';ctx.fillRect(x-s*.55,y-s*.7,s*1.1,s*.16);ctx.strokeStyle='#c69c9d';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x-s*.4,y-i*s*.18);ctx.lineTo(x+s*.4,y-i*s*.18);ctx.stroke()}
+        if(p<.88){ctx.strokeStyle=festivePalette.red;ctx.lineWidth=s*.17;ctx.lineCap='round';for(const side of [-1,1]){const kick=motionLevel()?Math.sin(t*5+side)*.12:0;ctx.beginPath();ctx.moveTo(x+side*s*.15,y-s*.65);ctx.lineTo(x+side*s*(.2+kick),y-s*1.15);ctx.stroke();ctx.strokeStyle=festivePalette.ink;ctx.beginPath();ctx.moveTo(x+side*s*(.2+kick),y-s*1.15);ctx.lineTo(x+side*s*(.4+kick),y-s*1.15);ctx.stroke();ctx.strokeStyle=festivePalette.red}}
+      }else if(scene.name==='globe'){
+        const face=winterSnow.face||{left:w*.6,top:h*.3,width:180,height:180},x=face.left+face.width/2+vibeMotion.x,y=face.top+face.height*.48+vibeMotion.y,r=Math.min(face.width*.67,w*.32,h*.32);
+        ctx.strokeStyle='#d8f4f29c';ctx.lineWidth=2;ctx.fillStyle='#c1edf00b';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.save();ctx.beginPath();ctx.arc(x,y,r-2,0,Math.PI*2);ctx.clip();ctx.fillStyle='#eaf8f2b3';for(let i=0;i<(effectivePerformance()==='tv'?18:36);i++){const xx=x+Math.sin(i*7.2+t*(1-p))*r*.9,yy=y-r+((i*31+t*25)%(r*2));ctx.beginPath();ctx.arc(xx,yy,1+i%2,0,Math.PI*2);ctx.fill()}ctx.restore();ctx.fillStyle='#8b6876';ctx.fillRect(x-r*.65,y+r*.85,r*1.3,r*.18);
+      }else if(scene.name==='constellation'){
+        const shapes=[[[0,-1],[-.5,-.2],[-.25,-.2],[-.7,.4],[-.3,.4],[-.3,1],[.3,1],[.3,.4],[.7,.4],[.25,-.2],[.5,-.2],[0,-1]],[[-.65,-.5],[.65,-.5],[.65,.65],[-.65,.65],[-.65,-.5],[0,-.5],[0,.65],[0,-.5],[-.4,-.95],[0,-.5],[.4,-.95]],[[0,-1],[.22,-.3],[.95,-.3],[.38,.12],[.6,.85],[0,.4],[-.6,.85],[-.38,.12],[-.95,-.3],[-.22,-.3],[0,-1]],[[-.8,.4],[-.45,.1],[.15,.1],[.4,-.5],[.7,-.4],[.5,-.6],[.6,-.95],[.4,-.7],[.25,-.95],[.35,-.55],[.15,.1],[.2,.8],[0,.1],[-.45,.1],[-.6,.8],[-.45,.1],[-.8,-.1]]];
+        const points=shapes[Math.floor(p*4)%shapes.length],n=Math.min(points.length,Math.floor((p*4%1)*points.length*1.7)+1),x=w*.32,y=h*.28,s=Math.min(95,w*.17);ctx.strokeStyle='#dec99488';ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<n;i++){const point=points[i];if(i)ctx.lineTo(x+point[0]*s,y+point[1]*s);else ctx.moveTo(x+point[0]*s,y+point[1]*s)}ctx.stroke();for(let i=0;i<n;i++)festiveStar(ctx,x+points[i][0]*s,y+points[i][1]*s,3);
+      }else if(scene.name==='angel'){
+        const x=w*.79,y=h-18,s=Math.min(90,w*.13);ctx.strokeStyle='#d9edef70';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(x,y-10,s*.6,15,0,0,Math.PI*2);ctx.stroke();
+      }else if(scene.name==='candy'){
+        const count=w<600?6:9,s=Math.min(52,w*.07);for(let i=0;i<count;i++){const angle=festiveEase((p-.18-i*.055)/.13)*1.32;this.transform(ctx,w*(.15+i*.075),h-10,1,()=>{ctx.strokeStyle='#eff6ed';ctx.lineWidth=s*.14;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-s*.7);ctx.arc(s*.18,-s*.7,s*.18,Math.PI,0);ctx.stroke();ctx.strokeStyle=festivePalette.red;ctx.lineWidth=s*.14;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(-s*.03,-s*(.1+k*.14));ctx.lineTo(s*.03,-s*(.15+k*.14));ctx.stroke()}},angle)}
+      }else if(scene.name==='bells'){
+        for(let i=0;i<2;i++){const x=w*.5+(i?1:-1)*size*.6,y=h*.15,angle=motionLevel()?Math.sin(t*2.2+i)*.25:0;this.transform(ctx,x,y,1,()=>{ctx.strokeStyle='#d7dcc36b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-45);ctx.lineTo(0,-20);ctx.stroke();ctx.fillStyle=festivePalette.gold;ctx.beginPath();ctx.moveTo(-size*.3,size*.3);ctx.quadraticCurveTo(-size*.28,-size*.27,0,-size*.27);ctx.quadraticCurveTo(size*.28,-size*.27,size*.3,size*.3);ctx.closePath();ctx.fill();ctx.fillStyle='#bba06c';ctx.beginPath();ctx.ellipse(0,size*.3,size*.34,size*.08,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=festivePalette.gold;ctx.beginPath();ctx.arc(0,size*.33,size*.07,0,Math.PI*2);ctx.fill()},angle)}
+        for(let i=0;i<3;i++){const q=(t*.5+i/3)%1;ctx.globalAlpha=alpha*(1-q)*.25;ctx.strokeStyle=festivePalette.gold;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(w*.5,h*.18,size*(1+q*2),size*(.5+q),0,0,Math.PI*2);ctx.stroke()}
+      }else if(scene.name==='unwrap'){
+        const x=w*.24,y=h*.66,s=Math.min(85,w*.15),open=festiveEase((p-.25)/.4);festiveGift(ctx,x,y,s,open);if(open>.1)for(let i=0;i<9;i++){const q=(p-.25)*1.4,xx=x+Math.sin(i*2.4)*s*q*1.4,yy=y-s-s*q*(.5+i%3*.3);ctx.globalAlpha=alpha*Math.sin(Math.PI*clamp(q,0,1));festiveStar(ctx,xx,yy,4+i%3)}ctx.globalAlpha=alpha;
+      }
+      ctx.restore();
+    }
+  }
+  const festiveWorld=new FestiveWorld($("festiveAmbient"),$("festiveStory"));
+  runtime.festiveWorld=festiveWorld;
+  window.addEventListener('resize',()=>festiveWorld.resize());
+  document.addEventListener('visibilitychange',()=>{festiveWorld.last=0;festiveWorld.lastAmbient=-Infinity});
+  document.addEventListener('pointermove',event=>{if(event.target?.closest?.('input,select,textarea,button,[role=slider],.settings,.library,.lyrics'))return;const previous=festiveWorld.lastPointerX;festiveWorld.lastPointerX=event.clientX;festiveWorld.interact(event.clientX,event.clientY,previous==null?0:event.clientX-previous)},{passive:true});
+
+  winterKinds.push(...festiveFeatures.filter(feature=>feature.duration).map(feature=>feature.id));
+  $("previewWinter").addEventListener("click",()=>{const id=$("winterPreviewChoice").value;festiveWorld.preview(id&&id!=="random"?id:festiveWorld.choose());closeSettingsPanel()});
   document.addEventListener("visibilitychange",()=>{winterSnow.last=0});
+
+  const winterPreviewNames={sleigh:"Schlitten",hat:"Weihnachtsmütze",scarf:"Schal",freeze:"Eis & Zittern",snowman:"Schneemann",shake:"Schnee abschütteln"};
+  for(const [id,label]of [...Object.entries(winterPreviewNames),...festiveFeatures.map(feature=>[feature.id,feature.label])]){const option=document.createElement("option");option.value=id;option.textContent=label;$("winterPreviewChoice").append(option)}
+  for(const feature of festiveFeatures){const label=document.createElement("label"),text=document.createElement("span"),input=document.createElement("input");label.classList.add("setting-row");text.textContent=feature.label;input.type="checkbox";input.checked=festiveEnabled(feature.id);input.setAttribute("aria-label",feature.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.festiveDisabled||[]);if(input.checked)disabled.delete(feature.id);else disabled.add(feature.id);facePreferences.festiveDisabled=[...disabled];festiveWorld.configure();persistPartyPreferences()});label.append(text,input);$("festiveFeatureList").append(label)}
+  $("clearDecorations").addEventListener("click",()=>{festiveWorld.clearResidue()});
 
   $("seasonSetting").addEventListener("change",()=>{facePreferences.season=$("seasonSetting").value;facePreferences.halloween=facePreferences.season==="halloween";applyPartyPreferences()});
   const halloweenKinds=["ghost","bat","pumpkin","vampire","magic","skeleton","coverGhost","spider","shadow","flyingPumpkin"];
@@ -3323,7 +3575,7 @@ THE SOFTWARE.
   function applyPartyPreferences(){
     if(facePreferences.halloween)facePreferences.season="halloween";else if(facePreferences.season==="halloween")facePreferences.season="off";
     app.dataset.season=activeSeason();$("seasonSetting").value=activeSeason();
-    winterSnow.configure();
+    winterSnow.configure();festiveWorld.configure();
     app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party);
     app.dataset.ambient=String(facePreferences.ambient);app.dataset.dance=facePreferences.dance;
     for(const [key,field]of Object.entries(partyFields)){
@@ -3407,6 +3659,7 @@ THE SOFTWARE.
     halloweenLayer.innerHTML="";delete vibeFace.dataset.halloweenScene;delete vibeFace.dataset.halloweenStage;
     coverGhost.classList.remove("visible");delete app.dataset.halloweenScene;
     winterLayer.innerHTML="";delete vibeFace.dataset.winterScene;
+    runtime.festiveWorld?.stop();
   }
   const ghostSvg='<svg viewBox="0 0 100 110" aria-hidden="true"><path d="M18 96V43a32 32 0 0 1 64 0v53l-16-9-16 10-16-10Z" fill="#edf3ffd9" stroke="#fff" stroke-width="2"/><ellipse cx="39" cy="44" rx="5" ry="7" fill="#473955"/><ellipse cx="62" cy="44" rx="5" ry="7" fill="#473955"/><path d="M44 66q7 6 13-1" fill="none" stroke="#665576" stroke-width="3" stroke-linecap="round"/></svg>';
   const batSvg='<svg viewBox="0 0 160 90" aria-hidden="true"><path d="M77 34 65 19 65 40Q26 2 4 9q8 31 20 40 17-10 24 12 17-7 26 13h12q9-20 26-13 7-22 24-12 12-9 20-40-22-7-61 31V19L83 34Z" fill="#8b74aa" stroke="#d6c4eb" stroke-width="2"/><circle cx="75" cy="47" r="3" fill="#fff2c7"/><circle cx="86" cy="47" r="3" fill="#fff2c7"/></svg>';
@@ -3428,8 +3681,8 @@ THE SOFTWARE.
     effects.queue=effects.queue.filter(event=>event.expires>now);
     if(now<vibeEggUntil){if(effects.active)clearHalloween();return}
     if(activeSeason()!=="off"&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
-      const kind=activeSeason(),choices=(kind==="winter"?winterKinds:halloweenKinds).filter(name=>name!==effects.lastKind);
-      queueEffect({kind,name:choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
+      const kind=activeSeason(),choices=halloweenKinds.filter(name=>name!==effects.lastKind);
+      queueEffect({kind,name:kind==="winter"?festiveWorld.choose():choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
     }
     if(effects.active?.kind==="winter"){tickWinterScene(now);return}
     if(effects.active){
