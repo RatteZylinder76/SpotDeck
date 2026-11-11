@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const {harness}=require('./spotdeck.test.cjs');
 (async()=>{
-  const h=harness({preferences:{season:'winter',tempoLookup:false,surprises:false}});
+  const h=harness({preferences:{season:'winter',magicMode:true,tempoLookup:false,surprises:false}});
   assert.deepEqual(Array.from(h.run('festiveFeatures.filter(f=>f.group==="magic").map(f=>f.id)')),['wand','levitate','spellbook','broom','candles','wizardlook']);
   h.run('beginWinter("levitate")');h.step(4000);
   assert.equal(h.run('festiveWorld.props.length'),3);
@@ -21,11 +21,11 @@ const {harness}=require('./spotdeck.test.cjs');
   assert(h.run('festiveWorld.skyY(180,65)-65>festiveWorld.cover.bottom'),'Full-width flights use a lane below the cover');
   h.run('festiveWorld.cover={left:25,top:110,right:295,bottom:380};festiveWorld.resize(1024,600);festiveWorld.cover={left:25,top:110,right:295,bottom:380}');assert(h.run('festiveWorld.skyY(180,55)-55>festiveWorld.cover.bottom'),'Landscape flight lane also clears the album');
   console.log('PASS round-glasses/scar accessory cleanup and album-cover-safe staging in portrait and landscape.');
-  const quiet=harness({reduced:true,preferences:{season:'winter',tempoLookup:false,surprises:false}});
+  const quiet=harness({reduced:true,preferences:{season:'winter',magicMode:true,tempoLookup:false,surprises:false}});
   quiet.run('beginWinter("levitate")');quiet.step(4000);
   assert.equal(quiet.run('festiveWorld.props.length'),3);assert(quiet.run('festiveWorld.props.every(p=>p.landed&&!p.enchanted)'),'Reduced motion keeps magic gifts at rest');
   quiet.run('clearHalloween();festiveWorld.preview("candles")');assert(quiet.run('festiveWorld.ambientOn("candles",performance.now())'));quiet.step(1000);assert(quiet.nodes.get('festiveAmbient').getContext().calls>0);
-  const saved=harness({preferences:{season:'winter',festiveDisabled:['wand','candles','not-a-feature'],tempoLookup:false}});
+  const saved=harness({preferences:{season:'winter',magicMode:true,festiveDisabled:['wand','candles','not-a-feature'],tempoLookup:false}});
   assert.equal(saved.run('festiveEnabled("wand")'),false);assert.equal(saved.run('festiveEnabled("candles")'),false);assert(!saved.run('facePreferences.festiveDisabled.includes("not-a-feature")'));
   assert(!saved.run('beginWinter("wand")'));assert(saved.run('festiveWorld.preview("wand")'),'Explicit preview remains available for disabled magic');
   saved.nodes.get('seasonSetting').value='off';saved.event(saved.nodes.get('seasonSetting'),'change');assert.equal(saved.run('effects.active'),null);assert.equal(saved.nodes.get('festiveAmbient').hidden,true);

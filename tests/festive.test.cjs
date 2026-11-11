@@ -8,7 +8,7 @@ function checkedCanvas(ctx){
   return {get depth(){return depth},get ops(){return ops}};
 }
 (async()=>{
-  const h=harness({preferences:{season:'winter',tempoLookup:false,surprises:false}});
+  const h=harness({preferences:{season:'winter',magicMode:true,tempoLookup:false,surprises:false}});
   assert.equal(h.run('festiveFeatures.length'),26);
   assert.equal(h.run('new Set(festiveFeatures.map(f=>f.id)).size'),26);
   assert.equal(h.run('festiveFeatures.filter(f=>f.type==="ambient").length'),7);
@@ -39,14 +39,14 @@ function checkedCanvas(ctx){
   h.run('festiveWorld.interact(festiveWorld.props[0].x*festiveWorld.width,festiveWorld.props[0].y,8)');
   assert(h.run('festiveWorld.props[0].vx')>0,'Landed gifts can be nudged');
   const beforeX=h.run('festiveWorld.props[0].x');h.step(200);assert(h.run('festiveWorld.props[0].x')>beforeX);
-  h.run('const anchor=festiveWorld.ballAnchor(0),ball=festiveWorld.baubles[0];festiveWorld.interact(anchor.x+Math.sin(ball.a)*anchor.length,10+Math.cos(ball.a)*anchor.length,9)');
+  h.run('facePreferences.magicMode=false;const anchor=festiveWorld.ballAnchor(0),ball=festiveWorld.baubles[0];festiveWorld.interact(anchor.x+Math.sin(ball.a)*anchor.length,10+Math.cos(ball.a)*anchor.length,9)');
   assert(h.run('festiveWorld.baubles[0].v')>0,'Baubles receive pointer impulse');
   h.run('for(let i=0;i<40;i++)festiveWorld.interact(10+i%5*15,10+i%4*15,0,performance.now()+i)');assert(h.run('festiveWorld.wipes.length')<=16);assert(h.run('festiveWorld.wipes.length')>0);
   h.run('for(let i=0;i<40;i++)festiveWorld.addProp("gift",.1,200,performance.now())');assert.equal(h.run('festiveWorld.props.length'),8,'Leftover scenery is bounded');
   h.step(105000);assert.equal(h.run('festiveWorld.props.length'),0,'Residue expires');assert.equal(h.run('festiveWorld.wipes.length'),0);
   console.log('PASS gift landing/pushing, bauble pendulum, wipeable frost and bounded/expiring scenery.');
 
-  h.run('festiveWorld.bag=[]');const rotation=Array.from({length:25},()=>h.run('festiveWorld.choose()'));
+  h.run('facePreferences.magicMode=true;festiveWorld.bag=[]');const rotation=Array.from({length:25},()=>h.run('festiveWorld.choose()'));
   assert.equal(new Set(rotation).size,25,'Every enabled major scene receives a turn before repeats');
   h.nodes.get('festiveFeatureList').children[2].children[1].checked=false;
   h.event(h.nodes.get('festiveFeatureList').children[2].children[1],'change');
@@ -59,7 +59,7 @@ function checkedCanvas(ctx){
   console.log('PASS fair rotation, individual preference persistence, explicit previews, instant cancellation and independent ambient/master control.');
 
   for(const profile of ['quality','tv']){
-    const bounded=harness({width:3840,height:2160,dpr:2,preferences:{season:'winter',performance:profile,surprises:false,tempoLookup:false}});
+    const bounded=harness({width:3840,height:2160,dpr:2,preferences:{season:'winter',magicMode:true,performance:profile,surprises:false,tempoLookup:false}});
     for(const id of ['festiveAmbient','festiveStory'])assert(bounded.nodes.get(id).width*bounded.nodes.get(id).height<=1210000,'High-density canvas backing is bounded');
     bounded.run('beginWinter("train");winterSnow.floor.fill(20)');const mass=bounded.run('winterSnow.totalMass()');bounded.step(60000);
     assert(bounded.run('winterSnow.totalMass()')>=mass,'Plowing does not discard accumulated snow');assert.equal(bounded.frames.size,1);
@@ -68,7 +68,7 @@ function checkedCanvas(ctx){
   }
   const dock=harness({preferences:{season:"winter",surprises:false,tempoLookup:false}});
   dock.document.querySelector=selector=>selector===".controls"?{getBoundingClientRect:()=>({top:650})}:null;dock.run("festiveWorld.resize(1024,768)");assert.equal(dock.run("festiveWorld.groundY()"),642,"Visible dock reserves a lane for ground actors");dock.run('app.dataset.controlsHidden="true"');assert.equal(dock.run("festiveWorld.groundY()"),760,"Party returns actors to the lower edge after dock hiding");
-  const quiet=harness({reduced:true,preferences:{season:'winter',tempoLookup:false,surprises:false}});
+  const quiet=harness({reduced:true,preferences:{season:'winter',magicMode:true,tempoLookup:false,surprises:false}});
   quiet.run('beginWinter("gifts")');quiet.step(7000);assert(quiet.run('festiveWorld.props.every(prop=>prop.landed)'),'Reduced-motion gifts are displayed at rest');
   const angle=quiet.run('festiveWorld.baubles[0].a');quiet.run('festiveWorld.interact(60,65,100)');quiet.step(1000);assert.equal(quiet.run('festiveWorld.baubles[0].a'),angle);
   quiet.nodes.get('seasonSetting').value='off';quiet.event(quiet.nodes.get('seasonSetting'),'change');assert.equal(quiet.nodes.get('festiveStory').hidden,true);assert.equal(quiet.run('festiveWorld.props.length'),0);
