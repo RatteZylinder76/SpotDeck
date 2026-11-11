@@ -1231,12 +1231,12 @@
         <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
         <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
-        <div class="winter-controls"><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Schwebende Kerzen wechseln sich mit Lichterkette und Weihnachtskugeln ab. Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
+        <div class="winter-controls"><label class="setting-row"><span>Harry-Potter-Zauber</span><input type="checkbox" id="magicModeSetting"></label><p class="setting-note">Ohne Haken bleiben Lichterkette und Kugeln. Mit Haken kommen schwebende Kerzen und Zauberszenen dazu. Die Dekoration wechselt nicht mehr automatisch.</p><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Der Schnee bleibt eine dünne Schicht; Überschuss schmilzt. Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
           <button class="setting-action glass glass-clear" id="previewShovel">Schneehaufen &amp; Kind zeigen</button></div></div>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
         <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
-        <select class="setting-field" id="halloweenEffects"><option value="few">Wenig · etwa 75–90 Sekunden Pause</option><option value="normal">Normal · etwa 45–75 Sekunden Pause</option><option value="many">Viele · etwa 30–45 Sekunden Pause</option></select>
+        <select class="setting-field" id="halloweenEffects"><option value="few">Wenig · etwa 3–4 Minuten Pause</option><option value="normal">Normal · etwa 1½–2½ Minuten Pause</option><option value="many">Viele · etwa 1–1½ Minuten Pause</option></select>
         <label class="setting-row"><span>Ambient-Hintergrund</span><input type="checkbox" id="ambientSetting"></label>
         <label class="setting-row"><span>Automatische Überraschungen</span><input type="checkbox" id="surpriseSetting"></label>
         <label class="label" for="dancePattern">Tanzmuster</label>
@@ -1452,12 +1452,12 @@ THE SOFTWARE.
   }
 
   function readFacePreferences(){
-    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
+    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,magicMode:false,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
       if(!saved||typeof saved!=="object")return defaults;
       for(const [key,choices]of Object.entries({performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
-      for(const key of ["sound","party","ambient","surprises","tempoLookup"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
+      for(const key of ["sound","party","ambient","surprises","tempoLookup","magicMode"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
       for(const [key,a,b]of [["manualBpm",30,400],["beatOffset",-2000,2000],["lyricsOffset",-5000,5000]])if(typeof saved[key]==="number"&&Number.isFinite(saved[key])&&saved[key]>=a&&saved[key]<=b)defaults[key]=saved[key];
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
       if(["winter","halloween","off"].includes(saved.season))defaults.season=saved.season;
@@ -3349,7 +3349,7 @@ THE SOFTWARE.
       this.canvas=canvas;this.cap=cap;this.ctx=canvas.getContext?.("2d")||null;
       this.width=0;this.height=0;this.floor=new Float64Array(128);this.head=new Float64Array(16);
       this.flakes=[];this.chunks=[];this.last=0;this.capAt=0;this.geometryDirty=true;this.enabled=false;this.face=null;this.brush=null;
-      this.shoveler=null;this.shovelNext=0;
+      this.shoveler=null;this.shovelNext=0;this.meltedMass=0;
     }
     resize(width=window.innerWidth||document.documentElement.clientWidth||800,height=window.innerHeight||document.documentElement.clientHeight||600){
       this.width=Math.max(1,width);this.height=Math.max(1,height);sceneViewport.measure(this.width,this.height);
@@ -3376,16 +3376,18 @@ THE SOFTWARE.
     }
     flake(initial=false){return {x:Math.random()*this.width,y:initial?Math.random()*this.height:-10,r:1+Math.random()*1.9,v:24+Math.random()*32,phase:Math.random()*Math.PI*2}}
     floorBase(){return Math.min(this.height-2,sceneViewport.bottom)}
-    floorY(index){const mass=this.floor[clamp(index,0,this.floor.length-1)],cell=this.width/this.floor.length,limit=Math.min(50,this.height*.065);return this.floorBase()-limit*(1-Math.exp(-mass/(cell*limit)))}
-    deposit(x,mass){const i=clamp(Math.floor(x/this.width*this.floor.length),0,this.floor.length-1);this.floor[i]+=mass}
-    totalMass(){return this.floor.reduce((a,b)=>a+b,0)+this.head.reduce((a,b)=>a+b,0)+this.chunks.reduce((a,b)=>a+b.mass,0)+(this.shoveler?.load||0)}
+    floorLimit(){return Math.min(16,this.height*.028)}
+    floorCapacity(){return this.width/this.floor.length*this.floorLimit()*2}
+    floorY(index){const mass=this.floor[clamp(index,0,this.floor.length-1)],cell=this.width/this.floor.length,limit=this.floorLimit();return this.floorBase()-limit*(1-Math.exp(-mass/(cell*limit)))}
+    deposit(x,mass){const i=clamp(Math.floor(x/this.width*this.floor.length),0,this.floor.length-1),kept=Math.min(mass,Math.max(0,this.floorCapacity()-this.floor[i]));this.floor[i]+=kept;this.meltedMass+=mass-kept}
+    totalMass(){return this.floor.reduce((a,b)=>a+b,0)+this.head.reduce((a,b)=>a+b,0)+this.chunks.reduce((a,b)=>a+b.mass,0)+(this.shoveler?.load||0)+this.meltedMass}
     shovelTarget(){
       const cell=this.width/this.floor.length,ground=festiveWorld.groundY(),cover=festiveWorld.cover;
       let best=null;
       // Leave the side bank alone. The child and its whole route stay clear of the cover.
       for(let i=10;i<this.floor.length-10;i++){
         const x=(i+.5)*cell,height=this.floorBase()-this.floorY(i);
-        if(height<12||x>sceneViewport.right-70||x<sceneViewport.left+45)continue;
+        if(height<this.floorLimit()*.55||x>sceneViewport.right-70||x<sceneViewport.left+45)continue;
         if(cover&&ground-90<cover.bottom&&ground>cover.top&&x-45<cover.right)continue;
         if(!best||height>best.height+.01||Math.abs(height-best.height)<.01&&i>best.index)best={index:i,x,height};
       }
@@ -3504,6 +3506,9 @@ THE SOFTWARE.
       }
       // Pairwise transfer conserves deposited mass while softening the drift's slope.
       for(let i=0;i<this.floor.length-1;i++){const flow=(this.floor[i]-this.floor[i+1])*Math.min(.14,dt*2);this.floor[i]-=flow;this.floor[i+1]+=flow}
+      // Excess moved into a cell by a shovel/gesture melts without resetting the scenery.
+      const capacity=this.floorCapacity();
+      for(let i=0;i<this.floor.length;i++){const melt=Math.max(0,this.floor[i]-capacity)*(1-Math.exp(-dt*.7));this.floor[i]-=melt;this.meltedMass+=melt}
       const head=this.headGeometry(),threshold=(head?.width||150)*2.4;
       if(headMass>threshold&&now-this.capAt>18000&&!effects.active&&now>=vibeTapReactionUntil&&facePreferences.surprises)beginWinter("shake",now);
       this.stepShoveler(dt,now);this.drawCap();
@@ -3527,7 +3532,7 @@ THE SOFTWARE.
       if(motionLevel()>0)this.step(dt,now);
       this.draw(motionLevel()>0);
     }
-    clear(){this.floor.fill(0);this.head.fill(0);this.chunks=[];this.shoveler=null;this.shovelNext=0;this.last=0;this.capAt=performance.now();this.cap.style.opacity="0";this.ctx?.clearRect(0,0,this.width,this.height)}
+    clear(){this.floor.fill(0);this.head.fill(0);this.chunks=[];this.shoveler=null;this.shovelNext=0;this.meltedMass=0;this.last=0;this.capAt=performance.now();this.cap.style.opacity="0";this.ctx?.clearRect(0,0,this.width,this.height)}
   }
   const winterSnow=new WinterSnow(winterSnowCanvas,winterCap);
   runtime.winterSnow=winterSnow;
@@ -3580,7 +3585,7 @@ THE SOFTWARE.
   ];
   const festiveById=new Map(festiveFeatures.map(feature=>[feature.id,feature]));
   const festivePalette={snow:"#e9f6f3",gold:"#e8c98b",red:"#bf5d70",green:"#528c76",wood:"#b09176",dark:"#173541",ice:"#b7e3e9",ink:"#223d49"};
-  function festiveEnabled(id){return !(facePreferences.festiveDisabled||[]).includes(id)}
+  function festiveEnabled(id){return !(facePreferences.festiveDisabled||[]).includes(id)&&(festiveById.get(id)?.group!=="magic"||facePreferences.magicMode)}
   const festiveEase=p=>{p=clamp(p,0,1);return p*p*(3-2*p)};
   function festiveStar(ctx,x,y,r,color=festivePalette.gold){
     ctx.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,d=i%2?r*.43:r;const px=x+Math.cos(a)*d,py=y+Math.sin(a)*d;if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py)}ctx.closePath();ctx.fillStyle=color;ctx.fill();
@@ -3608,16 +3613,16 @@ THE SOFTWARE.
     constructor(ambientCanvas,storyCanvas){
       this.ambientCanvas=ambientCanvas;this.storyCanvas=storyCanvas;this.bg=ambientCanvas.getContext?.("2d")||null;this.ctx=storyCanvas.getContext?.("2d")||null;
       this.width=0;this.height=0;this.last=0;this.lastAmbient=-Infinity;this.enabled=false;this.props=[];this.wipes=[];this.bag=[];this.pointer={x:.5,y:.5};this.parallax=0;this.previewFeature=null;this.brokenLight=-1;this.waveAt=-Infinity;this.story=null;this.lastPlow=0;this.previewUntil=0;
-      this.baubles=Array.from({length:4},(_,i)=>({a:Math.sin(i)*.12,v:0}));
+      this.baubles=Array.from({length:4},(_,i)=>({a:Math.sin(i)*.12,v:0}));this.elfNextAt=performance.now()+90000;
     }
     configure(){
       const enabled=activeSeason()==="winter";
       if(this.enabled&&!enabled)this.clear();this.enabled=enabled;
-      const profile=effectivePerformance(),signature=(facePreferences.festiveDisabled||[]).join('|');
+      const profile=effectivePerformance(),signature=String(facePreferences.magicMode)+'|'+(facePreferences.festiveDisabled||[]).join('|');
       if(this.profile!==profile||!this.width){this.profile=profile;this.resize()}
       if(this.signature!==signature){this.signature=signature;this.bag=[];this.previewFeature=null}
       this.ambientCanvas.hidden=!enabled;this.storyCanvas.hidden=!enabled;
-      if(this.story&&!festiveEnabled(this.story.name))clearHalloween();
+      if(this.story&&!this.story.preview&&!festiveEnabled(this.story.name))clearHalloween();
       this.props=this.props.filter(prop=>!prop.owner||festiveEnabled(prop.owner));
     }
     resize(width=window.innerWidth||800,height=window.innerHeight||600){
@@ -3674,11 +3679,8 @@ THE SOFTWARE.
         if(this.previewFeature==="candles")return "candles";
         if(["lights","baubles"].includes(this.previewFeature))return "christmas";
       }
-      const candles=facePreferences.ambient&&festiveEnabled("candles");
-      const christmas=facePreferences.ambient&&(festiveEnabled("lights")||festiveEnabled("baubles"));
-      if(!candles)return "christmas";if(!christmas)return "candles";
-      // Reuse the shared animation clock. Reduced motion keeps one stable arrangement.
-      return motionLevel()>0&&Math.floor(now/45000)%2===1?"candles":"christmas";
+      // A saved, explicit mode replaces the distracting automatic decoration rotation.
+      return facePreferences.magicMode&&festiveEnabled("candles")?"candles":"christmas";
     }
     ambientOn(id,now){
       const on=this.enabled&&((facePreferences.ambient&&festiveEnabled(id))||(this.previewFeature===id&&now<this.previewUntil));
@@ -3689,8 +3691,11 @@ THE SOFTWARE.
       const eligible=winterKinds.filter(id=>!festiveById.has(id)||festiveEnabled(id));
       this.bag=this.bag.filter(id=>eligible.includes(id));
       if(!this.bag.length){this.bag=eligible.slice();for(let i=this.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.bag[i],this.bag[j]]=[this.bag[j],this.bag[i]]}}
+      if(performance.now()>=this.elfNextAt&&eligible.includes("elf")){
+        this.bag=this.bag.filter(id=>id!=="elf");this.elfNextAt=performance.now()+240000;return "elf";
+      }
       if(this.bag.length>1&&this.bag[this.bag.length-1]===effects.lastKind)[this.bag[0],this.bag[this.bag.length-1]]=[this.bag[this.bag.length-1],this.bag[0]];
-      return this.bag.pop();
+      const chosen=this.bag.pop();if(chosen==="elf")this.elfNextAt=performance.now()+240000;return chosen;
     }
     preview(id){
       if(activeSeason()!=="winter")return false;clearHalloween();
@@ -3698,7 +3703,7 @@ THE SOFTWARE.
       if(feature?.type==="ambient"){this.previewFeature=id;this.previewUntil=performance.now()+12000;this.lastAmbient=-Infinity;return true}
       this.previewFeature=null;return beginWinter(id,performance.now(),true);
     }
-    start(scene){this.story=scene;scene.cues=new Set();scene.preview=!!scene.preview;this.previewFeature=null;if(scene.name==="elf")this.brokenLight=.8125;this.lastPlow=0}
+    start(scene){this.story=scene;scene.cues=new Set();scene.preview=!!scene.preview;this.previewFeature=null;if(scene.name==="elf"){this.brokenLight=.8125;this.elfNextAt=performance.now()+240000}this.lastPlow=0}
     stop(){for(const prop of this.props)if(prop.enchanted){prop.enchanted=false;prop.landed=!motionLevel();prop.vy=0;if(prop.landed)prop.y=this.floorAt(prop.x*this.width)-1}this.story=null;this.brokenLight=-1;this.ctx?.clearRect(0,0,this.width,this.height)}
     clearResidue(){this.props=[];this.wipes=[];this.brokenLight=-1;this.waveAt=-Infinity}
     clear(){this.clearResidue();this.stop();this.last=0;this.previewFeature=null;this.bag=[];this.bg?.clearRect(0,0,this.width,this.height)}
@@ -3920,19 +3925,24 @@ THE SOFTWARE.
 
   const winterPreviewNames={sleigh:"Schlitten",hat:"Weihnachtsmütze",scarf:"Schal",freeze:"Eis & Zittern",snowman:"Schneemann",shake:"Schnee abschütteln"};
   for(const [id,label]of [...Object.entries(winterPreviewNames),...festiveFeatures.map(feature=>[feature.id,feature.label])]){const option=document.createElement("option");option.value=id;option.textContent=label;$("winterPreviewChoice").append(option)}
-  for(const feature of festiveFeatures){const label=document.createElement("label"),text=document.createElement("span"),input=document.createElement("input");label.classList.add("setting-row");text.textContent=feature.label;input.type="checkbox";input.checked=festiveEnabled(feature.id);input.setAttribute("aria-label",feature.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.festiveDisabled||[]);if(input.checked)disabled.delete(feature.id);else disabled.add(feature.id);facePreferences.festiveDisabled=[...disabled];festiveWorld.configure();persistPartyPreferences()});label.append(text,input);$("festiveFeatureList").append(label)}
+  for(const feature of festiveFeatures){const label=document.createElement("label"),text=document.createElement("span"),input=document.createElement("input");label.classList.add("setting-row");text.textContent=feature.label;input.type="checkbox";input.checked=!(facePreferences.festiveDisabled||[]).includes(feature.id);input.disabled=feature.group==="magic"&&!facePreferences.magicMode;input.dataset.festiveId=feature.id;input.setAttribute("aria-label",feature.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.festiveDisabled||[]);if(input.checked)disabled.delete(feature.id);else disabled.add(feature.id);facePreferences.festiveDisabled=[...disabled];if(!input.checked&&effects.active?.name===feature.id)clearHalloween();festiveWorld.configure();persistPartyPreferences()});label.append(text,input);$("festiveFeatureList").append(label)}
   $("clearDecorations").addEventListener("click",()=>{festiveWorld.clearResidue()});
 
+  function syncMagicModeControls(){
+    $("magicModeSetting").checked=facePreferences.magicMode;
+    for(const row of $("festiveFeatureList").children){const input=row.querySelector?.("input")||row.children?.[1];if(input?.dataset.festiveId)input.disabled=festiveById.get(input.dataset.festiveId)?.group==="magic"&&!facePreferences.magicMode}
+  }
+  $("magicModeSetting").addEventListener("change",()=>{facePreferences.magicMode=$("magicModeSetting").checked;if(!facePreferences.magicMode&&festiveById.get(effects.active?.name)?.group==="magic")clearHalloween();festiveWorld.configure();syncMagicModeControls();persistPartyPreferences()});
   $("seasonSetting").addEventListener("change",()=>{facePreferences.season=$("seasonSetting").value;facePreferences.halloween=facePreferences.season==="halloween";applyPartyPreferences()});
   const halloweenKinds=["ghost","bat","pumpkin","vampire","magic","skeleton","coverGhost","spider","shadow","flyingPumpkin"];
-  function sceneGap(){const ranges={few:[75000,90000],normal:[45000,75000],many:[30000,45000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return a+Math.random()*(b-a)}
+  function sceneGap(){const ranges={few:[180000,240000],normal:[90000,150000],many:[60000,90000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return a+Math.random()*(b-a)}
   function persistPartyPreferences(){
     try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
   }
   function applyPartyPreferences(){
     if(facePreferences.halloween)facePreferences.season="halloween";else if(facePreferences.season==="halloween")facePreferences.season="off";
     app.dataset.season=activeSeason();$("seasonSetting").value=activeSeason();
-    winterSnow.configure();festiveWorld.configure();
+    winterSnow.configure();festiveWorld.configure();syncMagicModeControls();
     app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party);
     app.dataset.ambient=String(facePreferences.ambient);app.dataset.dance=facePreferences.dance;
     for(const [key,field]of Object.entries(partyFields)){

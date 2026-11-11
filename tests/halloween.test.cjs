@@ -126,7 +126,7 @@ function setupOwned(h){
 
   const edge=harness({preferences:{halloween:'yes',party:'yes',effects:'bad',manualBpm:-100,tempoFactor:99}});
   assert.equal(edge.run('facePreferences.halloween'),false);assert.equal(edge.run('facePreferences.effects'),'normal');assert.equal(edge.run('facePreferences.manualBpm'),0);
-  for(const [level,min,max]of [['few',75000,90000],['normal',45000,75000],['many',30000,45000]]){
+  for(const [level,min,max]of [['few',180000,240000],['normal',90000,150000],['many',60000,90000]]){
     edge.run(`facePreferences.effects='${level}'`);const gap=edge.run('sceneGap()');assert(gap>=min&&gap<=max);
   }
   edge.run('facePreferences.halloween=true;ownPlayback.active=true;effects.queue=[];queueWordReaction(matchVibeTheme("night"),{word:"night",timing:"word"},1000)');
