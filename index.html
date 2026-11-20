@@ -990,6 +990,36 @@
     .app:not([data-season="winter"]) .winter-controls{display:none}
     @media(prefers-reduced-transparency:reduce){.app[data-season="winter"]{--glass:#183640fa;--glass-clear:#27464ffa;--glass2:#102831fb}}
 
+    #viceAmbient,#viceStory{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+    .vice-controls{display:none}.app[data-season="vice"] .vice-controls{display:block}
+    .app[data-season="vice"]{--bg:#171429;--vice-pink:#ff83b8;--vice-mint:#79e2d5;--vice-gold:#ffc997;--glass:rgba(33,22,49,.76);--glass-clear:rgba(246,189,235,.1);--glass2:rgba(22,15,37,.97);--glass-edge:#ffafd879;--accent:#ffb7d5;transition:background-color 1.6s}
+    .app[data-season="vice"][data-vice-mood="night"]{--bg:#080e20;--vice-pink:#f17ee1;--vice-mint:#6fe4f0;--vice-gold:#e9b2f1;--glass:rgba(16,17,39,.78)}
+    .app[data-season="vice"][data-vice-mood="dawn"]{--bg:#17313b;--vice-pink:#ffb1ae;--vice-mint:#ade9cd;--vice-gold:#ffdaa6;--glass:rgba(23,43,52,.78)}
+    .app[data-season="vice"] .bg{opacity:.16}
+    .app[data-season="vice"] .tint{background:linear-gradient(160deg,#27132b66,#08132099)}
+    .app[data-season="vice"] .art-wrap::after{content:"";position:absolute;inset:-5px;pointer-events:none;border:1px solid var(--vice-pink);border-radius:clamp(8px,1.4vw,18px);box-shadow:0 0 18px #ff70ad24,inset 0 0 12px #8ff6e512}
+    .app[data-season="vice"] #title{letter-spacing:-.035em;text-shadow:0 3px 22px #100a20;font-weight:850}
+    .app[data-season="vice"] .controls{border-color:#ed91d84a;background:linear-gradient(115deg,#151224dc,#233540cf);box-shadow:0 8px 32px #05091370}
+    .app[data-season="vice"] .ctrl.primary{background:var(--vice-pink);color:#251b30;box-shadow:0 0 22px #ff8bb940}
+    .app[data-season="vice"] #barInner{background:linear-gradient(90deg,var(--vice-pink),var(--vice-mint))}
+    .vice-radio{display:none;margin-bottom:clamp(4px,1vh,12px);font-size:clamp(9px,1.3vw,13px);letter-spacing:.18em;color:var(--vice-mint);font-weight:750}
+    .app[data-season="vice"] .vice-radio{display:block}
+    .vice-layer{position:absolute;inset:0;pointer-events:none;z-index:6}
+    .vice-layer>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .vice-layer>.vice-prop{inset:auto;left:69%;top:50%;width:28%;height:37%}
+    .vice-layer>.vice-ride{inset:auto;left:6%;top:75%;width:88%;height:25%}
+    .vice-layer>.vice-chain{inset:auto;left:11%;top:68%;width:78%;height:28%}
+    .vice-layer>*{translate:var(--decor-fit-x,0px) var(--decor-fit-y,0px);scale:var(--decor-fit-scale,1)}
+    #showExit{position:fixed;left:calc(var(--safe-l) + 10px);top:calc(var(--safe-t) + 10px);z-index:75;width:44px;height:44px;border-radius:50%;font-size:27px;line-height:1;color:#f6f8f5;background:#13201d9c;cursor:pointer;pointer-events:auto}
+    .home-lyrics{--line-size:clamp(12px,min(2.2vw,2.8vh),25px);width:min(96%,740px);height:var(--home-lyrics-space);flex:0 0 auto;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:4px;color:#f0f7f2;pointer-events:none;line-height:1.2;font-size:var(--line-size);padding:2px 8px}
+    .home-lyrics>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.2em}
+    #homeLyricPrev,#homeLyricNext{opacity:.45;font-size:.78em}
+    #homeLyricCurrent{font-weight:750;text-shadow:0 2px 12px #0009}
+    .app[data-home-lyrics="true"] .face-panel{flex-direction:column;gap:clamp(2px,1vh,10px);--home-lyrics-space:clamp(58px,12vh,108px)}
+    .app[data-home-lyrics="true"] .vibe-face{width:min(calc(100cqw / 1.44),max(36px,calc((100cqh - var(--home-lyrics-space) - 12px) / 1.46)),var(--face-cap))}
+    @media(max-height:430px){.home-lyrics{--line-size:clamp(11px,3vh,15px);gap:2px}.app[data-home-lyrics="true"] .face-panel{--home-lyrics-space:54px}.vice-radio{letter-spacing:.12em}}
+    @media(prefers-reduced-motion:reduce){.app[data-season="vice"]{transition:none}}
+
 </style>
 </head>
 <body>
@@ -998,10 +1028,11 @@
   <div class="tint"></div>
   <div class="shade"></div>
   <canvas id="festiveAmbient" aria-hidden="true" hidden></canvas>
-  <canvas id="festiveStory" aria-hidden="true" hidden></canvas>
+  <canvas id="festiveStory" aria-hidden="true" hidden></canvas><canvas id="viceAmbient" aria-hidden="true" hidden></canvas><canvas id="viceStory" aria-hidden="true" hidden></canvas>
   <div id="sceneSafeArea" aria-hidden="true"></div>
   <canvas id="winterSnow" aria-hidden="true" hidden></canvas>
   <div class="halloween-ambient" aria-hidden="true"><span class="ambient-moon"></span><span class="ambient-pumpkin">🎃</span></div>
+  <button class="glass glass-clear" id="showExit" aria-label="Show-Modus beenden und Bedienung anzeigen" hidden>×</button>
   <button class="glass glass-clear" id="partyExit" aria-label="Party-Modus beenden" hidden>Party-Modus beenden</button>
 
   <div class="status-pill">
@@ -1042,7 +1073,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             <span id="album">Spotify</span>
           </div>
-          <h1 id="title">SpotDeck</h1>
+          <div class="vice-radio">VICE NIGHTS · RADIO</div><h1 id="title">SpotDeck</h1>
           <p id="artists">Verbinde dein Spotify-Konto</p>
         </div>
 
@@ -1066,7 +1097,7 @@
             </svg>
             <div class="face-scene" id="faceScene" aria-hidden="true"></div>
             <div class="halloween-layer" id="halloweenLayer" aria-hidden="true"></div>
-            <div class="winter-layer" id="winterLayer" aria-hidden="true"></div>
+            <div class="winter-layer" id="winterLayer" aria-hidden="true"></div><div class="vice-layer" id="viceLayer" aria-hidden="true"></div>
             <svg class="winter-snowcap" id="winterSnowCap" viewBox="0 0 100 30" aria-hidden="true"><path id="winterCapPath" fill="#f1faff" d="M0 27H100Z"/></svg>
             <div class="face-easteregg" id="faceEasteregg" aria-hidden="true"></div>
             <svg class="expression-props" viewBox="0 0 100 100" aria-hidden="true">
@@ -1083,7 +1114,7 @@
               <g class="prop-sweat"><path d="M 81 26 Q 71 38 78 41 Q 89 44 81 26" fill="#9bdff7"/></g>
             </svg>
           </div>
-        </aside>
+        <div class="home-lyrics" id="homeLyrics" role="group" aria-label="Synchronisierte Lyrics auf dem Homescreen" hidden><div id="homeLyricPrev"></div><div id="homeLyricCurrent"></div><div id="homeLyricNext"></div></div></aside>
       </main>
 
       <div class="timeline" id="progress">
@@ -1229,10 +1260,12 @@
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <section class="party-section" aria-labelledby="partyTitle">
         <h3 id="partyTitle">Party &amp; Jahreszeiten</h3>
-        <label class="label" for="seasonSetting">Jahreszeit</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Ohne Saison</option></select>
+        <label class="label" for="seasonSetting">Theme</label><select class="setting-field" id="seasonSetting"><option value="winter">Weihnachten &amp; Winter</option><option value="halloween">Halloween</option><option value="off">Standard</option><option value="vice">Vice Nights · GTA-inspiriert</option></select>
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
-        <div class="winter-controls"><label class="setting-row"><span>Harry-Potter-Zauber</span><input type="checkbox" id="magicModeSetting"></label><p class="setting-note">Ohne Haken bleiben Lichterkette und Kugeln. Mit Haken kommen schwebende Kerzen und Zauberszenen dazu. Die Dekoration wechselt nicht mehr automatisch.</p><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Der Schnee bleibt eine dünne Schicht; Überschuss schmilzt. Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
+        <div class="winter-controls"><label class="label" for="winterCycleMode">Winter-Auswahl</label><select class="setting-field" id="winterCycleMode"><option value="manual">Manuell</option><option value="auto">Auto · alle fünf Minuten</option></select><p class="setting-note" id="winterCycleStatus"></p><label class="setting-row"><span>Harry-Potter-Zauber</span><input type="checkbox" id="magicModeSetting"></label><p class="setting-note">Ohne Haken bleiben Lichterkette und Kugeln. Mit Haken kommen schwebende Kerzen und Zauberszenen dazu. Im Auto-Modus wechseln Weihnachten und Zauberwelt etwa alle fünf Minuten nach der laufenden Szene; in den letzten 45 Sekunden eines Lieds erst am Songende.</p><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Der Schnee bleibt eine dünne Schicht; Überschuss schmilzt. Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
           <button class="setting-action glass glass-clear" id="previewShovel">Schneehaufen &amp; Kind zeigen</button></div></div>
+        <div class="vice-controls"><label class="label" for="viceCycleMode">Vice-Nights-Auswahl</label><select class="setting-field" id="viceCycleMode"><option value="manual">Manuell</option><option value="auto">Auto · alle fünf Minuten</option></select><label class="label" for="viceMood">Stimmung</label><select class="setting-field" id="viceMood"><option value="sunset">Sunset Drive</option><option value="night">Neon Night</option><option value="dawn">Early Morning</option></select><p class="setting-note" id="viceCycleStatus"></p><label class="label" for="viceIntensity">Vice-Nights-Intensität</label><select class="setting-field" id="viceIntensity"><option value="calm">Ruhiger Gangsterfilm</option><option value="party">Party &amp; Nervenkitzel</option><option value="action">Mehr Action</option></select><label class="setting-row"><span>Verfolgungen &amp; Helikopter</span><input type="checkbox" id="viceAction"></label><label class="setting-row"><span>Smiley-Accessoires</span><input type="checkbox" id="viceAccessories"></label><label class="label" for="vicePreviewChoice">Vice-Nights-Szene auswählen</label><select class="setting-field" id="vicePreviewChoice"><option value="random">Überraschung</option></select><button class="setting-action glass glass-clear" id="previewVice">Vice-Nights-Szene zeigen</button><details class="advanced-settings"><summary>24 Vice-Nights-Ideen anpassen</summary><div class="festive-list" id="viceFeatureList"></div></details></div>
+        <label class="setting-row"><span>Show-Modus · nur × holt die Bedienung zurück</span><input type="checkbox" id="showModeSetting"></label><p class="setting-note">Im Show-Modus bleiben Mausbewegung, Berührung und Tasten ohne Aufwecken. Das kleine × oben links beendet den Show-Modus.</p><label class="setting-row"><span>Drei Lyricszeilen unter dem Smiley</span><input type="checkbox" id="homeLyricsSetting"></label>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
         <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
@@ -1452,18 +1485,21 @@ THE SOFTWARE.
   }
 
   function readFacePreferences(){
-    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,magicMode:false,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
+    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,magicMode:false,winterCycleMode:"manual",viceCycleMode:"manual",viceMood:"sunset",viceIntensity:"party",viceAction:true,viceAccessories:true,viceDisabled:[],showMode:false,homeLyrics:false,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
       if(!saved||typeof saved!=="object")return defaults;
-      for(const [key,choices]of Object.entries({performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
-      for(const key of ["sound","party","ambient","surprises","tempoLookup","magicMode"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
+      for(const [key,choices]of Object.entries({performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],winterCycleMode:["manual","auto"],viceCycleMode:["manual","auto"],viceMood:["sunset","night","dawn"],viceIntensity:["calm","party","action"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
+      for(const key of ["sound","party","ambient","surprises","tempoLookup","magicMode","showMode","homeLyrics","viceAction","viceAccessories"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
       for(const [key,a,b]of [["manualBpm",30,400],["beatOffset",-2000,2000],["lyricsOffset",-5000,5000]])if(typeof saved[key]==="number"&&Number.isFinite(saved[key])&&saved[key]>=a&&saved[key]<=b)defaults[key]=saved[key];
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
-      if(["winter","halloween","off"].includes(saved.season))defaults.season=saved.season;
+      if(["winter","halloween","off","vice"].includes(saved.season))defaults.season=saved.season;
       defaults.halloween=defaults.season==="halloween";
       const festiveKeys=["aurora","lights","star","gifts","reindeer","train","elf","baubles","frost","gingerbread","tree","chimney","forest","village","globe","constellation","angel","candy","bells","unwrap","wand","levitate","spellbook","broom","candles","wizardlook"];
       if(Array.isArray(saved.festiveDisabled))defaults.festiveDisabled=[...new Set(saved.festiveDisabled.filter(key=>festiveKeys.includes(key)))];
+      const viceKeys=["palms","sun","skyline","water","traffic","birds","cruise","pursuit","helicopter","boat","case","race","gator","club","delivery","mission","shades","chain","bandana","phone","duck","sideeye","loot","chill"];
+      if(Array.isArray(saved.viceDisabled))defaults.viceDisabled=[...new Set(saved.viceDisabled.filter(id=>viceKeys.includes(id)))];
+      if(defaults.showMode)defaults.party=false;
       return defaults;
     }catch{return defaults}
   }
@@ -2049,7 +2085,7 @@ THE SOFTWARE.
       timedSection("audio-analysis",()=>{analyseOwnedAudio(now);analyseLiveBeat(now)});
       // Facial cues and scene transforms share the body cadence; metadata stays throttled.
       timedSection("vocal",()=>updateVibeVocalReaction(pos));
-      timedSection("effects",()=>tickEffects(now));
+      timedSection("effects",()=>{tickThemeCycle(now);tickEffects(now)});
       if(now-runtime.lastAux>=(effectivePerformance()==="tv"?100:50)){
         runtime.lastAux=now;
         tickMetadataLookups(now);renderBeatDiagnostic();
@@ -2058,6 +2094,7 @@ THE SOFTWARE.
       timedSection("party",()=>tickParty(now));
       timedSection("winter-snow",()=>winterSnow.tick(now));
       timedSection("christmas-world",()=>festiveWorld.tick(now));
+      timedSection("vice-world",()=>viceWorld.tick(now));
       observeFrame(now,performance.now()-workStart);
       if(vibeEggUntil && performance.now()>=vibeEggUntil){
         vibeFace.classList.remove("easteregg");
@@ -2558,6 +2595,7 @@ THE SOFTWARE.
   }
 
   function updateLyricsPosition(positionMs=getCurrentPositionMs(),forceScroll=false){
+    updateHomeLyrics(positionMs);
     if(!syncedLyrics.length||!lyrics.classList.contains("open"))return;
     if(ownPlayback.active)positionMs-=facePreferences.lyricsOffset;
     const idx=getSyncedLyricIndex(positionMs);
@@ -3024,7 +3062,7 @@ THE SOFTWARE.
       targetY-=Math.abs(Math.sin(eggBeat))*9*eggEnvelope;
       targetRotate+=Math.sin(eggBeat*.5)*8*eggEnvelope;
     }
-    const winterPose=winterMotion(now);targetX+=winterPose.x;targetY+=winterPose.y||0;targetRotate+=winterPose.rotate;
+    const winterPose=effects.active?.kind==="vice"?viceWorld.facePose(effects.active,now):winterMotion(now);targetX+=winterPose.x;targetY+=winterPose.y||0;targetRotate+=winterPose.rotate;
     targetRotate+=vibeExpressionPose.tilt;
     targetX*=level*faceMotionScale;targetY*=level*faceMotionScale;targetRotate*=level;
     targetScaleX=1+(targetScaleX-1)*level;targetScaleY=1+(targetScaleY-1)*level;
@@ -3291,7 +3329,7 @@ THE SOFTWARE.
   const partyPresentation={value:0,from:0,target:0,start:0};
   let partyWakeKey=null;
   const effects={queue:[],active:null,nextAt:performance.now()+60000,last:new Map(),lastKind:"",lastWordKey:""};
-  function activeSeason(){return facePreferences.halloween?"halloween":facePreferences.season==="winter"?"winter":"off"}
+  function activeSeason(){return facePreferences.halloween?"halloween":["winter","vice"].includes(facePreferences.season)?facePreferences.season:"off"}
   const winterLayer=$("winterLayer"),winterSnowCanvas=$("winterSnow"),winterCap=$("winterSnowCap");
   const winterKinds=["sleigh","hat","scarf","freeze","snowman","shake"];
   const winterVisuals={
@@ -3585,7 +3623,8 @@ THE SOFTWARE.
   ];
   const festiveById=new Map(festiveFeatures.map(feature=>[feature.id,feature]));
   const festivePalette={snow:"#e9f6f3",gold:"#e8c98b",red:"#bf5d70",green:"#528c76",wood:"#b09176",dark:"#173541",ice:"#b7e3e9",ink:"#223d49"};
-  function festiveEnabled(id){return !(facePreferences.festiveDisabled||[]).includes(id)&&(festiveById.get(id)?.group!=="magic"||facePreferences.magicMode)}
+  function winterMagicOn(){return facePreferences.winterCycleMode==="auto"?themeCycle.winterMagic:facePreferences.magicMode}
+  function festiveEnabled(id){return !(facePreferences.festiveDisabled||[]).includes(id)&&(festiveById.get(id)?.group!=="magic"||winterMagicOn())}
   const festiveEase=p=>{p=clamp(p,0,1);return p*p*(3-2*p)};
   function festiveStar(ctx,x,y,r,color=festivePalette.gold){
     ctx.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,d=i%2?r*.43:r;const px=x+Math.cos(a)*d,py=y+Math.sin(a)*d;if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py)}ctx.closePath();ctx.fillStyle=color;ctx.fill();
@@ -3618,7 +3657,7 @@ THE SOFTWARE.
     configure(){
       const enabled=activeSeason()==="winter";
       if(this.enabled&&!enabled)this.clear();this.enabled=enabled;
-      const profile=effectivePerformance(),signature=String(facePreferences.magicMode)+'|'+(facePreferences.festiveDisabled||[]).join('|');
+      const profile=effectivePerformance(),signature=String(winterMagicOn())+'|'+(facePreferences.festiveDisabled||[]).join('|');
       if(this.profile!==profile||!this.width){this.profile=profile;this.resize()}
       if(this.signature!==signature){this.signature=signature;this.bag=[];this.previewFeature=null}
       this.ambientCanvas.hidden=!enabled;this.storyCanvas.hidden=!enabled;
@@ -3635,11 +3674,11 @@ THE SOFTWARE.
     }
     measureCover(){
       const box=selector=>{const r=document.querySelector(selector)?.getBoundingClientRect();return r?.width>0&&r?.height>0?{left:r.left,top:r.top,right:r.left+r.width,bottom:r.top+r.height}:null};
-      this.cover=box(".art-wrap");this.metaBounds=box(".meta");this.toolbarBounds=box(".mini-actions");
+      this.cover=box(".art-wrap");this.metaBounds=box(".meta");this.toolbarBounds=box(".mini-actions");this.captionBounds=facePreferences.homeLyrics?box(".home-lyrics"):null;
       const dock=document.querySelector(".controls")?.getBoundingClientRect();this.dockTop=dock?.top>this.height*.5?dock.top-8:null;
       const timeline=document.querySelector(".timeline")?.getBoundingClientRect();this.timelineTop=timeline?.top>this.height*.5?timeline.top-8:null;
     }
-    sceneObstacles(){return [this.cover,this.metaBounds,app.dataset.controlsHidden!=="true"?this.toolbarBounds:null].filter(Boolean)}
+    sceneObstacles(){return [this.cover,this.metaBounds,this.captionBounds,app.dataset.controlsHidden!=="true"?this.toolbarBounds:null].filter(Boolean)}
     safePoint(x,y,rx=30,ry=rx){
       const v=sceneViewport,bottom=this.groundY()-4;
       let regions=[{left:v.left+4,right:v.right-4,top:v.top+4,bottom}];
@@ -3680,7 +3719,7 @@ THE SOFTWARE.
         if(["lights","baubles"].includes(this.previewFeature))return "christmas";
       }
       // A saved, explicit mode replaces the distracting automatic decoration rotation.
-      return facePreferences.magicMode&&festiveEnabled("candles")?"candles":"christmas";
+      return winterMagicOn()&&festiveEnabled("candles")?"candles":"christmas";
     }
     ambientOn(id,now){
       const on=this.enabled&&((facePreferences.ambient&&festiveEnabled(id))||(this.previewFeature===id&&now<this.previewUntil));
@@ -3893,9 +3932,9 @@ THE SOFTWARE.
   const festiveWorld=new FestiveWorld($("festiveAmbient"),$("festiveStory"));
   runtime.festiveWorld=festiveWorld;
   function refreshSceneGeometry(){
-    sceneViewport.measure();festiveWorld.measureCover();winterSnow.geometryDirty=true;faceScene.style.setProperty("--scene-flight",Math.min(190,(vibeFace.offsetWidth||200)*.65)+"px");
+    sceneViewport.measure();festiveWorld.measureCover();runtime.viceWorld?.measureCover();winterSnow.geometryDirty=true;winterSnow.measure();faceScene.style.setProperty("--scene-flight",Math.min(190,(vibeFace.offsetWidth||200)*.65)+"px");
     const v=sceneViewport,face=vibeFace.getBoundingClientRect();
-    const fitted=[...Array.from(winterLayer.children,prop=>[winterLayer,prop]),...Array.from(halloweenLayer.children,prop=>[halloweenLayer,prop]),[faceScene,faceScene],[$("faceEasteregg"),$("faceEasteregg")]];
+    const fitted=[...Array.from(winterLayer.children,prop=>[winterLayer,prop]),...Array.from(halloweenLayer.children,prop=>[halloweenLayer,prop]),...Array.from($("viceLayer").children,prop=>[$("viceLayer"),prop]),[faceScene,faceScene],[$("faceEasteregg"),$("faceEasteregg")]];
     for(const [layer,prop]of fitted){
       prop.style.setProperty("--decor-fit-x","0px");prop.style.setProperty("--decor-fit-y","0px");prop.style.setProperty("--decor-fit-scale","1");
       if(prop.classList.contains("winter-wizard-look")||prop.classList.contains("halloween-fangs"))continue;
@@ -3919,31 +3958,170 @@ THE SOFTWARE.
   document.addEventListener('visibilitychange',()=>{festiveWorld.last=0;festiveWorld.lastAmbient=-Infinity});
   document.addEventListener('pointermove',event=>{if(event.target?.closest?.('input,select,textarea,button,[role=slider],.settings,.library,.lyrics'))return;const previous=festiveWorld.lastPointerX;festiveWorld.lastPointerX=event.clientX;festiveWorld.interact(event.clientX,event.clientY,previous==null?0:event.clientX-previous)},{passive:true});
 
+  // Vice Nights: native vector scenery on the existing application clock.
+  const viceFeatures=[
+    {id:"palms",label:"Palmen im Küstenwind",type:"ambient"},{id:"sun",label:"Sonne & Wolken",type:"ambient"},
+    {id:"skyline",label:"Lebendige Skyline",type:"ambient"},{id:"water",label:"Wasser & Hafenlichter",type:"ambient"},
+    {id:"traffic",label:"Neonstraße & Verkehr",type:"ambient"},{id:"birds",label:"Flamingos am Horizont",type:"ambient"},
+    {id:"cruise",label:"Cabrio-Cruise",duration:13000},{id:"pursuit",label:"Nächtliche Verfolgung",duration:14500,action:true},
+    {id:"helicopter",label:"Helikopter-Suche",duration:15000,action:true},{id:"boat",label:"Speedboat am Hafen",duration:12500},
+    {id:"case",label:"Diamantenkoffer",duration:12500},{id:"race",label:"Nächtliches Straßenrennen",duration:14500,action:true},
+    {id:"gator",label:"Alligator-Besuch",duration:13500},{id:"club",label:"Club-Eingang",duration:14500},
+    {id:"delivery",label:"Verdächtige Lieferung",duration:14000},{id:"mission",label:"Mission-Passed-Moment",duration:10000},
+    {id:"shades",label:"Sonnenbrille aufsetzen",duration:10500,type:"face"},{id:"chain",label:"Goldkette",duration:11500,type:"face"},
+    {id:"bandana",label:"Bandana",duration:10500,type:"face"},{id:"phone",label:"Kleiner Handy-Moment",duration:10500,type:"face"},
+    {id:"duck",label:"Dem Suchlicht ausweichen",duration:9500,type:"face",action:true},{id:"sideeye",label:"Cooler Seitenblick",duration:9500,type:"face"},
+    {id:"loot",label:"Beute-Jubel",duration:10500,type:"face"},{id:"chill",label:"Entspannter Küstenmoment",duration:11500,type:"face"}
+  ];
+  const viceById=new Map(viceFeatures.map(f=>[f.id,f]));
+  const vicePalettes={
+    sunset:{sky:"#482a52",horizon:"#eaa082",water:"#26354d",ink:"#151c32",pink:"#ff85ba",mint:"#79d8d2",gold:"#ffcc94"},
+    night:{sky:"#090e25",horizon:"#38314e",water:"#101d38",ink:"#071426",pink:"#ec79df",mint:"#66ddeb",gold:"#d1b3f4"},
+    dawn:{sky:"#224553",horizon:"#e8b7aa",water:"#315163",ink:"#173441",pink:"#f6a5ab",mint:"#b3e1c9",gold:"#ffe0ad"}
+  };
+  function viceEnabled(id){const f=viceById.get(id);return !!f&&!(facePreferences.viceDisabled||[]).includes(id)&&(f.type!=="face"||facePreferences.viceAccessories)&&(!f.action||(facePreferences.viceAction&&facePreferences.viceIntensity!=="calm"))}
+  function viceCar(ctx,x,y,s,color,now=0,police=false){
+    ctx.save();ctx.translate(x,y);ctx.fillStyle="#08121f";ctx.beginPath();ctx.ellipse(0,s*.08,s*.65,s*.08,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(-s*.57,-s*.12);ctx.lineTo(-s*.39,-s*.22);ctx.lineTo(-s*.16,-s*.4);ctx.lineTo(s*.23,-s*.4);ctx.lineTo(s*.43,-s*.22);ctx.lineTo(s*.58,-s*.17);ctx.lineTo(s*.6,0);ctx.lineTo(-s*.59,0);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#223249";ctx.beginPath();ctx.moveTo(-s*.3,-s*.23);ctx.lineTo(-s*.12,-s*.35);ctx.lineTo(s*.18,-s*.35);ctx.lineTo(s*.34,-s*.23);ctx.closePath();ctx.fill();
+    ctx.strokeStyle="#e6eced88";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-s*.48,-s*.15);ctx.lineTo(s*.49,-s*.15);ctx.stroke();
+    for(const side of [-1,1]){ctx.fillStyle="#080f1c";ctx.beginPath();ctx.arc(side*s*.37,s*.005,s*.105,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#a5afc8";ctx.lineWidth=2;ctx.beginPath();ctx.arc(side*s*.37,s*.005,s*.06,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(side*s*.37,s*.005);ctx.lineTo(side*s*.37+Math.sin(now/80)*s*.045,Math.cos(now/80)*s*.045);ctx.stroke()}
+    ctx.fillStyle="#fff0c5";ctx.fillRect(s*.49,-s*.15,s*.08,s*.05);ctx.fillStyle="#ff8cb2";ctx.fillRect(-s*.57,-s*.14,s*.065,s*.05);
+    if(police){ctx.fillStyle="#d8e4eb";ctx.fillRect(-s*.15,-s*.19,s*.31,s*.18);ctx.fillStyle="#e58bb7";ctx.fillRect(-s*.12,-s*.45,s*.12,s*.05);ctx.fillStyle="#8bdfee";ctx.fillRect(0,-s*.45,s*.12,s*.05)}ctx.restore();
+  }
+  function viceHeli(ctx,x,y,s,t){
+    ctx.save();ctx.translate(x,y);ctx.fillStyle="#253649";ctx.beginPath();ctx.ellipse(0,0,s*.35,s*.18,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#7acdd6";ctx.beginPath();ctx.ellipse(s*.15,-s*.02,s*.12,s*.11,-.2,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#afbad1";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-s*.23,0);ctx.lineTo(-s*.7,-s*.12);ctx.lineTo(-s*.68,-s*.27);ctx.moveTo(0,-s*.15);ctx.lineTo(0,-s*.29);ctx.moveTo(-s*.5*Math.cos(t*12),-s*.3);ctx.lineTo(s*.5*Math.cos(t*12),-s*.3);ctx.moveTo(-s*.2,s*.12);ctx.lineTo(-s*.23,s*.26);ctx.lineTo(s*.27,s*.26);ctx.moveTo(s*.17,s*.12);ctx.lineTo(s*.2,s*.26);ctx.stroke();ctx.restore();
+  }
+  function vicePalm(ctx,x,y,size,wind=0){
+    ctx.save();ctx.translate(x,y);ctx.strokeStyle="#142d36";ctx.lineWidth=Math.max(3,size*.045);ctx.lineCap="round";ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(-size*.05,-size*.5,wind,-size*.9);ctx.stroke();
+    ctx.fillStyle="#153540";for(let i=0;i<6;i++){const angle=-Math.PI+i*Math.PI/5;ctx.beginPath();ctx.moveTo(wind,-size*.9);ctx.quadraticCurveTo(wind+Math.cos(angle)*size*.3,-size*.9+Math.sin(angle)*size*.15,wind+Math.cos(angle)*size*.43,-size*.64+Math.sin(angle)*size*.23);ctx.quadraticCurveTo(wind+Math.cos(angle)*size*.23,-size*.83,wind,-size*.9);ctx.fill()}ctx.restore();
+  }
+  function viceDiamond(ctx,x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x-r,y-r*.3);ctx.lineTo(x-r*.45,y-r);ctx.lineTo(x+r*.45,y-r);ctx.lineTo(x+r,y-r*.3);ctx.lineTo(x,y+r);ctx.closePath();ctx.fill();ctx.strokeStyle="#f7eff4aa";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-r,y-r*.3);ctx.lineTo(x+r,y-r*.3);ctx.moveTo(x-r*.45,y-r);ctx.lineTo(x,y+r);ctx.lineTo(x+r*.45,y-r);ctx.stroke()}
+  function vicePerson(ctx,x,y,s,t){ctx.save();ctx.translate(x,y);ctx.strokeStyle="#91cfd3";ctx.lineWidth=s*.1;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(-s*.1,-s*.32);ctx.lineTo(-s*.15-Math.sin(t)*s*.06,0);ctx.moveTo(s*.1,-s*.32);ctx.lineTo(s*.15+Math.sin(t)*s*.06,0);ctx.stroke();ctx.fillStyle="#c27ba2";ctx.fillRect(-s*.18,-s*.69,s*.36,s*.4);ctx.fillStyle="#edd1bc";ctx.beginPath();ctx.arc(0,-s*.84,s*.14,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#c27ba2";ctx.lineWidth=s*.09;ctx.beginPath();ctx.moveTo(-s*.14,-s*.62);ctx.lineTo(-s*.32,-s*(.45+.15*Math.sin(t)));ctx.moveTo(s*.14,-s*.62);ctx.lineTo(s*.32,-s*(.45-.15*Math.sin(t)));ctx.stroke();ctx.restore()}
+  const viceRideLooks={car:"<svg class=\"vice-ride\" viewBox=\"0 0 140 50\"><path d=\"M4 15 18 8h103l15 8v19H4Z\" fill=\"#e286b5\" stroke=\"#ffd5df\" stroke-width=\"1.5\"/><path d=\"M20 9 26 1m91 8-5-8M9 24h120\" fill=\"none\" stroke=\"#8fe8da\" stroke-width=\"2\"/><rect x=\"37\" y=\"12\" width=\"64\" height=\"10\" rx=\"3\" fill=\"#a95988\"/><path d=\"M23 17h13m67 0h15\" stroke=\"#fff2b7\" stroke-width=\"4\"/><circle cx=\"24\" cy=\"36\" r=\"9\" fill=\"#142137\" stroke=\"#b9cad3\" stroke-width=\"3\"/><circle cx=\"115\" cy=\"36\" r=\"9\" fill=\"#142137\" stroke=\"#b9cad3\" stroke-width=\"3\"/></svg>",boat:"<svg class=\"vice-ride\" viewBox=\"0 0 140 50\"><path d=\"m3 13 134-3-25 25H27Z\" fill=\"#83d6d0\" stroke=\"#d9fff0\" stroke-width=\"2\"/><path d=\"m31 14 5-12m67 11-4-11M5 43q15-7 29 0t29 0 29 0 29 0\" stroke=\"#c5e8ef\" stroke-width=\"2\" fill=\"none\"/><path d=\"M30 23h80\" stroke=\"#de82b1\" stroke-width=\"4\"/></svg>"};
+  const viceLooks={
+    shades:'<svg viewBox="0 0 100 100"><path d="M13 37 24 39m52 0 11-2M44 40q6-5 12 0" fill="none" stroke="#eed49f" stroke-width="2"/><path d="M21 34h25l-2 14q-12 8-21-2Zm33 0h25l-2 12q-10 10-21 2Z" fill="#19203bd9" stroke="#f3d39a" stroke-width="1.6"/><path d="m25 38 9-1m26 1 8-1" stroke="#8febdf" stroke-width="2"/></svg>',
+    chain:'<svg class="vice-chain" viewBox="0 0 120 44"><path d="M5 4q54 49 110 0" fill="none" stroke="#b88d48" stroke-width="5"/><path d="M5 3q54 49 110 0" fill="none" stroke="#f2cf86" stroke-width="2" stroke-dasharray="4 3"/><path d="m60 29 7 6-7 7-7-7Z" fill="#ffe7a9"/></svg>',
+    bandana:'<svg viewBox="0 0 100 100"><path d="M14 22q35-12 70 0l-1 12q-35-11-68 0Z" fill="#b86792"/><path d="m80 28 15-3-5 20-9-12m4-5 10 12-2 12-9-19" fill="#bd719a"/><path d="m25 23 3 5 4-5m20-1 3 5 4-5" stroke="#f0c8bd" stroke-width="1.5" fill="none"/></svg>',
+    phone:'<svg class="vice-prop" viewBox="0 0 70 100"><rect x="14" y="7" width="43" height="82" rx="8" fill="#233248" stroke="#8cdfde" stroke-width="3"/><path d="M21 22h29v48H21Z" fill="#8f608c"/><path d="M29 13h14m-10 66h6" stroke="#edd6c4" stroke-width="3" stroke-linecap="round"/><path d="M28 37h15m-15 8h19m-19 8h11" stroke="#f8c6cc" stroke-width="3" stroke-linecap="round"/></svg>',
+    chill:'<svg class="vice-prop" viewBox="0 0 80 100"><path d="M15 30h48L56 88H23Z" fill="#bb6c9b" stroke="#f0c4ad" stroke-width="2"/><ellipse cx="39" cy="30" rx="24" ry="7" fill="#d99c9e"/><path d="m42 31 7-26h14" fill="none" stroke="#8ee0d0" stroke-width="4"/><path d="m13 26 5-16 17 17Z" fill="#edc883"/><path d="M24 45h29m-26 8h24" stroke="#e9b39f" stroke-width="2"/></svg>'
+  };
+  class ViceWorld extends FestiveWorld{
+    constructor(a,b){super(a,b);this.palette=vicePalettes.sunset;this.fromPalette=this.palette;this.targetPalette=this.palette;this.mood="sunset";this.paletteAt=0;this.lastChoice="";this.lastSeen=new Map()}
+    configure(){
+      const enabled=activeSeason()==="vice";if(this.enabled&&!enabled)this.clear();this.enabled=enabled;this.ambientCanvas.hidden=!enabled;this.storyCanvas.hidden=!enabled;
+      const signature=JSON.stringify([facePreferences.viceDisabled,facePreferences.viceAction,facePreferences.viceAccessories,facePreferences.viceIntensity]);if(this.signature!==signature){this.signature=signature;this.bag=[]}
+      if(this.profile!==effectivePerformance()||!this.width){this.profile=effectivePerformance();this.resize()}
+      const mood=viceMoodNow();if(this.mood!==mood){this.fromPalette=this.colors(performance.now());this.targetPalette=vicePalettes[mood];this.paletteAt=performance.now();this.mood=mood;this.lastAmbient=-Infinity}
+      app.dataset.viceMood=mood;
+      if(this.story&&!this.story.preview&&!viceEnabled(this.story.name))clearHalloween();
+    }
+    colors(now){const f=motionLevel()?festiveEase((now-this.paletteAt)/1800):1,out={};for(const key of Object.keys(this.targetPalette)){const a=this.fromPalette[key],b=this.targetPalette[key];out[key]='#'+[1,3,5].map(i=>Math.round(parseInt(a.slice(i,i+2),16)*(1-f)+parseInt(b.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('')}return out}
+    choose(){let ids=viceFeatures.filter(f=>f.duration&&viceEnabled(f.id)&&performance.now()-(this.lastSeen.get(f.id)??-Infinity)>240000).map(f=>f.id);if(!ids.length)return null;this.bag=this.bag.filter(id=>ids.includes(id));if(!this.bag.length){this.bag=ids.slice();for(let i=this.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.bag[i],this.bag[j]]=[this.bag[j],this.bag[i]]}}if(this.bag.length>1&&this.bag.at(-1)===this.lastChoice)[this.bag[0],this.bag[this.bag.length-1]]=[this.bag.at(-1),this.bag[0]];return this.bag.pop()}
+    start(scene){this.story=scene;this.lastChoice=scene.name;this.lastSeen.set(scene.name,scene.start);const ride=["cruise","race","pursuit"].includes(scene.name)?"car":scene.name==="boat"?"boat":null;const accessory=viceById.get(scene.name).type==="face"?scene.name:scene.name==="cruise"?"shades":null;$("viceLayer").innerHTML=(ride?viceRideLooks[ride]:"")+((scene.preview||facePreferences.viceAccessories)?viceLooks[accessory]||"":"");vibeFace.dataset.viceScene=scene.name;sceneViewport.dirty=true}
+    stop(){this.story=null;$("viceLayer").innerHTML="";delete vibeFace.dataset.viceScene;this.ctx?.clearRect(0,0,this.width,this.height)}
+    clear(){this.stop();this.bag=[];this.props=[];this.bg?.clearRect(0,0,this.width,this.height);this.last=0;this.lastAmbient=-Infinity}
+    preview(id){if(activeSeason()!=="vice")return false;clearHalloween();const f=viceById.get(id);if(f?.type==="ambient"){this.previewFeature=id;this.previewUntil=performance.now()+12000;this.lastAmbient=-Infinity;return true}return beginVice(id,performance.now(),true)}
+    ambientOn(id,now){return this.enabled&&((facePreferences.ambient&&viceEnabled(id))||(this.previewFeature===id&&now<this.previewUntil))}
+    drawAmbient(now){
+      const ctx=this.bg;if(!ctx)return;const w=this.width,h=this.height,v=sceneViewport,p=this.colors(now),t=motionLevel()?now/1000:0,ground=this.groundY(),horizon=Math.min(h*.61,ground-35),tv=effectivePerformance()==="tv";
+      ctx.clearRect(0,0,w,h);const gradient=ctx.createLinearGradient?.(0,0,0,horizon);if(gradient){gradient.addColorStop(0,p.sky);gradient.addColorStop(1,p.horizon)}ctx.fillStyle=gradient||p.sky;ctx.fillRect(0,0,w,h);sceneViewport.clip(ctx);
+      if(this.ambientOn("sun",now)){ctx.globalAlpha=this.mood==="night"?.15:.6;ctx.fillStyle=p.gold;ctx.beginPath();ctx.arc(w*.27,horizon*.57,Math.min(w*.13,h*.18),0,Math.PI*2);ctx.fill();ctx.globalAlpha=.13;ctx.fillStyle=p.mint;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(w*(.15+i*.33)+Math.sin(t*.015+i)*12,h*.15+i*16,w*.18,5+i*2,0,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1}
+      if(this.ambientOn("skyline",now)){const n=tv?14:23;for(let i=0;i<n;i++){const bw=w/n*.9,bh=h*(.08+(i*17%9)*.014),x=i*w/n;ctx.fillStyle=p.ink;ctx.fillRect(x,horizon-bh,bw,bh);if(i%4===0)ctx.fillRect(x+bw*.2,horizon-bh-7,bw*.6,7);ctx.fillStyle=i%2?p.pink:p.gold;ctx.globalAlpha=.3;for(let r=0;r<4;r++)for(let c=0;c<3;c++)if((i+r+c+Math.floor(t/18))%4)ctx.fillRect(x+bw*(.16+c*.25),horizon-bh+8+r*bh*.18,Math.max(1,bw*.1),2);ctx.globalAlpha=1}}
+      if(this.ambientOn("water",now)){ctx.fillStyle=p.water;ctx.fillRect(v.left,horizon,v.right-v.left,Math.max(0,ground-horizon));ctx.strokeStyle=p.mint;ctx.lineWidth=1;ctx.globalAlpha=.16;for(let i=0;i<(tv?10:20);i++){const y=horizon+8+i*4.8;ctx.beginPath();ctx.moveTo(w*(.15+(i%4)*.04)+Math.sin(t*.4+i)*6,y);ctx.lineTo(w*(.52+(i%3)*.11)+Math.cos(t*.4+i)*7,y);ctx.stroke()}ctx.globalAlpha=1}
+      if(this.ambientOn("traffic",now)){ctx.fillStyle=p.ink;ctx.fillRect(v.left,Math.max(horizon,ground-h*.13),v.right-v.left,h*.13);ctx.strokeStyle=p.pink;ctx.globalAlpha=.36;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(v.left,ground-h*.105);ctx.lineTo(v.right,ground-h*.105);ctx.stroke();for(let i=0;i<2;i++){const q=(t*(i?.012:.018)+i*.5)%1;viceCar(ctx,v.left+q*(v.right-v.left),ground-12-i*13,Math.min(38,w*.06),i?p.mint:p.pink,now)}ctx.globalAlpha=1}
+      if(this.ambientOn("palms",now))for(let i=0;i<(tv?3:5);i++){ctx.globalAlpha=i%2?.75:.5;vicePalm(ctx,v.left+(v.right-v.left)*([.035,.19,.78,.96,.59][i]),ground,Math.min(h*.52,w*.23)*(i%2?.7:1),Math.sin(t*.35+i)*4);ctx.globalAlpha=1}
+      if(this.ambientOn("birds",now)){ctx.strokeStyle=p.ink;ctx.lineWidth=2;ctx.globalAlpha=.6;for(let i=0;i<3;i++){const x=v.left+((t*.009+i*.18)%1)*(v.right-v.left),y=v.top+h*.15+Math.sin(i*2+t*.25)*8;ctx.beginPath();ctx.moveTo(x-7,y+Math.sin(t*2+i)*3);ctx.quadraticCurveTo(x-3,y-4,x,y);ctx.quadraticCurveTo(x+4,y-4,x+8,y+Math.sin(t*2+i)*3);ctx.stroke()}ctx.globalAlpha=1}
+      const shade=ctx.createLinearGradient?.(0,0,w,h);if(shade){shade.addColorStop(0,"#070e1b22");shade.addColorStop(.55,"#070e1b66");shade.addColorStop(1,"#050b1688");ctx.fillStyle=shade;ctx.fillRect(0,0,w,h)}ctx.restore();
+    }
+    facePose(scene,now){const p=clamp((now-scene.start)/(scene.end-scene.start),0,1),face=winterSnow.face||{left:this.width*.6,top:this.height*.3,width:180,height:180};if(now>=vibeTapReactionUntil){const x=this.width*(scene.name==="gator"?.86:p),y=["helicopter","duck"].includes(scene.name)?sceneViewport.top+40:this.groundY()-35;setFaceProperty("--gaze-x",(clamp((x-face.left-face.width/2)/face.width*9,-9,9)*faceMotionScale).toFixed(2)+"px");setFaceProperty("--gaze-y",(clamp((y-face.top-face.height/2)/face.height*6,-5,5)*faceMotionScale).toFixed(2)+"px")}if(!motionLevel())return{x:0,y:0,rotate:0};const e=Math.sin(p*Math.PI),riding=["cruise","race","pursuit","boat"].includes(scene.name);return{x:riding?Math.sin(p*Math.PI*4)*e*6:scene.name==="gator"?-e*5:0,y:["duck","helicopter"].includes(scene.name)?e*12:scene.name==="chill"?e*3:0,rotate:riding?Math.sin(p*Math.PI*4)*e*2:scene.name==="chill"?e*-5:scene.name==="race"?Math.sin(p*7)*2:0}}
+    drawStory(ctx,scene,now){
+      const raw=clamp((now-scene.start)/(scene.end-scene.start),0,1),p=motionLevel()?raw:.55,t=motionLevel()?(now-scene.start)/1000:0,w=this.width,h=this.height,v=sceneViewport,c=this.colors(now),s=Math.min(115,w*.18,h*.28),ground=this.groundY()-6,alpha=clamp(Math.min(raw*7,(1-raw)*7),0,1);ctx.save();ctx.globalAlpha=alpha;
+      if(["cruise","pursuit","race"].includes(scene.name)){
+        const lane=this.skyLane(ground-s*.08,s*.6),scale=lane.scale,y=lane.y,x=v.left+(v.right-v.left)*(-.3+1.6*(scene.name==="race"?festiveEase((p-.2)/.8):p));
+        viceCar(ctx,x,y,s*scale,c.pink,now);if(scene.name!=="cruise")viceCar(ctx,x-s*1.65*scale,y-4*scale,s*.94*scale,scene.name==="pursuit"?"#29384b":c.mint,now,scene.name==="pursuit");
+        if(scene.name==="race"&&p<.3)for(let i=0;i<3;i++){ctx.fillStyle=p>.08+i*.06?c.gold:c.ink;ctx.beginPath();ctx.arc(w*.5+(i-1)*13*scale,lane.y-s*.5*scale,4*scale,0,Math.PI*2);ctx.fill()}
+        if(scene.name==="pursuit")for(let i=0;i<3;i++)festiveStar(ctx,v.left+20+i*18,v.top+18,5,c.gold);
+      }else if(["helicopter","duck"].includes(scene.name)){
+        const spot=this.safePoint(w*.58,h*.3,s*.9,Math.min(h*.3,140)),x=spot.x,y=spot.y-s*.25;this.fitAround(ctx,spot);ctx.fillStyle="#d7e9c31d";ctx.beginPath();ctx.moveTo(x+s*.1,y+s*.12);ctx.lineTo(x+s*(.4+Math.sin(t*.5)*.18),y+s*1.25);ctx.lineTo(x-s*.65,y+s*1.25);ctx.closePath();ctx.fill();viceHeli(ctx,x,y,s,t);
+      }else if(scene.name==="boat"){
+        const lane=this.skyLane(h*.67,s*.42),x=v.left+(v.right-v.left)*(-.2+p*1.4),y=lane.y,ss=s*lane.scale;ctx.fillStyle=c.mint;ctx.beginPath();ctx.moveTo(x-ss*.6,y-ss*.14);ctx.lineTo(x+ss*.65,y-ss*.14);ctx.lineTo(x+ss*.4,y+ss*.1);ctx.lineTo(x-ss*.45,y+ss*.1);ctx.closePath();ctx.fill();ctx.fillStyle=c.pink;ctx.fillRect(x-ss*.1,y-ss*.36,ss*.4,ss*.22);ctx.strokeStyle="#c2e9eb88";ctx.lineWidth=2;for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x-ss*.65-i*9,y+i*2);ctx.lineTo(x-ss*.95-i*11,y+2+i*3);ctx.stroke()}
+      }else if(["case","loot"].includes(scene.name)){
+        const point=this.safePoint(w*.27,h*.52,s*.8,s*.9);this.fitAround(ctx,point);const x=point.x,y=point.y,open=festiveEase((p-.15)/.3);ctx.fillStyle="#26374b";ctx.fillRect(x-s*.5,y-s*.1,s,s*.4);ctx.strokeStyle=c.gold;ctx.lineWidth=2;ctx.strokeRect?.(x-s*.5,y-s*.1,s,s*.4);ctx.save();ctx.translate(x,y-s*.1);ctx.rotate(-open*.4);ctx.fillStyle="#51516c";ctx.fillRect(-s*.5,-s*.12-open*s*.22,s,s*.16);ctx.restore();for(let i=0;i<(effectivePerformance()==="tv"?7:12);i++){const q=(p*1.1+i*.09)%1;ctx.globalAlpha=alpha*Math.sin(q*Math.PI)*open;viceDiamond(ctx,x+Math.sin(i*2.3)*s*.5*q,y-s*.15-q*s*.6,3+i%3,i%2?c.mint:c.gold)}ctx.globalAlpha=alpha;
+      }else if(scene.name==="gator"){
+        const point=this.safePoint(w*.86,ground-s*.3,s*1.35,s*.45);this.fitAround(ctx,point);const x=point.x+(1-Math.sin(p*Math.PI))*s*.6,y=point.y;ctx.fillStyle="#64988b";ctx.beginPath();ctx.ellipse(x,y,s*.55,s*.18,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(x-s*.4,y);ctx.lineTo(x-s*.78,y-s*.12);ctx.lineTo(x-s*.48,y+s*.15);ctx.fill();ctx.fillStyle="#83b8a0";ctx.beginPath();ctx.ellipse(x+s*.36,y-s*.13,s*.31,s*.14,-.1,0,Math.PI*2);ctx.fill();ctx.fillStyle="#142d37";ctx.beginPath();ctx.arc(x+s*.36,y-s*.24,3,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#d6e4bf";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+s*.18,y-s*.05);ctx.lineTo(x+s*.61,y-s*.07);ctx.stroke();
+      }else if(scene.name==="club"){
+        const point=this.safePoint(w*.24,h*.47,s*.95,s*1.1);this.fitAround(ctx,point);const x=point.x,y=point.y;ctx.fillStyle="#171c31";ctx.fillRect(x-s*.55,y-s*.8,s*1.1,s*1.55);ctx.strokeStyle=c.pink;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-s*.55,y+s*.75);ctx.lineTo(x-s*.55,y-s*.8);ctx.lineTo(x+s*.55,y-s*.8);ctx.lineTo(x+s*.55,y+s*.75);ctx.stroke();ctx.fillStyle="#dd81c21f";ctx.beginPath();ctx.moveTo(x,y-s*.5);ctx.lineTo(x-s*.9,y+s*.8);ctx.lineTo(x+s*.9,y+s*.8);ctx.fill();vicePerson(ctx,x-s*.22,y+s*.6,s*.75,t*2);vicePerson(ctx,x+s*.3,y+s*.65,s*.7,t*2+2);
+      }else if(scene.name==="delivery"){
+        const point=this.safePoint(w*(.15+.55*festiveEase(p/.35)),ground-s*.35,s*.9,s*.8);this.fitAround(ctx,point);const x=point.x,y=point.y;ctx.strokeStyle=c.mint;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x-s*.3,y+s*.24);ctx.lineTo(x+s*.3,y+s*.24);ctx.lineTo(x+s*.2,y-s*.22);ctx.stroke();for(const side of [-1,1]){ctx.fillStyle=c.ink;ctx.beginPath();ctx.arc(x+side*s*.32,y+s*.3,s*.12,0,Math.PI*2);ctx.fill()}vicePerson(ctx,x,y+s*.2,s*.6,t);ctx.fillStyle=c.pink;ctx.fillRect(x-s*.5,y-s*.2,s*.3,s*.35);if(p>.5){ctx.fillStyle=c.gold;ctx.font=Math.round(s*.3)+"px system-ui";ctx.fillText?.("🦩",x+s*.35,y-s*.28)}
+      }else if(scene.name==="mission"){
+        const point=this.safePoint(w*.4,h*.32,145,42);this.fitAround(ctx,point);ctx.fillStyle="#141b30e8";ctx.fillRect(point.x-145,point.y-42,290,84);ctx.fillStyle=c.gold;ctx.fillRect(point.x-145,point.y-42,3,84);ctx.font="700 22px system-ui";ctx.textAlign="center";ctx.fillText?.("MISSION PASSED",point.x,point.y-3);ctx.fillStyle=c.mint;ctx.font="12px system-ui";ctx.fillText?.("VICE NIGHTS · GOOD VIBES",point.x,point.y+22);
+      }else if(["shades","chain","bandana","phone","sideeye","chill"].includes(scene.name)){
+        const face=winterSnow.face||{left:w*.6,top:h*.3,width:160,height:160};for(let i=0;i<4;i++){const angle=i*Math.PI/2+t*.4,x=clamp(face.left+face.width*(.5+Math.cos(angle)*.55),v.left+6,v.right-6),y=clamp(face.top+face.height*(.4+Math.sin(angle)*.36),v.top+6,v.bottom-6);festiveStar(ctx,x,y,2+i%2,i%2?c.mint:c.gold)}
+      }
+      ctx.restore();
+    }
+    tick(now){if(!this.enabled||document.visibilityState!=="visible"){this.last=0;return}this.last=now;if(now-this.lastAmbient>=(effectivePerformance()==="tv"?100:50)){this.lastAmbient=now;this.drawAmbient(now)}if(this.ctx){this.ctx.clearRect(0,0,this.width,this.height);sceneViewport.clip(this.ctx,this.groundY());if(this.story)this.drawStory(this.ctx,this.story,now);this.ctx.restore()}}
+  }
+  const themeCycle={last:null,winterElapsed:0,viceElapsed:0,winterMagic:facePreferences.magicMode,viceMood:facePreferences.viceMood,lastNotice:0};
+  function viceMoodNow(){return facePreferences.viceCycleMode==="auto"?themeCycle.viceMood:facePreferences.viceMood}
+  const viceWorld=new ViceWorld($("viceAmbient"),$("viceStory"));runtime.viceWorld=viceWorld;
+  window.addEventListener("resize",()=>viceWorld.resize());
+  function beginVice(name,now=performance.now(),preview=false){const f=viceById.get(name);if(activeSeason()!=="vice"||effects.active||now<vibeEggUntil||!f?.duration||(!preview&&!viceEnabled(name)))return false;effects.active={kind:"vice",name,start:now,end:now+f.duration,stage:-1,preview};effects.lastKind=name;viceWorld.start(effects.active);effects.nextAt=now+f.duration+sceneGap();return true}
+  function tickViceScene(now){const scene=effects.active;if(scene?.kind!=="vice")return;if(now>=scene.end){clearHalloween();return}const stage=Math.min(3,Math.floor((now-scene.start)/(scene.end-scene.start)*4));if(scene.stage!==stage&&now>=vibeTapReactionUntil){scene.stage=stage;const poses={pursuit:["curious","startled","sideRight","cheeky"],helicopter:["lookUp","duck","curious","grin"],gator:["sideRight","startled","shy","laugh"],phone:["thinking","skeptic","curious","cheeky"],sideeye:["skeptic","sideRight","cheeky","proud"],chill:["dreamy","coffee","dreamy","grin"],case:["curious","surprise","proud","grin"]};startVibeExpression((poses[scene.name]||["curious","sideRight","proud","grin"])[stage],Math.min(2200,scene.end-now),4)}}
+  function syncNewThemeControls(){
+    $("winterCycleMode").value=facePreferences.winterCycleMode;$("viceCycleMode").value=facePreferences.viceCycleMode;$("viceMood").value=viceMoodNow();$("viceMood").disabled=facePreferences.viceCycleMode==="auto";$("viceIntensity").value=facePreferences.viceIntensity;$("viceAction").checked=facePreferences.viceAction;$("viceAccessories").checked=facePreferences.viceAccessories;$("showModeSetting").checked=facePreferences.showMode;$("homeLyricsSetting").checked=facePreferences.homeLyrics;
+  }
+  function tickThemeCycle(now){
+    if(document.visibilityState!=="visible"){themeCycle.last=null;return}const dt=themeCycle.last===null?0:clamp(now-themeCycle.last,0,1000);themeCycle.last=now;const kind=activeSeason();
+    const remaining=(playback?.item?.duration_ms||0)-getCurrentPositionMs();
+    const songEnding=!!playback?.is_playing&&remaining>250&&remaining<=45000;
+    const waiting=songEnding||!!effects.active||now<vibeEggUntil||now<(festiveWorld.previewUntil||0)||now<(viceWorld.previewUntil||0);
+    if(kind==="winter"&&facePreferences.winterCycleMode==="auto"){themeCycle.winterElapsed+=dt;if(themeCycle.winterElapsed>=300000&&!waiting){themeCycle.winterElapsed=0;themeCycle.winterMagic=!themeCycle.winterMagic;festiveWorld.configure();syncMagicModeControls()}}
+    if(kind==="vice"&&facePreferences.viceCycleMode==="auto"){themeCycle.viceElapsed+=dt;if(themeCycle.viceElapsed>=300000&&!waiting){themeCycle.viceElapsed=0;const moods=["sunset","night","dawn"];themeCycle.viceMood=moods[(moods.indexOf(themeCycle.viceMood)+1)%3];viceWorld.configure();$("viceMood").value=themeCycle.viceMood}}
+    if(now-themeCycle.lastNotice>1000){themeCycle.lastNotice=now;for(const [id,mode,elapsed]of [["winter",facePreferences.winterCycleMode,themeCycle.winterElapsed],["vice",facePreferences.viceCycleMode,themeCycle.viceElapsed]]){const message=mode!=="auto"?"Manuelle Auswahl bleibt aktiv.":elapsed>=300000?(songEnding?"Wechsel am Songende.":"Wechsel nach der laufenden Szene."):"Auto · nächster Wechsel in etwa "+Math.max(1,Math.ceil((300000-elapsed)/60000))+" Minuten.";if($(id+"CycleStatus").textContent!==message)$(id+"CycleStatus").textContent=message}}
+  }
+  for(const id of ["winterCycleMode","viceCycleMode","viceMood","viceIntensity","viceAction","viceAccessories"]){$(id).addEventListener("change",()=>{facePreferences[id]=["viceAction","viceAccessories"].includes(id)?$(id).checked:$(id).value;if(id==="winterCycleMode"){themeCycle.winterElapsed=0;themeCycle.winterMagic=facePreferences.magicMode}if(["viceCycleMode","viceMood"].includes(id)){themeCycle.viceElapsed=0;themeCycle.viceMood=facePreferences.viceMood}themeCycle.last=performance.now();festiveWorld.configure();viceWorld.configure();syncMagicModeControls();syncNewThemeControls();persistPartyPreferences()})}
+  $("showModeSetting").addEventListener("change",()=>{facePreferences.showMode=$("showModeSetting").checked;if(facePreferences.showMode)facePreferences.party=false;applyPartyPreferences()});
+  $("showExit").addEventListener("click",()=>{facePreferences.showMode=false;facePreferences.party=false;applyPartyPreferences()});
+  $("homeLyricsSetting").addEventListener("change",()=>{facePreferences.homeLyrics=$("homeLyricsSetting").checked;app.dataset.homeLyrics=String(facePreferences.homeLyrics);updateHomeLyrics();sceneViewport.dirty=true;persistPartyPreferences()});
+  function updateHomeLyrics(position=getCurrentPositionMs()){
+    const box=$("homeLyrics");box.hidden=!facePreferences.homeLyrics;if(box.hidden)return;
+    const idx=getSyncedLyricIndex(position-(ownPlayback.active?facePreferences.lyricsOffset:0));
+    const lines=syncedLyrics.length?[syncedLyrics[idx-1]?.text||"",idx>=0?syncedLyrics[idx]?.text||"":"",syncedLyrics[idx+1]?.text||""]:["","Keine synchronisierten Lyrics verfügbar",""];
+    for(const [i,id]of ["homeLyricPrev","homeLyricCurrent","homeLyricNext"].entries())if($(id).textContent!==lines[i])$(id).textContent=lines[i];
+  }
+  for(const f of viceFeatures){const option=document.createElement("option");option.value=f.id;option.textContent=f.label;$("vicePreviewChoice").append(option);const row=document.createElement("label"),label=document.createElement("span"),input=document.createElement("input");row.classList.add("setting-row");label.textContent=f.label;input.type="checkbox";input.checked=!(facePreferences.viceDisabled||[]).includes(f.id);input.setAttribute("aria-label",f.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.viceDisabled||[]);if(input.checked)disabled.delete(f.id);else disabled.add(f.id);facePreferences.viceDisabled=[...disabled];if(!input.checked&&effects.active?.name===f.id)clearHalloween();viceWorld.configure();persistPartyPreferences()});row.append(label,input);$("viceFeatureList").append(row)}
+  $("previewVice").addEventListener("click",()=>{const selected=$("vicePreviewChoice").value;viceWorld.preview(selected&&selected!=="random"?selected:viceWorld.choose());closeSettingsPanel()});
+  document.addEventListener("visibilitychange",()=>{themeCycle.last=null;viceWorld.lastAmbient=-Infinity});
+
   winterKinds.push(...festiveFeatures.filter(feature=>feature.duration).map(feature=>feature.id));
   $("previewWinter").addEventListener("click",()=>{const id=$("winterPreviewChoice").value;festiveWorld.preview(id&&id!=="random"?id:festiveWorld.choose());closeSettingsPanel()});
   document.addEventListener("visibilitychange",()=>{winterSnow.last=0});
 
   const winterPreviewNames={sleigh:"Schlitten",hat:"Weihnachtsmütze",scarf:"Schal",freeze:"Eis & Zittern",snowman:"Schneemann",shake:"Schnee abschütteln"};
   for(const [id,label]of [...Object.entries(winterPreviewNames),...festiveFeatures.map(feature=>[feature.id,feature.label])]){const option=document.createElement("option");option.value=id;option.textContent=label;$("winterPreviewChoice").append(option)}
-  for(const feature of festiveFeatures){const label=document.createElement("label"),text=document.createElement("span"),input=document.createElement("input");label.classList.add("setting-row");text.textContent=feature.label;input.type="checkbox";input.checked=!(facePreferences.festiveDisabled||[]).includes(feature.id);input.disabled=feature.group==="magic"&&!facePreferences.magicMode;input.dataset.festiveId=feature.id;input.setAttribute("aria-label",feature.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.festiveDisabled||[]);if(input.checked)disabled.delete(feature.id);else disabled.add(feature.id);facePreferences.festiveDisabled=[...disabled];if(!input.checked&&effects.active?.name===feature.id)clearHalloween();festiveWorld.configure();persistPartyPreferences()});label.append(text,input);$("festiveFeatureList").append(label)}
+  for(const feature of festiveFeatures){const label=document.createElement("label"),text=document.createElement("span"),input=document.createElement("input");label.classList.add("setting-row");text.textContent=feature.label;input.type="checkbox";input.checked=!(facePreferences.festiveDisabled||[]).includes(feature.id);input.disabled=feature.group==="magic"&&!winterMagicOn();input.dataset.festiveId=feature.id;input.setAttribute("aria-label",feature.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.festiveDisabled||[]);if(input.checked)disabled.delete(feature.id);else disabled.add(feature.id);facePreferences.festiveDisabled=[...disabled];if(!input.checked&&effects.active?.name===feature.id)clearHalloween();festiveWorld.configure();persistPartyPreferences()});label.append(text,input);$("festiveFeatureList").append(label)}
   $("clearDecorations").addEventListener("click",()=>{festiveWorld.clearResidue()});
 
   function syncMagicModeControls(){
-    $("magicModeSetting").checked=facePreferences.magicMode;
-    for(const row of $("festiveFeatureList").children){const input=row.querySelector?.("input")||row.children?.[1];if(input?.dataset.festiveId)input.disabled=festiveById.get(input.dataset.festiveId)?.group==="magic"&&!facePreferences.magicMode}
+    $("magicModeSetting").checked=winterMagicOn();$("magicModeSetting").disabled=facePreferences.winterCycleMode==="auto";
+    for(const row of $("festiveFeatureList").children){const input=row.querySelector?.("input")||row.children?.[1];if(input?.dataset.festiveId)input.disabled=festiveById.get(input.dataset.festiveId)?.group==="magic"&&!winterMagicOn()}
   }
   $("magicModeSetting").addEventListener("change",()=>{facePreferences.magicMode=$("magicModeSetting").checked;if(!facePreferences.magicMode&&festiveById.get(effects.active?.name)?.group==="magic")clearHalloween();festiveWorld.configure();syncMagicModeControls();persistPartyPreferences()});
   $("seasonSetting").addEventListener("change",()=>{facePreferences.season=$("seasonSetting").value;facePreferences.halloween=facePreferences.season==="halloween";applyPartyPreferences()});
   const halloweenKinds=["ghost","bat","pumpkin","vampire","magic","skeleton","coverGhost","spider","shadow","flyingPumpkin"];
-  function sceneGap(){const ranges={few:[180000,240000],normal:[90000,150000],many:[60000,90000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return a+Math.random()*(b-a)}
+  function sceneGap(){const ranges={few:[180000,240000],normal:[90000,150000],many:[60000,90000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return (a+Math.random()*(b-a))*(activeSeason()==="vice"?(facePreferences.viceIntensity==="action"?.72:facePreferences.viceIntensity==="calm"?1.2:1):1)}
   function persistPartyPreferences(){
     try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
   }
   function applyPartyPreferences(){
     if(facePreferences.halloween)facePreferences.season="halloween";else if(facePreferences.season==="halloween")facePreferences.season="off";
+    if(app.dataset.season!==activeSeason()){effects.queue=[];themeCycle.last=null;festiveWorld.previewUntil=0;viceWorld.previewUntil=0}
     app.dataset.season=activeSeason();$("seasonSetting").value=activeSeason();
-    winterSnow.configure();festiveWorld.configure();syncMagicModeControls();
-    app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party);
+    winterSnow.configure();festiveWorld.configure();runtime.viceWorld?.configure();syncMagicModeControls();syncNewThemeControls();updateHomeLyrics();
+    app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party||facePreferences.showMode);app.dataset.showMode=String(facePreferences.showMode);app.dataset.homeLyrics=String(facePreferences.homeLyrics);
     app.dataset.ambient=String(facePreferences.ambient);app.dataset.dance=facePreferences.dance;
     for(const [key,field]of Object.entries(partyFields)){
       if(["halloween","party","ambient","surprises"].includes(key))field.checked=facePreferences[key];else field.value=facePreferences[key];
@@ -3954,7 +4132,7 @@ THE SOFTWARE.
     tempoFactor.value=String(facePreferences.tempoFactor);manualBpm.value=facePreferences.manualBpm || "";
     beatEngine.factor=facePreferences.tempoFactor;beatEngine.offset=facePreferences.beatOffset;
     if(effects.active&&effects.active.kind!==activeSeason())clearHalloween();
-    effects.nextAt=performance.now()+sceneGap();showPartyControls();persistPartyPreferences();renderBeatDiagnostic(true);
+    effects.nextAt=performance.now()+sceneGap();showPartyControls(true);persistPartyPreferences();renderBeatDiagnostic(true);
   }
   function renderBeatDiagnostic(force=false){
     const now=performance.now();if(!force && now<diagnosticAt)return;diagnosticAt=now+500;
@@ -4025,7 +4203,7 @@ THE SOFTWARE.
     effects.active=null;effects.queue=effects.queue.filter(event=>event.kind!=="halloween");
     halloweenLayer.innerHTML="";delete vibeFace.dataset.halloweenScene;delete vibeFace.dataset.halloweenStage;
     coverGhost.classList.remove("visible");delete app.dataset.halloweenScene;
-    winterLayer.innerHTML="";delete vibeFace.dataset.winterScene;
+    winterLayer.innerHTML="";delete vibeFace.dataset.winterScene;runtime.viceWorld?.stop();
     runtime.festiveWorld?.stop();
   }
   const ghostSvg='<svg viewBox="0 0 100 110" aria-hidden="true"><path d="M18 96V43a32 32 0 0 1 64 0v53l-16-9-16 10-16-10Z" fill="#edf3ffd9" stroke="#fff" stroke-width="2"/><ellipse cx="39" cy="44" rx="5" ry="7" fill="#473955"/><ellipse cx="62" cy="44" rx="5" ry="7" fill="#473955"/><path d="M44 66q7 6 13-1" fill="none" stroke="#665576" stroke-width="3" stroke-linecap="round"/></svg>';
@@ -4049,8 +4227,9 @@ THE SOFTWARE.
     if(now<vibeEggUntil){if(effects.active)clearHalloween();return}
     if(activeSeason()!=="off"&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
       const kind=activeSeason(),choices=halloweenKinds.filter(name=>name!==effects.lastKind);
-      queueEffect({kind,name:kind==="winter"?festiveWorld.choose():choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
+      queueEffect({kind,name:kind==="winter"?festiveWorld.choose():kind==="vice"?viceWorld.choose():choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
     }
+    if(effects.active?.kind==="vice"){tickViceScene(now);return}
     if(effects.active?.kind==="winter"){tickWinterScene(now);return}
     if(effects.active){
       const scene=effects.active,age=now-scene.start;
@@ -4068,7 +4247,8 @@ THE SOFTWARE.
     }
     if(now<vibeTapReactionUntil)return;
     const event=effects.queue.shift();if(!event)return;
-    if(event.kind==="winter"){
+    if(event.kind==="vice"){if(beginVice(event.name,now))effects.last.set(event.key,now);
+    }else if(event.kind==="winter"){
       if(beginWinter(event.name,now))effects.last.set(event.key,now);
     }else if(event.kind==="halloween"){
       if(beginHalloween(event.name,now))effects.last.set(event.key,now);
@@ -4103,7 +4283,7 @@ THE SOFTWARE.
     if(typeof winterSnow!=="undefined")winterSnow.geometryDirty=true;
     partyPresentation.animation?.cancel();
     app.style.setProperty("--party-expansion",String(target));
-    runtime.festiveWorld?.measureCover();sceneViewport.dirty=true;
+    runtime.festiveWorld?.measureCover();runtime.viceWorld?.measureCover();sceneViewport.dirty=true;
     if(panel&&before&&motionLevel()>0&&panel.animate){
       const after=panel.getBoundingClientRect(),afterFace=vibeFace.getBoundingClientRect();
       const scale=afterFace.width&&beforeFace?.width?beforeFace.width/afterFace.width:1;
@@ -4120,22 +4300,25 @@ THE SOFTWARE.
     partyPresentation.value=partyPresentation.from+(partyPresentation.target-partyPresentation.from)*ease;
     // Progress is bookkeeping only. Grid geometry already changed once in setPartyExpansion().
   }
-  function showPartyControls(){
+  function showPartyControls(force=false){
+    if(facePreferences.showMode&&partyHidden&&force!==true)return;
+    $("showExit").hidden=true;vibeFace.inert=false;
     partyLastInput=performance.now();partyHidden=false;app.dataset.controlsHidden="false";setPartyExpansion(0);
     for(const element of partyControlGroups()){element.inert=false;element.removeAttribute?.("inert")}
   }
   function tickParty(now){
     updatePartyPresentation(now);
-    if(!facePreferences.party||partyHidden||now-partyLastInput<8000)return;
+    if(!(facePreferences.party||facePreferences.showMode)||partyHidden||now-partyLastInput<8000)return;
     if(settings.classList.contains("open")||library.classList.contains("open")||lyrics.classList.contains("open"))return;
-    partyHidden=true;app.dataset.controlsHidden="true";setPartyExpansion(1);
+    partyHidden=true;app.dataset.controlsHidden="true";setPartyExpansion(1);$("showExit").hidden=!facePreferences.showMode;if(facePreferences.showMode)vibeFace.inert=true;
     for(const element of partyControlGroups()){if(element.contains?.(document.activeElement))document.activeElement.blur?.();element.setAttribute("inert","");element.inert=true}
   }
 
   function partyKey(event){
-    if(!facePreferences.party)return;
+    if(!facePreferences.party&&!facePreferences.showMode)return;
+    if(facePreferences.showMode&&partyHidden){if(event.key==="Tab"){event.preventDefault();$("showExit").focus?.({preventScroll:true})}else if(event.target!==$("showExit")){event.preventDefault();event.stopImmediatePropagation?.()}return}
     const dialogOpen=settings.classList.contains("open")||library.classList.contains("open")||lyrics.classList.contains("open");
-    if(event.key==="Escape"&&!dialogOpen){facePreferences.party=false;applyPartyPreferences();event.preventDefault();event.stopImmediatePropagation?.();return}
+    if(event.key==="Escape"&&!dialogOpen){facePreferences.party=false;facePreferences.showMode=false;applyPartyPreferences();event.preventDefault();event.stopImmediatePropagation?.();return}
     const wasHidden=partyHidden;showPartyControls();
     if(wasHidden){partyWakeKey=event.code||event.key;event.preventDefault();event.stopImmediatePropagation?.();return}
     if(partyWakeKey===(event.code||event.key)){event.preventDefault();event.stopImmediatePropagation?.();return}
@@ -4222,7 +4405,7 @@ THE SOFTWARE.
       ownedStatus.textContent=`${rows.length} Lyricszeilen lokal geladen. ${rows.some(row=>row.words?.length)?"Echte Wortzeitstempel.":"Wortzeitpunkte werden vorsichtig geschätzt."}`;renderBeatDiagnostic(true);
     }catch(error){ownedStatus.textContent=`Lyricsdatei konnte nicht gelesen werden: ${error.message}`}
   }
-  for(const [key,field]of Object.entries(partyFields))field.addEventListener("change",()=>{facePreferences[key]=["halloween","party","ambient","surprises"].includes(key)?field.checked:field.value;applyPartyPreferences()});
+  for(const [key,field]of Object.entries(partyFields))field.addEventListener("change",()=>{facePreferences[key]=["halloween","party","ambient","surprises"].includes(key)?field.checked:field.value;if(key==="party"&&field.checked)facePreferences.showMode=false;applyPartyPreferences()});
   partyExit.addEventListener("click",()=>{facePreferences.party=false;applyPartyPreferences()});
   ["pointermove","pointerdown","touchstart"].forEach(type=>document.addEventListener(type,showPartyControls,{passive:true}));
   document.addEventListener("keydown",partyKey,true);
