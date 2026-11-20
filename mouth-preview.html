@@ -4,11 +4,11 @@
 *{box-sizing:border-box}body{margin:0;background:#091713;color:#f2f7f2;font:16px/1.5 system-ui,-apple-system,sans-serif}main{width:min(920px,100%);margin:auto;padding:30px max(20px,env(safe-area-inset-left)) 44px}a{color:#a6e8cb}header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}h1{font-size:clamp(24px,5vw,36px);margin:10px 0}p{color:#b7c9bf;margin:8px 0 22px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:30px}.side{text-align:center;background:linear-gradient(180deg,#14302666,transparent);border-radius:24px;padding:18px 12px 12px}.side h2{font-size:16px;margin:0;color:#a9c4b6}.face{position:relative;width:min(100%,280px);aspect-ratio:1;margin:auto}.eye{position:absolute;top:35%;width:12.2%;aspect-ratio:1;border-radius:50%;background:#f4f7f5}.eye.left{left:24%}.eye.right{right:24%}.mouth{position:absolute;left:21%;top:52%;width:58%;height:24%;overflow:visible}.mouth path{fill:none;stroke:#f4f7f5;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}.word{min-height:28px;font-size:19px;font-weight:650}.phase{font-size:13px;min-height:22px;color:#b6ccbf}label{display:block;color:#b6ccbf;font-size:14px}select,input[type=text]{width:100%;min-height:46px;font:inherit;color:inherit;background:#193328;border:1px solid #355146;border-radius:10px;padding:10px}.fields{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin:24px 0 16px}button{font:inherit;color:inherit;background:#264c3a;border:1px solid #476e59;border-radius:24px;min-height:44px;padding:9px 20px;cursor:pointer}button.primary{background:#b3edb9;color:#112216;border-color:transparent}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d0ffe6;outline-offset:3px}.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.time{margin-left:auto;font-variant-numeric:tabular-nums;font-size:14px;color:#b7c9bf}input[type=range]{width:100%;margin:18px 0 6px;accent-color:#b3edb9;min-height:34px}.phrase{text-align:center;font-size:clamp(17px,3vw,24px);min-height:38px;color:#dbece1;margin-top:22px}.phrase span{display:inline-block;padding:1px 5px}.phrase .active{color:#b3edb9;font-weight:750;text-decoration:underline;text-underline-offset:6px}.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.jump button{font-size:14px;background:transparent}.note{font-size:13px;margin-top:26px}.custom{margin-top:16px}.custom input{margin:6px 0 10px}footer{margin-top:30px;font-size:13px;color:#9bb3a5}@media(max-width:520px){main{padding-top:16px}.comparison{gap:10px}.side{padding:14px 6px 10px;border-radius:16px}.fields{grid-template-columns:1fr}.word{font-size:16px}.time{margin-left:0}.face{min-width:0}h1{line-height:1.2}}
 </style></head><body><main>
 <header><h1>Mundbewegungen vergleichen</h1><a href="./">Zurück zu SpotDeck</a></header>
-<p>Gleiche Lautformen, fließende Bewegung. Stumme Textdemo mit geschätzten Wort- und Lautzeiten.</p>
+<p>Fließende Lautformen und ein entspannter Ausklang. Stumme Textdemo mit geschätzten Wort- und Lautzeiten.</p>
 <div class="comparison"><section class="side"><h2>Vorher · direkte Lautformen</h2><div class="face" role="img" aria-label="Bisherige Mundbewegung"><div class="eye left"></div><div class="eye right"></div><svg class="mouth" viewBox="0 0 100 50" aria-hidden="true"><path id="oldMouth" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path></svg></div><div class="word" id="oldWord">—</div><div class="phase" id="oldPhase">Direkte Mundformen</div></section>
 <section class="side"><h2>Neu · fließende Übergänge</h2><div class="face" role="img" aria-label="Neue Mundbewegung"><div class="eye left"></div><div class="eye right"></div><svg class="mouth" viewBox="0 0 100 50" aria-hidden="true"><path id="newMouth" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path></svg></div><div class="word" id="newWord">—</div><div class="phase" id="newPhase">Durchgehende Bewegung</div></section></div>
 <div class="phrase" id="phrase" aria-label="Beispieltext"></div>
-<div class="fields"><label>Beispiel<select id="example"><option value="german">Ich bin hier, ich bin frei</option><option value="english">We are free tonight</option><option value="vowels">Lange Vokale und Lippenverschluss</option><option value="custom">Eigener kurzer Text</option></select></label><label>Aussprache<select id="language"><option value="auto">Automatisch · Deutsch/Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></label></div>
+<div class="fields"><label>Beispiel<select id="example"><option value="german">Ich bin hier, ich bin frei</option><option value="english">We are free tonight</option><option value="good">Langer Ausklang · good</option><option value="vowels">Lange Vokale und Lippenverschluss</option><option value="custom">Eigener kurzer Text</option></select></label><label>Aussprache<select id="language"><option value="auto">Automatisch · Deutsch/Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></label></div>
 <div class="custom" id="customBox" hidden><label for="customText">Eigener Text · bis 180 Zeichen</label><input id="customText" type="text" maxlength="180" value="ich bin hier, ich bin frei"><button id="applyText">Text übernehmen</button></div>
 <div class="actions"><button class="primary" id="play">Vergleich abspielen</button><button id="restart">Anfang</button><label>Tempo<select id="speed"><option value="1">Normal</option><option value="0.5">Halbes Tempo</option><option value="0.25">Zeitlupe</option></select></label><span class="time" id="time">0,00 / 6,40 s</span></div>
 <label for="position">Zeitpunkt zum Prüfen verschieben</label><input id="position" type="range" min="0" max="6400" step="10" value="0">
@@ -216,7 +216,6 @@
       return {...pose,viseme:current.shape.viseme,restBlend:f*f*(3-2*f),active:true,long:current.long,phone:current.phone,wordIndex:current.wordIndex,timing:current.timing,phonemeTiming:current.phonemeTiming,wordEndTiming:current.wordEndTiming,confidence:current.confidence};
     }
   }
-
   // The same white outline, articulated with independent upper/lower lip curves.
   // Pose inputs: open/round/wide/seal/tension in [0,1]; upper/lower/corners in [-1,1].
   // Optional speech.restBlend in [0,1] releases a cue to the original smile.
@@ -316,11 +315,10 @@
       return finish(blend===1&&emotionSmile===0?mouthRigRestPath:path,seal>=.9?0:aperture*(1-blend));
     }
   }
-
   // Geometry, rather than categorical pose flags, is interpolated on the song clock.
   // Every boundary owns one eased transition; closed projections keep real gaps silent.
   class MouthTrajectory{
-    constructor(rig=new MouthRig()){this.rig=rig;this.maxCues=50000;this.restGeometry=this.geometry(rig.render({}, {}, {playing:false}));this.restGeometry.emotionWeight=1;this.restGeometry.phone="REST"}
+    constructor(rig=new MouthRig()){this.rig=rig;this.maxCues=50000;this.settleMs=220;this.relaxedHoldMs=1000;this.smileReturnMs=1600;this.restGeometry=this.geometry(rig.render({}, {}, {playing:false}));this.restGeometry.emotionWeight=1;this.restGeometry.phone="REST"}
     clamp(value,min=0,max=1){return Math.max(min,Math.min(max,Number.isFinite(value)?value:min))}
     ease(t){t=this.clamp(t);return t*t*t*(t*(t*6-15)+10)}
     geometry(rendered){
@@ -351,6 +349,21 @@
       for(const [a,b]of [[2,11],[3,10],[4,9],[5,8],[6,7]]){const x=(points[a][0]+points[b][0])/2,y=(points[a][1]+points[b][1])/2;points[a]=[x,y];points[b]=[x,y]}
       return this.finish(points,g.strokeWidth,{phone:g.phone,emotionWeight:g.emotionWeight,kind:"quiet"});
     }
+    recoveryFrom(rendered){
+      const quiet=this.closed(rendered),width=this.clamp(quiet.points[1][0]-quiet.points[0][0],34,50),scale=width/84;
+      // A shallow, closed smile keeps the recent articulation's width. The
+      // character's exact broad smile returns only after a genuine longer rest.
+      const points=this.restGeometry.points.map(p=>[50+(p[0]-50)*scale,23+(p[1]-8)*.2]);
+      const relaxed=this.finish(points,Math.min(quiet.strokeWidth,6.25),{phone:"REST",emotionWeight:.08});
+      return {quiet,relaxed};
+    }
+    sampleRecovery(recovery,elapsedMs){
+      const elapsed=Math.max(0,elapsedMs),returnAt=this.settleMs+this.relaxedHoldMs;
+      if(elapsed<this.settleMs)return {geometry:this.interpolate(recovery.quiet,recovery.relaxed,this.ease(elapsed/this.settleMs)),kind:"settle"};
+      if(elapsed<returnAt)return {geometry:recovery.relaxed,kind:"relaxed-rest"};
+      if(elapsed<returnAt+this.smileReturnMs)return {geometry:this.interpolate(recovery.relaxed,this.restGeometry,this.ease((elapsed-returnAt)/this.smileReturnMs)),kind:"recover-smile"};
+      return {geometry:this.restGeometry,kind:"idle"};
+    }
     connected(a,b){
       const gap=b.start-a.end;
       return gap<=1e-6||(gap>0&&gap<=45&&a.source.wordTiming==="estimated"&&b.source.wordTiming==="estimated"&&a.source.phonemeTiming!=="provided"&&b.source.phonemeTiming!=="provided");
@@ -368,7 +381,7 @@
       // rather than forcing another extreme target for one video frame.
       const vowelNear=(index,direction)=>{
         let previous=cues[index];
-        for(let n=index+direction;n>=0&&n<cues.length&&Math.abs(n-index)<=4;n+=direction){const current=cues[n],a=direction>0?previous:current,b=direction>0?current:previous;if(!this.connected(a,b)||Math.abs((current.start+current.end-cues[index].start-cues[index].end)/2)>300)break;if(current.source.vowel)return current;previous=current}
+        for(let n=index+direction;n>=0&&n<cues.length&&Math.abs(n-index)<=4;n+=direction){const current=cues[n],a=direction>0?previous:current,b=direction>0?current:previous,distance=direction>0?current.start-cues[index].end:cues[index].start-current.end;if(!this.connected(a,b)||distance>300)break;if(current.source.vowel)return current;previous=current}
         return null;
       };
       for(let i=0;i<cues.length;i++){
@@ -382,7 +395,7 @@
       }
       for(const cue of cues)cue.quiet=this.closed(cue.geometry);
       const phases=[],rest=this.restGeometry;
-      const add=(start,end,from,to,kind)=>{if(end>start+1e-8)phases.push({start,end,from,to,kind})};
+      const add=(start,end,from,to,kind,extra={})=>{if(end>start+1e-8)phases.push({start,end,from,to,kind,...extra})};
       if(!cues.length)return {cues,phases,boundaries:[],start:0,end:0,source:plan};
       const first=cues[0];let cursor;
       if(first.sealed&&first.start>0){const preparation=Math.min(90,first.start);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.geometry,"prepare-seal");cursor=first.start}
@@ -398,13 +411,13 @@
           const close=a.sealed?0:Math.min(110,a.duration*.4),closeStart=a.end-close,gap=b.start-a.end;
           add(cursor,closeStart,a.geometry,a.geometry,"hold");add(closeStart,a.end,a.geometry,a.quiet,"close");
           if(gap<220)add(a.end,b.start,a.quiet,b.quiet,"quiet-gap");
-          else{const relaxation=Math.min(160,gap*.35),preparation=Math.min(90,gap*.35);add(a.end,a.end+relaxation,a.quiet,rest,"relax");add(a.end+relaxation,b.start-preparation,rest,rest,"idle");add(b.start-preparation,b.start,rest,b.quiet,"prepare")}
+          else{const preparation=Math.min(90,gap*.35);add(a.end,b.start,a.quiet,b.quiet,"rest-recovery",{recovery:this.recoveryFrom(a.quiet),prepareAt:b.start-preparation})}
           const attack=b.sealed?0:Math.min(110,b.duration*.4);add(b.start,b.start+attack,b.quiet,b.geometry,"attack");cursor=b.start+attack;
         }
       }
       const last=cues.at(-1),close=last.sealed?0:Math.min(110,last.duration*.4);
-      add(cursor,last.end-close,last.geometry,last.geometry,"hold");add(last.end-close,last.end,last.geometry,last.quiet,"close");add(last.end,last.end+160,last.quiet,rest,"relax");
-      const boundaries=[...new Set(phases.flatMap(p=>[p.start,p.end]))].sort((a,b)=>a-b);
+      add(cursor,last.end-close,last.geometry,last.geometry,"hold");add(last.end-close,last.end,last.geometry,last.quiet,"close");add(last.end,last.end+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,last.quiet,rest,"rest-recovery",{recovery:this.recoveryFrom(last.quiet)});
+      const boundaries=[...new Set(phases.flatMap(p=>[p.start,p.end,...(p.recovery?[p.start+this.settleMs,p.start+this.settleMs+this.relaxedHoldMs,p.start+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,p.prepareAt].filter(t=>t>p.start&&t<p.end):[])]))].sort((a,b)=>a-b);
       return {cues,phases,boundaries,start:phases[0]?.start??first.start,end:phases.at(-1)?.end??last.end,source:plan};
     }
     emotion(geometry,expression){
@@ -421,18 +434,17 @@
       let low=0,high=phases.length-1,index=-1;while(low<=high){const mid=(low+high)>>1;if(phases[mid].start<=at){index=mid;low=mid+1}else high=mid-1}
       let rendered,phase;
       if(index<0||at>=trajectory.end){rendered=this.finish(this.restGeometry.points.map(p=>p.slice()),this.restGeometry.strokeWidth,{emotionWeight:1});phase={kind:"idle",start:at,end:at,progress:1,blend:1}}
-      else{const current=phases[index],progress=this.clamp((at-current.start)/(current.end-current.start)),blend=this.ease(progress);rendered=this.interpolate(current.from,current.to,blend);phase={kind:current.kind,start:current.start,end:current.end,progress,blend,fromPhone:current.from.phone||"REST",toPhone:current.to.phone||"REST"}}
+      else{const current=phases[index],progress=this.clamp((at-current.start)/(current.end-current.start));let blend=this.ease(progress),kind=current.kind;if(current.recovery){const sampled=this.sampleRecovery(current.recovery,at-current.start);rendered=sampled.geometry;kind=sampled.kind;if(Number.isFinite(current.prepareAt)&&at>=current.prepareAt){blend=this.ease((at-current.prepareAt)/(current.end-current.prepareAt));rendered=this.interpolate(rendered,current.to,blend);kind="prepare"}}else rendered=this.interpolate(current.from,current.to,blend);phase={kind,start:current.start,end:current.end,progress,blend,fromPhone:current.from.phone||"REST",toPhone:current.to.phone||"REST"}}
       const result=this.emotion(rendered,expression);return {...result,phase};
     }
   }
-
 const engine=new ArticulationEngine(),rig=new MouthRig(),trajectoryEngine=new MouthTrajectory(rig),$=id=>document.getElementById(id);
-const examples={german:{text:'ich bin hier, ich bin frei',end:6400,words:[['ich',100,600],['bin',600,1100],['hier',1100,2800],['ich',3100,3600],['bin',3600,4100],['frei',4100,6300]]},english:{text:'We are free tonight',end:5200,words:[['We',100,700],['are',700,1200],['free',1200,2900],['tonight',3200,4900]]},vowels:{text:'Mmm Ooh Aah',end:7200,words:[['Mmm',100,1200],['Ooh',1500,3900],['Aah',4300,6900]]}};
+const examples={german:{text:'ich bin hier, ich bin frei',end:6400,words:[['ich',100,600],['bin',600,1100],['hier',1100,2800],['ich',3100,3600],['bin',3600,4100],['frei',4100,6300]]},english:{text:'We are free tonight',end:5200,words:[['We',100,700],['are',700,1200],['free',1200,2900],['tonight',3200,4900]]},good:{text:'I am feeling good',end:7200,words:[['I',100,450],['am',450,900],['feeling',900,2000],['good',2000,4000]]},vowels:{text:'Mmm Ooh Aah',end:7200,words:[['Mmm',100,1200],['Ooh',1500,3900],['Aah',4300,6900]]}};
 let words=[],plan=null,trajectory=null,position=0,end=6400,frame=null,last=0,playing=false,phraseNodes=[];
 function draw(){const token=words.find(w=>position>=w.start&&position<w.end),speech=engine.sample(plan,position),before=rig.render(speech,{},{playing:true}),result=trajectoryEngine.sample(trajectory,position,{},{playing:true});$('oldMouth').setAttribute('d',before.path);$('oldMouth').style.setProperty('stroke-width',String(before.strokeWidth||9));$('newMouth').setAttribute('d',result.path);$('newMouth').style.setProperty('stroke-width',String(result.strokeWidth||9));$('oldWord').textContent=$('newWord').textContent=token?.word||'—';$('oldPhase').textContent='Direkte Zielpose';$('newPhase').textContent=speech.active?'Laut: '+speech.phone+' · '+(speech.seal>.9?'Lippen geschlossen':speech.long?'Vokal halten':'Fließender Übergang'):'Sanfter Ruheübergang';$('position').value=String(Math.round(position));$('time').textContent=(position/1000).toFixed(2).replace('.',',')+' / '+(end/1000).toFixed(2).replace('.',',')+' s';phraseNodes.forEach((n,i)=>n.classList.toggle('active',words[i]===token));}
 function stop(){playing=false;if(frame!==null)cancelAnimationFrame(frame);frame=null;last=0;$('play').textContent='Vergleich abspielen';}
 function tick(now){frame=null;if(!playing)return;const dt=last?Math.min(100,now-last):0;last=now;position=Math.min(end,position+dt*Number($('speed').value));draw(dt);if(position>=end){stop();$('status').textContent='Vergleich beendet. Du kannst ihn erneut abspielen oder eine Stelle auswählen.';}else frame=requestAnimationFrame(tick)}
-function load(){stop();const key=$('example').value;let data=examples[key];$('customBox').hidden=key!=='custom';if(!data){const text=$('customText').value.trim().slice(0,180)||'ich bin frei';data={text,end:Math.min(15000,Math.max(2500,text.split(/\s+/).length*680))}}end=data.end;const row={time:0,end,text:data.text};if(data.words)row.words=data.words.map(([word,start,end])=>({word,start,end}));words=engine.buildWords(row,end,$('language').value);plan=engine.compile(words,$('language').value);trajectory=trajectoryEngine.compile(plan);position=0;$('position').max=String(end);$('phrase').replaceChildren();phraseNodes=words.map(w=>{const n=document.createElement('span');n.textContent=w.word;$('phrase').append(n);return n});draw(34,true);$('status').textContent='Textdemo bereit · Zeitpunkte sind für den Vergleich vorgegeben oder geschätzt.';}
+function load(){stop();const key=$('example').value;let data=examples[key];$('customBox').hidden=key!=='custom';if(!data){const text=$('customText').value.trim().slice(0,180)||'ich bin frei';data={text,end:Math.min(15000,Math.max(2500,text.split(/\s+/).length*680))}}end=data.end;const row={time:0,end,text:data.text};if(data.words)row.words=data.words.map(([word,start,end])=>({word,start,end}));words=engine.buildWords(row,end,$('language').value);plan=engine.compile(words,$('language').value);trajectory=trajectoryEngine.compile(plan);end=Math.max(end,trajectory.end+200);position=0;$('position').max=String(end);$('phrase').replaceChildren();phraseNodes=words.map(w=>{const n=document.createElement('span');n.textContent=w.word;$('phrase').append(n);return n});draw(34,true);$('status').textContent='Textdemo bereit · Zeitpunkte sind für den Vergleich vorgegeben oder geschätzt.';}
 $('play').addEventListener('click',()=>{if(playing){stop();$('status').textContent='Angehalten. Die aktuelle Mundform bleibt sichtbar.';}else{if(position>=end)position=0;playing=true;$('play').textContent='Anhalten';$('status').textContent='Vergleich läuft.';frame=requestAnimationFrame(tick)}});$('restart').addEventListener('click',()=>{stop();position=0;draw(34,true)});$('position').addEventListener('input',()=>{stop();position=Number($('position').value);draw(34,true)});$('example').addEventListener('change',load);$('language').addEventListener('change',load);$('applyText').addEventListener('click',load);
 for(const b of document.querySelectorAll('[data-jump]'))b.addEventListener('click',()=>{if($('example').value!=='german'){$('example').value='german';load()}stop();const token=words.find(w=>w.word===({b:'bin',i:'hier',ai:'frei'})[b.dataset.jump]);position=token.start+(token.end-token.start)*({b:.045,i:.5,ai:.77})[b.dataset.jump];draw(34,true);$('status').textContent='Ausgewählte Mundphase angehalten.'});document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')stop()});load();
 </script></body></html>

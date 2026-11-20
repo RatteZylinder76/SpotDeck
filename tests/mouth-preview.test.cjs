@@ -22,11 +22,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   jumps[1].events.click();assert.equal(nodes.get('newWord').textContent,'hier');assert.match(nodes.get('newPhase').textContent,/Vokal halten/);
   nodes.get('position').value='4500';nodes.get('position').events.input();assert.equal(run('position'),4500);assert.equal(frames.size,0);
   nodes.get('example').value='english';nodes.get('example').events.change();assert.equal(run('words.length'),4);assert.equal(nodes.get('customBox').hidden,true);
+  nodes.get('example').value='good';nodes.get('example').events.change();assert.equal(run('words.length'),4);assert(run('end')>=7000,'The held-vowel example includes its full relaxed ending');nodes.get('position').value='4900';nodes.get('position').events.input();assert.equal(run('trajectoryEngine.sample(trajectory,position).aperture'),0,'The post-phrase smile stays closed');assert(run('trajectoryEngine.sample(trajectory,position).points[1][0]-trajectoryEngine.sample(trajectory,position).points[0][0]')<65,'The held-vowel example demonstrates the small relaxed smile');
   nodes.get('example').value='custom';nodes.get('example').events.change();assert.equal(nodes.get('customBox').hidden,false);
   nodes.get('customText').value='<b>Frei & ich</b>';click('applyText');assert(nodes.get('phrase').children.every(n=>typeof n.textContent==='string'));
   assert(!preview.includes('innerHTML'),'Custom text never enters an HTML sink');
   click('play');document.visibilityState='hidden';document.events.visibilitychange();assert.equal(frames.size,0);assert.equal(run('playing'),false);
-  nodes.get('example').value='german';nodes.get('example').events.change();click('play');step(7000);assert.equal(frames.size,0);assert.equal(run('playing'),false);assert.equal(run('position'),run('end'));
+  nodes.get('example').value='german';nodes.get('example').events.change();click('play');step(run('end')+100);assert.equal(frames.size,0);assert.equal(run('playing'),false);assert.equal(run('position'),run('end'));
   assert(!/\bfetch\s*\(|getUserMedia\s*\(|getDisplayMedia\s*\(|speechSynthesis|SPOTIFY_CLIENT/.test(preview),'The comparison needs no connection, capture or generated voice');
   console.log('PASS production-identical comparison, explicit single-clock playback, pause/scrub/jump/end, presets, custom text safety and hidden-tab stop.');
 })().catch(error=>{console.error(error);process.exitCode=1});
