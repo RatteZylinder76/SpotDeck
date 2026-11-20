@@ -1255,7 +1255,7 @@
         <option value="system">Systemstandard</option><option value="reduced">Reduzierte Bewegung</option>
         <option value="normal">Normale Animation</option><option value="lively">Lebhafte Animation</option>
       </select>
-      <p class="setting-note" id="motionStatus"></p>
+      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <section class="party-section" aria-labelledby="partyTitle">
@@ -1355,6 +1355,311 @@ THE SOFTWARE.
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports):"function"==typeof define&&define.amd?define(["exports"],t):t((e="undefined"!=typeof globalThis?globalThis:e||self).jsyaml={})}(this,function(e){"use strict";function t(e){return null==e}var n={isNothing:t,isObject:function(e){return"object"==typeof e&&null!==e},toArray:function(e){return Array.isArray(e)?e:t(e)?[]:[e]},repeat:function(e,t){var n,i="";for(n=0;n<t;n+=1)i+=e;return i},isNegativeZero:function(e){return 0===e&&Number.NEGATIVE_INFINITY===1/e},extend:function(e,t){var n,i,r,o;if(t)for(n=0,i=(o=Object.keys(t)).length;n<i;n+=1)e[r=o[n]]=t[r];return e}};function i(e,t){var n="",i=e.reason||"(unknown reason)";return e.mark?(e.mark.name&&(n+='in "'+e.mark.name+'" '),n+="("+(e.mark.line+1)+":"+(e.mark.column+1)+")",!t&&e.mark.snippet&&(n+="\n\n"+e.mark.snippet),i+" "+n):i}function r(e,t){Error.call(this),this.name="YAMLException",this.reason=e,this.mark=t,this.message=i(this,!1),Error.captureStackTrace?Error.captureStackTrace(this,this.constructor):this.stack=(new Error).stack||""}r.prototype=Object.create(Error.prototype),r.prototype.constructor=r,r.prototype.toString=function(e){return this.name+": "+i(this,e)};var o=r;function a(e,t,n,i,r){var o="",a="",l=Math.floor(r/2)-1;return i-t>l&&(t=i-l+(o=" ... ").length),n-i>l&&(n=i+l-(a=" ...").length),{str:o+e.slice(t,n).replace(/\t/g,"→")+a,pos:i-t+o.length}}function l(e,t){return n.repeat(" ",t-e.length)+e}var c=function(e,t){if(t=Object.create(t||null),!e.buffer)return null;t.maxLength||(t.maxLength=79),"number"!=typeof t.indent&&(t.indent=1),"number"!=typeof t.linesBefore&&(t.linesBefore=3),"number"!=typeof t.linesAfter&&(t.linesAfter=2);for(var i,r=/\r?\n|\r|\0/g,o=[0],c=[],s=-1;i=r.exec(e.buffer);)c.push(i.index),o.push(i.index+i[0].length),e.position<=i.index&&s<0&&(s=o.length-2);s<0&&(s=o.length-1);var u,p,f="",d=Math.min(e.line+t.linesAfter,c.length).toString().length,h=t.maxLength-(t.indent+d+3);for(u=1;u<=t.linesBefore&&!(s-u<0);u++)p=a(e.buffer,o[s-u],c[s-u],e.position-(o[s]-o[s-u]),h),f=n.repeat(" ",t.indent)+l((e.line-u+1).toString(),d)+" | "+p.str+"\n"+f;for(p=a(e.buffer,o[s],c[s],e.position,h),f+=n.repeat(" ",t.indent)+l((e.line+1).toString(),d)+" | "+p.str+"\n",f+=n.repeat("-",t.indent+d+3+p.pos)+"^\n",u=1;u<=t.linesAfter&&!(s+u>=c.length);u++)p=a(e.buffer,o[s+u],c[s+u],e.position-(o[s]-o[s+u]),h),f+=n.repeat(" ",t.indent)+l((e.line+u+1).toString(),d)+" | "+p.str+"\n";return f.replace(/\n$/,"")},s=["kind","multi","resolve","construct","instanceOf","predicate","represent","representName","defaultStyle","styleAliases"],u=["scalar","sequence","mapping"];var p=function(e,t){if(t=t||{},Object.keys(t).forEach(function(t){if(-1===s.indexOf(t))throw new o('Unknown option "'+t+'" is met in definition of "'+e+'" YAML type.')}),this.options=t,this.tag=e,this.kind=t.kind||null,this.resolve=t.resolve||function(){return!0},this.construct=t.construct||function(e){return e},this.instanceOf=t.instanceOf||null,this.predicate=t.predicate||null,this.represent=t.represent||null,this.representName=t.representName||null,this.defaultStyle=t.defaultStyle||null,this.multi=t.multi||!1,this.styleAliases=function(e){var t={};return null!==e&&Object.keys(e).forEach(function(n){e[n].forEach(function(e){t[String(e)]=n})}),t}(t.styleAliases||null),-1===u.indexOf(this.kind))throw new o('Unknown kind "'+this.kind+'" is specified for "'+e+'" YAML type.')};function f(e,t){var n=[];return e[t].forEach(function(e){var t=n.length;n.forEach(function(n,i){n.tag===e.tag&&n.kind===e.kind&&n.multi===e.multi&&(t=i)}),n[t]=e}),n}function d(e){return this.extend(e)}d.prototype.extend=function(e){var t=[],n=[];if(e instanceof p)n.push(e);else if(Array.isArray(e))n=n.concat(e);else{if(!e||!Array.isArray(e.implicit)&&!Array.isArray(e.explicit))throw new o("Schema.extend argument should be a Type, [ Type ], or a schema definition ({ implicit: [...], explicit: [...] })");e.implicit&&(t=t.concat(e.implicit)),e.explicit&&(n=n.concat(e.explicit))}t.forEach(function(e){if(!(e instanceof p))throw new o("Specified list of YAML types (or a single Type object) contains a non-Type object.");if(e.loadKind&&"scalar"!==e.loadKind)throw new o("There is a non-scalar type in the implicit list of a schema. Implicit resolving of such types is not supported.");if(e.multi)throw new o("There is a multi type in the implicit list of a schema. Multi tags can only be listed as explicit.")}),n.forEach(function(e){if(!(e instanceof p))throw new o("Specified list of YAML types (or a single Type object) contains a non-Type object.")});var i=Object.create(d.prototype);return i.implicit=(this.implicit||[]).concat(t),i.explicit=(this.explicit||[]).concat(n),i.compiledImplicit=f(i,"implicit"),i.compiledExplicit=f(i,"explicit"),i.compiledTypeMap=function(){var e,t,n={scalar:{},sequence:{},mapping:{},fallback:{},multi:{scalar:[],sequence:[],mapping:[],fallback:[]}};function i(e){e.multi?(n.multi[e.kind].push(e),n.multi.fallback.push(e)):n[e.kind][e.tag]=n.fallback[e.tag]=e}for(e=0,t=arguments.length;e<t;e+=1)arguments[e].forEach(i);return n}(i.compiledImplicit,i.compiledExplicit),i};var h=d,g=new p("tag:yaml.org,2002:str",{kind:"scalar",construct:function(e){return null!==e?e:""}}),m=new p("tag:yaml.org,2002:seq",{kind:"sequence",construct:function(e){return null!==e?e:[]}}),y=new p("tag:yaml.org,2002:map",{kind:"mapping",construct:function(e){return null!==e?e:{}}}),b=new h({explicit:[g,m,y]});var A=new p("tag:yaml.org,2002:null",{kind:"scalar",resolve:function(e){if(null===e)return!0;var t=e.length;return 1===t&&"~"===e||4===t&&("null"===e||"Null"===e||"NULL"===e)},construct:function(){return null},predicate:function(e){return null===e},represent:{canonical:function(){return"~"},lowercase:function(){return"null"},uppercase:function(){return"NULL"},camelcase:function(){return"Null"},empty:function(){return""}},defaultStyle:"lowercase"});var v=new p("tag:yaml.org,2002:bool",{kind:"scalar",resolve:function(e){if(null===e)return!1;var t=e.length;return 4===t&&("true"===e||"True"===e||"TRUE"===e)||5===t&&("false"===e||"False"===e||"FALSE"===e)},construct:function(e){return"true"===e||"True"===e||"TRUE"===e},predicate:function(e){return"[object Boolean]"===Object.prototype.toString.call(e)},represent:{lowercase:function(e){return e?"true":"false"},uppercase:function(e){return e?"TRUE":"FALSE"},camelcase:function(e){return e?"True":"False"}},defaultStyle:"lowercase"});function w(e){return 48<=e&&e<=57||65<=e&&e<=70||97<=e&&e<=102}function k(e){return 48<=e&&e<=55}function C(e){return 48<=e&&e<=57}var x=new p("tag:yaml.org,2002:int",{kind:"scalar",resolve:function(e){if(null===e)return!1;var t,n=e.length,i=0,r=!1;if(!n)return!1;if("-"!==(t=e[i])&&"+"!==t||(t=e[++i]),"0"===t){if(i+1===n)return!0;if("b"===(t=e[++i])){for(i++;i<n;i++)if("_"!==(t=e[i])){if("0"!==t&&"1"!==t)return!1;r=!0}return r&&"_"!==t}if("x"===t){for(i++;i<n;i++)if("_"!==(t=e[i])){if(!w(e.charCodeAt(i)))return!1;r=!0}return r&&"_"!==t}if("o"===t){for(i++;i<n;i++)if("_"!==(t=e[i])){if(!k(e.charCodeAt(i)))return!1;r=!0}return r&&"_"!==t}}if("_"===t)return!1;for(;i<n;i++)if("_"!==(t=e[i])){if(!C(e.charCodeAt(i)))return!1;r=!0}return!(!r||"_"===t)},construct:function(e){var t,n=e,i=1;if(-1!==n.indexOf("_")&&(n=n.replace(/_/g,"")),"-"!==(t=n[0])&&"+"!==t||("-"===t&&(i=-1),t=(n=n.slice(1))[0]),"0"===n)return 0;if("0"===t){if("b"===n[1])return i*parseInt(n.slice(2),2);if("x"===n[1])return i*parseInt(n.slice(2),16);if("o"===n[1])return i*parseInt(n.slice(2),8)}return i*parseInt(n,10)},predicate:function(e){return"[object Number]"===Object.prototype.toString.call(e)&&e%1==0&&!n.isNegativeZero(e)},represent:{binary:function(e){return e>=0?"0b"+e.toString(2):"-0b"+e.toString(2).slice(1)},octal:function(e){return e>=0?"0o"+e.toString(8):"-0o"+e.toString(8).slice(1)},decimal:function(e){return e.toString(10)},hexadecimal:function(e){return e>=0?"0x"+e.toString(16).toUpperCase():"-0x"+e.toString(16).toUpperCase().slice(1)}},defaultStyle:"decimal",styleAliases:{binary:[2,"bin"],octal:[8,"oct"],decimal:[10,"dec"],hexadecimal:[16,"hex"]}}),I=new RegExp("^(?:[-+]?(?:[0-9][0-9_]*)(?:\\.[0-9_]*)?(?:[eE][-+]?[0-9]+)?|\\.[0-9_]+(?:[eE][-+]?[0-9]+)?|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");var S=/^[-+]?[0-9]+e/;var O=new p("tag:yaml.org,2002:float",{kind:"scalar",resolve:function(e){return null!==e&&!(!I.test(e)||"_"===e[e.length-1])},construct:function(e){var t,n;return n="-"===(t=e.replace(/_/g,"").toLowerCase())[0]?-1:1,"+-".indexOf(t[0])>=0&&(t=t.slice(1)),".inf"===t?1===n?Number.POSITIVE_INFINITY:Number.NEGATIVE_INFINITY:".nan"===t?NaN:n*parseFloat(t,10)},predicate:function(e){return"[object Number]"===Object.prototype.toString.call(e)&&(e%1!=0||n.isNegativeZero(e))},represent:function(e,t){var i;if(isNaN(e))switch(t){case"lowercase":return".nan";case"uppercase":return".NAN";case"camelcase":return".NaN"}else if(Number.POSITIVE_INFINITY===e)switch(t){case"lowercase":return".inf";case"uppercase":return".INF";case"camelcase":return".Inf"}else if(Number.NEGATIVE_INFINITY===e)switch(t){case"lowercase":return"-.inf";case"uppercase":return"-.INF";case"camelcase":return"-.Inf"}else if(n.isNegativeZero(e))return"-0.0";return i=e.toString(10),S.test(i)?i.replace("e",".e"):i},defaultStyle:"lowercase"}),j=b.extend({implicit:[A,v,x,O]}),T=j,N=new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])$"),F=new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9]?)-([0-9][0-9]?)(?:[Tt]|[ \\t]+)([0-9][0-9]?):([0-9][0-9]):([0-9][0-9])(?:\\.([0-9]*))?(?:[ \\t]*(Z|([-+])([0-9][0-9]?)(?::([0-9][0-9]))?))?$");var E=new p("tag:yaml.org,2002:timestamp",{kind:"scalar",resolve:function(e){return null!==e&&(null!==N.exec(e)||null!==F.exec(e))},construct:function(e){var t,n,i,r,o,a,l,c,s=0,u=null;if(null===(t=N.exec(e))&&(t=F.exec(e)),null===t)throw new Error("Date resolve error");if(n=+t[1],i=+t[2]-1,r=+t[3],!t[4])return new Date(Date.UTC(n,i,r));if(o=+t[4],a=+t[5],l=+t[6],t[7]){for(s=t[7].slice(0,3);s.length<3;)s+="0";s=+s}return t[9]&&(u=6e4*(60*+t[10]+ +(t[11]||0)),"-"===t[9]&&(u=-u)),c=new Date(Date.UTC(n,i,r,o,a,l,s)),u&&c.setTime(c.getTime()-u),c},instanceOf:Date,represent:function(e){return e.toISOString()}});var M=new p("tag:yaml.org,2002:merge",{kind:"scalar",resolve:function(e){return"<<"===e||null===e}}),L="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\n\r";var _=new p("tag:yaml.org,2002:binary",{kind:"scalar",resolve:function(e){if(null===e)return!1;var t,n,i=0,r=e.length,o=L;for(n=0;n<r;n++)if(!((t=o.indexOf(e.charAt(n)))>64)){if(t<0)return!1;i+=6}return i%8==0},construct:function(e){var t,n,i=e.replace(/[\r\n=]/g,""),r=i.length,o=L,a=0,l=[];for(t=0;t<r;t++)t%4==0&&t&&(l.push(a>>16&255),l.push(a>>8&255),l.push(255&a)),a=a<<6|o.indexOf(i.charAt(t));return 0===(n=r%4*6)?(l.push(a>>16&255),l.push(a>>8&255),l.push(255&a)):18===n?(l.push(a>>10&255),l.push(a>>2&255)):12===n&&l.push(a>>4&255),new Uint8Array(l)},predicate:function(e){return"[object Uint8Array]"===Object.prototype.toString.call(e)},represent:function(e){var t,n,i="",r=0,o=e.length,a=L;for(t=0;t<o;t++)t%3==0&&t&&(i+=a[r>>18&63],i+=a[r>>12&63],i+=a[r>>6&63],i+=a[63&r]),r=(r<<8)+e[t];return 0===(n=o%3)?(i+=a[r>>18&63],i+=a[r>>12&63],i+=a[r>>6&63],i+=a[63&r]):2===n?(i+=a[r>>10&63],i+=a[r>>4&63],i+=a[r<<2&63],i+=a[64]):1===n&&(i+=a[r>>2&63],i+=a[r<<4&63],i+=a[64],i+=a[64]),i}}),D=Object.prototype.hasOwnProperty,U=Object.prototype.toString;var q=new p("tag:yaml.org,2002:omap",{kind:"sequence",resolve:function(e){if(null===e)return!0;var t,n,i,r,o,a=[],l=e;for(t=0,n=l.length;t<n;t+=1){if(i=l[t],o=!1,"[object Object]"!==U.call(i))return!1;for(r in i)if(D.call(i,r)){if(o)return!1;o=!0}if(!o)return!1;if(-1!==a.indexOf(r))return!1;a.push(r)}return!0},construct:function(e){return null!==e?e:[]}}),Y=Object.prototype.toString;var R=new p("tag:yaml.org,2002:pairs",{kind:"sequence",resolve:function(e){if(null===e)return!0;var t,n,i,r,o,a=e;for(o=new Array(a.length),t=0,n=a.length;t<n;t+=1){if(i=a[t],"[object Object]"!==Y.call(i))return!1;if(1!==(r=Object.keys(i)).length)return!1;o[t]=[r[0],i[r[0]]]}return!0},construct:function(e){if(null===e)return[];var t,n,i,r,o,a=e;for(o=new Array(a.length),t=0,n=a.length;t<n;t+=1)i=a[t],r=Object.keys(i),o[t]=[r[0],i[r[0]]];return o}}),B=Object.prototype.hasOwnProperty;var K=new p("tag:yaml.org,2002:set",{kind:"mapping",resolve:function(e){if(null===e)return!0;var t,n=e;for(t in n)if(B.call(n,t)&&null!==n[t])return!1;return!0},construct:function(e){return null!==e?e:{}}}),P=T.extend({implicit:[E,M],explicit:[_,q,R,K]}),W=Object.prototype.hasOwnProperty,H=/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/,$=/[\x85\u2028\u2029]/,G=/[,\[\]\{\}]/,V=/^(?:!|!!|![a-z\-]+!)$/i,Z=/^(?:!|[^,\[\]\{\}])(?:%[0-9a-f]{2}|[0-9a-z\-#;\/\?:@&=\+\$,_\.!~\*'\(\)\[\]])*$/i;function J(e){return Object.prototype.toString.call(e)}function Q(e){return 10===e||13===e}function z(e){return 9===e||32===e}function X(e){return 9===e||32===e||10===e||13===e}function ee(e){return 44===e||91===e||93===e||123===e||125===e}function te(e){var t;return 48<=e&&e<=57?e-48:97<=(t=32|e)&&t<=102?t-97+10:-1}function ne(e){return 120===e?2:117===e?4:85===e?8:0}function ie(e){return 48<=e&&e<=57?e-48:-1}function re(e){return 48===e?"\0":97===e?"":98===e?"\b":116===e||9===e?"\t":110===e?"\n":118===e?"\v":102===e?"\f":114===e?"\r":101===e?"":32===e?" ":34===e?'"':47===e?"/":92===e?"\\":78===e?"":95===e?" ":76===e?"\u2028":80===e?"\u2029":""}function oe(e){return e<=65535?String.fromCharCode(e):String.fromCharCode(55296+(e-65536>>10),56320+(e-65536&1023))}function ae(e,t,n){"__proto__"===t?Object.defineProperty(e,t,{configurable:!0,enumerable:!0,writable:!0,value:n}):e[t]=n}for(var le=new Array(256),ce=new Array(256),se=0;se<256;se++)le[se]=re(se)?1:0,ce[se]=re(se);function ue(e,t){this.input=e,this.filename=t.filename||null,this.schema=t.schema||P,this.onWarning=t.onWarning||null,this.legacy=t.legacy||!1,this.json=t.json||!1,this.listener=t.listener||null,this.implicitTypes=this.schema.compiledImplicit,this.typeMap=this.schema.compiledTypeMap,this.length=e.length,this.position=0,this.line=0,this.lineStart=0,this.lineIndent=0,this.firstTabInLine=-1,this.documents=[]}function pe(e,t){var n={name:e.filename,buffer:e.input.slice(0,-1),position:e.position,line:e.line,column:e.position-e.lineStart};return n.snippet=c(n),new o(t,n)}function fe(e,t){throw pe(e,t)}function de(e,t){e.onWarning&&e.onWarning.call(null,pe(e,t))}var he={YAML:function(e,t,n){var i,r,o;null!==e.version&&fe(e,"duplication of %YAML directive"),1!==n.length&&fe(e,"YAML directive accepts exactly one argument"),null===(i=/^([0-9]+)\.([0-9]+)$/.exec(n[0]))&&fe(e,"ill-formed argument of the YAML directive"),r=parseInt(i[1],10),o=parseInt(i[2],10),1!==r&&fe(e,"unacceptable YAML version of the document"),e.version=n[0],e.checkLineBreaks=o<2,1!==o&&2!==o&&de(e,"unsupported YAML version of the document")},TAG:function(e,t,n){var i,r;2!==n.length&&fe(e,"TAG directive accepts exactly two arguments"),i=n[0],r=n[1],V.test(i)||fe(e,"ill-formed tag handle (first argument) of the TAG directive"),W.call(e.tagMap,i)&&fe(e,'there is a previously declared suffix for "'+i+'" tag handle'),Z.test(r)||fe(e,"ill-formed tag prefix (second argument) of the TAG directive");try{r=decodeURIComponent(r)}catch(t){fe(e,"tag prefix is malformed: "+r)}e.tagMap[i]=r}};function ge(e,t,n,i){var r,o,a,l;if(t<n){if(l=e.input.slice(t,n),i)for(r=0,o=l.length;r<o;r+=1)9===(a=l.charCodeAt(r))||32<=a&&a<=1114111||fe(e,"expected valid JSON character");else H.test(l)&&fe(e,"the stream contains non-printable characters");e.result+=l}}function me(e,t,i,r){var o,a,l,c;for(n.isObject(i)||fe(e,"cannot merge mappings; the provided source object is unacceptable"),l=0,c=(o=Object.keys(i)).length;l<c;l+=1)a=o[l],W.call(t,a)||(ae(t,a,i[a]),r[a]=!0)}function ye(e,t,n,i,r,o,a,l,c){var s,u;if(Array.isArray(r))for(s=0,u=(r=Array.prototype.slice.call(r)).length;s<u;s+=1)Array.isArray(r[s])&&fe(e,"nested arrays are not supported inside keys"),"object"==typeof r&&"[object Object]"===J(r[s])&&(r[s]="[object Object]");if("object"==typeof r&&"[object Object]"===J(r)&&(r="[object Object]"),r=String(r),null===t&&(t={}),"tag:yaml.org,2002:merge"===i)if(Array.isArray(o))for(s=0,u=o.length;s<u;s+=1)me(e,t,o[s],n);else me(e,t,o,n);else e.json||W.call(n,r)||!W.call(t,r)||(e.line=a||e.line,e.lineStart=l||e.lineStart,e.position=c||e.position,fe(e,"duplicated mapping key")),ae(t,r,o),delete n[r];return t}function be(e){var t;10===(t=e.input.charCodeAt(e.position))?e.position++:13===t?(e.position++,10===e.input.charCodeAt(e.position)&&e.position++):fe(e,"a line break is expected"),e.line+=1,e.lineStart=e.position,e.firstTabInLine=-1}function Ae(e,t,n){for(var i=0,r=e.input.charCodeAt(e.position);0!==r;){for(;z(r);)9===r&&-1===e.firstTabInLine&&(e.firstTabInLine=e.position),r=e.input.charCodeAt(++e.position);if(t&&35===r)do{r=e.input.charCodeAt(++e.position)}while(10!==r&&13!==r&&0!==r);if(!Q(r))break;for(be(e),r=e.input.charCodeAt(e.position),i++,e.lineIndent=0;32===r;)e.lineIndent++,r=e.input.charCodeAt(++e.position)}return-1!==n&&0!==i&&e.lineIndent<n&&de(e,"deficient indentation"),i}function ve(e){var t,n=e.position;return!(45!==(t=e.input.charCodeAt(n))&&46!==t||t!==e.input.charCodeAt(n+1)||t!==e.input.charCodeAt(n+2)||(n+=3,0!==(t=e.input.charCodeAt(n))&&!X(t)))}function we(e,t){1===t?e.result+=" ":t>1&&(e.result+=n.repeat("\n",t-1))}function ke(e,t){var n,i,r=e.tag,o=e.anchor,a=[],l=!1;if(-1!==e.firstTabInLine)return!1;for(null!==e.anchor&&(e.anchorMap[e.anchor]=a),i=e.input.charCodeAt(e.position);0!==i&&(-1!==e.firstTabInLine&&(e.position=e.firstTabInLine,fe(e,"tab characters must not be used in indentation")),45===i)&&X(e.input.charCodeAt(e.position+1));)if(l=!0,e.position++,Ae(e,!0,-1)&&e.lineIndent<=t)a.push(null),i=e.input.charCodeAt(e.position);else if(n=e.line,Ie(e,t,3,!1,!0),a.push(e.result),Ae(e,!0,-1),i=e.input.charCodeAt(e.position),(e.line===n||e.lineIndent>t)&&0!==i)fe(e,"bad indentation of a sequence entry");else if(e.lineIndent<t)break;return!!l&&(e.tag=r,e.anchor=o,e.kind="sequence",e.result=a,!0)}function Ce(e){var t,n,i,r,o=!1,a=!1;if(33!==(r=e.input.charCodeAt(e.position)))return!1;if(null!==e.tag&&fe(e,"duplication of a tag property"),60===(r=e.input.charCodeAt(++e.position))?(o=!0,r=e.input.charCodeAt(++e.position)):33===r?(a=!0,n="!!",r=e.input.charCodeAt(++e.position)):n="!",t=e.position,o){do{r=e.input.charCodeAt(++e.position)}while(0!==r&&62!==r);e.position<e.length?(i=e.input.slice(t,e.position),r=e.input.charCodeAt(++e.position)):fe(e,"unexpected end of the stream within a verbatim tag")}else{for(;0!==r&&!X(r);)33===r&&(a?fe(e,"tag suffix cannot contain exclamation marks"):(n=e.input.slice(t-1,e.position+1),V.test(n)||fe(e,"named tag handle cannot contain such characters"),a=!0,t=e.position+1)),r=e.input.charCodeAt(++e.position);i=e.input.slice(t,e.position),G.test(i)&&fe(e,"tag suffix cannot contain flow indicator characters")}i&&!Z.test(i)&&fe(e,"tag name cannot contain such characters: "+i);try{i=decodeURIComponent(i)}catch(t){fe(e,"tag name is malformed: "+i)}return o?e.tag=i:W.call(e.tagMap,n)?e.tag=e.tagMap[n]+i:"!"===n?e.tag="!"+i:"!!"===n?e.tag="tag:yaml.org,2002:"+i:fe(e,'undeclared tag handle "'+n+'"'),!0}function xe(e){var t,n;if(38!==(n=e.input.charCodeAt(e.position)))return!1;for(null!==e.anchor&&fe(e,"duplication of an anchor property"),n=e.input.charCodeAt(++e.position),t=e.position;0!==n&&!X(n)&&!ee(n);)n=e.input.charCodeAt(++e.position);return e.position===t&&fe(e,"name of an anchor node must contain at least one character"),e.anchor=e.input.slice(t,e.position),!0}function Ie(e,t,i,r,o){var a,l,c,s,u,p,f,d,h,g=1,m=!1,y=!1;if(null!==e.listener&&e.listener("open",e),e.tag=null,e.anchor=null,e.kind=null,e.result=null,a=l=c=4===i||3===i,r&&Ae(e,!0,-1)&&(m=!0,e.lineIndent>t?g=1:e.lineIndent===t?g=0:e.lineIndent<t&&(g=-1)),1===g)for(;Ce(e)||xe(e);)Ae(e,!0,-1)?(m=!0,c=a,e.lineIndent>t?g=1:e.lineIndent===t?g=0:e.lineIndent<t&&(g=-1)):c=!1;if(c&&(c=m||o),1!==g&&4!==i||(d=1===i||2===i?t:t+1,h=e.position-e.lineStart,1===g?c&&(ke(e,h)||function(e,t,n){var i,r,o,a,l,c,s,u=e.tag,p=e.anchor,f={},d=Object.create(null),h=null,g=null,m=null,y=!1,b=!1;if(-1!==e.firstTabInLine)return!1;for(null!==e.anchor&&(e.anchorMap[e.anchor]=f),s=e.input.charCodeAt(e.position);0!==s;){if(y||-1===e.firstTabInLine||(e.position=e.firstTabInLine,fe(e,"tab characters must not be used in indentation")),i=e.input.charCodeAt(e.position+1),o=e.line,63!==s&&58!==s||!X(i)){if(a=e.line,l=e.lineStart,c=e.position,!Ie(e,n,2,!1,!0))break;if(e.line===o){for(s=e.input.charCodeAt(e.position);z(s);)s=e.input.charCodeAt(++e.position);if(58===s)X(s=e.input.charCodeAt(++e.position))||fe(e,"a whitespace character is expected after the key-value separator within a block mapping"),y&&(ye(e,f,d,h,g,null,a,l,c),h=g=m=null),b=!0,y=!1,r=!1,h=e.tag,g=e.result;else{if(!b)return e.tag=u,e.anchor=p,!0;fe(e,"can not read an implicit mapping pair; a colon is missed")}}else{if(!b)return e.tag=u,e.anchor=p,!0;fe(e,"can not read a block mapping entry; a multiline key may not be an implicit key")}}else 63===s?(y&&(ye(e,f,d,h,g,null,a,l,c),h=g=m=null),b=!0,y=!0,r=!0):y?(y=!1,r=!0):fe(e,"incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line"),e.position+=1,s=i;if((e.line===o||e.lineIndent>t)&&(y&&(a=e.line,l=e.lineStart,c=e.position),Ie(e,t,4,!0,r)&&(y?g=e.result:m=e.result),y||(ye(e,f,d,h,g,m,a,l,c),h=g=m=null),Ae(e,!0,-1),s=e.input.charCodeAt(e.position)),(e.line===o||e.lineIndent>t)&&0!==s)fe(e,"bad indentation of a mapping entry");else if(e.lineIndent<t)break}return y&&ye(e,f,d,h,g,null,a,l,c),b&&(e.tag=u,e.anchor=p,e.kind="mapping",e.result=f),b}(e,h,d))||function(e,t){var n,i,r,o,a,l,c,s,u,p,f,d,h=!0,g=e.tag,m=e.anchor,y=Object.create(null);if(91===(d=e.input.charCodeAt(e.position)))a=93,s=!1,o=[];else{if(123!==d)return!1;a=125,s=!0,o={}}for(null!==e.anchor&&(e.anchorMap[e.anchor]=o),d=e.input.charCodeAt(++e.position);0!==d;){if(Ae(e,!0,t),(d=e.input.charCodeAt(e.position))===a)return e.position++,e.tag=g,e.anchor=m,e.kind=s?"mapping":"sequence",e.result=o,!0;h?44===d&&fe(e,"expected the node content, but found ','"):fe(e,"missed comma between flow collection entries"),f=null,l=c=!1,63===d&&X(e.input.charCodeAt(e.position+1))&&(l=c=!0,e.position++,Ae(e,!0,t)),n=e.line,i=e.lineStart,r=e.position,Ie(e,t,1,!1,!0),p=e.tag,u=e.result,Ae(e,!0,t),d=e.input.charCodeAt(e.position),!c&&e.line!==n||58!==d||(l=!0,d=e.input.charCodeAt(++e.position),Ae(e,!0,t),Ie(e,t,1,!1,!0),f=e.result),s?ye(e,o,y,p,u,f,n,i,r):l?o.push(ye(e,null,y,p,u,f,n,i,r)):o.push(u),Ae(e,!0,t),44===(d=e.input.charCodeAt(e.position))?(h=!0,d=e.input.charCodeAt(++e.position)):h=!1}fe(e,"unexpected end of the stream within a flow collection")}(e,d)?y=!0:(l&&function(e,t){var i,r,o,a,l=1,c=!1,s=!1,u=t,p=0,f=!1;if(124===(a=e.input.charCodeAt(e.position)))r=!1;else{if(62!==a)return!1;r=!0}for(e.kind="scalar",e.result="";0!==a;)if(43===(a=e.input.charCodeAt(++e.position))||45===a)1===l?l=43===a?3:2:fe(e,"repeat of a chomping mode identifier");else{if(!((o=ie(a))>=0))break;0===o?fe(e,"bad explicit indentation width of a block scalar; it cannot be less than one"):s?fe(e,"repeat of an indentation width identifier"):(u=t+o-1,s=!0)}if(z(a)){do{a=e.input.charCodeAt(++e.position)}while(z(a));if(35===a)do{a=e.input.charCodeAt(++e.position)}while(!Q(a)&&0!==a)}for(;0!==a;){for(be(e),e.lineIndent=0,a=e.input.charCodeAt(e.position);(!s||e.lineIndent<u)&&32===a;)e.lineIndent++,a=e.input.charCodeAt(++e.position);if(!s&&e.lineIndent>u&&(u=e.lineIndent),Q(a))p++;else{if(e.lineIndent<u){3===l?e.result+=n.repeat("\n",c?1+p:p):1===l&&c&&(e.result+="\n");break}for(r?z(a)?(f=!0,e.result+=n.repeat("\n",c?1+p:p)):f?(f=!1,e.result+=n.repeat("\n",p+1)):0===p?c&&(e.result+=" "):e.result+=n.repeat("\n",p):e.result+=n.repeat("\n",c?1+p:p),c=!0,s=!0,p=0,i=e.position;!Q(a)&&0!==a;)a=e.input.charCodeAt(++e.position);ge(e,i,e.position,!1)}}return!0}(e,d)||function(e,t){var n,i,r;if(39!==(n=e.input.charCodeAt(e.position)))return!1;for(e.kind="scalar",e.result="",e.position++,i=r=e.position;0!==(n=e.input.charCodeAt(e.position));)if(39===n){if(ge(e,i,e.position,!0),39!==(n=e.input.charCodeAt(++e.position)))return!0;i=e.position,e.position++,r=e.position}else Q(n)?(ge(e,i,r,!0),we(e,Ae(e,!1,t)),i=r=e.position):e.position===e.lineStart&&ve(e)?fe(e,"unexpected end of the document within a single quoted scalar"):(e.position++,r=e.position);fe(e,"unexpected end of the stream within a single quoted scalar")}(e,d)||function(e,t){var n,i,r,o,a,l;if(34!==(l=e.input.charCodeAt(e.position)))return!1;for(e.kind="scalar",e.result="",e.position++,n=i=e.position;0!==(l=e.input.charCodeAt(e.position));){if(34===l)return ge(e,n,e.position,!0),e.position++,!0;if(92===l){if(ge(e,n,e.position,!0),Q(l=e.input.charCodeAt(++e.position)))Ae(e,!1,t);else if(l<256&&le[l])e.result+=ce[l],e.position++;else if((a=ne(l))>0){for(r=a,o=0;r>0;r--)(a=te(l=e.input.charCodeAt(++e.position)))>=0?o=(o<<4)+a:fe(e,"expected hexadecimal character");e.result+=oe(o),e.position++}else fe(e,"unknown escape sequence");n=i=e.position}else Q(l)?(ge(e,n,i,!0),we(e,Ae(e,!1,t)),n=i=e.position):e.position===e.lineStart&&ve(e)?fe(e,"unexpected end of the document within a double quoted scalar"):(e.position++,i=e.position)}fe(e,"unexpected end of the stream within a double quoted scalar")}(e,d)?y=!0:!function(e){var t,n,i;if(42!==(i=e.input.charCodeAt(e.position)))return!1;for(i=e.input.charCodeAt(++e.position),t=e.position;0!==i&&!X(i)&&!ee(i);)i=e.input.charCodeAt(++e.position);return e.position===t&&fe(e,"name of an alias node must contain at least one character"),n=e.input.slice(t,e.position),W.call(e.anchorMap,n)||fe(e,'unidentified alias "'+n+'"'),e.result=e.anchorMap[n],Ae(e,!0,-1),!0}(e)?function(e,t,n){var i,r,o,a,l,c,s,u,p=e.kind,f=e.result;if(X(u=e.input.charCodeAt(e.position))||ee(u)||35===u||38===u||42===u||33===u||124===u||62===u||39===u||34===u||37===u||64===u||96===u)return!1;if((63===u||45===u)&&(X(i=e.input.charCodeAt(e.position+1))||n&&ee(i)))return!1;for(e.kind="scalar",e.result="",r=o=e.position,a=!1;0!==u;){if(58===u){if(X(i=e.input.charCodeAt(e.position+1))||n&&ee(i))break}else if(35===u){if(X(e.input.charCodeAt(e.position-1)))break}else{if(e.position===e.lineStart&&ve(e)||n&&ee(u))break;if(Q(u)){if(l=e.line,c=e.lineStart,s=e.lineIndent,Ae(e,!1,-1),e.lineIndent>=t){a=!0,u=e.input.charCodeAt(e.position);continue}e.position=o,e.line=l,e.lineStart=c,e.lineIndent=s;break}}a&&(ge(e,r,o,!1),we(e,e.line-l),r=o=e.position,a=!1),z(u)||(o=e.position+1),u=e.input.charCodeAt(++e.position)}return ge(e,r,o,!1),!!e.result||(e.kind=p,e.result=f,!1)}(e,d,1===i)&&(y=!0,null===e.tag&&(e.tag="?")):(y=!0,null===e.tag&&null===e.anchor||fe(e,"alias node should not have any properties")),null!==e.anchor&&(e.anchorMap[e.anchor]=e.result)):0===g&&(y=c&&ke(e,h))),null===e.tag)null!==e.anchor&&(e.anchorMap[e.anchor]=e.result);else if("?"===e.tag){for(null!==e.result&&"scalar"!==e.kind&&fe(e,'unacceptable node kind for !<?> tag; it should be "scalar", not "'+e.kind+'"'),s=0,u=e.implicitTypes.length;s<u;s+=1)if((f=e.implicitTypes[s]).resolve(e.result)){e.result=f.construct(e.result),e.tag=f.tag,null!==e.anchor&&(e.anchorMap[e.anchor]=e.result);break}}else if("!"!==e.tag){if(W.call(e.typeMap[e.kind||"fallback"],e.tag))f=e.typeMap[e.kind||"fallback"][e.tag];else for(f=null,s=0,u=(p=e.typeMap.multi[e.kind||"fallback"]).length;s<u;s+=1)if(e.tag.slice(0,p[s].tag.length)===p[s].tag){f=p[s];break}f||fe(e,"unknown tag !<"+e.tag+">"),null!==e.result&&f.kind!==e.kind&&fe(e,"unacceptable node kind for !<"+e.tag+'> tag; it should be "'+f.kind+'", not "'+e.kind+'"'),f.resolve(e.result,e.tag)?(e.result=f.construct(e.result,e.tag),null!==e.anchor&&(e.anchorMap[e.anchor]=e.result)):fe(e,"cannot resolve a node with !<"+e.tag+"> explicit tag")}return null!==e.listener&&e.listener("close",e),null!==e.tag||null!==e.anchor||y}function Se(e){var t,n,i,r,o=e.position,a=!1;for(e.version=null,e.checkLineBreaks=e.legacy,e.tagMap=Object.create(null),e.anchorMap=Object.create(null);0!==(r=e.input.charCodeAt(e.position))&&(Ae(e,!0,-1),r=e.input.charCodeAt(e.position),!(e.lineIndent>0||37!==r));){for(a=!0,r=e.input.charCodeAt(++e.position),t=e.position;0!==r&&!X(r);)r=e.input.charCodeAt(++e.position);for(i=[],(n=e.input.slice(t,e.position)).length<1&&fe(e,"directive name must not be less than one character in length");0!==r;){for(;z(r);)r=e.input.charCodeAt(++e.position);if(35===r){do{r=e.input.charCodeAt(++e.position)}while(0!==r&&!Q(r));break}if(Q(r))break;for(t=e.position;0!==r&&!X(r);)r=e.input.charCodeAt(++e.position);i.push(e.input.slice(t,e.position))}0!==r&&be(e),W.call(he,n)?he[n](e,n,i):de(e,'unknown document directive "'+n+'"')}Ae(e,!0,-1),0===e.lineIndent&&45===e.input.charCodeAt(e.position)&&45===e.input.charCodeAt(e.position+1)&&45===e.input.charCodeAt(e.position+2)?(e.position+=3,Ae(e,!0,-1)):a&&fe(e,"directives end mark is expected"),Ie(e,e.lineIndent-1,4,!1,!0),Ae(e,!0,-1),e.checkLineBreaks&&$.test(e.input.slice(o,e.position))&&de(e,"non-ASCII line breaks are interpreted as content"),e.documents.push(e.result),e.position===e.lineStart&&ve(e)?46===e.input.charCodeAt(e.position)&&(e.position+=3,Ae(e,!0,-1)):e.position<e.length-1&&fe(e,"end of the stream or a document separator is expected")}function Oe(e,t){t=t||{},0!==(e=String(e)).length&&(10!==e.charCodeAt(e.length-1)&&13!==e.charCodeAt(e.length-1)&&(e+="\n"),65279===e.charCodeAt(0)&&(e=e.slice(1)));var n=new ue(e,t),i=e.indexOf("\0");for(-1!==i&&(n.position=i,fe(n,"null byte is not allowed in input")),n.input+="\0";32===n.input.charCodeAt(n.position);)n.lineIndent+=1,n.position+=1;for(;n.position<n.length-1;)Se(n);return n.documents}var je={loadAll:function(e,t,n){null!==t&&"object"==typeof t&&void 0===n&&(n=t,t=null);var i=Oe(e,n);if("function"!=typeof t)return i;for(var r=0,o=i.length;r<o;r+=1)t(i[r])},load:function(e,t){var n=Oe(e,t);if(0!==n.length){if(1===n.length)return n[0];throw new o("expected a single document in the stream, but found more")}}},Te=Object.prototype.toString,Ne=Object.prototype.hasOwnProperty,Fe=65279,Ee={0:"\\0",7:"\\a",8:"\\b",9:"\\t",10:"\\n",11:"\\v",12:"\\f",13:"\\r",27:"\\e",34:'\\"',92:"\\\\",133:"\\N",160:"\\_",8232:"\\L",8233:"\\P"},Me=["y","Y","yes","Yes","YES","on","On","ON","n","N","no","No","NO","off","Off","OFF"],Le=/^[-+]?[0-9_]+(?::[0-9_]+)+(?:\.[0-9_]*)?$/;function _e(e){var t,i,r;if(t=e.toString(16).toUpperCase(),e<=255)i="x",r=2;else if(e<=65535)i="u",r=4;else{if(!(e<=4294967295))throw new o("code point within a string may not be greater than 0xFFFFFFFF");i="U",r=8}return"\\"+i+n.repeat("0",r-t.length)+t}function De(e){this.schema=e.schema||P,this.indent=Math.max(1,e.indent||2),this.noArrayIndent=e.noArrayIndent||!1,this.skipInvalid=e.skipInvalid||!1,this.flowLevel=n.isNothing(e.flowLevel)?-1:e.flowLevel,this.styleMap=function(e,t){var n,i,r,o,a,l,c;if(null===t)return{};for(n={},r=0,o=(i=Object.keys(t)).length;r<o;r+=1)a=i[r],l=String(t[a]),"!!"===a.slice(0,2)&&(a="tag:yaml.org,2002:"+a.slice(2)),(c=e.compiledTypeMap.fallback[a])&&Ne.call(c.styleAliases,l)&&(l=c.styleAliases[l]),n[a]=l;return n}(this.schema,e.styles||null),this.sortKeys=e.sortKeys||!1,this.lineWidth=e.lineWidth||80,this.noRefs=e.noRefs||!1,this.noCompatMode=e.noCompatMode||!1,this.condenseFlow=e.condenseFlow||!1,this.quotingType='"'===e.quotingType?2:1,this.forceQuotes=e.forceQuotes||!1,this.replacer="function"==typeof e.replacer?e.replacer:null,this.implicitTypes=this.schema.compiledImplicit,this.explicitTypes=this.schema.compiledExplicit,this.tag=null,this.result="",this.duplicates=[],this.usedDuplicates=null}function Ue(e,t){for(var i,r=n.repeat(" ",t),o=0,a=-1,l="",c=e.length;o<c;)-1===(a=e.indexOf("\n",o))?(i=e.slice(o),o=c):(i=e.slice(o,a+1),o=a+1),i.length&&"\n"!==i&&(l+=r),l+=i;return l}function qe(e,t){return"\n"+n.repeat(" ",e.indent*t)}function Ye(e){return 32===e||9===e}function Re(e){return 32<=e&&e<=126||161<=e&&e<=55295&&8232!==e&&8233!==e||57344<=e&&e<=65533&&e!==Fe||65536<=e&&e<=1114111}function Be(e){return Re(e)&&e!==Fe&&13!==e&&10!==e}function Ke(e,t,n){var i=Be(e),r=i&&!Ye(e);return(n?i:i&&44!==e&&91!==e&&93!==e&&123!==e&&125!==e)&&35!==e&&!(58===t&&!r)||Be(t)&&!Ye(t)&&35===e||58===t&&r}function Pe(e,t){var n,i=e.charCodeAt(t);return i>=55296&&i<=56319&&t+1<e.length&&(n=e.charCodeAt(t+1))>=56320&&n<=57343?1024*(i-55296)+n-56320+65536:i}function We(e){return/^\n* /.test(e)}function He(e,t,n,i,r,o,a,l){var c,s,u=0,p=null,f=!1,d=!1,h=-1!==i,g=-1,m=Re(s=Pe(e,0))&&s!==Fe&&!Ye(s)&&45!==s&&63!==s&&58!==s&&44!==s&&91!==s&&93!==s&&123!==s&&125!==s&&35!==s&&38!==s&&42!==s&&33!==s&&124!==s&&61!==s&&62!==s&&39!==s&&34!==s&&37!==s&&64!==s&&96!==s&&function(e){return!Ye(e)&&58!==e}(Pe(e,e.length-1));if(t||a)for(c=0;c<e.length;u>=65536?c+=2:c++){if(!Re(u=Pe(e,c)))return 5;m=m&&Ke(u,p,l),p=u}else{for(c=0;c<e.length;u>=65536?c+=2:c++){if(10===(u=Pe(e,c)))f=!0,h&&(d=d||c-g-1>i&&" "!==e[g+1],g=c);else if(!Re(u))return 5;m=m&&Ke(u,p,l),p=u}d=d||h&&c-g-1>i&&" "!==e[g+1]}return f||d?n>9&&We(e)?5:a?2===o?5:2:d?4:3:!m||a||r(e)?2===o?5:2:1}function $e(e,t,n,i,r){e.dump=function(){if(0===t.length)return 2===e.quotingType?'""':"''";if(!e.noCompatMode&&(-1!==Me.indexOf(t)||Le.test(t)))return 2===e.quotingType?'"'+t+'"':"'"+t+"'";var a=e.indent*Math.max(1,n),l=-1===e.lineWidth?-1:Math.max(Math.min(e.lineWidth,40),e.lineWidth-a),c=i||e.flowLevel>-1&&n>=e.flowLevel;switch(He(t,c,e.indent,l,function(t){return function(e,t){var n,i;for(n=0,i=e.implicitTypes.length;n<i;n+=1)if(e.implicitTypes[n].resolve(t))return!0;return!1}(e,t)},e.quotingType,e.forceQuotes&&!i,r)){case 1:return t;case 2:return"'"+t.replace(/'/g,"''")+"'";case 3:return"|"+Ge(t,e.indent)+Ve(Ue(t,a));case 4:return">"+Ge(t,e.indent)+Ve(Ue(function(e,t){var n,i,r=/(\n+)([^\n]*)/g,o=(l=e.indexOf("\n"),l=-1!==l?l:e.length,r.lastIndex=l,Ze(e.slice(0,l),t)),a="\n"===e[0]||" "===e[0];var l;for(;i=r.exec(e);){var c=i[1],s=i[2];n=" "===s[0],o+=c+(a||n||""===s?"":"\n")+Ze(s,t),a=n}return o}(t,l),a));case 5:return'"'+function(e){for(var t,n="",i=0,r=0;r<e.length;i>=65536?r+=2:r++)i=Pe(e,r),!(t=Ee[i])&&Re(i)?(n+=e[r],i>=65536&&(n+=e[r+1])):n+=t||_e(i);return n}(t)+'"';default:throw new o("impossible error: invalid scalar style")}}()}function Ge(e,t){var n=We(e)?String(t):"",i="\n"===e[e.length-1];return n+(i&&("\n"===e[e.length-2]||"\n"===e)?"+":i?"":"-")+"\n"}function Ve(e){return"\n"===e[e.length-1]?e.slice(0,-1):e}function Ze(e,t){if(""===e||" "===e[0])return e;for(var n,i,r=/ [^ ]/g,o=0,a=0,l=0,c="";n=r.exec(e);)(l=n.index)-o>t&&(i=a>o?a:l,c+="\n"+e.slice(o,i),o=i+1),a=l;return c+="\n",e.length-o>t&&a>o?c+=e.slice(o,a)+"\n"+e.slice(a+1):c+=e.slice(o),c.slice(1)}function Je(e,t,n,i){var r,o,a,l="",c=e.tag;for(r=0,o=n.length;r<o;r+=1)a=n[r],e.replacer&&(a=e.replacer.call(n,String(r),a)),(ze(e,t+1,a,!0,!0,!1,!0)||void 0===a&&ze(e,t+1,null,!0,!0,!1,!0))&&(i&&""===l||(l+=qe(e,t)),e.dump&&10===e.dump.charCodeAt(0)?l+="-":l+="- ",l+=e.dump);e.tag=c,e.dump=l||"[]"}function Qe(e,t,n){var i,r,a,l,c,s;for(a=0,l=(r=n?e.explicitTypes:e.implicitTypes).length;a<l;a+=1)if(((c=r[a]).instanceOf||c.predicate)&&(!c.instanceOf||"object"==typeof t&&t instanceof c.instanceOf)&&(!c.predicate||c.predicate(t))){if(n?c.multi&&c.representName?e.tag=c.representName(t):e.tag=c.tag:e.tag="?",c.represent){if(s=e.styleMap[c.tag]||c.defaultStyle,"[object Function]"===Te.call(c.represent))i=c.represent(t,s);else{if(!Ne.call(c.represent,s))throw new o("!<"+c.tag+'> tag resolver accepts not "'+s+'" style');i=c.represent[s](t,s)}e.dump=i}return!0}return!1}function ze(e,t,n,i,r,a,l){e.tag=null,e.dump=n,Qe(e,n,!1)||Qe(e,n,!0);var c,s=Te.call(e.dump),u=i;i&&(i=e.flowLevel<0||e.flowLevel>t);var p,f,d="[object Object]"===s||"[object Array]"===s;if(d&&(f=-1!==(p=e.duplicates.indexOf(n))),(null!==e.tag&&"?"!==e.tag||f||2!==e.indent&&t>0)&&(r=!1),f&&e.usedDuplicates[p])e.dump="*ref_"+p;else{if(d&&f&&!e.usedDuplicates[p]&&(e.usedDuplicates[p]=!0),"[object Object]"===s)i&&0!==Object.keys(e.dump).length?(!function(e,t,n,i){var r,a,l,c,s,u,p="",f=e.tag,d=Object.keys(n);if(!0===e.sortKeys)d.sort();else if("function"==typeof e.sortKeys)d.sort(e.sortKeys);else if(e.sortKeys)throw new o("sortKeys must be a boolean or a function");for(r=0,a=d.length;r<a;r+=1)u="",i&&""===p||(u+=qe(e,t)),c=n[l=d[r]],e.replacer&&(c=e.replacer.call(n,l,c)),ze(e,t+1,l,!0,!0,!0)&&((s=null!==e.tag&&"?"!==e.tag||e.dump&&e.dump.length>1024)&&(e.dump&&10===e.dump.charCodeAt(0)?u+="?":u+="? "),u+=e.dump,s&&(u+=qe(e,t)),ze(e,t+1,c,!0,s)&&(e.dump&&10===e.dump.charCodeAt(0)?u+=":":u+=": ",p+=u+=e.dump));e.tag=f,e.dump=p||"{}"}(e,t,e.dump,r),f&&(e.dump="&ref_"+p+e.dump)):(!function(e,t,n){var i,r,o,a,l,c="",s=e.tag,u=Object.keys(n);for(i=0,r=u.length;i<r;i+=1)l="",""!==c&&(l+=", "),e.condenseFlow&&(l+='"'),a=n[o=u[i]],e.replacer&&(a=e.replacer.call(n,o,a)),ze(e,t,o,!1,!1)&&(e.dump.length>1024&&(l+="? "),l+=e.dump+(e.condenseFlow?'"':"")+":"+(e.condenseFlow?"":" "),ze(e,t,a,!1,!1)&&(c+=l+=e.dump));e.tag=s,e.dump="{"+c+"}"}(e,t,e.dump),f&&(e.dump="&ref_"+p+" "+e.dump));else if("[object Array]"===s)i&&0!==e.dump.length?(e.noArrayIndent&&!l&&t>0?Je(e,t-1,e.dump,r):Je(e,t,e.dump,r),f&&(e.dump="&ref_"+p+e.dump)):(!function(e,t,n){var i,r,o,a="",l=e.tag;for(i=0,r=n.length;i<r;i+=1)o=n[i],e.replacer&&(o=e.replacer.call(n,String(i),o)),(ze(e,t,o,!1,!1)||void 0===o&&ze(e,t,null,!1,!1))&&(""!==a&&(a+=","+(e.condenseFlow?"":" ")),a+=e.dump);e.tag=l,e.dump="["+a+"]"}(e,t,e.dump),f&&(e.dump="&ref_"+p+" "+e.dump));else{if("[object String]"!==s){if("[object Undefined]"===s)return!1;if(e.skipInvalid)return!1;throw new o("unacceptable kind of an object to dump "+s)}"?"!==e.tag&&$e(e,e.dump,t,a,u)}null!==e.tag&&"?"!==e.tag&&(c=encodeURI("!"===e.tag[0]?e.tag.slice(1):e.tag).replace(/!/g,"%21"),c="!"===e.tag[0]?"!"+c:"tag:yaml.org,2002:"===c.slice(0,18)?"!!"+c.slice(18):"!<"+c+">",e.dump=c+" "+e.dump)}return!0}function Xe(e,t){var n,i,r=[],o=[];for(et(e,r,o),n=0,i=o.length;n<i;n+=1)t.duplicates.push(r[o[n]]);t.usedDuplicates=new Array(i)}function et(e,t,n){var i,r,o;if(null!==e&&"object"==typeof e)if(-1!==(r=t.indexOf(e)))-1===n.indexOf(r)&&n.push(r);else if(t.push(e),Array.isArray(e))for(r=0,o=e.length;r<o;r+=1)et(e[r],t,n);else for(r=0,o=(i=Object.keys(e)).length;r<o;r+=1)et(e[i[r]],t,n)}function tt(e,t){return function(){throw new Error("Function yaml."+e+" is removed in js-yaml 4. Use yaml."+t+" instead, which is now safe by default.")}}var nt=p,it=h,rt=b,ot=j,at=T,lt=P,ct=je.load,st=je.loadAll,ut={dump:function(e,t){var n=new De(t=t||{});n.noRefs||Xe(e,n);var i=e;return n.replacer&&(i=n.replacer.call({"":i},"",i)),ze(n,0,i,!0,!0)?n.dump+"\n":""}}.dump,pt=o,ft={binary:_,float:O,map:y,null:A,pairs:R,set:K,timestamp:E,bool:v,int:x,merge:M,omap:q,seq:m,str:g},dt=tt("safeLoad","load"),ht=tt("safeLoadAll","loadAll"),gt=tt("safeDump","dump"),mt={Type:nt,Schema:it,FAILSAFE_SCHEMA:rt,JSON_SCHEMA:ot,CORE_SCHEMA:at,DEFAULT_SCHEMA:lt,load:ct,loadAll:st,dump:ut,YAMLException:pt,types:ft,safeLoad:dt,safeLoadAll:ht,safeDump:gt};e.CORE_SCHEMA=at,e.DEFAULT_SCHEMA=lt,e.FAILSAFE_SCHEMA=rt,e.JSON_SCHEMA=ot,e.Schema=it,e.Type=nt,e.YAMLException=pt,e.default=mt,e.dump=ut,e.load=ct,e.loadAll=st,e.safeDump=gt,e.safeLoad=dt,e.safeLoadAll=ht,e.types=ft,Object.defineProperty(e,"__esModule",{value:!0})});
 
 
+  // BEGIN ARTICULATION MODULE
+  // Pure pronunciation and singing-articulation planning. No audio is analysed here.
+  // All shape channels are 0..1 except upper/lower/corners, which are -1..1.
+  class ArticulationEngine{
+    constructor(){
+      this.cache=new Map();this.cacheLimit=512;
+      this.vowels=new Set(['I','IH','E','EH','AE','A','AA','O','OH','U','UH','OE','UE','AX','ER']);
+      this.shapes={
+        rest:{viseme:'rest',open:0,round:0,wide:0,seal:0,upper:0,lower:0,corners:0,tension:0},
+        seal:{viseme:'seal',open:0,round:0,wide:.35,seal:1,upper:0,lower:0,corners:0,tension:.8},
+        fv:{viseme:'fv',open:.12,round:0,wide:.38,seal:0,upper:.35,lower:-.45,corners:.05,tension:.65},
+        dental:{viseme:'dental',open:.19,round:.04,wide:.35,seal:0,upper:.08,lower:.08,corners:.05,tension:.3},
+        sibilant:{viseme:'sibilant',open:.15,round:.08,wide:.6,seal:0,upper:.08,lower:.03,corners:.15,tension:.65},
+        palatal:{viseme:'palatal',open:.23,round:.3,wide:.2,seal:0,upper:.13,lower:.1,corners:-.04,tension:.4},
+        tongue:{viseme:'tongue',open:.32,round:.08,wide:.34,seal:0,upper:.15,lower:.2,corners:.05,tension:.35},
+        flat:{viseme:'flat',open:.23,round:0,wide:.94,seal:0,upper:.04,lower:.12,corners:.4,tension:.45},
+        mid:{viseme:'mid',open:.44,round:.04,wide:.66,seal:0,upper:.16,lower:.4,corners:.2,tension:.2},
+        open:{viseme:'open',open:.86,round:.02,wide:.42,seal:0,upper:.23,lower:.86,corners:.08,tension:.1},
+        round:{viseme:'round',open:.59,round:.84,wide:.04,seal:0,upper:.27,lower:.48,corners:-.25,tension:.3},
+        pucker:{viseme:'pucker',open:.27,round:1,wide:0,seal:0,upper:.2,lower:.2,corners:-.4,tension:.6}
+      };
+      this.lexicons={
+        de:{ich:'IH CH_DE',bin:'B IH N',hier:'H I: ER',frei:'F R AI',du:'D U:',und:'U N T',der:'D E: ER',die:'D I:',das:'D A S',ein:'AI N',eine:'AI N AX',einer:'AI N ER',einen:'AI N AX N',es:'EH S',ist:'IH S T',nicht:'N IH CH_DE T',mein:'M AI N',meine:'M AI N AX',dein:'D AI N',deine:'D AI N AX',sein:'Z AI N',seine:'Z AI N AX',wir:'V I: ER',ihr:'I: ER',sie:'Z I:',sind:'Z IH N T',mit:'M IH T',für:'F UE: ER',von:'F O N',auf:'AU F',aus:'AU S',auch:'AU ACH',noch:'N O ACH',doch:'D O ACH',mich:'M IH CH_DE',dich:'D IH CH_DE',sich:'Z IH CH_DE',uns:'U N S',euch:'OY CH_DE',was:'V A S',wer:'V E: ER',wie:'V I:',wo:'V O:',war:'V A: ER',wenn:'V EH N',weil:'V AI L',dann:'D A N',denn:'D EH N',nur:'N U: ER',so:'Z O:',schon:'SH O: N',schön:'SH OE: N',über:'UE: B ER',immer:'IH M ER',wieder:'V I: D ER',alle:'A L AX',alles:'A L AX S',jetzt:'Y EH T S T',heute:'H OY T AX',nacht:'N A ACH T',tag:'T A: K',zeit:'TS AI T',leben:'L E: B AX N',liebe:'L I: B AX',lieben:'L I: B AX N',liebst:'L I: P S T',liebt:'L I: P T',liebstes:'L I: P S T AX S',herz:'H EH R TS',herzen:'H EH R TS AX N',welt:'V EH L T',weit:'V AI T',weiß:'V AI S',weiss:'V AI S',bleib:'B L AI P',bleiben:'B L AI B AX N',bleibt:'B L AI P T',bleibe:'B L AI B AX',komm:'K O M',kommen:'K O M AX N',kommt:'K O M T',gehen:'G E: AX N',geht:'G E: T',sehen:'Z E: AX N',sag:'Z A: K',sagen:'Z A: G AX N',sagt:'Z A: K T',träume:'T R OY M AX',traum:'T R AU M',träumen:'T R OY M AX N',tanzen:'T A N TS AX N',musik:'M U Z I: K',gefühle:'G AX F UE: L AX',gefühl:'G AX F UE: L',glück:'G L UE K',glücklich:'G L UE K L IH CH_DE',ohne:'O: N AX',kann:'K A N',können:'K OE N AX N',will:'V IH L',wollen:'V O L AX N',muss:'M U S',müssen:'M UE S AX N',habe:'H A: B AX',haben:'H A: B AX N',hat:'H A T',hast:'H A S T',bist:'B IH S T',sein:'Z AI N',warum:'V A R U M',zusammen:'TS U Z A M AX N',allein:'A L AI N',zuhause:'TS U H AU Z AX',feuer:'F OY ER',wasser:'V A S ER',licht:'L IH CH_DE T',schnee:'SH N E:',sonne:'Z O N AX',sterne:'SH T EH R N AX',stern:'SH T EH R N',engel:'EH NG AX L',himmel:'H IH M AX L',heilig:'H AI L IH CH_DE',weihnachten:'V AI N ACH T AX N',ja:'Y A:',nein:'N AI N',bitte:'B IH T AX',danke:'D A NG K AX',am:'A M',an:'A N',im:'IH M',in:'IH N',zu:'TS U:',zum:'TS U M',zur:'TS U: ER'},
+        en:{i:'AI',you:'Y U:',the:'DH AX',a:'AX',an:'AE N',and:'AE N D',are:'AA R',is:'IH Z',it:'IH T',its:'IH T S',this:'DH IH S',that:'DH AE T',these:'DH I: Z',those:'DH OU Z',we:'W I:',he:'H I:',she:'SH I:',they:'DH EI',me:'M I:',my:'M AI',mine:'M AI N',your:'Y O R',our:'AU ER',us:'U S',to:'T U:',too:'T U:',two:'T U:',of:'AX V',for:'F O R',from:'F R U M',with:'W IH DH',without:'W IH DH AU T',not:'N O T',no:'N OU',yes:'Y EH S',be:'B I:',been:'B IH N',being:'B I: IH NG',am:'AE M',was:'W U Z',were:'W ER',will:'W IH L',would:'W UH D',could:'K UH D',should:'SH UH D',can:'K AE N',cant:'K AE N T',cannot:'K AE N O T',dont:'D OU N T',doesnt:'D U Z AX N T',didnt:'D IH D AX N T',im:'AI M',ive:'AI V',youre:'Y O R',youve:'Y U: V',well:'W EH L',were:'W ER',ill:'AI L',its:'IH T S',thats:'DH AE T S',theres:'DH EH R Z',love:'L U V',loved:'L U V D',loves:'L U V Z',loving:'L U V IH NG',life:'L AI F',live:'L IH V',lives:'L IH V Z',alive:'AX L AI V',die:'D AI',time:'T AI M',night:'N AI T',light:'L AI T',right:'R AI T',high:'H AI',free:'F R I:',here:'H I: R',hear:'H I: R',heart:'H AA R T',world:'W ER L D',hello:'H EH L OU',goodbye:'G UH D B AI',good:'G UH D',bye:'B AI',baby:'B EI B I',beautiful:'B Y U: T IH F AX L',tonight:'T AX N AI T',today:'T AX D EI',tomorrow:'T AX M O R OU',yesterday:'Y EH S T ER D EI',dream:'D R I: M',dreams:'D R I: M Z',dreaming:'D R I: M IH NG',dance:'D AE N S',dancing:'D AE N S IH NG',feel:'F I: L',feeling:'F I: L IH NG',feelings:'F I: L IH NG Z',fire:'F AI ER',water:'W O T ER',sun:'S U N',sunshine:'S U N SH AI N',moon:'M U: N',stars:'S T AA R Z',star:'S T AA R',never:'N EH V ER',ever:'EH V ER',forever:'F ER EH V ER',always:'O: L W EI Z',stay:'S T EI',away:'AX W EI',come:'K U M',comes:'K U M Z',go:'G OU',gone:'G O N',know:'N OU',knows:'N OU Z',knew:'N U:',knee:'N I:',knew:'N U:',one:'W U N',once:'W U N S',only:'OU N L I',all:'O: L',everything:'EH V R I TH IH NG',something:'S U M TH IH NG',nothing:'N U TH IH NG',somebody:'S U M B O D I',everybody:'EH V R I B O D I',every:'EH V R I',when:'W EH N',where:'W EH R',what:'W U T',why:'W AI',who:'H U:',how:'H AU',there:'DH EH R',their:'DH EH R',through:'TH R U:',though:'DH OU',thought:'TH O: T',think:'TH IH NG K',eyes:'AI Z',eye:'AI',smile:'S M AI L',oh:'OU',ooh:'U:',ah:'A:',yeah:'Y AE',hey:'H EI',Christmas:'K R IH S M AX S'}
+      };
+      this.deClues=new Set('ich bin hier frei du und der das ein eine nicht mein wir ihr sie sind für auf auch mich dich sich euch weil schön über wieder heute liebe herz leben traum tanzen musik gefühl glück jetzt bist habe haben hat hast gehen geht'.split(' '));
+      this.enClues=new Set('i you the and are this that these those we he she they my your our with without not will would could should love life here free tonight baby hello dream feel know one only where what why who through though think yeah hey'.split(' '));
+      for(const [word,phones]of Object.entries(this.lexicons.en))this.lexicons.en[word.toLowerCase()]=phones.replace(/\bU\b(?!:)/g,'AX');
+      Object.assign(this.lexicons.en,{have:'H AE V',has:'H AE Z',had:'H AE D',give:'G IH V',given:'G IH V AX N',some:'S AX M',done:'D AX N',move:'M U: V',lose:'L U: Z',close:'K L OU Z',make:'M EI K',take:'T EI K',name:'N EI M',same:'S EI M',late:'L EI T',hate:'H EI T',home:'H OU M',hope:'H OU P',alone:'AX L OU N',phone:'F OU N',use:'Y U: Z',true:'T R U:',snow:'S N OU',show:'SH OU',grow:'G R OU',flow:'F L OU',lie:'L AI'});
+      this.phoneIds=new Set(['REST','P','B','M','F','V','T','D','K','G','N','NG','L','R','S','Z','SH','ZH','CH_DE','ACH','TH','DH','H','W','Y','TS','KS','AI','AU','OY','EI','OU',...this.vowels]);
+    }
+    bounded(value,a=0,b=1){return Math.max(a,Math.min(b,Number.isFinite(value)?value:0))}
+    normalize(word){return String(word??'').normalize('NFKC').toLowerCase().replace(/[’']/g,'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,'').slice(0,128)}
+    detectLanguage(text){
+      const words=(String(text??'').toLowerCase().match(/[\p{L}]+/gu)||[]).slice(0,1000);let de=0,en=0;
+      for(const w of words){if(this.deClues.has(w))de+=2;if(this.enClues.has(w))en+=2;if(/[äöüß]/.test(w))de+=4;if(this.lexicons.de[w]&&!this.lexicons.en[w])de+=.5;if(this.lexicons.en[w]&&!this.lexicons.de[w])en+=.5}
+      return de>en?'de':'en';
+    }
+    expand(raw){
+      const out=[];let group=0;
+      const diphthongs={AI:['A','I'],AU:['A','U'],OY:['O','I'],EI:['E','I'],OU:['O','U']};
+      for(const [phoneIndex,rawPhone]of raw.slice(0,80).entries()){
+        const long=/:$/.test(rawPhone),id=rawPhone.replace(/:$/,'');
+        if(diphthongs[id]){const parts=diphthongs[id];parts.forEach((part,i)=>out.push({id:part,vowel:true,long:i===0,group,weight:i===0?3:1}));group++}
+        else{const vowel=this.vowels.has(id),release=id==='ER'&&out.at(-1)?.vowel&&phoneIndex===raw.length-1;out.push({id,vowel,long,group:release?out.at(-1).group:vowel?group++:-1,weight:release?.3:vowel?(long?1.8:1):1})}
+      }
+      return out;
+    }
+    rules(word,lang){
+      const phones=[];let i=0;
+      const push=(phone,n=1)=>{phones.push(phone);i+=n};
+      while(i<word.length&&phones.length<64){
+        const rest=word.slice(i),c=word[i],prev=word[i-1]||'';
+        if(lang==='de'){
+          if(rest.startsWith('sch')){push('SH',3);continue}
+          if(rest.startsWith('tsch')){phones.push('T');push('SH',4);continue}
+          if(rest.startsWith('ch')){push(/[aou]/.test(prev)?'ACH':'CH_DE',2);continue}
+          if(rest.startsWith('ck')){push('K',2);continue}
+          if(/^(ei|ai|ey|ay)/.test(rest)){push('AI',2);continue}
+          if(/^(eu|äu)/.test(rest)){push('OY',2);continue}
+          if(rest.startsWith('au')){push('AU',2);continue}
+          if(rest.startsWith('ie')){push('I:',2);continue}
+          if(rest.startsWith('qu')){phones.push('K');push('V',2);continue}
+          if(rest.startsWith('ph')){push('F',2);continue}
+          if(rest.startsWith('ng')){push('NG',2);continue}
+          if(rest.startsWith('er')&&i===word.length-2){push('ER',2);continue}
+          if((c==='s')&&i===0&&/[pt]/.test(word[i+1])){push('SH');continue}
+          if(c==='h'&&/[aeiouäöü]/.test(prev)){i++;continue}
+          const map={a:'A',e:i===word.length-1?'AX':'EH',i:'IH',o:'O',u:'U',ä:'EH',ö:'OE',ü:'UE',y:'UE',b:'B',p:'P',m:'M',f:'F',v:'F',w:'V',t:'T',d:'D',k:'K',c:'K',g:'G',n:'N',l:'L',r:'R',s:i===0&&/[aeiouäöü]/.test(word[i+1])?'Z':'S',ß:'S',z:'TS',j:'Y',h:'H',x:'KS',q:'K'};
+          if(map[c]){if(map[c]==='TS')phones.push('T','S');else if(map[c]==='KS')phones.push('K','S');else phones.push(map[c]);if(c===word[i+1]&&/[aeiouäöü]/.test(c)){phones[phones.length-1]+=':';i++}else if(c===word[i+1]&&/[bdfgklmnprst]/.test(c))i++}
+          i++;
+        }else{
+          if(i===0&&/^(kn|gn)/.test(rest)){i++;continue}
+          if(i===0&&rest.startsWith('wr')){i++;continue}
+          if(rest.startsWith('tion')){phones.push('SH','AX');push('N',4);continue}
+          if(rest.startsWith('igh')){push('AI',3);continue}
+          if(rest.startsWith('tch')){phones.push('T');push('SH',3);continue}
+          if(rest.startsWith('ch')){phones.push('T');push('SH',2);continue}
+          if(rest.startsWith('sh')){push('SH',2);continue}
+          if(rest.startsWith('th')){push('TH',2);continue}
+          if(rest.startsWith('ph')){push('F',2);continue}
+          if(rest.startsWith('ng')){push('NG',2);continue}
+          if(/^(ee|ea)/.test(rest)){push('I:',2);continue}
+          if(rest.startsWith('oo')){push('U:',2);continue}
+          if(/^(ai|ay|ey)/.test(rest)){push('EI',2);continue}
+          if(/^(oi|oy)/.test(rest)){push('OY',2);continue}
+          if(/^(ow|ou)/.test(rest)){push(rest==='ow'?'OU':'AU',2);continue}
+          if(rest.startsWith('oa')){push('OU',2);continue}
+          if(rest.startsWith('qu')){phones.push('K');push('W',2);continue}
+          if(/^[aeiou][bcdfghjklmnpqrstvwxz]e$/.test(rest)){const longVowels={a:'EI',e:'I:',i:'AI',o:'OU',u:'U:'};push(longVowels[c]);continue}
+          if(c==='e'&&i===word.length-1&&word.length>3){i++;continue}
+          const map={a:'AE',e:'EH',i:'IH',o:'O',u:'U',y:i===0?'Y':'I',b:'B',p:'P',m:'M',f:'F',v:'V',w:'W',t:'T',d:'D',k:'K',c:/[eiy]/.test(word[i+1]||'')?'S':'K',g:/[eiy]/.test(word[i+1]||'')?'ZH':'G',n:'N',l:'L',r:'R',s:'S',z:'Z',j:'ZH',h:'H',x:'KS',q:'K'};
+          if(map[c]){if(map[c]==='KS')phones.push('K','S');else phones.push(map[c]);if(c===word[i+1]&&/[bdfgklmnprst]/.test(c))i++}i++;
+        }
+      }
+      return phones.length?phones:['UNK'];
+    }
+    pronounce(word,language='auto'){
+      const normalized=this.normalize(word),preferred=['de','en'].includes(language)?language:this.detectLanguage(normalized),key=preferred+':'+normalized;
+      if(this.cache.has(key))return this.cache.get(key);
+      let lang=preferred,source='rules',raw;
+      if(this.lexicons[lang][normalized]){raw=this.lexicons[lang][normalized].split(' ');source='lexicon'}
+      else{const other=lang==='de'?'en':'de';if(this.lexicons[other][normalized]){lang=other;raw=this.lexicons[other][normalized].split(' ');source='lexicon'}}
+      if(!raw&&lang==='en'&&normalized.endsWith('ing')){const base=normalized.slice(0,-3),entry=this.lexicons.en[base]||this.lexicons.en[base+'e'];if(entry){raw=[...entry.split(' '),'IH','NG'];source='lexicon'}}
+      if(!raw){if(Array.from(normalized).some(c=>/\p{L}/u.test(c)&&!/\p{Script=Latin}/u.test(c))){raw=['UNK'];source='fallback'}else if(/^(?:o{2,}h*|u{2,}h*|a{2,}h*|o+h+|u+h+|a+h+)$/i.test(normalized)){raw=[/^a/.test(normalized)?'A:':/^u/.test(normalized)?'U:':'U:'];source='lexicon'}else raw=this.rules(normalized,lang)}
+      const phones=this.expand(raw),groups=new Set(phones.filter(p=>p.vowel).map(p=>p.group));if(raw.length===1&&raw[0]==='UNK')source='fallback';
+      const result=Object.freeze({language:lang,phones:Object.freeze(phones.map(p=>Object.freeze(p))),syllables:Math.max(1,groups.size),source,elongated:/([aeiouäöü])\1{2,}/i.test(normalized)});
+      if(this.cache.size>=this.cacheLimit)this.cache.delete(this.cache.keys().next().value);this.cache.set(key,result);return result;
+    }
+    buildWords(row,nextTime,language='auto'){
+      if(!row||!Number.isFinite(row.time))return [];
+      const lang=['de','en'].includes(language)?language:['de','en'].includes(row.language)?row.language:this.detectLanguage(row.text);
+      const next=Number.isFinite(nextTime)&&nextTime>=row.time?nextTime:row.time+5000;
+      const lineEnd=Number.isFinite(row.end)&&row.end>=row.time?row.end:next;
+      if(Array.isArray(row.words)&&row.words.length){
+        const words=row.words.slice(0,5000).filter(w=>typeof w.word==='string'&&w.word.trim()&&Number.isFinite(w.start)&&w.start>=0).slice().sort((a,b)=>a.start-b.start);
+        return words.map((w,i)=>{const suppliedEnd=Number.isFinite(w.end)&&w.end>=w.start;const end=suppliedEnd?w.end:Math.max(w.start,words[i+1]?.start??Math.max(w.start,lineEnd)),wordLanguage=['de','en'].includes(w.language)?w.language:lang;return {...w,end,index:i,timing:'word',confidence:suppliedEnd?.95:.75,explicitEnd:suppliedEnd,language:wordLanguage,pronunciation:this.pronounce(w.word,wordLanguage)}});
+      }
+      const text=String(row.text??'').slice(0,10000);if(/^\s*[\[(].*[\])]\s*$/.test(text))return [];
+      const matches=[...text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)].slice(0,1000);if(!matches.length)return [];
+      const pronunciations=matches.map(m=>this.pronounce(m[0],lang));
+      const weights=pronunciations.map(p=>p.syllables+(p.elongated?3:0)),sum=weights.reduce((a,b)=>a+b,0);
+      const gaps=matches.map((m,i)=>{const tail=text.slice(m.index+m[0].length,matches[i+1]?.index??text.length);return /[.!?]/.test(tail)?180:/[,;:]/.test(tail)?105:18});
+      const available=Math.max(0,lineEnd-row.time),nominal=sum*650+gaps.reduce((a,b)=>a+b,0);
+      const span=Number.isFinite(row.end)||available<=14000?available:Math.min(available,Math.max(900,nominal));
+      const gapScale=Math.min(1,span*.12/Math.max(1,gaps.reduce((a,b)=>a+b,0))),speech=Math.max(0,span-gaps.reduce((a,b)=>a+b*gapScale,0));let cursor=row.time;
+      return matches.map((m,i)=>{const duration=speech*weights[i]/sum,token={word:m[0],start:cursor,end:cursor+duration,index:i,timing:'estimated',confidence:available>span*1.5?.25:.5,explicitEnd:false,language:lang,pronunciation:pronunciations[i]};cursor+=duration+gaps[i]*gapScale;return token});
+    }
+    shape(phone){
+      if(['M','B','P'].includes(phone))return this.shapes.seal;
+      if(['F','V'].includes(phone))return this.shapes.fv;
+      if(['S','Z','TS'].includes(phone))return this.shapes.sibilant;
+      if(['SH','ZH','CH_DE','ACH'].includes(phone))return this.shapes.palatal;
+      if(['L','R','ER'].includes(phone))return phone==='ER'?{...this.shapes.mid,open:.34,round:.14}:this.shapes.tongue;
+      if(['I','IH'].includes(phone))return phone==='IH'?{...this.shapes.flat,open:.28,wide:.7}:this.shapes.flat;
+      if(['E','EH','AE','AX'].includes(phone))return phone==='AX'?{...this.shapes.mid,open:.35,wide:.28}:this.shapes.mid;
+      if(['A','AA'].includes(phone))return this.shapes.open;
+      if(['O','OH','OE'].includes(phone))return phone==='OE'?{...this.shapes.round,open:.43,round:.65,wide:.22}:this.shapes.round;
+      if(['U','UH','UE','W'].includes(phone))return phone==='UE'?{...this.shapes.pucker,round:.75,wide:.22}:this.shapes.pucker;
+      if(phone==='REST')return this.shapes.rest;return this.shapes.dental;
+    }
+    cuePhone(value){
+      const aliases={'ɪ':'IH','i':'I','iː':'I','ɛ':'EH','e':'E','eː':'E','a':'A','aː':'A','ɑ':'AA','o':'O','oː':'O','ɔ':'OH','u':'U','uː':'U','ʊ':'UH','y':'UE','yː':'UE','ø':'OE','øː':'OE','œ':'OE','ə':'AX','ɐ':'ER','aɪ':'AI','aʊ':'AU','ɔʏ':'OY','ç':'CH_DE','x':'ACH','ʃ':'SH','ʒ':'ZH','ŋ':'NG','j':'Y','v':'V','r':'R','ʁ':'R','ʀ':'R'};
+      const text=String(value??'').replace(/^\/+|\/+$/g,'');return aliases[text]||({AH:'AX',EE:'I',EY:'EI',OW:'OU',AW:'AU',CH:'SH',SIL:'REST',SP:'REST'}[text.toUpperCase().replace(/[012]$/,'')]||text.toUpperCase().replace(/[012]$/,''));
+    }
+    isPhone(value){return this.phoneIds.has(this.cuePhone(value))}
+    compile(tokens,language='auto'){
+      const segments=[];let confidence=1,providedTokens=0,inferredTokens=0,hasEstimated=false;
+      for(const token of (Array.isArray(tokens)?tokens:[]).slice(0,5000)){
+        if(segments.length>=50000)break;if(typeof token.word!=='string'||!token.word.trim()||/^\s*[\[(].*[\])]\s*$/.test(token.word)||!Number.isFinite(token.start)||!Number.isFinite(token.end)||token.start<0||token.end<=token.start)continue;
+        const pronunciation=token.pronunciation||this.pronounce(token.word,token.language||language),duration=token.end-token.start;
+        let supplied=null;
+        if(Array.isArray(token.phones)&&token.phones.length&&token.phones.length<=512){
+          const sorted=token.phones.slice().sort((a,b)=>a.start-b.start);let last=token.start;
+          if(sorted.every(p=>this.isPhone(p.phone??p.id)&&Number.isFinite(p.start)&&Number.isFinite(p.end)&&p.start>=last&&p.start>=token.start&&p.end>p.start&&p.end<=token.end&&(last=p.end)))supplied=sorted;
+        }
+        const append=(phone,start,end,timing,weight=1)=>{
+          if(segments.length>=50000||end<=start)return;const shape=this.shape(phone.id);
+          const quality=timing==='phoneme'?1:Math.min(token.confidence??.5,pronunciation.source==='lexicon'?.8:.55);confidence=Math.min(confidence,quality);
+          segments.push({start,end,phone:phone.id,vowel:phone.vowel,wordIndex:token.index??0,word:token.word,timing,confidence:quality,phonemeTiming:timing==='phoneme'?'provided':'inferred',shape,long:!!phone.vowel&&end-start>280,wordTiming:token.timing||'estimated',wordEndTiming:token.explicitEnd?'provided':'inferred',weight});
+        };
+        if(supplied){
+          providedTokens++;for(const cue of supplied){const phones=this.expand([this.cuePhone(cue.phone??cue.id)]),sum=phones.reduce((a,p)=>a+p.weight,0);let cursor=cue.start;phones.forEach((phone,i)=>{const end=i===phones.length-1?cue.end:cursor+(cue.end-cue.start)*phone.weight/sum;append(phone,cursor,end,'phoneme');cursor=end})}
+        }else{
+          inferredTokens++;
+          const phones=pronunciation.phones;if(!phones.length)continue;
+          const vowels=phones.filter(p=>p.vowel),consonants=phones.filter(p=>!p.vowel),vowelWeight=vowels.reduce((a,p)=>a+p.weight,0);
+          const consonantBudget=vowels.length?Math.min(duration*.38,consonants.length*65):duration;
+          const consonantWeights=consonants.reduce((a,p)=>a+(['M','B','P'].includes(p.id)?1.2:1),0);let cursor=token.start;
+          phones.forEach((phone,i)=>{const d=phone.vowel?(duration-consonantBudget)*phone.weight/Math.max(1,vowelWeight):consonantBudget*(['M','B','P'].includes(phone.id)?1.2:1)/Math.max(1,consonantWeights),end=i===phones.length-1?token.end:cursor+d;append(phone,cursor,end,token.timing||'estimated');cursor=end});
+        }
+        hasEstimated ||= token.timing!=='word';
+      }
+      segments.sort((a,b)=>a.start-b.start||a.end-b.end);
+      return {segments,start:segments[0]?.start??0,end:segments.reduce((max,s)=>Math.max(max,s.end),0),timing:providedTokens&&!inferredTokens?'phoneme':hasEstimated?'estimated':'word',phonemeTiming:providedTokens?(inferredTokens?'mixed':'provided'):'inferred',providedTokens,inferredTokens,confidence:segments.length?confidence:0};
+    }
+    rest(){return {...this.shapes.rest,restBlend:1,active:false,long:false,phone:'REST',wordIndex:-1,timing:'none',phonemeTiming:'none',confidence:0}}
+    mix(a,b,t){
+      const out={...a};for(const key of ['open','round','wide','seal','upper','lower','corners','tension'])out[key]=a[key]+(b[key]-a[key])*t;return out;
+    }
+    sample(plan,positionMs){
+      const segments=plan?.segments;if(!segments?.length||!Number.isFinite(positionMs))return this.rest();
+      let low=0,high=segments.length-1,index=-1;while(low<=high){const mid=(low+high)>>1;if(segments[mid].start<=positionMs){index=mid;low=mid+1}else high=mid-1}
+      if(index<0)return this.rest();const current=segments[index],next=segments[index+1],previous=segments[index-1];
+      if(positionMs>=current.end){
+        const gap=next?next.start-current.end:Infinity;
+        if(next&&gap>0&&gap<=45&&current.wordTiming==='estimated'&&next.wordTiming==='estimated'&&current.phonemeTiming!=='provided'&&next.phonemeTiming!=='provided'&&current.shape.seal===0&&next.shape.seal===0){const f=(positionMs-current.end)/gap;return {...this.mix(current.shape,next.shape,f),restBlend:0,active:true,long:false,phone:current.phone,wordIndex:current.wordIndex,timing:'estimated',phonemeTiming:'inferred',confidence:Math.min(current.confidence,next.confidence)}}
+        return this.rest();
+      }
+      if(current.phone==='REST')return {...this.rest(),wordIndex:current.wordIndex,timing:current.timing,phonemeTiming:current.phonemeTiming,confidence:current.confidence};
+      let pose=current.shape;
+      // A bilabial seal is a constraint, not an opening value to be low-pass filtered away.
+      if(current.shape.seal!==1){
+        const duration=current.end-current.start,at=positionMs-current.start;
+        if(previous&&current.start-previous.end<=35&&current.start>=previous.end&&(current.start===previous.end||(current.wordTiming==='estimated'&&previous.wordTiming==='estimated'&&current.phonemeTiming!=='provided'&&previous.phonemeTiming!=='provided'))){const window=Math.min(45,duration*.25,(previous.end-previous.start)*.3);if(window>0&&at<window){const f=at/window,t=f*f*(3-2*f);pose=this.mix(previous.shape,pose,t)}}
+        if(next&&next.start-current.end<=35&&next.start>=current.end&&(next.start===current.end||(current.wordTiming==='estimated'&&next.wordTiming==='estimated'&&current.phonemeTiming!=='provided'&&next.phonemeTiming!=='provided'))){const window=Math.min(65,duration*.28,(next.end-next.start)*.35),left=current.end-positionMs;if(window>0&&left<window){const f=1-left/window,t=f*f*(3-2*f);pose=this.mix(pose,next.shape,t)}}
+      }
+      const release=Math.min(100,(current.end-current.start)*.25),farNext=!next||next.start-current.end>=140,f=farNext&&current.shape.seal!==1&&release>0?this.bounded(1-(current.end-positionMs)/release):0;
+      return {...pose,viseme:current.shape.viseme,restBlend:f*f*(3-2*f),active:true,long:current.long,phone:current.phone,wordIndex:current.wordIndex,timing:current.timing,phonemeTiming:current.phonemeTiming,wordEndTiming:current.wordEndTiming,confidence:current.confidence};
+    }
+  }
+
+  // The same white outline, articulated with independent upper/lower lip curves.
+  // Pose inputs: open/round/wide/seal/tension in [0,1]; upper/lower/corners in [-1,1].
+  // Optional speech.restBlend in [0,1] releases a cue to the original smile.
+  // No history or wall-clock oscillation is used: seek and replay sample the same shape.
+  const mouthRigRestPath="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z";
+  class MouthRig{
+    render(speech={},expression={},options={}){
+      speech=speech&&typeof speech==="object"?speech:{};
+      expression=expression&&typeof expression==="object"?expression:{};
+      options=options&&typeof options==="object"?options:{};
+      const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+      const number=(v,a,b,f=0)=>typeof v==="number"&&Number.isFinite(v)?clamp(v,a,b):f;
+      const rawOpen=number(speech.open,0,1),playing=options.playing!==false;
+      const active=playing&&(speech.active===true||(speech.active==null&&rawOpen>0));
+      const timed=playing&&["phoneme","word","estimated"].includes(speech.timing);
+      const viseme=String(active?(speech.viseme||speech.phone||"OPEN"):"REST").slice(0,24).toUpperCase();
+      const consonant=String(speech.phone||"").toUpperCase();
+      const forcedSeal=active&&(consonant?["M","B","P"].includes(consonant):["M","B","P","MBP","CLOSED","SEAL"].includes(viseme));
+      const seal=active?Math.max(number(speech.seal,0,1),forcedSeal?1:0):0;
+      const expressionOpen=number(expression.open,0,1);
+      const emotionSmile=number(expression.smile,-60,20);
+      const restBlend=active?number(speech.restBlend,0,1):0;
+      // Speech can borrow a little corner emotion; emotion cannot undo articulation.
+      let opening=active?rawOpen*(1-seal):timed?0:expressionOpen;
+      if(seal>=.9)opening=0;
+      const round=active?number(speech.round,0,1):0;
+      const wide=active?number(speech.wide,0,1):0;
+      const tension=active?number(speech.tension,0,1):0;
+      const upper=active?number(speech.upper,-1,1):0;
+      const lower=active?number(speech.lower,-1,1):0;
+      const corners=active?number(speech.corners,-1,1):0;
+      const fv=active&&(consonant?["F","V"].includes(consonant):["FV","F","V"].includes(viseme));
+      // A 9px resting stroke would swallow narrow articulated openings entirely.
+      const articulatedStroke=fv?5.5:6.25;
+      const strokeWidth=active?articulatedStroke+(9-articulatedStroke)*restBlend:9;
+      const points=[];
+      const point=(x,y)=>{const p=[clamp(x,5,95),clamp(y,5,45)];points.push(p);return p};
+      const finish=(path,aperture=0)=>{
+        let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
+        for(const [x,y]of points){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y)}
+        return {path,transform:"translateX(0px) rotate(0deg)",opening:opening*(1-restBlend),seal,viseme,active,
+          aperture,strokeWidth,upper,lower,round,wide,corners,tension,restBlend,
+          points,bounds:{left:left-strokeWidth/2,right:right+strokeWidth/2,top:top-strokeWidth/2,bottom:bottom+strokeWidth/2}};
+      };
+      if(!active&&opening===0){
+        // Preserve the exact familiar smile when no expression changes it.
+        const curve=clamp(42+emotionSmile*.65,5,45),corner=8+clamp(-emotionSmile/53,0,1)*20;
+        point(8,corner);point(18,curve);point(82,curve);point(92,corner);
+        return finish(emotionSmile===0?mouthRigRestPath:`M 8 ${corner.toFixed(2)} C 18 ${curve.toFixed(2)} 82 ${curve.toFixed(2)} 92 ${corner.toFixed(2)} C 82 ${curve.toFixed(2)} 18 ${curve.toFixed(2)} 8 ${corner.toFixed(2)} Z`);
+      }
+      const halfWidth=clamp(30+wide*9-round*14-tension*2,15,40);
+      const xLeft=50-halfWidth,xRight=50+halfWidth;
+      const smileBias=clamp(emotionSmile*.035,-1.2,.65);
+      const yCorner=clamp(23-corners*1.6-smileBias,18,29);
+      const yCenter=clamp(24+lower*.6-smileBias*.45,21,27);
+      let aperture=opening*(28+round*5-wide*7)*(fv?.5:1);
+      if(active&&seal<.9){
+        // Preserve visible negative space at native phone size. The weight goes
+        // continuously to zero during a true closure; an actual seal stays exact.
+        const readable=fv?10.5:viseme==="FLAT"||["I","IH"].includes(consonant)?12.5:round>.65?11.5:9.5;
+        const weight=clamp(opening/.12,0,1)*(1-seal);
+        aperture=Math.max(aperture,readable*weight);
+      }
+      const topShare=fv?.18:clamp(.38+upper*.09-lower*.035,.23,.55);
+      const top=clamp(yCenter-aperture*topShare,5,45);
+      const bottom=clamp(yCenter+aperture*(1-topShare),top,45);
+      aperture=bottom-top;
+      // A seal is one pressed seam. It need not become the large resting smile.
+      const sealedCenter=yCorner+2.2-tension*.8;
+      const topMid=seal>=.9?sealedCenter:top;
+      const bottomMid=seal>=.9?sealedCenter:bottom;
+      const lift=aperture*(fv?.055:.35),drop=aperture*(fv?.15:.36);
+      const edgeLeft=point(xLeft,yCorner),edgeRight=point(xRight,yCorner);
+      const uL1=point(xLeft+halfWidth*.2,yCorner-lift);
+      const uL2=point(50-halfWidth*.4,topMid);
+      const uMid=point(50,topMid);
+      const uR1=point(50+halfWidth*.4,topMid);
+      const uR2=point(xRight-halfWidth*.2,yCorner-lift*(1+upper*.08));
+      const lR1=point(xRight-halfWidth*.2,yCorner+drop*(1+lower*.1));
+      const lR2=point(50+halfWidth*.4,bottomMid);
+      const lMid=point(50,bottomMid);
+      const lL1=point(50-halfWidth*.4,bottomMid);
+      const lL2=point(xLeft+halfWidth*.2,yCorner+drop);
+      // All x controls are monotone. Paired upper controls stay above lower ones.
+      // This keeps even extreme mixed poses from turning the contour inside out.
+      if(seal>=.9){lR1[1]=uR2[1];lR2[1]=uR1[1];lMid[1]=uMid[1];lL1[1]=uL2[1];lL2[1]=uL1[1]}
+      const blend=active?restBlend:1-clamp(expressionOpen*3,0,1);
+      if(blend>0){
+        // De Casteljau halves of the original cubic give a matching four-curve target.
+        const end=8+clamp(-emotionSmile/53,0,1)*20,curve=clamp(42+emotionSmile*.65,5,45);
+        const side=(end+curve)/2,mid=(end+curve*3)/4;
+        const rest=[[8,end],[92,end],[13,side],[31.5,mid],[50,mid],[68.5,mid],[87,side],[87,side],[68.5,mid],[50,mid],[31.5,mid],[13,side]];
+        for(let i=0;i<points.length;i++)for(let axis=0;axis<2;axis++)points[i][axis]+=blend*(rest[i][axis]-points[i][axis]);
+      }
+      const xy=p=>p.map(v=>v.toFixed(2)).join(" ");
+      const path=`M ${xy(edgeLeft)} C ${xy(uL1)} ${xy(uL2)} ${xy(uMid)} C ${xy(uR1)} ${xy(uR2)} ${xy(edgeRight)} C ${xy(lR1)} ${xy(lR2)} ${xy(lMid)} C ${xy(lL1)} ${xy(lL2)} ${xy(edgeLeft)} Z`;
+      return finish(blend===1&&emotionSmile===0?mouthRigRestPath:path,seal>=.9?0:aperture*(1-blend));
+    }
+  }
+
+  // END ARTICULATION MODULE
+  const articulationEngine=new ArticulationEngine(),mouthRig=new MouthRig();
+
   // Deine bereits verwendete Spotify-App.
   const SPOTIFY_CLIENT_ID = "952ebc1821154410a1f1106ff0f66e60";
 
@@ -1432,6 +1737,8 @@ THE SOFTWARE.
   const vibeMotion = {x:0,y:0,rotate:0,scaleX:1,scaleY:1};
   let vibeSpeech={open:0,round:0,long:false};
   let vibeSpeechPlan=[];
+  let vibeArticulationPlan=null,vibeArticulationSource=null,vibeArticulationRow=null,vibeArticulationText="",vibeArticulationLanguage="",vibeLyricsRevision=0,vibeArticulationRevision=-1,vibeArticulationCompiles=0;
+  let vibeLanguageSource=null,vibeLanguageRevision=-1,vibeDetectedLanguage="en",lastRenderedSpeech=null,mouthReleaseFrom=null,mouthReleaseAt=null;
   let vibeSpeechTrack=null;
   let vibeSceneStart=-Infinity, vibeSceneUntil=-Infinity, vibeSceneLastPosition=0;
   let vibeSceneKey="", vibeSceneWord=-1;
@@ -1485,11 +1792,11 @@ THE SOFTWARE.
   }
 
   function readFacePreferences(){
-    const defaults={motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,magicMode:false,winterCycleMode:"manual",viceCycleMode:"manual",viceMood:"sunset",viceIntensity:"party",viceAction:true,viceAccessories:true,viceDisabled:[],showMode:false,homeLyrics:false,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
+    const defaults={articulationLanguage:"auto",motion:"system",sound:false,size:"large",transparency:"system",halloween:false,season:"winter",party:false,effects:"normal",ambient:true,surprises:true,magicMode:false,winterCycleMode:"manual",viceCycleMode:"manual",viceMood:"sunset",viceIntensity:"party",viceAction:true,viceAccessories:true,viceDisabled:[],showMode:false,homeLyrics:false,dance:"auto",manualBpm:0,beatOffset:0,lyricsOffset:0,tempoFactor:1,tempoLookup:true,performance:"auto",festiveDisabled:[]};
     try{
       const saved=JSON.parse(localStorage.getItem("spotdeck.facePreferences") || "{}");
       if(!saved||typeof saved!=="object")return defaults;
-      for(const [key,choices]of Object.entries({performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],winterCycleMode:["manual","auto"],viceCycleMode:["manual","auto"],viceMood:["sunset","night","dawn"],viceIntensity:["calm","party","action"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
+      for(const [key,choices]of Object.entries({articulationLanguage:["auto","de","en"],performance:["auto","quality","tv"],motion:["system","reduced","normal","lively"],size:["normal","large","extra"],transparency:["system","reduced"],winterCycleMode:["manual","auto"],viceCycleMode:["manual","auto"],viceMood:["sunset","night","dawn"],viceIntensity:["calm","party","action"],effects:["few","normal","many"],dance:["auto","bounce","sway","shuffle"]}))if(choices.includes(saved[key]))defaults[key]=saved[key];
       for(const key of ["sound","party","ambient","surprises","tempoLookup","magicMode","showMode","homeLyrics","viceAction","viceAccessories"])if(typeof saved[key]==="boolean")defaults[key]=saved[key];
       for(const [key,a,b]of [["manualBpm",30,400],["beatOffset",-2000,2000],["lyricsOffset",-5000,5000]])if(typeof saved[key]==="number"&&Number.isFinite(saved[key])&&saved[key]>=a&&saved[key]<=b)defaults[key]=saved[key];
       if([.5,1,2].includes(saved.tempoFactor))defaults.tempoFactor=saved.tempoFactor;
@@ -1556,7 +1863,7 @@ THE SOFTWARE.
     if(runtime.enabled&&now-runtime.lastDebug>1000){
       runtime.lastDebug=now;
       const transform=typeof getComputedStyle==="function"?getComputedStyle(vibeFace).transform:"unavailable";
-      $("runtimeDiagnostic").textContent=JSON.stringify({fps:+runtime.fps.toFixed(1),frameMs:+runtime.meanFrame.toFixed(2),loopMs:+runtime.meanWork.toFixed(2),frameGaps:runtime.gaps,motion:facePreferences.motion,systemReduced:reducedFaceMotion.matches,motionLevel:motionLevel(),dataMotion:vibeFace.dataset.motion,transform,faceWidth:vibeFace.offsetWidth||0,halloween:facePreferences.halloween,scene:effects.active?.name||"none",performance:effectivePerformance(),track:runtime.track,sdk:runtime.sdkStatus,lastTrackChangeMs:runtime.trackChangedAt,queryMs:runtime.queryMs,polls:runtime.polls,sections:runtime.sections,lyrics:runtime.lyricsTiming||null,currentLyric:currentLyricIndex,events:runtime.events.slice(-8),audioStart:"Nicht messbar: SDK meldet nur Playerzustand."},null,2);
+      $("runtimeDiagnostic").textContent=JSON.stringify({fps:+runtime.fps.toFixed(1),frameMs:+runtime.meanFrame.toFixed(2),loopMs:+runtime.meanWork.toFixed(2),frameGaps:runtime.gaps,motion:facePreferences.motion,systemReduced:reducedFaceMotion.matches,motionLevel:motionLevel(),dataMotion:vibeFace.dataset.motion,transform,faceWidth:vibeFace.offsetWidth||0,halloween:facePreferences.halloween,scene:effects.active?.name||"none",performance:effectivePerformance(),track:runtime.track,sdk:runtime.sdkStatus,lastTrackChangeMs:runtime.trackChangedAt,queryMs:runtime.queryMs,polls:runtime.polls,sections:runtime.sections,lyrics:runtime.lyricsTiming||null,currentLyric:currentLyricIndex,articulation:{language:vibeArticulationLanguage,phone:vibeSpeech.phone||"REST",viseme:vibeSpeech.viseme||"rest",timing:vibeSpeech.timing||"none",phonemeTiming:vibeSpeech.phonemeTiming||"none",confidence:vibeSpeech.confidence||0,segments:vibeArticulationPlan?.segments.length||0,compiles:vibeArticulationCompiles},events:runtime.events.slice(-8),audioStart:"Nicht messbar: SDK meldet nur Playerzustand."},null,2);
     }
   }
   $("performanceSetting").addEventListener("change",()=>{facePreferences.performance=$("performanceSetting").value;runtime.autoTV=false;runtime.slowWindows=0;applyPerformance();persistPartyPreferences()});
@@ -1578,7 +1885,7 @@ THE SOFTWARE.
     faceSizeSetting.value=facePreferences.size;
     transparencySetting.value=facePreferences.transparency;
     motionSetting.value=facePreferences.motion;
-    faceSoundSetting.checked=facePreferences.sound;
+    faceSoundSetting.checked=facePreferences.sound;$("articulationLanguage").value=facePreferences.articulationLanguage;renderArticulationStatus();
     motionStatus.textContent=motionLevel()===0 ? (facePreferences.motion==="system"?"Systemeinstellung reduziert die Bewegung. Für sichtbares Wippen „Normale Animation“ wählen.":"Bewegung ausdrücklich reduziert. Mimik und Easteregg bleiben aktiv.") : "Bewegung aktiv – auch ohne Musik. "+(reducedFaceMotion.matches?"Manuelle Auswahl überschreibt reduzierte Systembewegung.":"");
     app.dataset.motion=vibeFace.dataset.motion;
     try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
@@ -2389,7 +2696,7 @@ THE SOFTWARE.
   function lyricSource(result){return result?.record?.lyricSource==="lrc.red"||result?.source==="lrc.red"?"lrc.red":"LRCLIB"}
   function lyricCredit(source){return source==="lrc.red"?'Lyrics via <a href="https://lrc.red/" target="_blank" rel="noopener noreferrer">lrc.red</a>':"Lyrics via LRCLIB"}
   function renderSyncedLyrics(lines,source="LRCLIB"){
-    syncedLyrics=lines;
+    syncedLyrics=lines;vibeLyricsRevision++;invalidateArticulation();
     const seen=new Set();
     for(const row of lines){const key=normalizedWord(row.text).replace(/\s+/g," ");row.refrain=key.length>=8&&seen.has(key);seen.add(key)}
     currentLyricIndex=-1;
@@ -2411,7 +2718,7 @@ THE SOFTWARE.
   }
 
   function renderPlainLyrics(text,credit="Lyrics via LRCLIB"){
-    syncedLyrics=[];
+    syncedLyrics=[];vibeLyricsRevision++;invalidateArticulation();
     if(ownPlayback.active)resetVibeLyrics();else{vibeSpeech={open:0,round:0,long:false};vibeSpeechPlan=[]}
     currentLyricIndex=-1;
     vibeLyricIndex=-2;
@@ -2420,7 +2727,7 @@ THE SOFTWARE.
   }
 
   function renderLyricsState(message){
-    syncedLyrics=[];
+    syncedLyrics=[];vibeLyricsRevision++;invalidateArticulation();
     if(ownPlayback.active)resetVibeLyrics();else{vibeSpeech={open:0,round:0,long:false};vibeSpeechPlan=[]}
     currentLyricIndex=-1;
     vibeLyricIndex=-2;
@@ -2447,6 +2754,7 @@ THE SOFTWARE.
   }
 
   function resetVibeLyrics(){
+    invalidateArticulation();
     effects.queue=effects.queue.filter(event=>["halloween","winter","vice"].includes(event.kind));
     vibeSpeech={open:0,round:0,long:false};
     vibeSpeechPlan=[];
@@ -2478,20 +2786,28 @@ THE SOFTWARE.
     faceScene?.classList.remove("visible");
   }
 
-  // LRC supplies line times. Word and vowel timing is an approximation, not audio analysis.
+  function invalidateArticulation(){
+    vibeArticulationPlan=null;vibeArticulationSource=null;vibeArticulationRow=null;vibeArticulationRevision=-1;lastRenderedSpeech=null;mouthReleaseFrom=null;mouthReleaseAt=null;
+  }
+  function articulationLanguageFor(row){
+    if(facePreferences.articulationLanguage!=="auto")return facePreferences.articulationLanguage;
+    if(["de","en"].includes(row?.language))return row.language;
+    if(vibeLanguageSource!==syncedLyrics||vibeLanguageRevision!==vibeLyricsRevision){vibeLanguageSource=syncedLyrics;vibeLanguageRevision=vibeLyricsRevision;vibeDetectedLanguage=articulationEngine.detectLanguage(syncedLyrics.slice(0,32).map(line=>line.text).join(" ").slice(0,6000))}
+    return vibeDetectedLanguage;
+  }
+  // Word/line cues remain source-dependent; pronunciation adds no measured audio timing.
   function buildVibeSpeechPlan(idx){
     const row=syncedLyrics[idx];if(!row)return [];
     const next=syncedLyrics[idx+1]?.time??playback?.item?.duration_ms??row.time+5000;
-    if(row.words?.length)return row.words.filter(word=>word.word.trim()).map((word,i,all)=>({...word,index:i,end:word.end??Math.max(word.start+1,all[i+1]?.start??row.end??Math.min(Math.max(next,word.start+180),word.start+Math.max(180,word.word.length*90))),timing:"word",confidence:1}));
-    const matches=[...row.text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)];
-    if(!matches.length||/^\s*[\[(].*[\])]\s*$/.test(row.text))return [];
-    const weights=matches.map(m=>{const syllables=(m[0].match(/[aeiouyäöü]+/gi)||[]).length;return Math.max(1,syllables)+(/([aeiouäöü])\1{2,}/i.test(m[0])?2:0)});
-    const gaps=matches.map((m,i)=>{const tail=row.text.slice(m.index+m[0].length,matches[i+1]?.index??row.text.length);return /[.!?]/.test(tail)?180:/[,;:]/.test(tail)?105:35});
-    const available=Math.max(0,(row.end??next)-row.time),sum=weights.reduce((a,b)=>a+b,0);
-    const span=Math.min(available,Math.max(700,Math.min(matches.length>25?25000:14000,sum*260+gaps.reduce((a,b)=>a+b,0))));
-    const gapScale=Math.min(1,span*.18/Math.max(1,gaps.reduce((a,b)=>a+b,0))),speech=Math.max(0,span-gaps.reduce((a,b)=>a+b*gapScale,0));
-    let cursor=row.time;
-    return matches.map((match,i)=>{const duration=speech*weights[i]/sum;const token={word:match[0],start:cursor,end:cursor+duration,index:i,timing:"estimated",confidence:available>span*1.8?.35:.6};cursor+=duration+gaps[i]*gapScale;return token});
+    return articulationEngine.buildWords(row,next,articulationLanguageFor(row));
+  }
+  function ensureArticulationPlan(idx){
+    const row=syncedLyrics[idx],language=articulationLanguageFor(row);
+    if(vibeArticulationPlan&&vibeArticulationSource===syncedLyrics&&vibeArticulationRow===row&&vibeArticulationText===(row?.text||"")&&vibeArticulationLanguage===language&&vibeArticulationRevision===vibeLyricsRevision)return;
+    vibeSpeechPlan=buildVibeSpeechPlan(idx);const tokens=vibeSpeechPlan.slice();
+    if(idx>0)tokens.push(...buildVibeSpeechPlan(idx-1).slice(-4));
+    if(idx+1<syncedLyrics.length)tokens.push(...buildVibeSpeechPlan(Math.max(0,idx+1)).slice(0,4));
+    vibeArticulationPlan=articulationEngine.compile(tokens,language);vibeArticulationSource=syncedLyrics;vibeArticulationRow=row;vibeArticulationText=row?.text||"";vibeArticulationLanguage=language;vibeArticulationRevision=vibeLyricsRevision;vibeArticulationCompiles++;
   }
 
   function showVibeScene(theme,positionMs,triggerWord=""){
@@ -2562,28 +2878,20 @@ THE SOFTWARE.
       delete vibeFace.dataset.scene;
       delete vibeFace.dataset.accessory;
     }
-    vibeSpeech={open:0,round:0,long:false};
+    vibeSpeech=articulationEngine.rest();
     if(!playing || !syncedLyrics.length){
       vibeFace.classList.remove("singing");
       return;
     }
     const idx=getSyncedLyricIndex(positionMs);
+    ensureArticulationPlan(idx);vibeSpeech=articulationEngine.sample(vibeArticulationPlan,positionMs);
     if(idx!==vibeLyricIndex){
       vibeLyricIndex=idx;
-      vibeSpeechPlan=buildVibeSpeechPlan(idx);
       vibeSceneWord=-1;
       if(syncedLyrics[idx]?.refrain)queueEffect({kind:"emotion",name:"party",key:"chorus",priority:1,cooldown:35000,ttl:1000});
     }
     const token=vibeSpeechPlan.find(word=>positionMs>=word.start && positionMs<word.end);
     if(token){
-      const progress=(positionMs-token.start)/Math.max(1,token.end-token.start);
-      const letters=Array.from(token.word.toLowerCase());
-      const char=letters[Math.min(letters.length-1,Math.floor(progress*letters.length))];
-      const long=/^(?:u{2,}h*|o{2,}h*|a{2,}h*|u+h+|o+h+|a+h+|wo+h+)$/i.test(token.word);
-      const envelope=Math.pow(Math.sin(Math.PI*progress),.45);
-      const vowel=/[aeiouyäöü]/i.test(char);
-      const closed=/[bmp]/i.test(char);
-      vibeSpeech={open:envelope*(long ? .86 : vowel ? .76 : closed ? .05 : .32),round:/[ouöüw]/i.test(char)?1:.12,wide:/[aeä]/i.test(char)?1:0,long};
       const eligible=token.timing==="word"?positionMs>=token.start:positionMs>=token.start+Math.min(120,(token.end-token.start)*.35);
       if(eligible&&token.index!==vibeSceneWord){
         vibeSceneWord=token.index;
@@ -2591,7 +2899,7 @@ THE SOFTWARE.
         if(theme)queueWordReaction(theme,token,positionMs);
       }
     }
-    vibeFace.classList.toggle("singing",vibeSpeech.open>.08);
+    vibeFace.classList.toggle("singing",!!vibeSpeech.active);
   }
 
   function updateLyricsPosition(positionMs=getCurrentPositionMs(),forceScroll=false){
@@ -3078,30 +3386,13 @@ THE SOFTWARE.
     setFaceProperty("--motion-scale-x",vibeMotion.scaleX.toFixed(4));
     setFaceProperty("--motion-scale-y",vibeMotion.scaleY.toFixed(4));
 
-    const mouthDt=runtime.lastMouth?Math.min(100,now-runtime.lastMouth):dt;runtime.lastMouth=now;
-    const mouthEase=1-Math.exp(-mouthDt/105);
-    vibeMouthBlend+=(Math.max(playing?vibeSpeech.open:0,vibeExpressionPose.open)-vibeMouthBlend)*mouthEase;
-    vibeMouthRound+=(vibeSpeech.round-vibeMouthRound)*mouthEase;
-    vibeMouthWide+=((vibeSpeech.wide || 0)-vibeMouthWide)*mouthEase;
-    const breathe=.65*Math.sin(now/720);
-    // One closed contour: its two curves coincide at rest, then stretch apart.
-    const opening=Math.min(1,vibeMouthBlend/.75);
-    const morph=opening*opening*(3-2*opening);
-    const left=8+morph*(18+vibeMouthRound*10-vibeMouthWide*5);
-    const right=100-left;
-    const endY=8+morph*14;
-    const controlLeft=18+(left-18)*morph;
-    const controlRight=100-controlLeft;
-    const smileDepth=42+breathe+vibeExpressionPose.smile;
-    const halfHeight=10+vibeMouthRound*5-vibeMouthWide*2;
-    const upper=smileDepth*(1-morph)+(endY-halfHeight*4/3)*morph;
-    const lower=smileDepth*(1-morph)+(endY+halfHeight*4/3)*morph;
-    faceMouthPath.setAttribute("d",`M ${left.toFixed(2)} ${endY.toFixed(2)} C ${controlLeft.toFixed(2)} ${upper.toFixed(2)} ${controlRight.toFixed(2)} ${upper.toFixed(2)} ${right.toFixed(2)} ${endY.toFixed(2)} C ${controlRight.toFixed(2)} ${lower.toFixed(2)} ${controlLeft.toFixed(2)} ${lower.toFixed(2)} ${left.toFixed(2)} ${endY.toFixed(2)} Z`);
-    if(faceMouth){
-      const mouthX=vibeMouthBlend*Math.sin(now/155)*2.2;
-      const mouthRotate=vibeMouthBlend*Math.sin(now/240)*1.3;
-      faceMouth.style.transform=`translateX(${mouthX.toFixed(2)}px) rotate(${mouthRotate.toFixed(2)}deg)`;
-    }
+    const actualPlaying=!!playback?.is_playing;let mouthSpeech=vibeSpeech,renderPlaying=actualPlaying;
+    if(actualPlaying){mouthReleaseFrom=null;mouthReleaseAt=null;if(vibeSpeech.active)lastRenderedSpeech={...vibeSpeech};else lastRenderedSpeech=null}
+    else if(lastRenderedSpeech&&!mouthReleaseFrom){mouthReleaseFrom=lastRenderedSpeech;mouthReleaseAt=now;lastRenderedSpeech=null}
+    if(!actualPlaying&&mouthReleaseFrom){const t=clamp((now-mouthReleaseAt)/140,0,1);mouthSpeech={...mouthReleaseFrom,restBlend:Math.max(mouthReleaseFrom.restBlend||0,t*t*(3-2*t))};renderPlaying=true;if(t===1){mouthReleaseFrom=null;mouthReleaseAt=null}}
+    const mouth=mouthRig.render(mouthSpeech,vibeExpressionPose,{playing:renderPlaying,now,dt,positionMs,reduced:motionLevel()===0});
+    vibeMouthBlend=mouth.opening;vibeMouthRound=mouthSpeech.round||0;vibeMouthWide=mouthSpeech.wide||0;runtime.lastMouth=now;
+    faceMouthPath.setAttribute("d",mouth.path);faceMouthPath.style.setProperty("stroke-width",String(mouth.strokeWidth||9));if(faceMouth)faceMouth.style.transform=mouth.transform;
   }
 
   function startVibeFace(){
@@ -4296,8 +4587,14 @@ THE SOFTWARE.
     if(seasonChanged||autoEnabled){effects.nextAt=performance.now()+(activeSeason()==="vice"?12000:sceneGap());effects.viceDueSince=null}
     effects.surprisesEnabled=facePreferences.surprises;renderViceSchedule(performance.now());showPartyControls(true);persistPartyPreferences();renderBeatDiagnostic(true);
   }
+  $("articulationLanguage").addEventListener("change",()=>{facePreferences.articulationLanguage=$("articulationLanguage").value;invalidateArticulation();applyFacePreferences()});
+  function renderArticulationStatus(){
+    const phone=syncedLyrics.some(row=>row.words?.some(word=>word.phones?.length)),word=syncedLyrics.some(row=>row.words?.length);
+    const message=!syncedLyrics.length?"Für das Mitsingen werden synchronisierte Lyrics benötigt.":phone?"Lautzeitmarken teilweise oder vollständig vorhanden. Fehlende Lautzeiten werden geschätzt.":word?"Wortzeiten vorhanden. Die Lautzeiten darin werden aus der Aussprache geschätzt.":"Zeilenzeiten vorhanden. Wort- und Lautzeiten werden aus dem Text geschätzt.";
+    if($("articulationStatus").textContent!==message)$("articulationStatus").textContent=message;
+  }
   function renderBeatDiagnostic(force=false){
-    const now=performance.now();if(!force && now<diagnosticAt)return;diagnosticAt=now+500;
+    const now=performance.now();if(!force && now<diagnosticAt)return;diagnosticAt=now+500;renderArticulationStatus();
     const sources={none:"Kein erkanntes Tempo",manual:"Manuell eingegeben",tap:"Tap-Tempo",onset:"Onset-Erkennung · geschätzt",live:"Live aus dem Ton geschätzt"};
     $("tapTempo").textContent=beatEngine.taps.length>0&&beatEngine.taps.length<4?`Noch ${4-beatEngine.taps.length} × im Takt tippen`:"Im Takt tippen";
     renderTempoStatus();
@@ -4307,7 +4604,7 @@ THE SOFTWARE.
     const message=`${bpm}. ${source}${quality}. Beatversatz ${Math.round(beatEngine.offset)} ms; Lyricsversatz ${ownPlayback.active?facePreferences.lyricsOffset:0} ms. ${ownPlayback.active||syncedLyrics.length?lyricsTimingLabel():"Emotionen und Überraschungen bleiben eigenständig aktiv."}`;
     if(beatDiagnostic.textContent!==message)beatDiagnostic.textContent=message;
   }
-  function lyricsTimingLabel(){return syncedLyrics.some(row=>row.words?.length)?"Wortzeitstempel vorhanden.":syncedLyrics.length?"Wortzeitpunkte aus Zeilen geschätzt.":"Keine synchronisierten Lyrics."}
+  function lyricsTimingLabel(){return syncedLyrics.some(row=>row.words?.some(word=>word.phones?.length))?"Lautzeitmarken vorhanden; fehlende Lautzeiten werden geschätzt.":syncedLyrics.some(row=>row.words?.length)?"Wortzeitstempel vorhanden; Lautzeiten geschätzt.":syncedLyrics.length?"Wort- und Lautzeiten aus Zeilen geschätzt.":"Keine synchronisierten Lyrics."}
   function parseLyricsfile(input){
     if(typeof input!=="string"||input.length>1000000)throw Error("Lyricsfile ist leer oder zu groß.");
     // The draft discourages anchors/aliases. Reject them before parsing to bound expansion.
@@ -4320,16 +4617,26 @@ THE SOFTWARE.
     if(doc.metadata?.offset_ms)throw Error("Lyricsfile-offset_ms ist im Entwurf uneindeutig. Bitte den Lyricsversatz in SpotDeck verwenden.");
     if(!Array.isArray(doc.lines))return [];
     if(doc.lines.length>5000)throw Error("Zu viele Lyricszeilen.");
-    let count=0;
+    let count=0,phoneCount=0;
     const time=v=>Number.isSafeInteger(v)&&v>=0&&v<=86400000;
     return doc.lines.map(row=>{
       if(!row||typeof row.text!=="string"||row.text.length>10000||!time(row.start_ms)||(row.end_ms!=null&&(!time(row.end_ms)||row.end_ms<row.start_ms)))throw Error("Ungültige Zeilenzeit im Lyricsfile.");
       const line={time:row.start_ms,end:row.end_ms??null,text:row.text,timing:"line"};
+      if(["de","en"].includes(row.language||doc.metadata.language))line.language=row.language||doc.metadata.language;
       if(row.words!=null){
         if(!Array.isArray(row.words))throw Error("Ungültige Wortliste.");
         line.words=row.words.map(word=>{
           if(++count>50000||!word||typeof word.text!=="string"||word.text.length>1000||!time(word.start_ms)||word.start_ms<row.start_ms||(row.end_ms!=null&&word.start_ms>row.end_ms)||(word.end_ms!=null&&(!time(word.end_ms)||word.end_ms<word.start_ms||(row.end_ms!=null&&word.end_ms>row.end_ms))))throw Error("Ungültige Wortzeit im Lyricsfile.");
-          return {word:word.text,start:word.start_ms,end:word.end_ms??null,timing:"word",confidence:1};
+          const parsed={word:word.text,start:word.start_ms,end:word.end_ms??null,timing:"word",confidence:1};
+          if(["de","en"].includes(word.language))parsed.language=word.language;
+          if(word.phones!=null){
+            if(!Array.isArray(word.phones)||word.phones.length>512||word.end_ms==null)throw Error("Lautzeitmarken benötigen eine begrenzte Liste und ein Wortende.");
+            let last=word.start_ms;parsed.phones=word.phones.map(phone=>{
+              if(++phoneCount>50000||!phone||typeof phone.phone!=="string"||phone.phone.length>24||!articulationEngine.isPhone(phone.phone)||!time(phone.start_ms)||!time(phone.end_ms)||phone.start_ms<last||phone.end_ms<=phone.start_ms||phone.end_ms>word.end_ms)throw Error("Ungültige oder überlappende Lautzeit im Lyricsfile.");
+              last=phone.end_ms;return {phone:articulationEngine.cuePhone(phone.phone),start:phone.start_ms,end:phone.end_ms};
+            });
+          }
+          return parsed;
         }).sort((a,b)=>a.start-b.start);
         line.timing=line.words.length?"word":"line";
       }

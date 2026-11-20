@@ -1,0 +1,31 @@
+# Pronunciation-based singing
+
+SpotDeck keeps the original white eyes and smile. The singing mouth now follows a deterministic sequence of pronunciation-based shapes instead of stepping through written letters with a per-word sine pulse. No new audio capture, audio upload, speech service or network pronunciation lookup is introduced.
+
+## Planning and rendering
+
+`ArticulationEngine` contains bounded German/English pronunciation lexicons and fallback rules. It treats German `ch`, `sch`, `ie`, `ei`, `au` and `eu` as pronunciation units, handles common English irregular words and silent-e patterns, and expands diphthongs into a vowel trajectory. For the illustrative phrase “ich bin hier, ich bin frei”, `bin` contains a B seal, `hier` carries a long I with a short vocalic-r release, and `frei` contains F–R–A–I. These are practical pronunciation estimates, not a complete phonetic model for all languages, dialects or singing styles. Automatic language selection uses a bounded sample of the lyrics; Settings → Mitsingen offers a German/English override for ambiguous cases.
+
+There are twelve shape targets: rest, seal, F/V, dental, sibilant, palatal, tongue-like, flat, mid, open, round and puckered. Their opening, width, roundness, lip curvature, corner tension and closure are blended independently. Most estimated duration is assigned to vowel nuclei, so a long note carries its vowel instead of repeatedly opening and closing for every letter. Neighboring cues prepare each other within small bounded windows. Estimated tiny separators may connect; supplied word or phone gaps remain silent. M/B/P seals are constraints, including during surprise/laughter expressions. The next vowel can release a seal continuously rather than inheriting a stale closed-mouth classification.
+
+`MouthRig` renders four cubic curves within the existing 100×50 SVG mouth. Upper/lower curves can behave differently, including a flatter upper lip for F/V. The familiar resting contour remains exact. Resting stroke width is 9; during articulation it becomes 6.25 (5.5 for F/V), returning smoothly through the rest blend. Narrow shapes retain visible interior space instead of becoming solid white bars. The rig reports stroke-inclusive bounds. Active shapes have no wall-clock wobble or lag filter that could erase short closures. Emotion may bias corners, but cannot force a sealed consonant open.
+
+The existing song clock and animation loop remain authoritative. Pronunciation/timing plans compile when the current row, source, language or lyric revision changes; frames use binary search and shape sampling. Current-row cues take priority over four-word neighbor context on either side. Pronunciation cache is bounded to 512 entries; compilation is bounded to 5,000 tokens / 50,000 segments. The existing normal/TV/reduced-motion cadence remains. Pause releases the last mouth toward rest over 140 ms; seeking/source replacement clears old articulation immediately. Closed-lip cues still count as active singing, so the singing state does not blink off for each B/P/M.
+
+## Timing and honest quality labels
+
+Line-only LRC still supplies line times. Words and their internal sounds are estimated, even when the displayed line is correct. Supplied word starts/ends are used directly; missing ends are inferred and marked as such. Word-synchronized input does not imply phoneme accuracy. Optional supplied phone cues preserve their own boundaries; mixed files are identified as mixed rather than claiming every sound was measured. Diagnostics and the settings note distinguish these levels.
+
+Long gaps following a line can contain instrumental music. Without audio, exact placement of every held note or internal pause remains unknown. Pronunciation rules also cannot resolve every English homograph, foreign word or regional performance. Very short source cues may fall between display frames at 30 Hz. Those limits are not fixed by a higher frame rate or a larger viseme set.
+
+## Optional local phone cues
+
+The existing version-1 Lyricsfile format accepts `metadata.language`, line `language` and word `language` (`de`/`en`). A word may additionally carry `phones` containing `phone`, `start_ms` and `end_ms`. Times are absolute song milliseconds. A word end is required when phone cues are present. Phone times must be finite nonnegative integers, ordered, nonoverlapping and inside the word. Internal labels and a bounded set of IPA aliases are accepted. Unknown phones, oversized lists and invalid boundaries are rejected. Limits are 512 phone entries per word and 50,000 entries per file. This extension preserves existing line/word-only files.
+
+[articulation-example.lyricsfile.yaml](articulation-example.lyricsfile.yaml) contains an illustrative manual schedule for the user's test phrase. It is a format/example fixture, not an alignment of a commercial recording. A later audio-assisted system could generate such schedules for suitable source audio, but that analysis is not part of this change. The existing explicitly started live beat detector remains separate.
+
+## Comparison and verification
+
+[`mouth-preview.html`](../mouth-preview.html) compares the previous letter-based algorithm with the production engine and rig. It is a silent, explicit-play demo with manually specified/estimated word times, pause, scrub, single-phase jumps, presets and short custom text. It needs no Spotify session or audio permissions. The current line is set through textContent. It runs only one preview animation loop, stops at the end and on hidden pages, and never changes the actual player.
+
+Run all fourteen integration suites. `articulation.test.cjs` covers pronunciation, vowel holds, coarticulation, genuine gaps, timing provenance, hard seals over expressions, readable narrow apertures, imported phone validation, tiny durations, deterministic poses, cache/resource bounds, source/seek/pause lifecycle and actual 30/60 Hz frame updates. `mouth-preview.test.cjs` verifies that the comparison embeds the identical production modules and exercises play/pause/scrub/jumps, presets, safe custom text, completion and hidden-page stop. The existing twelve playback/lyrics/season/scene suites remain required. Procedural pose rendering and automated timing tests do not establish physical-device frame rate or exact alignment for every Spotify recording.
