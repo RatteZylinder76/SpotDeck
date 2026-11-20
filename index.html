@@ -1012,12 +1012,12 @@
     .vice-layer>*{translate:var(--decor-fit-x,0px) var(--decor-fit-y,0px);scale:var(--decor-fit-scale,1)}
     #showExit{position:fixed;left:calc(var(--safe-l) + 10px);top:calc(var(--safe-t) + 10px);z-index:75;width:44px;height:44px;border-radius:50%;font-size:27px;line-height:1;color:#f6f8f5;background:#13201d9c;cursor:pointer;pointer-events:auto}
     .home-lyrics{position:relative;--line-size:clamp(12px,min(2.2vw,2.8vh),25px);width:min(96%,740px);height:var(--home-lyrics-space);flex:0 0 auto;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:4px;color:#f0f7f2;pointer-events:none;line-height:1.2;font-size:var(--line-size);padding:2px 8px}
-    .home-lyrics-lines{position:absolute;inset:2px 8px;display:flex;flex-direction:column;justify-content:center;gap:4px}.home-lyrics-lines>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.2em}.home-lyrics-outgoing{opacity:0;pointer-events:none}
+    .home-lyrics-lines{position:absolute;inset:2px 8px;display:grid;grid-template-rows:repeat(3,minmax(0,1fr))}.home-lyrics-lines>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:0;align-self:center}.home-lyrics-outgoing{height:calc((100% - 4px) * 4 / 3);bottom:auto;grid-template-rows:repeat(4,minmax(0,1fr));pointer-events:none}.home-lyrics[data-scrolling="true"] #homeLyricsLines{opacity:0}
     .home-lyric-context{opacity:.45;font-size:.78em}
     .home-lyric-current{font-weight:750;text-shadow:0 2px 12px #0009}
     .app[data-home-lyrics="true"] .face-panel{flex-direction:column;gap:clamp(2px,1vh,10px);--home-lyrics-space:clamp(58px,12vh,108px)}
     .app[data-home-lyrics="true"] .vibe-face{width:min(calc(100cqw / 1.44),max(36px,calc((100cqh - var(--home-lyrics-space) - 12px) / 1.46)),var(--face-cap))}
-    @media(max-height:430px){.home-lyrics{--line-size:clamp(11px,3vh,15px);gap:2px}.home-lyrics-lines{gap:2px}.app[data-home-lyrics="true"] .face-panel{--home-lyrics-space:54px}.vice-radio{letter-spacing:.12em}}
+    @media(max-height:430px){.home-lyrics{--line-size:clamp(11px,3vh,15px);gap:2px}.app[data-home-lyrics="true"] .face-panel{--home-lyrics-space:54px}.vice-radio{letter-spacing:.12em}}
     @media(prefers-reduced-motion:reduce){.app[data-season="vice"]{transition:none}}
 
 </style>
@@ -1114,7 +1114,7 @@
               <g class="prop-sweat"><path d="M 81 26 Q 71 38 78 41 Q 89 44 81 26" fill="#9bdff7"/></g>
             </svg>
           </div>
-        <div class="home-lyrics" id="homeLyrics" role="group" aria-label="Synchronisierte Lyrics auf dem Homescreen" hidden><div class="home-lyrics-lines" id="homeLyricsLines"><div class="home-lyric-context" id="homeLyricPrev"></div><div class="home-lyric-current" id="homeLyricCurrent"></div><div class="home-lyric-context" id="homeLyricNext"></div></div><div class="home-lyrics-lines home-lyrics-outgoing" id="homeLyricsOutgoing" aria-hidden="true" hidden><div class="home-lyric-context" id="homeLyricOldPrev"></div><div class="home-lyric-current" id="homeLyricOldCurrent"></div><div class="home-lyric-context" id="homeLyricOldNext"></div></div></div></aside>
+        <div class="home-lyrics" id="homeLyrics" role="group" aria-label="Synchronisierte Lyrics auf dem Homescreen" hidden><div class="home-lyrics-lines" id="homeLyricsLines"><div class="home-lyric-context" id="homeLyricPrev"></div><div class="home-lyric-current" id="homeLyricCurrent"></div><div class="home-lyric-context" id="homeLyricNext"></div></div><div class="home-lyrics-lines home-lyrics-outgoing" id="homeLyricsOutgoing" aria-hidden="true" hidden><div class="home-lyric-context" id="homeLyricOldPrev"></div><div class="home-lyric-current" id="homeLyricOldCurrent"></div><div class="home-lyric-context" id="homeLyricOldNext"></div><div class="home-lyric-context" id="homeLyricIncoming"></div></div></div></aside>
       </main>
 
       <div class="timeline" id="progress">
@@ -1264,12 +1264,12 @@
         <input type="checkbox" id="halloweenSetting" hidden aria-hidden="true" tabindex="-1">
         <div class="winter-controls"><label class="label" for="winterCycleMode">Winter-Auswahl</label><select class="setting-field" id="winterCycleMode"><option value="manual">Manuell</option><option value="auto">Auto · alle fünf Minuten</option></select><p class="setting-note" id="winterCycleStatus"></p><label class="setting-row"><span>Harry-Potter-Zauber</span><input type="checkbox" id="magicModeSetting"></label><p class="setting-note">Ohne Haken bleiben Lichterkette und Kugeln. Mit Haken kommen schwebende Kerzen und Zauberszenen dazu. Im Auto-Modus wechseln Weihnachten und Zauberwelt etwa alle fünf Minuten nach der laufenden Szene; in den letzten 45 Sekunden eines Lieds erst am Songende.</p><label class="label" for="winterPreviewChoice">Winterszene auswählen</label><select class="setting-field" id="winterPreviewChoice"><option value="random">Überraschung</option></select><details class="advanced-settings"><summary>26 Winter- und Zauberideen anpassen</summary><div id="festiveFeatureList" class="festive-list"></div></details><button type="button" class="setting-action glass glass-clear" id="clearDecorations">Geschenke und Deko aufräumen</button><p class="setting-note">Der Schnee bleibt eine dünne Schicht; Überschuss schmilzt. Schnee sammelt sich am Boden und auf dem Smiley. Mit Maus oder Finger kannst du die Bodenhaufen verschieben. Bei reduzierter Bewegung bleibt der Schnee ruhig.</p><div class="winter-actions"><button type="button" class="setting-action glass glass-clear" id="previewWinter">Winterszene zeigen</button><button type="button" class="setting-action glass glass-clear" id="clearSnow">Schnee räumen</button>
           <button class="setting-action glass glass-clear" id="previewShovel">Schneehaufen &amp; Kind zeigen</button></div></div>
-        <div class="vice-controls"><label class="label" for="viceCycleMode">Vice-Nights-Auswahl</label><select class="setting-field" id="viceCycleMode"><option value="manual">Manuell</option><option value="auto">Auto · alle fünf Minuten</option></select><label class="label" for="viceMood">Stimmung</label><select class="setting-field" id="viceMood"><option value="sunset">Sunset Drive</option><option value="night">Neon Night</option><option value="dawn">Early Morning</option></select><p class="setting-note" id="viceCycleStatus"></p><label class="label" for="viceIntensity">Vice-Nights-Intensität</label><select class="setting-field" id="viceIntensity"><option value="calm">Ruhiger Gangsterfilm</option><option value="party">Party &amp; Nervenkitzel</option><option value="action">Mehr Action</option></select><label class="setting-row"><span>Verfolgungen &amp; Helikopter</span><input type="checkbox" id="viceAction"></label><label class="setting-row"><span>Smiley-Accessoires</span><input type="checkbox" id="viceAccessories"></label><label class="label" for="vicePreviewChoice">Vice-Nights-Szene auswählen</label><select class="setting-field" id="vicePreviewChoice"><option value="random">Überraschung</option></select><button class="setting-action glass glass-clear" id="previewVice">Vice-Nights-Szene zeigen</button><details class="advanced-settings"><summary>24 Vice-Nights-Ideen anpassen</summary><div class="festive-list" id="viceFeatureList"></div></details></div>
+        <div class="vice-controls"><label class="label" for="viceCycleMode">Vice-Nights-Auswahl</label><select class="setting-field" id="viceCycleMode"><option value="manual">Manuell</option><option value="auto">Auto · alle fünf Minuten</option></select><label class="label" for="viceMood">Stimmung</label><select class="setting-field" id="viceMood"><option value="sunset">Sunset Drive</option><option value="night">Neon Night</option><option value="dawn">Early Morning</option></select><p class="setting-note" id="viceCycleStatus"></p><label class="label" for="viceIntensity">Vice-Nights-Intensität</label><select class="setting-field" id="viceIntensity"><option value="calm">Ruhiger Gangsterfilm</option><option value="party">Party &amp; Nervenkitzel</option><option value="action">Mehr Action</option></select><label class="setting-row"><span>Action · Verfolgungen, Diebstahl &amp; Polizei</span><input type="checkbox" id="viceAction"></label><label class="setting-row"><span>Smiley-Accessoires</span><input type="checkbox" id="viceAccessories"></label><label class="label" for="vicePreviewChoice">Vice-Nights-Szene auswählen</label><select class="setting-field" id="vicePreviewChoice"><option value="random">Überraschung</option></select><button class="setting-action glass glass-clear" id="previewVice">Vice-Nights-Szene zeigen</button><p class="setting-note" id="viceAutoStatus" role="status"></p><button class="setting-action glass glass-clear" id="enableViceAuto" hidden>Automatische Szenen einschalten</button><p class="setting-note">Die Stimmungs-Auswahl oben regelt Sunset, Nacht und Morgen. Szenen laufen unabhängig davon automatisch: erste Szene nach etwa 12 Sekunden, danach bei „Normal“ etwa 40–65 Sekunden Pause. „Automatische Überraschungen“ muss eingeschaltet sein.</p><details class="advanced-settings"><summary>34 Vice-Nights-Ideen anpassen</summary><div class="festive-list" id="viceFeatureList"></div></details></div>
         <label class="setting-row"><span>Show-Modus · nur × holt die Bedienung zurück</span><input type="checkbox" id="showModeSetting"></label><p class="setting-note">Im Show-Modus bleiben Mausbewegung, Berührung und Tasten ohne Aufwecken. Das kleine × oben links beendet den Show-Modus.</p><label class="setting-row"><span>Drei Lyricszeilen unter dem Smiley</span><input type="checkbox" id="homeLyricsSetting"></label>
         <label class="setting-row"><span>Party-Modus</span><input type="checkbox" id="partySetting"></label>
         <p class="setting-note">Die Bedienung blendet sich nach 8 Sekunden aus. Taste, Mausbewegung oder Berührung holt sie zurück. Auch „Party-Modus beenden“ blendet sich aus. Escape beendet den Party-Modus, wenn kein Dialog geöffnet ist.</p>
         <label class="label" for="halloweenEffects">Saison-Überraschungen</label>
-        <select class="setting-field" id="halloweenEffects"><option value="few">Wenig · etwa 3–4 Minuten Pause</option><option value="normal">Normal · etwa 1½–2½ Minuten Pause</option><option value="many">Viele · etwa 1–1½ Minuten Pause</option></select>
+        <select class="setting-field" id="halloweenEffects"><option value="few">Wenig · lange Pausen</option><option value="normal">Normal · regelmäßige Szenen</option><option value="many">Viele · kurze Pausen</option></select>
         <label class="setting-row"><span>Ambient-Hintergrund</span><input type="checkbox" id="ambientSetting"></label>
         <label class="setting-row"><span>Automatische Überraschungen</span><input type="checkbox" id="surpriseSetting"></label>
         <label class="label" for="dancePattern">Tanzmuster</label>
@@ -1497,7 +1497,7 @@ THE SOFTWARE.
       defaults.halloween=defaults.season==="halloween";
       const festiveKeys=["aurora","lights","star","gifts","reindeer","train","elf","baubles","frost","gingerbread","tree","chimney","forest","village","globe","constellation","angel","candy","bells","unwrap","wand","levitate","spellbook","broom","candles","wizardlook"];
       if(Array.isArray(saved.festiveDisabled))defaults.festiveDisabled=[...new Set(saved.festiveDisabled.filter(key=>festiveKeys.includes(key)))];
-      const viceKeys=["palms","sun","skyline","water","traffic","birds","cruise","pursuit","helicopter","boat","case","race","gator","club","delivery","mission","shades","chain","bandana","phone","duck","sideeye","loot","chill"];
+      const viceKeys=["palms","sun","skyline","water","traffic","birds","cruise","pursuit","helicopter","boat","case","race","gator","club","delivery","mission","shades","chain","bandana","phone","duck","sideeye","loot","chill","pickpocket","getaway","checkpoint","safe","jetski","drone","skateboard","paparazzi","rooftop","mural"];
       if(Array.isArray(saved.viceDisabled))defaults.viceDisabled=[...new Set(saved.viceDisabled.filter(id=>viceKeys.includes(id)))];
       if(defaults.showMode)defaults.party=false;
       return defaults;
@@ -2447,7 +2447,7 @@ THE SOFTWARE.
   }
 
   function resetVibeLyrics(){
-    effects.queue=effects.queue.filter(event=>event.kind==="halloween");
+    effects.queue=effects.queue.filter(event=>["halloween","winter","vice"].includes(event.kind));
     vibeSpeech={open:0,round:0,long:false};
     vibeSpeechPlan=[];
     vibeLyricIndex=-2;
@@ -3328,7 +3328,7 @@ THE SOFTWARE.
   let diagnosticAt=0,partyLastInput=performance.now(),partyHidden=false;
   const partyPresentation={value:0,from:0,target:0,start:0};
   let partyWakeKey=null;
-  const effects={queue:[],active:null,nextAt:performance.now()+60000,last:new Map(),lastKind:"",lastWordKey:""};
+  const effects={queue:[],active:null,hiddenAt:null,viceDueSince:null,surprisesEnabled:null,nextAt:performance.now()+60000,last:new Map(),lastKind:"",lastWordKey:""};
   function activeSeason(){return facePreferences.halloween?"halloween":["winter","vice"].includes(facePreferences.season)?facePreferences.season:"off"}
   const winterLayer=$("winterLayer"),winterSnowCanvas=$("winterSnow"),winterCap=$("winterSnowCap");
   const winterKinds=["sleigh","hat","scarf","freeze","snowman","shake"];
@@ -3959,7 +3959,122 @@ THE SOFTWARE.
   document.addEventListener('pointermove',event=>{if(event.target?.closest?.('input,select,textarea,button,[role=slider],.settings,.library,.lyrics'))return;const previous=festiveWorld.lastPointerX;festiveWorld.lastPointerX=event.clientX;festiveWorld.interact(event.clientX,event.clientY,previous==null?0:event.clientX-previous)},{passive:true});
 
   // Vice Nights: native vector scenery on the existing application clock.
+  const viceExtraFeatures=[
+    {id:"pickpocket",label:"Taschendieb & zurückgeholte Geldbörse",duration:16500,action:true},
+    {id:"getaway",label:"Koffer in den Fluchtwagen",duration:15000,action:true},
+    {id:"checkpoint",label:"Polizeikontrolle & Rückwärtsgang",duration:16000,action:true},
+    {id:"safe",label:"Tresor mit Diamantenfund",duration:14500},
+    {id:"jetski",label:"Jet-Ski über die Hafenwelle",duration:14000},
+    {id:"drone",label:"Drohnenlieferung am Hafen",duration:15000},
+    {id:"skateboard",label:"Kickflip an der Strandpromenade",duration:13000},
+    {id:"paparazzi",label:"Paparazzi & Polaroid-Moment",duration:14500},
+    {id:"rooftop",label:"Parkour zwischen den Dächern",duration:14500,action:true},
+    {id:"mural",label:"Street-Art im Neonlicht",duration:17000}
+  ];
+  const viceExtraPoses={
+    pickpocket:["curious","surprise","sideRight","proud"],getaway:["sideLeft","skeptic","surprise","cheeky"],
+    checkpoint:["curious","startled","sideLeft","cheeky"],safe:["thinking","curious","surprise","proud"],
+    jetski:["sideLeft","surprise","party","grin"],drone:["lookUp","curious","sideRight","grin"],
+    skateboard:["curious","surprise","proud","cheeky"],paparazzi:["shy","sideLeft","wink","proud"],
+    rooftop:["lookUp","curious","surprise","proud"],mural:["thinking","curious","sideLeft","proud"]
+  };
+  function drawViceExtra(ctx,world,scene,p,t,c,s,w,h,ground){
+    if(!viceExtraPoses[scene.name])return false;
+    // All local drawing, including movement and strokes, fits ±1.5s horizontally and ±1s vertically.
+    const point=world.safePoint(w*.32,Math.min(h*.48,ground-s*.7),s*1.5,s);
+    ctx.save();world.fitAround(ctx,point);ctx.translate(point.x,point.y);
+    const phase=(a,b)=>festiveEase((p-a)/(b-a));
+    const rect=(x,y,width,height,color)=>{ctx.fillStyle=color;ctx.fillRect(x*s,y*s,width*s,height*s)};
+    const line=(points,color,width=.025)=>{ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,s*width);ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x*s,y*s):ctx.moveTo(x*s,y*s));ctx.stroke()};
+    const disc=(x,y,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(x*s,y*s,r*s,0,Math.PI*2);ctx.fill()};
+    const polygon=(points,color)=>{ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x*s,y*s):ctx.moveTo(x*s,y*s));ctx.closePath();ctx.fill()};
+    const person=(x,y,k=1,walk=t*3)=>vicePerson(ctx,x*s,y*s,k*s,walk);
+    const wallet=(x,y)=>{rect(x-.11,y-.065,.22,.13,c.gold);rect(x+.035,y-.025,.085,.045,c.ink)};
+    const cone=(x,y,k=1)=>{polygon([[x-.105*k,y],[x,y-.3*k],[x+.105*k,y]],c.pink);rect(x-.13*k,y-.015*k,.26*k,.035*k,c.gold);line([[x-.045*k,y-.16*k],[x+.045*k,y-.16*k]],"#f8ead5",.025*k)};
+    const baseline=()=>line([[-1.35,.72],[1.35,.72]],c.mint,.012);
+    if(scene.name==="pickpocket"){
+      baseline();
+      const thief=.95-phase(0,.28)+phase(.33,.58)*.9-phase(.67,.91)*.85;
+      const victim=-.65+phase(.46,.7)*.45-phase(.82,1)*.3;
+      person(victim,.6,.84,p<.4?0:t*5);person(thief,.6,.78,t*6);
+      // The wallet visibly leaves its owner, then returns after the brief chase.
+      let wx=victim+.2,wy=.16;
+      if(p>=.28&&p<.39)wx=(victim+.2)*(1-phase(.28,.39))+(thief-.18)*phase(.28,.39);
+      else if(p>=.39&&p<.78)wx=thief-.18;
+      else if(p>=.78)wx=(thief-.18)*(1-phase(.78,.91))+(victim+.2)*phase(.78,.91);
+      wallet(wx,wy);
+      if(p>.32&&p<.75){line([[victim,-.47],[victim,-.34]],c.gold,.035);disc(victim,-.25,.023,c.gold)}
+      if(p>.86)festiveStar(ctx,(victim+.3)*s,-.43*s,.075*s,c.gold);
+    }else if(scene.name==="getaway"){
+      baseline();const depart=phase(.7,1),vx=.3+depart*.55,loader=-1+phase(.03,.3)*.7-phase(.56,.72)*.3;
+      person(loader,.62,.72,t*4);
+      rect(vx-.48,-.02,.96,.48,c.ink);rect(vx+.2,-.19,.22,.22,c.mint);rect(vx-.46,.04,.47,.31,"#3e4860");
+      rect(vx-.45,.04,.44*(1-phase(.23,.4))+.03,.31,c.pink);rect(vx-.5,.45,1.02,.045,c.gold);
+      for(const dx of [-.29,.3]){disc(vx+dx,.51,.12,"#0b1729");disc(vx+dx,.51,.055,c.mint)}
+      const load=phase(.3,.6),cx=(-.77)*(1-load)+(vx-.25)*load,cy=.1-load*.02;
+      rect(cx-.12,cy-.07,.24,.17,c.gold);line([[cx-.05,cy-.07],[cx-.05,cy-.12],[cx+.05,cy-.12],[cx+.05,cy-.07]],c.gold);
+      if(p>.72)for(let i=0;i<3;i++)line([[vx-.58-i*.1,.26+i*.07],[vx-.72-i*.1,.26+i*.07]],c.mint,.015);
+    }else if(scene.name==="checkpoint"){
+      baseline();const x=-.85+phase(0,.32)*.95-phase(.62,.95)*.7;
+      viceCar(ctx,x*s,.5*s,.7*s,c.pink,t*1000);
+      cone(.62,.65,.8);cone(.92,.65,.8);person(1.18,.62,.64,Math.sin(t)*.25);
+      const angle=-phase(.45,.61)*.65+phase(.76,.91)*.65;
+      line([[1.05,.28],[1.05,-.03]],c.gold,.035);ctx.save();ctx.translate(1.05*s,-.03*s);ctx.rotate(angle);rect(-.69,-.035,.72,.07,c.mint);ctx.restore();
+      if(p>.32&&p<.62){line([[x-.15,-.16],[x-.15,-.05]],c.gold,.03);disc(x-.15,.02,.02,c.gold)}
+    }else if(scene.name==="safe"){
+      const open=phase(.29,.6)*(1-phase(.88,1));
+      rect(-.61,-.62,1.22,1.25,c.ink);rect(-.52,-.53,1.04,1.05,"#6c7190");rect(-.45,-.45,.9,.89,"#121c32");
+      viceDiamond(ctx,.13*s,(-.02-phase(.48,.72)*.28)*s,.17*s,c.mint);
+      const doorWidth=.99*(1-open*.91);rect(-.5,-.51,doorWidth,1.01,"#59617b");
+      const dial=-.5+doorWidth*.62;disc(dial,-.03,.13,c.gold);disc(dial,-.03,.08,c.ink);
+      const angle=phase(.05,.3)*Math.PI*3;line([[dial,-.03],[dial+Math.cos(angle)*.065,-.03+Math.sin(angle)*.065]],c.gold,.02);
+      for(const y of [-.37,.36])rect(-.56,y,.085,.12,c.mint);
+      if(p>.6&&p<.88)for(const side of [-1,1])festiveStar(ctx,side*.85*s,-.28*s,.075*s,c.gold);
+    }else if(scene.name==="jetski"){
+      const jump=Math.sin(phase(.25,.7)*Math.PI),x=-.75+phase(0,1)*1.45,y=.28-jump*.4;
+      for(let i=0;i<3;i++){const yy=.49+i*.095;line([[-1.3,yy],[-.8,yy-.025],[-.3,yy],[.2,yy-.025],[.7,yy],[1.25,yy-.025]],c.mint,.014)}
+      person(x-.05,y-.04,.52,t*1.6);polygon([[x-.43,y+.03],[x+.47,y-.04],[x+.24,y+.18],[x-.27,y+.18]],c.pink);
+      line([[x-.12,y+.01],[x+.13,y-.22],[x+.24,y-.22]],c.gold,.035);
+      for(let i=0;i<3;i++)line([[x-.42-i*.1,y+.14+i*.06],[x-.49-i*.09,y+.1+i*.06]],"#c3e5e8",.018);
+    }else if(scene.name==="drone"){
+      baseline();const x=Math.sin(t*.7)*.12,y=-.43+Math.sin(t*.8)*.045,drop=phase(.43,.68),handoff=phase(.7,.9);
+      line([[x-.45,y],[x+.45,y]],c.mint,.04);rect(x-.22,y-.08,.44,.18,c.ink);disc(x,y+.02,.055,c.pink);
+      for(const side of [-1,1]){ctx.strokeStyle=c.mint;ctx.lineWidth=s*.018;ctx.beginPath();ctx.ellipse((x+side*.46)*s,y*s,.19*s,.045*s*Math.max(.3,Math.abs(Math.sin(t*9))),0,0,Math.PI*2);ctx.stroke()}
+      const bx=x*(1-handoff)+.66*handoff,by=(y+.27)*(1-drop)+.45*drop;
+      if(p<.46)for(const side of [-1,1])line([[x+side*.12,y+.1],[bx+side*.1,by-.08]],c.gold,.012);
+      rect(bx-.13,by-.1,.26,.2,c.gold);line([[bx,by-.1],[bx,by+.1]],c.pink,.02);person(.98,.64,.65,t*.5);
+      if(p>.8)festiveStar(ctx,.69*s,-.24*s,.07*s,c.gold);
+    }else if(scene.name==="skateboard"){
+      baseline();cone(.05,.69,.9);
+      const x=-.85+phase(0,1)*1.65,jump=Math.sin(phase(.23,.7)*Math.PI),y=.55-jump*.53;
+      person(x,y-.06,.65,t*3);
+      ctx.save();ctx.translate(x*s,y*s);ctx.rotate(phase(.29,.61)*Math.PI*2);line([[-.28,0],[.28,0]],c.mint,.055);for(const side of [-1,1])disc(side*.19,.07,.04,c.gold);ctx.restore();
+      if(p>.75)festiveStar(ctx,(x-.12)*s,-.24*s,.07*s,c.gold);
+    }else if(scene.name==="paparazzi"){
+      baseline();person(0,.64,.93,t*.25);
+      for(const side of [-1,1]){person(side*.98,.64,.66,t*.4);rect(side*.7-.11,-.025,.22,.16,c.ink);disc(side*.7,.055,.065,c.mint);rect(side*.7-.04,-.075,.08,.05,c.gold)}
+      // Two local, soft camera glows; no full-screen flashing or repeated strobe.
+      for(const [at,side]of [[.28,-1],[.62,1]]){const pulse=Math.exp(-Math.pow((p-at)/.035,2));ctx.save();ctx.globalAlpha*=pulse*.22;disc(side*.7,.01,.32,"#fff4d8");ctx.restore()}
+      if(p>.73){const rise=phase(.73,.88);rect(-.26,-.35-rise*.4,.52,.52,"#f2e4da");rect(-.215,-.3-rise*.4,.43,.33,c.pink);festiveStar(ctx,0,(-.13-rise*.4)*s,.07*s,c.gold)}
+    }else if(scene.name==="rooftop"){
+      for(const side of [-1,1]){const x=side<0?-1.33:.32,roof=side<0?-.12:-.02;rect(x,roof,1.01,.82-roof,c.ink);rect(x-.02,roof-.035,1.05,.045,c.mint);for(let row=0;row<3;row++)for(let col=0;col<3;col++)rect(x+.1+col*.28,roof+.17+row*.2,.105,.055,(row+col)%2?c.gold:c.pink)}
+      const q=phase(.25,.76),x=-.82+q*1.64,y=-.12+q*.1-Math.sin(q*Math.PI)*.28;
+      person(x,y,.5,t*5);
+      if(p>.8)festiveStar(ctx,1.06*s,-.45*s,.07*s,c.gold);
+    }else if(scene.name==="mural"){
+      rect(-1.2,-.72,2.16,1.4,c.ink);line([[-1.2,-.72],[.96,-.72],[.96,.68],[-1.2,.68],[-1.2,-.72]],"#445269",.018);
+      for(let i=0;i<5;i++)if(p>.1+i*.09){const x=-.98+i*.28,bh=.3+(i*3%4)*.12;rect(x,.43-bh,.22,bh,i%2?c.mint:c.pink)}
+      const flamingo=[[-.05,-.1],[.13,-.2],[.17,-.4],[.3,-.47],[.39,-.38],[.28,-.33],[.23,-.14],[.06,-.03],[-.12,-.07],[-.21,-.17],[-.05,-.1],[.03,.2],[.03,.4]];
+      const n=Math.floor(phase(.42,.82)*flamingo.length);if(n>1)line(flamingo.slice(0,n),c.gold,.04);
+      person(1.12,.64,.6,t*.8);const canY=.14+Math.sin(p*Math.PI*4)*.18;rect(.8,canY,.09,.19,c.pink);rect(.82,canY-.035,.05,.035,c.mint);
+      if(p<.84)for(let i=0;i<4;i++)disc(.72-i*.055,canY+.025+Math.sin(t*5+i)*.035,.008+i*.002,c.mint);
+      if(p>.86)festiveStar(ctx,-.83*s,-.44*s,.09*s,c.gold);
+    }
+    ctx.restore();return true;
+  }
+
   const viceFeatures=[
+    ...viceExtraFeatures,
     {id:"palms",label:"Palmen im Küstenwind",type:"ambient"},{id:"sun",label:"Sonne & Wolken",type:"ambient"},
     {id:"skyline",label:"Lebendige Skyline",type:"ambient"},{id:"water",label:"Wasser & Hafenlichter",type:"ambient"},
     {id:"traffic",label:"Neonstraße & Verkehr",type:"ambient"},{id:"birds",label:"Flamingos am Horizont",type:"ambient"},
@@ -3999,7 +4114,8 @@ THE SOFTWARE.
   }
   function viceDiamond(ctx,x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x-r,y-r*.3);ctx.lineTo(x-r*.45,y-r);ctx.lineTo(x+r*.45,y-r);ctx.lineTo(x+r,y-r*.3);ctx.lineTo(x,y+r);ctx.closePath();ctx.fill();ctx.strokeStyle="#f7eff4aa";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-r,y-r*.3);ctx.lineTo(x+r,y-r*.3);ctx.moveTo(x-r*.45,y-r);ctx.lineTo(x,y+r);ctx.lineTo(x+r*.45,y-r);ctx.stroke()}
   function vicePerson(ctx,x,y,s,t){ctx.save();ctx.translate(x,y);ctx.strokeStyle="#91cfd3";ctx.lineWidth=s*.1;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(-s*.1,-s*.32);ctx.lineTo(-s*.15-Math.sin(t)*s*.06,0);ctx.moveTo(s*.1,-s*.32);ctx.lineTo(s*.15+Math.sin(t)*s*.06,0);ctx.stroke();ctx.fillStyle="#c27ba2";ctx.fillRect(-s*.18,-s*.69,s*.36,s*.4);ctx.fillStyle="#edd1bc";ctx.beginPath();ctx.arc(0,-s*.84,s*.14,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#c27ba2";ctx.lineWidth=s*.09;ctx.beginPath();ctx.moveTo(-s*.14,-s*.62);ctx.lineTo(-s*.32,-s*(.45+.15*Math.sin(t)));ctx.moveTo(s*.14,-s*.62);ctx.lineTo(s*.32,-s*(.45-.15*Math.sin(t)));ctx.stroke();ctx.restore()}
-  const viceRideLooks={car:"<svg class=\"vice-ride\" viewBox=\"0 0 140 50\"><path d=\"M4 15 18 8h103l15 8v19H4Z\" fill=\"#e286b5\" stroke=\"#ffd5df\" stroke-width=\"1.5\"/><path d=\"M20 9 26 1m91 8-5-8M9 24h120\" fill=\"none\" stroke=\"#8fe8da\" stroke-width=\"2\"/><rect x=\"37\" y=\"12\" width=\"64\" height=\"10\" rx=\"3\" fill=\"#a95988\"/><path d=\"M23 17h13m67 0h15\" stroke=\"#fff2b7\" stroke-width=\"4\"/><circle cx=\"24\" cy=\"36\" r=\"9\" fill=\"#142137\" stroke=\"#b9cad3\" stroke-width=\"3\"/><circle cx=\"115\" cy=\"36\" r=\"9\" fill=\"#142137\" stroke=\"#b9cad3\" stroke-width=\"3\"/></svg>",boat:"<svg class=\"vice-ride\" viewBox=\"0 0 140 50\"><path d=\"m3 13 134-3-25 25H27Z\" fill=\"#83d6d0\" stroke=\"#d9fff0\" stroke-width=\"2\"/><path d=\"m31 14 5-12m67 11-4-11M5 43q15-7 29 0t29 0 29 0 29 0\" stroke=\"#c5e8ef\" stroke-width=\"2\" fill=\"none\"/><path d=\"M30 23h80\" stroke=\"#de82b1\" stroke-width=\"4\"/></svg>"};
+  const viceRideLooks={car:"<svg class=\"vice-ride vice-car-front\" viewBox=\"0 0 140 50\"><path d=\"M9 12Q70-5 131 12l6 22-6 12H9L3 34Z\" fill=\"#df85b3\" stroke=\"#ffd5df\" stroke-width=\"1.5\"/><path d=\"M14 13q56-12 112 0M8 35h124\" fill=\"none\" stroke=\"#f9bad5\" stroke-width=\"2\"/><path d=\"m13 20 25 3-2 9-23-2Zm114 0-25 3 2 9 23-2Z\" fill=\"#fff0bd\" stroke=\"#e8c0b0\"/><rect x=\"44\" y=\"22\" width=\"52\" height=\"12\" rx=\"4\" fill=\"#293146\"/><path d=\"M49 26h42m-42 4h42\" stroke=\"#83b7bf\" stroke-width=\"1.2\"/><rect x=\"55\" y=\"38\" width=\"30\" height=\"7\" rx=\"2\" fill=\"#e3d9c1\"/><path d=\"M11 39h33m52 0h33\" stroke=\"#b26794\" stroke-width=\"2\"/></svg>",boat:"<svg class=\"vice-ride\" viewBox=\"0 0 140 50\"><path d=\"m3 13 134-3-25 25H27Z\" fill=\"#83d6d0\" stroke=\"#d9fff0\" stroke-width=\"2\"/><path d=\"m31 14 5-12m67 11-4-11M5 43q15-7 29 0t29 0 29 0 29 0\" stroke=\"#c5e8ef\" stroke-width=\"2\" fill=\"none\"/><path d=\"M30 23h80\" stroke=\"#de82b1\" stroke-width=\"4\"/></svg>"};
+  const viceCockpit="<svg class=\"vice-cockpit\" viewBox=\"0 0 100 100\"><path d=\"M8 77 17 23Q50 17 83 23l9 54Z\" fill=\"#a1e5e508\" stroke=\"#9acbd3\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"m20 28-6 30m66-30 6 30\" stroke=\"#d7e8e5\" stroke-width=\".8\" opacity=\".5\"/><path d=\"M10 76q40-5 80 0\" fill=\"none\" stroke=\"#b96f9e\" stroke-width=\"3\"/><rect x=\"44\" y=\"23\" width=\"12\" height=\"3\" rx=\"1.5\" fill=\"#26384c\"/></svg>";
   const viceLooks={
     shades:'<svg viewBox="0 0 100 100"><path d="M13 37 24 39m52 0 11-2M44 40q6-5 12 0" fill="none" stroke="#eed49f" stroke-width="2"/><path d="M21 34h25l-2 14q-12 8-21-2Zm33 0h25l-2 12q-10 10-21 2Z" fill="#19203bd9" stroke="#f3d39a" stroke-width="1.6"/><path d="m25 38 9-1m26 1 8-1" stroke="#8febdf" stroke-width="2"/></svg>',
     chain:'<svg class="vice-chain" viewBox="0 0 120 44"><path d="M5 4q54 49 110 0" fill="none" stroke="#b88d48" stroke-width="5"/><path d="M5 3q54 49 110 0" fill="none" stroke="#f2cf86" stroke-width="2" stroke-dasharray="4 3"/><path d="m60 29 7 6-7 7-7-7Z" fill="#ffe7a9"/></svg>',
@@ -4008,7 +4124,7 @@ THE SOFTWARE.
     chill:'<svg class="vice-prop" viewBox="0 0 80 100"><path d="M15 30h48L56 88H23Z" fill="#bb6c9b" stroke="#f0c4ad" stroke-width="2"/><ellipse cx="39" cy="30" rx="24" ry="7" fill="#d99c9e"/><path d="m42 31 7-26h14" fill="none" stroke="#8ee0d0" stroke-width="4"/><path d="m13 26 5-16 17 17Z" fill="#edc883"/><path d="M24 45h29m-26 8h24" stroke="#e9b39f" stroke-width="2"/></svg>'
   };
   class ViceWorld extends FestiveWorld{
-    constructor(a,b){super(a,b);this.palette=vicePalettes.sunset;this.fromPalette=this.palette;this.targetPalette=this.palette;this.mood="sunset";this.paletteAt=0;this.lastChoice="";this.lastSeen=new Map()}
+    constructor(a,b){super(a,b);this.autoCount=0;this.palette=vicePalettes.sunset;this.fromPalette=this.palette;this.targetPalette=this.palette;this.mood="sunset";this.paletteAt=0;this.lastChoice="";this.lastSeen=new Map()}
     configure(){
       const enabled=activeSeason()==="vice";if(this.enabled&&!enabled)this.clear();this.enabled=enabled;this.ambientCanvas.hidden=!enabled;this.storyCanvas.hidden=!enabled;
       const signature=JSON.stringify([facePreferences.viceDisabled,facePreferences.viceAction,facePreferences.viceAccessories,facePreferences.viceIntensity]);if(this.signature!==signature){this.signature=signature;this.bag=[]}
@@ -4018,8 +4134,8 @@ THE SOFTWARE.
       if(this.story&&!this.story.preview&&!viceEnabled(this.story.name))clearHalloween();
     }
     colors(now){const f=motionLevel()?festiveEase((now-this.paletteAt)/1800):1,out={};for(const key of Object.keys(this.targetPalette)){const a=this.fromPalette[key],b=this.targetPalette[key];out[key]='#'+[1,3,5].map(i=>Math.round(parseInt(a.slice(i,i+2),16)*(1-f)+parseInt(b.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('')}return out}
-    choose(){let ids=viceFeatures.filter(f=>f.duration&&viceEnabled(f.id)&&performance.now()-(this.lastSeen.get(f.id)??-Infinity)>240000).map(f=>f.id);if(!ids.length)return null;this.bag=this.bag.filter(id=>ids.includes(id));if(!this.bag.length){this.bag=ids.slice();for(let i=this.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.bag[i],this.bag[j]]=[this.bag[j],this.bag[i]]}}if(this.bag.length>1&&this.bag.at(-1)===this.lastChoice)[this.bag[0],this.bag[this.bag.length-1]]=[this.bag.at(-1),this.bag[0]];return this.bag.pop()}
-    start(scene){this.story=scene;this.lastChoice=scene.name;this.lastSeen.set(scene.name,scene.start);const ride=["cruise","race","pursuit"].includes(scene.name)?"car":scene.name==="boat"?"boat":null;const accessory=viceById.get(scene.name).type==="face"?scene.name:scene.name==="cruise"?"shades":null;$("viceLayer").innerHTML=(ride?viceRideLooks[ride]:"")+((scene.preview||facePreferences.viceAccessories)?viceLooks[accessory]||"":"");vibeFace.dataset.viceScene=scene.name;sceneViewport.dirty=true}
+    choose(preferStory=false){let ids=viceFeatures.filter(f=>f.duration&&viceEnabled(f.id)&&performance.now()-(this.lastSeen.get(f.id)??-Infinity)>240000).map(f=>f.id);if(!ids.length)return null;this.bag=this.bag.filter(id=>ids.includes(id));if(!this.bag.length){this.bag=ids.slice();for(let i=this.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.bag[i],this.bag[j]]=[this.bag[j],this.bag[i]]}}if(this.bag.length>1&&this.bag.at(-1)===this.lastChoice)[this.bag[0],this.bag[this.bag.length-1]]=[this.bag.at(-1),this.bag[0]];if(preferStory)for(let i=this.bag.length-1;i>=0;i--)if(viceById.get(this.bag[i]).type!=="face")return this.bag.splice(i,1)[0];return this.bag.pop()}
+    start(scene){this.story=scene;this.lastChoice=scene.name;this.lastSeen.set(scene.name,scene.start);const ride=["cruise","race","pursuit"].includes(scene.name)?"car":scene.name==="boat"?"boat":null;const accessory=viceById.get(scene.name).type==="face"?scene.name:scene.name==="cruise"?"shades":null;$("viceLayer").innerHTML=(ride==="car"?viceCockpit:"")+(ride?viceRideLooks[ride]:"")+((scene.preview||facePreferences.viceAccessories)?viceLooks[accessory]||"":"");vibeFace.dataset.viceScene=scene.name;sceneViewport.dirty=true}
     stop(){this.story=null;$("viceLayer").innerHTML="";delete vibeFace.dataset.viceScene;this.ctx?.clearRect(0,0,this.width,this.height)}
     clear(){this.stop();this.bag=[];this.props=[];this.bg?.clearRect(0,0,this.width,this.height);this.last=0;this.lastAmbient=-Infinity}
     preview(id){if(activeSeason()!=="vice")return false;clearHalloween();const f=viceById.get(id);if(f?.type==="ambient"){this.previewFeature=id;this.previewUntil=performance.now()+12000;this.lastAmbient=-Infinity;return true}return beginVice(id,performance.now(),true)}
@@ -4056,6 +4172,7 @@ THE SOFTWARE.
     facePose(scene,now){const p=clamp((now-scene.start)/(scene.end-scene.start),0,1),face=winterSnow.face||{left:this.width*.6,top:this.height*.3,width:180,height:180};if(now>=vibeTapReactionUntil){const x=this.width*(scene.name==="gator"?.86:p),y=["helicopter","duck"].includes(scene.name)?sceneViewport.top+40:this.groundY()-35;setFaceProperty("--gaze-x",(clamp((x-face.left-face.width/2)/face.width*9,-9,9)*faceMotionScale).toFixed(2)+"px");setFaceProperty("--gaze-y",(clamp((y-face.top-face.height/2)/face.height*6,-5,5)*faceMotionScale).toFixed(2)+"px")}if(!motionLevel())return{x:0,y:0,rotate:0};const e=Math.sin(p*Math.PI),riding=["cruise","race","pursuit","boat"].includes(scene.name);return{x:riding?Math.sin(p*Math.PI*4)*e*6:scene.name==="gator"?-e*5:0,y:["duck","helicopter"].includes(scene.name)?e*12:scene.name==="chill"?e*3:0,rotate:riding?Math.sin(p*Math.PI*4)*e*2:scene.name==="chill"?e*-5:scene.name==="race"?Math.sin(p*7)*2:0}}
     drawStory(ctx,scene,now){
       const raw=clamp((now-scene.start)/(scene.end-scene.start),0,1),p=motionLevel()?raw:.55,t=motionLevel()?(now-scene.start)/1000:0,w=this.width,h=this.height,v=sceneViewport,c=this.colors(now),s=Math.min(115,w*.18,h*.28),ground=this.groundY()-6,alpha=clamp(Math.min(raw*7,(1-raw)*7),0,1);ctx.save();ctx.globalAlpha=alpha;
+      if(drawViceExtra(ctx,this,scene,p,t,c,s,w,h,ground)){ctx.restore();return}
       if(["cruise","pursuit","race"].includes(scene.name)){
         const lane=this.skyLane(ground-s*.08,s*.6),scale=lane.scale,y=lane.y,x=v.left+(v.right-v.left)*(-.3+1.6*(scene.name==="race"?festiveEase((p-.2)/.8):p));
         viceCar(ctx,x,y,s*scale,c.pink,now);if(scene.name!=="cruise")viceCar(ctx,x-s*1.65*scale,y-4*scale,s*.94*scale,scene.name==="pursuit"?"#29384b":c.mint,now,scene.name==="pursuit");
@@ -4086,8 +4203,14 @@ THE SOFTWARE.
   function viceMoodNow(){return facePreferences.viceCycleMode==="auto"?themeCycle.viceMood:facePreferences.viceMood}
   const viceWorld=new ViceWorld($("viceAmbient"),$("viceStory"));runtime.viceWorld=viceWorld;
   window.addEventListener("resize",()=>viceWorld.resize());
-  function beginVice(name,now=performance.now(),preview=false){const f=viceById.get(name);if(activeSeason()!=="vice"||effects.active||now<vibeEggUntil||!f?.duration||(!preview&&!viceEnabled(name)))return false;effects.active={kind:"vice",name,start:now,end:now+f.duration,stage:-1,preview};effects.lastKind=name;viceWorld.start(effects.active);effects.nextAt=now+f.duration+sceneGap();return true}
-  function tickViceScene(now){const scene=effects.active;if(scene?.kind!=="vice")return;if(now>=scene.end){clearHalloween();return}const stage=Math.min(3,Math.floor((now-scene.start)/(scene.end-scene.start)*4));if(scene.stage!==stage&&now>=vibeTapReactionUntil){scene.stage=stage;const poses={pursuit:["curious","startled","sideRight","cheeky"],helicopter:["lookUp","duck","curious","grin"],gator:["sideRight","startled","shy","laugh"],phone:["thinking","skeptic","curious","cheeky"],sideeye:["skeptic","sideRight","cheeky","proud"],chill:["dreamy","coffee","dreamy","grin"],case:["curious","surprise","proud","grin"]};startVibeExpression((poses[scene.name]||["curious","sideRight","proud","grin"])[stage],Math.min(2200,scene.end-now),4)}}
+  function beginVice(name,now=performance.now(),preview=false){const f=viceById.get(name);if(activeSeason()!=="vice"||effects.active||now<vibeEggUntil||!f?.duration||(!preview&&!viceEnabled(name)))return false;effects.active={kind:"vice",name,start:now,end:now+f.duration,stage:-1,preview};effects.lastKind=name;viceWorld.start(effects.active);if(!preview)viceWorld.autoCount++;effects.viceDueSince=null;effects.nextAt=now+f.duration+sceneGap();return true}
+  function tickViceScene(now){const scene=effects.active;if(scene?.kind!=="vice")return;if(now>=scene.end){clearHalloween();return}const stage=Math.min(3,Math.floor((now-scene.start)/(scene.end-scene.start)*4));if(scene.stage!==stage&&now>=vibeTapReactionUntil){scene.stage=stage;const poses={...viceExtraPoses,pursuit:["curious","startled","sideRight","cheeky"],helicopter:["lookUp","duck","curious","grin"],gator:["sideRight","startled","shy","laugh"],phone:["thinking","skeptic","curious","cheeky"],sideeye:["skeptic","sideRight","cheeky","proud"],chill:["dreamy","coffee","dreamy","grin"],case:["curious","surprise","proud","grin"]};startVibeExpression((poses[scene.name]||["curious","sideRight","proud","grin"])[stage],Math.min(2200,scene.end-now),4)}}
+  function renderViceSchedule(now=performance.now()){
+    const allowed=viceFeatures.some(f=>f.duration&&viceEnabled(f.id));
+    const message=!facePreferences.surprises?"Automatische Szenen sind ausgeschaltet.":!allowed?"Alle Vice-Szenen sind ausgeschaltet. Aktiviere unten mindestens eine.":effects.active?.kind==="vice"?"Szene läuft · "+viceById.get(effects.active.name).label:now>=effects.nextAt?"Nächste Szene wartet auf die freie Bühne.":"Automatische Szenen · nächste in etwa "+Math.max(1,Math.ceil((effects.nextAt-now)/1000))+" Sekunden.";
+    if($("viceAutoStatus").textContent!==message)$("viceAutoStatus").textContent=message;$("enableViceAuto").hidden=facePreferences.surprises;
+  }
+  $("enableViceAuto").addEventListener("click",()=>{facePreferences.surprises=true;applyPartyPreferences()});
   function syncNewThemeControls(){
     $("winterCycleMode").value=facePreferences.winterCycleMode;$("viceCycleMode").value=facePreferences.viceCycleMode;$("viceMood").value=viceMoodNow();$("viceMood").disabled=facePreferences.viceCycleMode==="auto";$("viceIntensity").value=facePreferences.viceIntensity;$("viceAction").checked=facePreferences.viceAction;$("viceAccessories").checked=facePreferences.viceAccessories;$("showModeSetting").checked=facePreferences.showMode;$("homeLyricsSetting").checked=facePreferences.homeLyrics;
   }
@@ -4098,36 +4221,40 @@ THE SOFTWARE.
     const waiting=songEnding||!!effects.active||now<vibeEggUntil||now<(festiveWorld.previewUntil||0)||now<(viceWorld.previewUntil||0);
     if(kind==="winter"&&facePreferences.winterCycleMode==="auto"){themeCycle.winterElapsed+=dt;if(themeCycle.winterElapsed>=300000&&!waiting){themeCycle.winterElapsed=0;themeCycle.winterMagic=!themeCycle.winterMagic;festiveWorld.configure();syncMagicModeControls()}}
     if(kind==="vice"&&facePreferences.viceCycleMode==="auto"){themeCycle.viceElapsed+=dt;if(themeCycle.viceElapsed>=300000&&!waiting){themeCycle.viceElapsed=0;const moods=["sunset","night","dawn"];themeCycle.viceMood=moods[(moods.indexOf(themeCycle.viceMood)+1)%3];viceWorld.configure();$("viceMood").value=themeCycle.viceMood}}
-    if(now-themeCycle.lastNotice>1000){themeCycle.lastNotice=now;for(const [id,mode,elapsed]of [["winter",facePreferences.winterCycleMode,themeCycle.winterElapsed],["vice",facePreferences.viceCycleMode,themeCycle.viceElapsed]]){const message=mode!=="auto"?"Manuelle Auswahl bleibt aktiv.":elapsed>=300000?(songEnding?"Wechsel am Songende.":"Wechsel nach der laufenden Szene."):"Auto · nächster Wechsel in etwa "+Math.max(1,Math.ceil((300000-elapsed)/60000))+" Minuten.";if($(id+"CycleStatus").textContent!==message)$(id+"CycleStatus").textContent=message}}
+    if(now-themeCycle.lastNotice>1000){themeCycle.lastNotice=now;renderViceSchedule(now);for(const [id,mode,elapsed]of [["winter",facePreferences.winterCycleMode,themeCycle.winterElapsed],["vice",facePreferences.viceCycleMode,themeCycle.viceElapsed]]){const message=mode!=="auto"?"Manuelle Auswahl bleibt aktiv.":elapsed>=300000?(songEnding?"Wechsel am Songende.":"Wechsel nach der laufenden Szene."):"Auto · nächster Wechsel in etwa "+Math.max(1,Math.ceil((300000-elapsed)/60000))+" Minuten.";if($(id+"CycleStatus").textContent!==message)$(id+"CycleStatus").textContent=message}}
   }
   for(const id of ["winterCycleMode","viceCycleMode","viceMood","viceIntensity","viceAction","viceAccessories"]){$(id).addEventListener("change",()=>{facePreferences[id]=["viceAction","viceAccessories"].includes(id)?$(id).checked:$(id).value;if(id==="winterCycleMode"){themeCycle.winterElapsed=0;themeCycle.winterMagic=facePreferences.magicMode}if(["viceCycleMode","viceMood"].includes(id)){themeCycle.viceElapsed=0;themeCycle.viceMood=facePreferences.viceMood}themeCycle.last=performance.now();festiveWorld.configure();viceWorld.configure();syncMagicModeControls();syncNewThemeControls();persistPartyPreferences()})}
   $("showModeSetting").addEventListener("change",()=>{facePreferences.showMode=$("showModeSetting").checked;if(facePreferences.showMode)facePreferences.party=false;applyPartyPreferences()});
   $("showExit").addEventListener("click",()=>{facePreferences.showMode=false;facePreferences.party=false;applyPartyPreferences()});
   $("homeLyricsSetting").addEventListener("change",()=>{facePreferences.homeLyrics=$("homeLyricsSetting").checked;app.dataset.homeLyrics=String(facePreferences.homeLyrics);updateHomeLyrics();sceneViewport.dirty=true;persistPartyPreferences()});
-  const homeLyricsMotion={animations:[],generation:0,ready:false};
-  function stopHomeLyricsFade(){
-    homeLyricsMotion.generation++;for(const animation of homeLyricsMotion.animations)animation.cancel();homeLyricsMotion.animations=[];$("homeLyricsOutgoing").hidden=true;
+  const homeLyricsMotion={animations:[],generation:0,ready:false,index:-1,rows:null};
+  function stopHomeLyricsScroll(){
+    homeLyricsMotion.generation++;for(const animation of homeLyricsMotion.animations)animation.cancel();homeLyricsMotion.animations=[];$("homeLyricsOutgoing").hidden=true;$("homeLyrics").dataset.scrolling="false";
   }
   function updateHomeLyrics(position=getCurrentPositionMs()){
-    const box=$("homeLyrics");box.hidden=!facePreferences.homeLyrics;if(box.hidden){homeLyricsMotion.ready=false;if(homeLyricsMotion.animations.length)stopHomeLyricsFade();return}
-    if(!motionLevel()&&homeLyricsMotion.animations.length)stopHomeLyricsFade();
+    const box=$("homeLyrics");box.hidden=!facePreferences.homeLyrics;if(box.hidden){homeLyricsMotion.ready=false;if(homeLyricsMotion.animations.length)stopHomeLyricsScroll();return}
+    if(!motionLevel()&&homeLyricsMotion.animations.length)stopHomeLyricsScroll();
     const idx=getSyncedLyricIndex(position-(ownPlayback.active?facePreferences.lyricsOffset:0));
     const lines=syncedLyrics.length?[syncedLyrics[idx-1]?.text||"",idx>=0?syncedLyrics[idx]?.text||"":"",syncedLyrics[idx+1]?.text||""]:["","Keine synchronisierten Lyrics verfügbar",""];
     const ids=["homeLyricPrev","homeLyricCurrent","homeLyricNext"],previous=ids.map(id=>$(id).textContent);
-    const wasReady=homeLyricsMotion.ready;homeLyricsMotion.ready=!!syncedLyrics.length;
+    const advancesOne=homeLyricsMotion.ready&&homeLyricsMotion.rows===syncedLyrics&&idx===homeLyricsMotion.index+1;
+    homeLyricsMotion.ready=!!syncedLyrics.length;homeLyricsMotion.rows=syncedLyrics;homeLyricsMotion.index=idx;
     if(lines.every((line,i)=>line===previous[i]))return;
-    const current=$("homeLyricsLines"),outgoing=$("homeLyricsOutgoing"),animate=motionLevel()>0&&document.visibilityState==="visible"&&homeLyricsMotion.ready&&wasReady&&previous.some(Boolean)&&typeof current.animate==="function"&&typeof outgoing.animate==="function";
-    stopHomeLyricsFade();for(const [i,id]of ids.entries())$(id).textContent=lines[i];
+    const current=$("homeLyricsLines"),outgoing=$("homeLyricsOutgoing"),animate=advancesOne&&motionLevel()>0&&document.visibilityState==="visible"&&!homeLyricsMotion.animations.length&&previous.some(Boolean)&&typeof outgoing.animate==="function";
+    stopHomeLyricsScroll();for(const [i,id]of ids.entries())$(id).textContent=lines[i];
     if(!animate)return;
-    for(const [i,id]of ["homeLyricOldPrev","homeLyricOldCurrent","homeLyricOldNext"].entries())$(id).textContent=previous[i];outgoing.hidden=false;
-    const options={duration:240,easing:"cubic-bezier(.2,.7,.2,1)"},generation=homeLyricsMotion.generation;
-    const enter=current.animate([{opacity:0,transform:"translateY(3px)"},{opacity:1,transform:"translateY(0)"}],options);
-    const exit=outgoing.animate([{opacity:1,transform:"translateY(0)"},{opacity:0,transform:"translateY(-3px)"}],options);homeLyricsMotion.animations=[enter,exit];
-    exit.onfinish=()=>{if(generation===homeLyricsMotion.generation){outgoing.hidden=true;homeLyricsMotion.animations=[]}};
+    const visual=[...previous,lines[2]];for(const [i,id]of ["homeLyricOldPrev","homeLyricOldCurrent","homeLyricOldNext","homeLyricIncoming"].entries())$(id).textContent=visual[i];
+    outgoing.hidden=false;box.dataset.scrolling="true";
+    const step=current.getBoundingClientRect().height/3,options={duration:300,easing:"cubic-bezier(.22,.61,.36,1)"},generation=homeLyricsMotion.generation;
+    const move=outgoing.animate([{transform:"translateY(0)"},{transform:"translateY(-"+step+"px)"}],options);
+    const font=Number.parseFloat(window.getComputedStyle?.($("homeLyricCurrent"))?.fontSize)||16;
+    homeLyricsMotion.animations=[move];
+    for(const [id,from,to]of [["homeLyricOldCurrent",1,.78],["homeLyricOldNext",.78,1]])if(typeof $(id).animate==="function")homeLyricsMotion.animations.push($(id).animate([{fontSize:font*from+"px",fontWeight:from===1?750:400,opacity:from===1?1:.45},{fontSize:font*to+"px",fontWeight:to===1?750:400,opacity:to===1?1:.45}],options));
+    move.onfinish=()=>{if(generation===homeLyricsMotion.generation){outgoing.hidden=true;box.dataset.scrolling="false";homeLyricsMotion.animations=[]}};
   }
   for(const f of viceFeatures){const option=document.createElement("option");option.value=f.id;option.textContent=f.label;$("vicePreviewChoice").append(option);const row=document.createElement("label"),label=document.createElement("span"),input=document.createElement("input");row.classList.add("setting-row");label.textContent=f.label;input.type="checkbox";input.checked=!(facePreferences.viceDisabled||[]).includes(f.id);input.setAttribute("aria-label",f.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.viceDisabled||[]);if(input.checked)disabled.delete(f.id);else disabled.add(f.id);facePreferences.viceDisabled=[...disabled];if(!input.checked&&effects.active?.name===f.id)clearHalloween();viceWorld.configure();persistPartyPreferences()});row.append(label,input);$("viceFeatureList").append(row)}
   $("previewVice").addEventListener("click",()=>{const selected=$("vicePreviewChoice").value;viceWorld.preview(selected&&selected!=="random"?selected:viceWorld.choose());closeSettingsPanel()});
-  document.addEventListener("visibilitychange",()=>{themeCycle.last=null;viceWorld.lastAmbient=-Infinity;if(document.visibilityState!=="visible"){homeLyricsMotion.ready=false;stopHomeLyricsFade()}});
+  document.addEventListener("visibilitychange",()=>{themeCycle.last=null;viceWorld.lastAmbient=-Infinity;if(document.visibilityState!=="visible"){homeLyricsMotion.ready=false;stopHomeLyricsScroll()}});
 
   winterKinds.push(...festiveFeatures.filter(feature=>feature.duration).map(feature=>feature.id));
   $("previewWinter").addEventListener("click",()=>{const id=$("winterPreviewChoice").value;festiveWorld.preview(id&&id!=="random"?id:festiveWorld.choose());closeSettingsPanel()});
@@ -4145,13 +4272,14 @@ THE SOFTWARE.
   $("magicModeSetting").addEventListener("change",()=>{facePreferences.magicMode=$("magicModeSetting").checked;if(!facePreferences.magicMode&&festiveById.get(effects.active?.name)?.group==="magic")clearHalloween();festiveWorld.configure();syncMagicModeControls();persistPartyPreferences()});
   $("seasonSetting").addEventListener("change",()=>{facePreferences.season=$("seasonSetting").value;facePreferences.halloween=facePreferences.season==="halloween";applyPartyPreferences()});
   const halloweenKinds=["ghost","bat","pumpkin","vampire","magic","skeleton","coverGhost","spider","shadow","flyingPumpkin"];
-  function sceneGap(){const ranges={few:[180000,240000],normal:[90000,150000],many:[60000,90000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return (a+Math.random()*(b-a))*(activeSeason()==="vice"?(facePreferences.viceIntensity==="action"?.72:facePreferences.viceIntensity==="calm"?1.2:1):1)}
+  function sceneGap(){const ranges=activeSeason()==="vice"?{few:[90000,130000],normal:[40000,65000],many:[22000,35000]}:{few:[180000,240000],normal:[90000,150000],many:[60000,90000]},[a,b]=ranges[facePreferences.effects]||ranges.normal;return (a+Math.random()*(b-a))*(activeSeason()==="vice"?(facePreferences.viceIntensity==="action"?.72:facePreferences.viceIntensity==="calm"?1.2:1):1)}
   function persistPartyPreferences(){
     try{localStorage.setItem("spotdeck.facePreferences",JSON.stringify(facePreferences))}catch{}
   }
   function applyPartyPreferences(){
     if(facePreferences.halloween)facePreferences.season="halloween";else if(facePreferences.season==="halloween")facePreferences.season="off";
-    if(app.dataset.season!==activeSeason()){effects.queue=[];themeCycle.last=null;festiveWorld.previewUntil=0;viceWorld.previewUntil=0}
+    const seasonChanged=app.dataset.season!==activeSeason(),autoEnabled=facePreferences.surprises&&effects.surprisesEnabled===false;
+    if(seasonChanged){effects.queue=[];themeCycle.last=null;festiveWorld.previewUntil=0;viceWorld.previewUntil=0;viceWorld.autoCount=0}
     app.dataset.season=activeSeason();$("seasonSetting").value=activeSeason();
     winterSnow.configure();festiveWorld.configure();runtime.viceWorld?.configure();syncMagicModeControls();syncNewThemeControls();updateHomeLyrics();
     app.dataset.halloween=String(facePreferences.halloween);app.dataset.party=String(facePreferences.party||facePreferences.showMode);app.dataset.showMode=String(facePreferences.showMode);app.dataset.homeLyrics=String(facePreferences.homeLyrics);
@@ -4165,7 +4293,8 @@ THE SOFTWARE.
     tempoFactor.value=String(facePreferences.tempoFactor);manualBpm.value=facePreferences.manualBpm || "";
     beatEngine.factor=facePreferences.tempoFactor;beatEngine.offset=facePreferences.beatOffset;
     if(effects.active&&effects.active.kind!==activeSeason())clearHalloween();
-    effects.nextAt=performance.now()+sceneGap();showPartyControls(true);persistPartyPreferences();renderBeatDiagnostic(true);
+    if(seasonChanged||autoEnabled){effects.nextAt=performance.now()+(activeSeason()==="vice"?12000:sceneGap());effects.viceDueSince=null}
+    effects.surprisesEnabled=facePreferences.surprises;renderViceSchedule(performance.now());showPartyControls(true);persistPartyPreferences();renderBeatDiagnostic(true);
   }
   function renderBeatDiagnostic(force=false){
     const now=performance.now();if(!force && now<diagnosticAt)return;diagnosticAt=now+500;
@@ -4227,6 +4356,7 @@ THE SOFTWARE.
     const now=performance.now();
     if(event.kind==="halloween"&&!facePreferences.halloween)return false;
     if(event.kind==="winter"&&activeSeason()!=="winter")return false;
+    if(event.kind==="vice"&&activeSeason()!=="vice")return false;
     const key=event.key||`${event.kind}:${event.name}`;
     if(effects.queue.some(item=>item.key===key)||now-(effects.last.get(key)??-Infinity)<(event.cooldown??14000))return false;
     effects.queue.push({...event,key,priority:event.priority??1,expires:now+(event.ttl??1400),created:now});
@@ -4258,7 +4388,17 @@ THE SOFTWARE.
   function tickEffects(now){
     effects.queue=effects.queue.filter(event=>event.expires>now);
     if(now<vibeEggUntil){if(effects.active)clearHalloween();return}
-    if(activeSeason()!=="off"&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
+    if(activeSeason()==="vice"&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
+      const dialog=settings.classList.contains("open")||library.classList.contains("open")||lyrics.classList.contains("open");
+      if(!dialog&&now>=vibeTapReactionUntil){
+        if(effects.viceDueSince===null)effects.viceDueSince=now;
+        if(!faceScene.classList.contains("visible")||now-effects.viceDueSince>=8000){
+          const name=viceWorld.choose(viceWorld.autoCount%2===0);
+          if(name){faceScene.classList.remove("visible");vibeSceneUntil=-Infinity;delete vibeFace.dataset.scene;delete vibeFace.dataset.accessory;if(beginVice(name,now))return}
+        }
+      }
+    }
+    if(!["off","vice"].includes(activeSeason())&&facePreferences.surprises&&!effects.active&&now>=effects.nextAt){
       const kind=activeSeason(),choices=halloweenKinds.filter(name=>name!==effects.lastKind);
       queueEffect({kind,name:kind==="winter"?festiveWorld.choose():kind==="vice"?viceWorld.choose():choices[Math.floor(Math.random()*choices.length)],priority:1,ttl:3000});effects.nextAt=now+sceneGap();
     }
@@ -4467,7 +4607,7 @@ THE SOFTWARE.
   ownedAudio.addEventListener("seeking",()=>{if(ownPlayback.active){beatEngine.anchor(ownedPosition(),!ownedAudio.paused,performance.now(),true);beatEngine.onsets=[];ownPlayback.flux=[];ownPlayback.lastOnset=-Infinity;effects.queue=[];resetVibeLyrics()}});
   ownedAudio.addEventListener("ended",()=>{if(ownPlayback.active){beatEngine.anchor(ownedPosition(),false);renderOwnedPlayback()}});
   ownedAudio.addEventListener("error",()=>{if(ownPlayback.active)stopOwnedAudio();ownedStatus.textContent="Der Browser kann diese Audiodatei nicht abspielen."});
-  document.addEventListener("visibilitychange",()=>{app.dataset.pageHidden=String(document.visibilityState!=="visible");if(document.visibilityState==="hidden"){clearHalloween();effects.queue=[]}else{effects.nextAt=performance.now()+sceneGap();showPartyControls();if(ownPlayback.active)beatEngine.anchor(ownedPosition(),!ownedAudio.paused,performance.now(),true)}});
+  document.addEventListener("visibilitychange",()=>{app.dataset.pageHidden=String(document.visibilityState!=="visible");if(document.visibilityState==="hidden"){effects.hiddenAt=performance.now();clearHalloween();effects.queue=[]}else{if(effects.hiddenAt!==null){effects.nextAt+=Math.max(0,performance.now()-effects.hiddenAt);effects.hiddenAt=null;effects.viceDueSince=null}showPartyControls();if(ownPlayback.active)beatEngine.anchor(ownedPosition(),!ownedAudio.paused,performance.now(),true)}});
   window.addEventListener("pagehide",()=>{stopOwnedAudio();clearHalloween();effects.queue=[];if(ownPlayback.url){URL.revokeObjectURL(ownPlayback.url);ownPlayback.url=null}});
   window.addEventListener("pageshow",()=>{if(ownPlayback.file&&!ownPlayback.url){ownPlayback.url=URL.createObjectURL(ownPlayback.file);ownedAudio.src=ownPlayback.url;ownedAudio.load()}});
 
