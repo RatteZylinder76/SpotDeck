@@ -14,6 +14,8 @@ Six ambient layers: coastal palms, sun/clouds, lit skyline, water reflections, r
 
 The original smiley drives with a vehicle around it during cabrio/race/pursuit/boat scenes, sways with the ride and reacts through existing expressions. Scene actors use the existing cover/text/toolbar exclusion geometry and viewport safe areas. Accessories fit inside the screen. Reduced motion uses static scene staging. One existing animation clock drives everything; canvas pixel budgets and TV sampling remain bounded. No growing scene residue is retained.
 
+Ambient scenery extends to every canvas edge, including water, road and the final tint. Safe-area insets still protect foreground actors and controls, rather than creating a frame around the background. At most two smaller, subdued palms frame the outer edges. Their complete wind-swept bounds avoid the full face plus 24 pixels of movement clearance, as well as cover, song text and home captions. Where necessary a palm shrinks or is omitted. During Party/Show expansion both old and new face bounds remain protected until the transition finishes, including rapid reversal.
+
 Every feature has an individual switch and preview. Action and face accessories also have master switches. Calm intensity excludes action scenes and increases surprise gaps; Party keeps the normal gap; More Action shortens gaps to 72% of normal. A shuffled scene bag and four-minute per-scene cooldown avoid repetitive scenes. Explicit previews may show disabled features for inspection.
 
 ## Show mode
@@ -23,6 +25,8 @@ Show is separate from Party; enabling one disables the other. Both hide controls
 ## Lyrics under the smiley
 
 The optional home caption displays previous/current/next synchronized lines even when the full lyrics panel is closed. It shares the existing playback clock and lyric index, and the local-file timing offset where applicable. No provider or Spotify playback behavior changes. Plain lyrics cannot provide real synchronization; the caption then says synchronized lyrics are unavailable. Text is assigned through textContent. Mobile landscape reserves a compact three-line area below the face; portrait and desktop use a larger responsive area. Enabling captions reserves their height rather than overlaying playback controls.
+
+Line changes use a 240 ms crossfade with a subtle three-pixel upward movement. The semantic/current text changes immediately at its existing timestamp; a fixed, aria-hidden outgoing layer fades away without delaying singing. Repeated frames do not restart the transition. A new line or seek cancels the previous pair of animations, so animations cannot queue up. Hiding captions/page clears the outgoing layer. First available text, reduced motion and browsers without Web Animations use immediate updates. The two text layers retain the same reserved height.
 
 ## Verification
 
