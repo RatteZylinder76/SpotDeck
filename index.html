@@ -1011,13 +1011,13 @@
     .vice-layer>.vice-chain{inset:auto;left:11%;top:68%;width:78%;height:28%}
     .vice-layer>*{translate:var(--decor-fit-x,0px) var(--decor-fit-y,0px);scale:var(--decor-fit-scale,1)}
     #showExit{position:fixed;left:calc(var(--safe-l) + 10px);top:calc(var(--safe-t) + 10px);z-index:75;width:44px;height:44px;border-radius:50%;font-size:27px;line-height:1;color:#f6f8f5;background:#13201d9c;cursor:pointer;pointer-events:auto}
-    .home-lyrics{--line-size:clamp(12px,min(2.2vw,2.8vh),25px);width:min(96%,740px);height:var(--home-lyrics-space);flex:0 0 auto;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:4px;color:#f0f7f2;pointer-events:none;line-height:1.2;font-size:var(--line-size);padding:2px 8px}
-    .home-lyrics>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.2em}
-    #homeLyricPrev,#homeLyricNext{opacity:.45;font-size:.78em}
-    #homeLyricCurrent{font-weight:750;text-shadow:0 2px 12px #0009}
+    .home-lyrics{position:relative;--line-size:clamp(12px,min(2.2vw,2.8vh),25px);width:min(96%,740px);height:var(--home-lyrics-space);flex:0 0 auto;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:4px;color:#f0f7f2;pointer-events:none;line-height:1.2;font-size:var(--line-size);padding:2px 8px}
+    .home-lyrics-lines{position:absolute;inset:2px 8px;display:flex;flex-direction:column;justify-content:center;gap:4px}.home-lyrics-lines>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.2em}.home-lyrics-outgoing{opacity:0;pointer-events:none}
+    .home-lyric-context{opacity:.45;font-size:.78em}
+    .home-lyric-current{font-weight:750;text-shadow:0 2px 12px #0009}
     .app[data-home-lyrics="true"] .face-panel{flex-direction:column;gap:clamp(2px,1vh,10px);--home-lyrics-space:clamp(58px,12vh,108px)}
     .app[data-home-lyrics="true"] .vibe-face{width:min(calc(100cqw / 1.44),max(36px,calc((100cqh - var(--home-lyrics-space) - 12px) / 1.46)),var(--face-cap))}
-    @media(max-height:430px){.home-lyrics{--line-size:clamp(11px,3vh,15px);gap:2px}.app[data-home-lyrics="true"] .face-panel{--home-lyrics-space:54px}.vice-radio{letter-spacing:.12em}}
+    @media(max-height:430px){.home-lyrics{--line-size:clamp(11px,3vh,15px);gap:2px}.home-lyrics-lines{gap:2px}.app[data-home-lyrics="true"] .face-panel{--home-lyrics-space:54px}.vice-radio{letter-spacing:.12em}}
     @media(prefers-reduced-motion:reduce){.app[data-season="vice"]{transition:none}}
 
 </style>
@@ -1114,7 +1114,7 @@
               <g class="prop-sweat"><path d="M 81 26 Q 71 38 78 41 Q 89 44 81 26" fill="#9bdff7"/></g>
             </svg>
           </div>
-        <div class="home-lyrics" id="homeLyrics" role="group" aria-label="Synchronisierte Lyrics auf dem Homescreen" hidden><div id="homeLyricPrev"></div><div id="homeLyricCurrent"></div><div id="homeLyricNext"></div></div></aside>
+        <div class="home-lyrics" id="homeLyrics" role="group" aria-label="Synchronisierte Lyrics auf dem Homescreen" hidden><div class="home-lyrics-lines" id="homeLyricsLines"><div class="home-lyric-context" id="homeLyricPrev"></div><div class="home-lyric-current" id="homeLyricCurrent"></div><div class="home-lyric-context" id="homeLyricNext"></div></div><div class="home-lyrics-lines home-lyrics-outgoing" id="homeLyricsOutgoing" aria-hidden="true" hidden><div class="home-lyric-context" id="homeLyricOldPrev"></div><div class="home-lyric-current" id="homeLyricOldCurrent"></div><div class="home-lyric-context" id="homeLyricOldNext"></div></div></div></aside>
       </main>
 
       <div class="timeline" id="progress">
@@ -4024,14 +4024,32 @@ THE SOFTWARE.
     clear(){this.stop();this.bag=[];this.props=[];this.bg?.clearRect(0,0,this.width,this.height);this.last=0;this.lastAmbient=-Infinity}
     preview(id){if(activeSeason()!=="vice")return false;clearHalloween();const f=viceById.get(id);if(f?.type==="ambient"){this.previewFeature=id;this.previewUntil=performance.now()+12000;this.lastAmbient=-Infinity;return true}return beginVice(id,performance.now(),true)}
     ambientOn(id,now){return this.enabled&&((facePreferences.ambient&&viceEnabled(id))||(this.previewFeature===id&&now<this.previewUntil))}
+    palmLayout(){
+      const v=sceneViewport,ground=this.groundY()-3,span=v.right-v.left;
+      const obstacles=this.sceneObstacles().slice();
+      // Keep the whole moving face quiet, including both ends of a Show/Party expansion.
+      for(const face of [winterSnow.face,partyPresentation.faceBounds])if(face?.width>0)obstacles.push({left:face.left-24,top:face.top-24,right:face.left+face.width+24,bottom:face.top+face.height+24});
+      const palms=[],limit=Math.min(this.height*.36,span*.23,260);
+      for(const [fraction,factor,opacity]of [[.025,1,.4],[.975,.86,.32]]){
+        const x=v.left+span*fraction;
+        for(let size=limit*factor;size>=36;size*=.88){
+          const bounds={left:x-size*.5-6,right:x+size*.5+6,top:ground-size*1.05-2,bottom:ground+2};
+          if(bounds.top<v.top||obstacles.some(b=>bounds.left<b.right&&bounds.right>b.left&&bounds.top<b.bottom&&bounds.bottom>b.top))continue;
+          palms.push({x,y:ground,size,opacity,bounds});break;
+        }
+      }
+      return palms;
+    }
     drawAmbient(now){
       const ctx=this.bg;if(!ctx)return;const w=this.width,h=this.height,v=sceneViewport,p=this.colors(now),t=motionLevel()?now/1000:0,ground=this.groundY(),horizon=Math.min(h*.61,ground-35),tv=effectivePerformance()==="tv";
-      ctx.clearRect(0,0,w,h);const gradient=ctx.createLinearGradient?.(0,0,0,horizon);if(gradient){gradient.addColorStop(0,p.sky);gradient.addColorStop(1,p.horizon)}ctx.fillStyle=gradient||p.sky;ctx.fillRect(0,0,w,h);sceneViewport.clip(ctx);
+      ctx.clearRect(0,0,w,h);const gradient=ctx.createLinearGradient?.(0,0,0,horizon);if(gradient){gradient.addColorStop(0,p.sky);gradient.addColorStop(1,p.horizon)}ctx.fillStyle=gradient||p.sky;ctx.fillRect(0,0,w,h);
+      // Background scenery fills the canvas; safe-area clipping belongs to foreground actors.
+      ctx.save();
       if(this.ambientOn("sun",now)){ctx.globalAlpha=this.mood==="night"?.15:.6;ctx.fillStyle=p.gold;ctx.beginPath();ctx.arc(w*.27,horizon*.57,Math.min(w*.13,h*.18),0,Math.PI*2);ctx.fill();ctx.globalAlpha=.13;ctx.fillStyle=p.mint;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(w*(.15+i*.33)+Math.sin(t*.015+i)*12,h*.15+i*16,w*.18,5+i*2,0,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1}
       if(this.ambientOn("skyline",now)){const n=tv?14:23;for(let i=0;i<n;i++){const bw=w/n*.9,bh=h*(.08+(i*17%9)*.014),x=i*w/n;ctx.fillStyle=p.ink;ctx.fillRect(x,horizon-bh,bw,bh);if(i%4===0)ctx.fillRect(x+bw*.2,horizon-bh-7,bw*.6,7);ctx.fillStyle=i%2?p.pink:p.gold;ctx.globalAlpha=.3;for(let r=0;r<4;r++)for(let c=0;c<3;c++)if((i+r+c+Math.floor(t/18))%4)ctx.fillRect(x+bw*(.16+c*.25),horizon-bh+8+r*bh*.18,Math.max(1,bw*.1),2);ctx.globalAlpha=1}}
-      if(this.ambientOn("water",now)){ctx.fillStyle=p.water;ctx.fillRect(v.left,horizon,v.right-v.left,Math.max(0,ground-horizon));ctx.strokeStyle=p.mint;ctx.lineWidth=1;ctx.globalAlpha=.16;for(let i=0;i<(tv?10:20);i++){const y=horizon+8+i*4.8;ctx.beginPath();ctx.moveTo(w*(.15+(i%4)*.04)+Math.sin(t*.4+i)*6,y);ctx.lineTo(w*(.52+(i%3)*.11)+Math.cos(t*.4+i)*7,y);ctx.stroke()}ctx.globalAlpha=1}
-      if(this.ambientOn("traffic",now)){ctx.fillStyle=p.ink;ctx.fillRect(v.left,Math.max(horizon,ground-h*.13),v.right-v.left,h*.13);ctx.strokeStyle=p.pink;ctx.globalAlpha=.36;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(v.left,ground-h*.105);ctx.lineTo(v.right,ground-h*.105);ctx.stroke();for(let i=0;i<2;i++){const q=(t*(i?.012:.018)+i*.5)%1;viceCar(ctx,v.left+q*(v.right-v.left),ground-12-i*13,Math.min(38,w*.06),i?p.mint:p.pink,now)}ctx.globalAlpha=1}
-      if(this.ambientOn("palms",now))for(let i=0;i<(tv?3:5);i++){ctx.globalAlpha=i%2?.75:.5;vicePalm(ctx,v.left+(v.right-v.left)*([.035,.19,.78,.96,.59][i]),ground,Math.min(h*.52,w*.23)*(i%2?.7:1),Math.sin(t*.35+i)*4);ctx.globalAlpha=1}
+      if(this.ambientOn("water",now)){ctx.fillStyle=p.water;ctx.fillRect(0,horizon,w,Math.max(0,h-horizon));ctx.strokeStyle=p.mint;ctx.lineWidth=1;ctx.globalAlpha=.16;for(let i=0;i<(tv?10:20);i++){const y=horizon+8+i*4.8;ctx.beginPath();ctx.moveTo(w*(.15+(i%4)*.04)+Math.sin(t*.4+i)*6,y);ctx.lineTo(w*(.52+(i%3)*.11)+Math.cos(t*.4+i)*7,y);ctx.stroke()}ctx.globalAlpha=1}
+      if(this.ambientOn("traffic",now)){const roadTop=Math.max(horizon,ground-h*.13);ctx.fillStyle=p.ink;ctx.fillRect(0,roadTop,w,h-roadTop);ctx.strokeStyle=p.pink;ctx.globalAlpha=.36;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,ground-h*.105);ctx.lineTo(w,ground-h*.105);ctx.stroke();for(let i=0;i<2;i++){const q=(t*(i?.012:.018)+i*.5)%1;viceCar(ctx,q*w,ground-12-i*13,Math.min(38,w*.06),i?p.mint:p.pink,now)}ctx.globalAlpha=1}
+      if(this.ambientOn("palms",now))for(const [i,palm]of this.palmLayout().entries()){ctx.globalAlpha=palm.opacity;vicePalm(ctx,palm.x,palm.y,palm.size,Math.sin(t*.35+i)*4);ctx.globalAlpha=1}
       if(this.ambientOn("birds",now)){ctx.strokeStyle=p.ink;ctx.lineWidth=2;ctx.globalAlpha=.6;for(let i=0;i<3;i++){const x=v.left+((t*.009+i*.18)%1)*(v.right-v.left),y=v.top+h*.15+Math.sin(i*2+t*.25)*8;ctx.beginPath();ctx.moveTo(x-7,y+Math.sin(t*2+i)*3);ctx.quadraticCurveTo(x-3,y-4,x,y);ctx.quadraticCurveTo(x+4,y-4,x+8,y+Math.sin(t*2+i)*3);ctx.stroke()}ctx.globalAlpha=1}
       const shade=ctx.createLinearGradient?.(0,0,w,h);if(shade){shade.addColorStop(0,"#070e1b22");shade.addColorStop(.55,"#070e1b66");shade.addColorStop(1,"#050b1688");ctx.fillStyle=shade;ctx.fillRect(0,0,w,h)}ctx.restore();
     }
@@ -4086,15 +4104,30 @@ THE SOFTWARE.
   $("showModeSetting").addEventListener("change",()=>{facePreferences.showMode=$("showModeSetting").checked;if(facePreferences.showMode)facePreferences.party=false;applyPartyPreferences()});
   $("showExit").addEventListener("click",()=>{facePreferences.showMode=false;facePreferences.party=false;applyPartyPreferences()});
   $("homeLyricsSetting").addEventListener("change",()=>{facePreferences.homeLyrics=$("homeLyricsSetting").checked;app.dataset.homeLyrics=String(facePreferences.homeLyrics);updateHomeLyrics();sceneViewport.dirty=true;persistPartyPreferences()});
+  const homeLyricsMotion={animations:[],generation:0,ready:false};
+  function stopHomeLyricsFade(){
+    homeLyricsMotion.generation++;for(const animation of homeLyricsMotion.animations)animation.cancel();homeLyricsMotion.animations=[];$("homeLyricsOutgoing").hidden=true;
+  }
   function updateHomeLyrics(position=getCurrentPositionMs()){
-    const box=$("homeLyrics");box.hidden=!facePreferences.homeLyrics;if(box.hidden)return;
+    const box=$("homeLyrics");box.hidden=!facePreferences.homeLyrics;if(box.hidden){homeLyricsMotion.ready=false;if(homeLyricsMotion.animations.length)stopHomeLyricsFade();return}
+    if(!motionLevel()&&homeLyricsMotion.animations.length)stopHomeLyricsFade();
     const idx=getSyncedLyricIndex(position-(ownPlayback.active?facePreferences.lyricsOffset:0));
     const lines=syncedLyrics.length?[syncedLyrics[idx-1]?.text||"",idx>=0?syncedLyrics[idx]?.text||"":"",syncedLyrics[idx+1]?.text||""]:["","Keine synchronisierten Lyrics verfügbar",""];
-    for(const [i,id]of ["homeLyricPrev","homeLyricCurrent","homeLyricNext"].entries())if($(id).textContent!==lines[i])$(id).textContent=lines[i];
+    const ids=["homeLyricPrev","homeLyricCurrent","homeLyricNext"],previous=ids.map(id=>$(id).textContent);
+    const wasReady=homeLyricsMotion.ready;homeLyricsMotion.ready=!!syncedLyrics.length;
+    if(lines.every((line,i)=>line===previous[i]))return;
+    const current=$("homeLyricsLines"),outgoing=$("homeLyricsOutgoing"),animate=motionLevel()>0&&document.visibilityState==="visible"&&homeLyricsMotion.ready&&wasReady&&previous.some(Boolean)&&typeof current.animate==="function"&&typeof outgoing.animate==="function";
+    stopHomeLyricsFade();for(const [i,id]of ids.entries())$(id).textContent=lines[i];
+    if(!animate)return;
+    for(const [i,id]of ["homeLyricOldPrev","homeLyricOldCurrent","homeLyricOldNext"].entries())$(id).textContent=previous[i];outgoing.hidden=false;
+    const options={duration:240,easing:"cubic-bezier(.2,.7,.2,1)"},generation=homeLyricsMotion.generation;
+    const enter=current.animate([{opacity:0,transform:"translateY(3px)"},{opacity:1,transform:"translateY(0)"}],options);
+    const exit=outgoing.animate([{opacity:1,transform:"translateY(0)"},{opacity:0,transform:"translateY(-3px)"}],options);homeLyricsMotion.animations=[enter,exit];
+    exit.onfinish=()=>{if(generation===homeLyricsMotion.generation){outgoing.hidden=true;homeLyricsMotion.animations=[]}};
   }
   for(const f of viceFeatures){const option=document.createElement("option");option.value=f.id;option.textContent=f.label;$("vicePreviewChoice").append(option);const row=document.createElement("label"),label=document.createElement("span"),input=document.createElement("input");row.classList.add("setting-row");label.textContent=f.label;input.type="checkbox";input.checked=!(facePreferences.viceDisabled||[]).includes(f.id);input.setAttribute("aria-label",f.label);input.addEventListener("change",()=>{const disabled=new Set(facePreferences.viceDisabled||[]);if(input.checked)disabled.delete(f.id);else disabled.add(f.id);facePreferences.viceDisabled=[...disabled];if(!input.checked&&effects.active?.name===f.id)clearHalloween();viceWorld.configure();persistPartyPreferences()});row.append(label,input);$("viceFeatureList").append(row)}
   $("previewVice").addEventListener("click",()=>{const selected=$("vicePreviewChoice").value;viceWorld.preview(selected&&selected!=="random"?selected:viceWorld.choose());closeSettingsPanel()});
-  document.addEventListener("visibilitychange",()=>{themeCycle.last=null;viceWorld.lastAmbient=-Infinity});
+  document.addEventListener("visibilitychange",()=>{themeCycle.last=null;viceWorld.lastAmbient=-Infinity;if(document.visibilityState!=="visible"){homeLyricsMotion.ready=false;stopHomeLyricsFade()}});
 
   winterKinds.push(...festiveFeatures.filter(feature=>feature.duration).map(feature=>feature.id));
   $("previewWinter").addEventListener("click",()=>{const id=$("winterPreviewChoice").value;festiveWorld.preview(id&&id!=="random"?id:festiveWorld.choose());closeSettingsPanel()});
@@ -4281,11 +4314,13 @@ THE SOFTWARE.
     const panel=document.querySelector(".face-panel");
     const before=panel?.getBoundingClientRect(),beforeFace=panel?vibeFace.getBoundingClientRect():null;
     if(typeof winterSnow!=="undefined")winterSnow.geometryDirty=true;
-    partyPresentation.animation?.cancel();
+    partyPresentation.animation?.cancel();partyPresentation.faceBounds=null;
     app.style.setProperty("--party-expansion",String(target));
     runtime.festiveWorld?.measureCover();runtime.viceWorld?.measureCover();sceneViewport.dirty=true;
     if(panel&&before&&motionLevel()>0&&panel.animate){
       const after=panel.getBoundingClientRect(),afterFace=vibeFace.getBoundingClientRect();
+      const left=Math.min(beforeFace.left,afterFace.left),top=Math.min(beforeFace.top,afterFace.top);
+      partyPresentation.faceBounds={left,top,width:Math.max(beforeFace.left+beforeFace.width,afterFace.left+afterFace.width)-left,height:Math.max(beforeFace.top+beforeFace.height,afterFace.top+afterFace.height)-top};
       const scale=afterFace.width&&beforeFace?.width?beforeFace.width/afterFace.width:1;
       const dx=before.left+before.width/2-after.left-after.width/2;
       const dy=before.top+before.height/2-after.top-after.height/2;
@@ -4294,10 +4329,11 @@ THE SOFTWARE.
     updatePartyPresentation(performance.now());
   }
   function updatePartyPresentation(now){
-    if(partyPresentation.value===partyPresentation.target)return;
+    if(partyPresentation.value===partyPresentation.target&&!partyPresentation.faceBounds)return;
     const t=motionLevel()===0?1:clamp((now-partyPresentation.start)/650,0,1);
     const ease=t*t*(3-2*t);
     partyPresentation.value=partyPresentation.from+(partyPresentation.target-partyPresentation.from)*ease;
+    if(t===1){partyPresentation.faceBounds=null;invalidateSceneGeometry()}
     // Progress is bookkeeping only. Grid geometry already changed once in setPartyExpansion().
   }
   function showPartyControls(force=false){
