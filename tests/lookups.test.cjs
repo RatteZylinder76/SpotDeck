@@ -57,12 +57,13 @@ function identity(h,item){h.context.item=item;return h.run('trackIdentity(item)'
   b.context.data={is_playing:true,progress_ms:0,device:{id:'external'},item:track()};b.run('renderPlayback(data)');
   await runAsync(b,'findTempoMetadata(trackIdentity(playback.item),false,lookupState.tempo.controller)');
   assert.equal(b.run('lookupState.tempo.status'),'found');assert.equal(b.run('lookupState.tempo.result.record.bpm'),128);
-  assert.equal(b.run('beatEngine.bpm'),null,'Spotify metadata BPM never controls the beat engine');
+  assert.equal(b.run('beatEngine.bpm'),128,'A matched catalog BPM drives tempo on the Spotify song clock');
+  assert.equal(b.run('beatEngine.state().phaseKnown'),false,'BPM alone never claims verified beat timestamps');
   const tempoRequestCount=()=>b.requests.filter(request=>/musicbrainz\.org|acousticbrainz\.org/.test(request.url)).length;
   assert.equal(b.nodes.get('tempoSummary').dataset.state,'found');const count=tempoRequestCount();
   await runAsync(b,'findTempoMetadata(trackIdentity(playback.item),false,lookupState.tempo.controller)');assert.equal(tempoRequestCount(),count);
   assert(b.requests.every(request=>!request.url.includes('api_key')&&!request.options.headers?.Authorization));
-  console.log('PASS free MusicBrainz→AcousticBrainz lookup, verified duration, BPM provenance, cache and no Spotify synchronization or secret transmission.');
+  console.log('PASS free MusicBrainz→AcousticBrainz lookup, verified duration, estimated BPM phase, cache and no secret transmission.');
 
   const missing=harness({fetcher:async(url,opts,res)=>res({recordings:[]})});missing.context.item=track();missing.run('tempoRequest(item)');
   await runAsync(missing,'findTempoMetadata(trackIdentity(item),false,lookupState.tempo.controller)');assert.equal(missing.run('lookupState.tempo.status'),'missing');

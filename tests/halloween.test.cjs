@@ -28,7 +28,7 @@ function setupOwned(h){
 (async()=>{
   const h=harness();
   assert.equal(h.run('facePreferences.halloween'),false);assert.equal(h.run('facePreferences.party'),false);
-  assert.equal(h.run('beatEngine.bpm'),null);assert(h.nodes.get('beatDiagnostic').textContent.includes('keine Spotify'));
+  assert.equal(h.run('beatEngine.bpm'),null);assert(h.nodes.get('beatDiagnostic').textContent.includes('Freie Animation · ohne Beatdaten'));assert.equal(h.run('beatEngine.kind'),'free');
   h.run('facePreferences.halloween=true;facePreferences.surprises=false;applyPartyPreferences()');
   assert.equal(h.nodes.get('app').dataset.halloween,'true');
   for(const kind of ['ghost','bat','pumpkin','vampire','magic','skeleton','coverGhost','spider','shadow','flyingPumpkin']){
