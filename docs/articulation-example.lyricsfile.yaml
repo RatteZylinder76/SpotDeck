@@ -1,0 +1,52 @@
+version: '1.0'
+metadata:
+  title: Illustrative Ausspracheprobe
+  artist: SpotDeck
+  language: de
+  duration_ms: 6400
+lines:
+  - text: ich bin hier, ich bin frei
+    start_ms: 0
+    end_ms: 6400
+    words:
+      - text: ich
+        start_ms: 100
+        end_ms: 600
+        phones:
+          - {phone: IH, start_ms: 100, end_ms: 400}
+          - {phone: CH_DE, start_ms: 400, end_ms: 600}
+      - text: bin
+        start_ms: 600
+        end_ms: 1100
+        phones:
+          - {phone: B, start_ms: 600, end_ms: 680}
+          - {phone: IH, start_ms: 680, end_ms: 1000}
+          - {phone: N, start_ms: 1000, end_ms: 1100}
+      - text: hier
+        start_ms: 1100
+        end_ms: 2800
+        phones:
+          - {phone: H, start_ms: 1100, end_ms: 1180}
+          - {phone: I, start_ms: 1180, end_ms: 2650}
+          - {phone: ER, start_ms: 2650, end_ms: 2800}
+      - text: ich
+        start_ms: 3100
+        end_ms: 3600
+        phones:
+          - {phone: IH, start_ms: 3100, end_ms: 3400}
+          - {phone: CH_DE, start_ms: 3400, end_ms: 3600}
+      - text: bin
+        start_ms: 3600
+        end_ms: 4100
+        phones:
+          - {phone: B, start_ms: 3600, end_ms: 3680}
+          - {phone: IH, start_ms: 3680, end_ms: 4000}
+          - {phone: N, start_ms: 4000, end_ms: 4100}
+      - text: frei
+        start_ms: 4100
+        end_ms: 6300
+        phones:
+          - {phone: F, start_ms: 4100, end_ms: 4200}
+          - {phone: R, start_ms: 4200, end_ms: 4300}
+          - {phone: A, start_ms: 4300, end_ms: 5900}
+          - {phone: I, start_ms: 5900, end_ms: 6300}
