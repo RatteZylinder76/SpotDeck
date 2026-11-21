@@ -13,7 +13,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   const run=code=>vm.runInContext(code,context),click=id=>nodes.get(id).events.click();
   function step(ms){for(const until=time+ms;time<until;){time=Math.min(until,time+1000/60);const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(time))}}
   assert.equal(run('words.length'),6);assert.equal(frames.size,0,'Comparison waits for an explicit play action');
-  assert(nodes.get('newMouth').d.includes('M '));assert.equal(nodes.get('phrase').children.length,6);
+  assert(nodes.get('newMouth').d.includes('M '));assert.equal(nodes.get('newMouth').style.fill,'rgba(5,10,18,.82)','The comparison uses production cavity paint');assert.equal(nodes.get('oldMouth').style.fill,'rgba(255,255,255,.94)','The baseline reproduces the former production fill, not an unrelated outline demo');assert.equal(nodes.get('newMouthClip').d,nodes.get('newMouth').d);assert.equal(nodes.get('phrase').children.length,6);
   click('play');assert.equal(frames.size,1);step(1300);assert(run('position')>1100);assert.equal(nodes.get('newWord').textContent,'hier');
   assert.equal(frames.size,1,'Two compared faces share one preview clock');click('play');assert.equal(frames.size,0);
   const paused=run('position');step(1000);assert.equal(run('position'),paused,'Pausing freezes the inspected mouth shape');
@@ -23,6 +23,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   nodes.get('position').value='4500';nodes.get('position').events.input();assert.equal(run('position'),4500);assert.equal(frames.size,0);
   nodes.get('example').value='english';nodes.get('example').events.change();assert.equal(run('words.length'),4);assert.equal(nodes.get('customBox').hidden,true);
   nodes.get('example').value='good';nodes.get('example').events.change();assert.equal(run('words.length'),4);assert(run('end')>=7000,'The held-vowel example includes its full relaxed ending');nodes.get('position').value='4900';nodes.get('position').events.input();assert.equal(run('trajectoryEngine.sample(trajectory,position).aperture'),0,'The post-phrase smile stays closed');assert(run('trajectoryEngine.sample(trajectory,position).points[1][0]-trajectoryEngine.sample(trajectory,position).points[0][0]')<65,'The held-vowel example demonstrates the small relaxed smile');
+  nodes.get('example').value='contacts';nodes.get('example').events.change();assert.equal(run('words.length'),9);nodes.get('position').value='1650';nodes.get('position').events.input();assert(Number(nodes.get('newMouthTongue').style.opacity)>.2,'The held L can be inspected with its subtle tongue');nodes.get('position').value='2250';nodes.get('position').events.input();assert.equal(Number(nodes.get('newMouthTongue').style.opacity),0,'R has no unrelated L tongue');nodes.get('example').value='love';nodes.get('example').events.change();assert.equal(run('words.length'),3);assert(run('end')>5000,'The Love is gone comparison includes the quiet ending');
   nodes.get('example').value='custom';nodes.get('example').events.change();assert.equal(nodes.get('customBox').hidden,false);
   nodes.get('customText').value='<b>Frei & ich</b>';click('applyText');assert(nodes.get('phrase').children.every(n=>typeof n.textContent==='string'));
   assert(!preview.includes('innerHTML'),'Custom text never enters an HTML sink');

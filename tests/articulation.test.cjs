@@ -11,6 +11,7 @@ const finitePose=pose=>{for(const key of ['open','round','wide','seal','tension'
   assert.deepEqual(ids(pronounce('frei')),['F','R','A','I'],'The German diphthong follows pronunciation rather than written E-I');
   assert.deepEqual(ids(pronounce('bin')),['B','IH','N']);
   assert.deepEqual(ids(pronounce('ich')),['IH','CH_DE']);
+  assert.deepEqual(ids(pronounce('good','en')),['G','UH','D'],'A spelling with oo does not replace the actual short vowel with an invented U-long');
   for(const word of ['hier','wir','für','nur'])assert.equal(pronounce(word).syllables,1,word+' has one nucleus and a short vocalic-r release');
   const hier=pronounce('hier');assert(hier.phones.at(-1).weight<hier.phones[1].weight,'The vowel carries more duration than the r release');
   assert.deepEqual(ids(pronounce('die','de')),['D','I']);assert.deepEqual(ids(pronounce('die','en')),['D','A','I']);
@@ -26,6 +27,28 @@ const finitePose=pose=>{for(const key of ['open','round','wide','seal','tension'
   for(let i=0;i<estimated.length;i++){const word=estimated[i];assert(word.start>=0&&word.end>word.start&&word.end<=6000);if(i)assert(word.start>=estimated[i-1].end);}
   assert.equal(h.run('testArticulation.buildWords({time:0,text:"[Instrumental]"},3000).length'),0);
   assert.equal(h.run('testArticulation.buildWords({time:0,text:""},3000).length'),0);
+  h.run('var sparseBefore=testArticulation.buildWords({time:0,text:"These lights are blue"},13999,"en");var sparseAfter=testArticulation.buildWords({time:0,text:"These lights are blue"},14001,"en")');
+  assert(Math.abs(h.run('sparseAfter.at(-1).end-sparseBefore.at(-1).end'))<3,'Estimated phrase duration changes continuously around the old fourteen-second cliff');
+  h.run('var sparseWords=testArticulation.buildWords({time:1000,text:"These lights are blue"},9000,"en");var sparsePlan=testArticulation.compile(sparseWords,"en")');
+  assert(h.run('sparsePlan.end')<7000,'A few estimated words do not fill an entire eight-second gap with vowel singing');
+  assert.equal(h.run('testArticulation.sample(sparsePlan,8500).active'),false,'The unused tail of an uncertain line span remains a real pause');
+  assert(h.run('sparseWords.every(word=>word.timing==="estimated"&&word.confidence<.5)'),'A guessed phrase cutoff never claims precise timing');
+  h.run('var suppliedLine=testArticulation.buildWords({time:1000,end:9000,text:"These lights are blue"},12000,"en")');
+  near(h.run('suppliedLine.at(-1).end'),9000);
+  h.run('var isolatedHold=testArticulation.buildWords({time:1000,text:"Ooh"},9000,"en");var isolatedPlan=testArticulation.compile(isolatedHold,"en")');
+  near(h.run('isolatedHold[0].end'),9000);assert.equal(h.run('testArticulation.sample(isolatedPlan,8000).long'),true,'An isolated sustained vowel is not cut by the multiword phrase prior');
+  h.run('var stressWords=testArticulation.buildWords({time:0,text:"we are in the blue light"},6500,"en")');
+  for(let i=0;i<4;i++)assert(h.run(`stressWords[${i}].end-stressWords[${i}].start`)<=420+1e-7,'Unstressed function words are not stretched like the phrase nucleus');
+  assert(h.run('stressWords.at(-1).end-stressWords.at(-1).start')>h.run('stressWords[0].end-stressWords[0].start'),'Phrase-final content retains more of the singing span');
+  h.run('var germanStress=testArticulation.buildWords({time:0,text:"ich bin in der Nacht"},6000,"de")');
+  for(let i=0;i<4;i++)assert(h.run(`germanStress[${i}].end-germanStress[${i}].start`)<=420+1e-7,'The weak-word prior also applies in German');
+  h.run('var punctuationWords=testArticulation.buildWords({time:0,text:"blue, light"},4000,"en");var punctuationPlan=testArticulation.compile(punctuationWords,"en")');
+  assert(h.run('punctuationWords[1].start-punctuationWords[0].end')>45,'An inferred punctuation pause remains distinct from a tiny connected separator');
+  assert.equal(h.run('testArticulation.sample(punctuationPlan,(punctuationWords[0].end+punctuationWords[1].start)/2).active'),false);
+  const endedLrc=h.run('parseLrc("[00:01.00]Invented morning colors\\n[00:03.00]\\n[00:07.00]Invented evening colors")');
+  assert.equal(endedLrc.length,2,'A blank pause marker need not render an empty lyric row');assert.equal(endedLrc[0].end,3000,'The blank LRC timestamp preserves the previous phrase end');
+  h.context.endedLrc=endedLrc;h.run('var endedPlan=testArticulation.compile(testArticulation.buildWords(endedLrc[0],endedLrc[1].time,"en"),"en")');
+  assert.equal(h.run('testArticulation.sample(endedPlan,5000).active'),false,'A provider pause marker cannot turn into singing through an instrumental gap');
   h.run('var preciseWords=testArticulation.buildWords({time:0,end:3000,text:"bin hier",words:[{word:"bin",start:1000,end:1400},{word:"hier",start:1900,end:2800}]},3000,"de");var precisePlan=testArticulation.compile(preciseWords,"de")');
   assert.equal(h.run('preciseWords[0].start'),1000);assert.equal(h.run('preciseWords[0].end'),1400);assert.equal(h.run('preciseWords[1].start'),1900);
   assert.equal(h.run('testArticulation.sample(precisePlan,1600).open'),0,'Real silent word gaps are not filled with invented singing');
@@ -34,6 +57,10 @@ const finitePose=pose=>{for(const key of ['open','round','wide','seal','tension'
 
   h.run('var phonemeWords=[{word:"bin",start:0,end:900,index:0,timing:"word",explicitEnd:true,confidence:.95,phones:[{phone:"B",start:0,end:100},{phone:"IH",start:100,end:800},{phone:"N",start:800,end:900}]}];var phonePlan=testArticulation.compile(phonemeWords,"de")');
   assert.equal(h.run('phonePlan.phonemeTiming'),'provided');assert.equal(h.run('phonePlan.timing'),'phoneme');
+  h.run('var readableConsonants=testArticulation.compile([{word:"bin",start:0,end:1000,index:0,timing:"word",explicitEnd:true}],"de")');
+  for(const segment of Array.from(h.run('readableConsonants.segments')).filter(segment=>!segment.vowel))assert(segment.end-segment.start>=80&&segment.end-segment.start<=100,'Inferred consonant contacts have readable 80–100 ms targets when there is time');
+  h.run('var shortSupplied=testArticulation.compile([{word:"bin",start:0,end:1000,index:0,timing:"word",phones:[{phone:"B",start:0,end:35},{phone:"IH",start:35,end:965},{phone:"N",start:965,end:1000}]}],"de")');
+  near(h.run('shortSupplied.segments[0].end'),35);near(h.run('shortSupplied.segments.at(-1).start'),965);
   for(const time of [0,33,66,99]){
     const speech=h.run(`testArticulation.sample(phonePlan,${time})`);assert.equal(speech.phone,'B');assert.equal(speech.seal,1);assert.equal(speech.active,true);
     h.context.sealSpeech=speech;const mouth=h.run('testRig.render(sealSpeech,{open:1,smile:20},{playing:true})');assert.equal(mouth.aperture,0,'Surprise and laughter cannot undo a closed consonant');
@@ -42,7 +69,11 @@ const finitePose=pose=>{for(const key of ['open','round','wide','seal','tension'
   h.run('var releasingSeal=testArticulation.sample(phonePlan,120)');assert(h.run('testRig.render(releasingSeal,{open:1},{playing:true}).aperture')>0,'The following vowel opens continuously instead of inheriting the previous B classification');
   for(const phone of ['I','F']){
     h.context.readablePhone=phone;h.run('var readableSpeech={...testArticulation.shape(readablePhone),active:true,phone:readablePhone};var readableMouth=testRig.render(readableSpeech,{},{playing:true})');
-    assert(h.run('readableMouth.aperture-readableMouth.strokeWidth')>4,'A narrow '+phone+' retains visible negative space at its actual stroke width');
+    if(phone==='F'){
+      assert(h.run('readableMouth.contact')>.9,'F reaches a visible lip-contact gesture');
+      assert(h.run('readableMouth.aperture')<=h.run('readableMouth.strokeWidth'),'F brings the central lower lip into contact instead of keeping a generic open oval');
+      assert.equal(h.run('testRig.details(readableMouth).teeth.opacity'),0,'The contact introduces no teeth');
+    }else assert(h.run('readableMouth.aperture-readableMouth.strokeWidth')>4,'A narrow '+phone+' retains visible negative space at its actual stroke width');
   }
   h.run('var longPlan=testArticulation.compile([{word:"Ooh",start:0,end:8000,index:0,timing:"word",explicitEnd:true,confidence:.95}],"en")');
   const held1=h.run('testArticulation.sample(longPlan,2000)'),held2=h.run('testArticulation.sample(longPlan,5000)');assert.equal(held1.long,true);near(held1.open,held2.open);near(held1.round,held2.round);
