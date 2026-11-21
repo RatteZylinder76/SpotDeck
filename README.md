@@ -18,6 +18,10 @@
 
 ## 👀 Preview
 
+The bottom of Settings shows the version embedded in the actual loaded page. Release metadata lives in `release.json`; it does not fetch a newer version number that could misidentify an older cached page. Before publishing an application change, run `node scripts/prepare-release.cjs --bump`, then `node scripts/prepare-release.cjs --check` and the integration suites. Versions use `YYYY.MM.DD.sequence`, with the release date in Europe/Berlin. Preparation updates the footer, source fingerprint, comparison link and inline-script CSP hashes. The GitHub release check detects stale stamps or changed source under the previous version. Re-run preparation after generating the standalone mouth comparison.
+
+The security review and its practical limits are documented in [security notes](docs/security.md).
+
 ![SpotDeck Preview1](Images/preview1.png)
 
 ![SpotDeck Preview2](Images/preview2.png)

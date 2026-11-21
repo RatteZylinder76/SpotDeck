@@ -40,7 +40,7 @@ function harness({reduced=false,pointer=true,session=false,drm=true,fetcher,pref
   const window=node('window');Object.assign(window,{innerWidth:width,innerHeight:height,devicePixelRatio:dpr,isSecureContext:true,PointerEvent:pointer?function(){}:undefined,Spotify:{Player:MockPlayer}});
   const context=vm.createContext({window,document,localStorage,sessionStorage:localStorage,location:{origin:'http://127.0.0.1:8765',pathname:'/index.html',search:'',href:''},history:{replaceState(){}},
     navigator:drm?{requestMediaKeySystemAccess(){}}:{},
-    matchMedia:()=>({matches:reduced,addEventListener(){},addListener(){}}),performance:{now:()=>now},console,URL,URLSearchParams,AbortController,Image:class{},Uint8Array,Date,Math,
+    matchMedia:()=>({matches:reduced,addEventListener(){},addListener(){}}),performance:{now:()=>now},console,URL,URLSearchParams,AbortController,TextDecoder,TextEncoder,Image:class{},Uint8Array,Date,Math,
     setTimeout:(fn,delay=0)=>{timers.set(++nextId,{fn,at:now+delay});return nextId},clearTimeout:id=>timers.delete(id),
     setInterval:(fn,delay)=>{timers.set(++nextId,{fn,at:now+delay,delay});return nextId},clearInterval:id=>timers.delete(id),
     requestAnimationFrame:fn=>{frames.set(++nextId,fn);return nextId},cancelAnimationFrame:id=>frames.delete(id),

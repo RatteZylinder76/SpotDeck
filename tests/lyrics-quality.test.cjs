@@ -25,7 +25,7 @@ async function until(h,predicate){for(let i=0;i<50&&!predicate();i++){await h.fl
   q.context.bad={...record(4,'word'),lyricsfile:record(4,'word').lyricsfile.replace('"title":"Example"','"title":"Example (Live)"')};
   assert.equal(q.run('lyricTimingQuality(bad).kind'),'line','Mismatched embedded recording metadata falls back to line data');
   for(const yaml of ['x'.repeat(1000001),'version: "1.0"\nmetadata: &anchor {}\nlines: *anchor']){
-    q.context.bad={...record(),lyricsfile:yaml};assert.equal(q.run('lyricTimingQuality(bad).kind'),'line');
+    q.context.bad={...record(),lyricsfile:yaml};assert.equal(q.run('lyricTimingQuality(bad).kind'),yaml.length>1000000?'plain':'line','Oversized records are rejected; bounded malformed YAML retains the line fallback');
   }
   q.context.local={lyricsfile:record(3,'word').lyricsfile};assert.equal(q.run('lyricTimingQuality(local).kind'),'word','Standalone/local parser calls retain validated words');
   q.context.item=item();
