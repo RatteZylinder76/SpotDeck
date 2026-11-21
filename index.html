@@ -1257,7 +1257,7 @@
         <option value="system">Systemstandard</option><option value="reduced">Reduzierte Bewegung</option>
         <option value="normal">Normale Animation</option><option value="lively">Lebhafte Animation</option>
       </select>
-      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html?v=singing-smile-20261121" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
+      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html?v=fluid-singing-20261121" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <section class="party-section" aria-labelledby="partyTitle">
@@ -1369,6 +1369,9 @@ THE SOFTWARE.
         seal:{viseme:'seal',open:0,round:0,wide:.35,seal:1,upper:0,lower:0,corners:0,tension:.8},
         fv:{viseme:'fv',open:.12,round:0,wide:.38,seal:0,upper:.35,lower:-.45,corners:.05,tension:.65},
         dental:{viseme:'dental',open:.19,round:.04,wide:.35,seal:0,upper:.08,lower:.08,corners:.05,tension:.3},
+        alveolar:{viseme:'alveolar',open:.18,round:.04,wide:.48,seal:0,upper:.16,lower:.04,corners:.14,tension:.68},
+        velar:{viseme:'velar',open:.34,round:.14,wide:.24,seal:0,upper:.05,lower:.34,corners:.06,tension:.42},
+        breath:{viseme:'breath',open:.43,round:.07,wide:.25,seal:0,upper:.02,lower:.42,corners:.08,tension:.08},
         sibilant:{viseme:'sibilant',open:.15,round:.08,wide:.6,seal:0,upper:.08,lower:.03,corners:.15,tension:.65},
         palatal:{viseme:'palatal',open:.23,round:.3,wide:.2,seal:0,upper:.13,lower:.1,corners:-.04,tension:.4},
         tongue:{viseme:'tongue',open:.32,round:.08,wide:.34,seal:0,upper:.15,lower:.2,corners:.05,tension:.35},
@@ -1504,14 +1507,17 @@ THE SOFTWARE.
     shape(phone){
       if(['M','B','P'].includes(phone))return this.shapes.seal;
       if(['F','V'].includes(phone))return this.shapes.fv;
+      if(['T','D','N'].includes(phone))return this.shapes.alveolar;
+      if(['K','G','NG','KS'].includes(phone))return this.shapes.velar;
+      if(phone==='H')return this.shapes.breath;
       if(['S','Z','TS'].includes(phone))return this.shapes.sibilant;
       if(['SH','ZH','CH_DE','ACH'].includes(phone))return this.shapes.palatal;
-      if(['L','R','ER'].includes(phone))return phone==='ER'?{...this.shapes.mid,open:.34,round:.14}:this.shapes.tongue;
+      if(['L','R','ER'].includes(phone))return phone==='ER'?{...this.shapes.mid,open:.34,round:.14}:phone==='R'?{...this.shapes.tongue,viseme:'rhotic',round:.12,wide:.26}:this.shapes.tongue;
       if(['I','IH'].includes(phone))return phone==='IH'?{...this.shapes.flat,open:.28,wide:.7}:this.shapes.flat;
-      if(['E','EH','AE','AX'].includes(phone))return phone==='AX'?{...this.shapes.mid,open:.35,wide:.28}:this.shapes.mid;
+      if(['E','EH','AE','AX'].includes(phone))return phone==='AX'?{...this.shapes.mid,open:.35,wide:.28}:phone==='AE'?{...this.shapes.mid,open:.64,wide:.72,lower:.62}:phone==='EH'?{...this.shapes.mid,open:.5,wide:.6}:this.shapes.mid;
       if(['A','AA'].includes(phone))return this.shapes.open;
-      if(['O','OH','OE'].includes(phone))return phone==='OE'?{...this.shapes.round,open:.43,round:.65,wide:.22}:this.shapes.round;
-      if(['U','UH','UE','W'].includes(phone))return phone==='UE'?{...this.shapes.pucker,round:.75,wide:.22}:this.shapes.pucker;
+      if(['O','OH','OE'].includes(phone))return phone==='OE'?{...this.shapes.round,open:.43,round:.65,wide:.22}:phone==='OH'?{...this.shapes.round,open:.67,round:.58,wide:.22,lower:.62}:this.shapes.round;
+      if(['U','UH','UE','W'].includes(phone))return phone==='UE'?{...this.shapes.pucker,round:.75,wide:.22}:phone==='UH'?{...this.shapes.pucker,open:.37,round:.62,wide:.22,lower:.34}:this.shapes.pucker;
       if(phone==='REST')return this.shapes.rest;return this.shapes.dental;
     }
     cuePhone(value){
@@ -1583,6 +1589,22 @@ THE SOFTWARE.
     constructor(options={}){this.singingSmile=Number.isFinite(options?.singingSmile)?Math.max(0,Math.min(1,options.singingSmile)):1}
     smilingContour(points,lift){
       const source=points.map(p=>p.slice()),result=source.map(p=>p.slice()),center=(source[0][0]+source[1][0])/2,half=Math.max(1,(source[1][0]-source[0][0])/2);
+      if(!(lift>0))return result;
+      const height=source[9][1]-source[4][1];
+      if(height>1e-7){
+        // Lift the corners while leaving the vowel's central opening intact.
+        // Shorten both side tangents together as the upper corner approaches
+        // the upper midpoint. Equal vertical tangents retain C1/G2 joins;
+        // unlike a parabolic warp, monotone y handles cannot grow two humps.
+        for(const [edge,upperHandle,lowerHandle]of [[0,2,11],[1,6,7]]){
+          const old=source[edge],corner=old[1]-lift;
+          result[edge]=[old[0],corner];
+          const upperDistance=Math.max(0,corner-source[4][1]),lowerDistance=Math.max(0,source[9][1]-corner),reach=.5522847498307936*Math.min(upperDistance,lowerDistance);
+          result[upperHandle]=[old[0],corner-reach];result[lowerHandle]=[old[0],corner+reach];
+        }
+        return result;
+      }
+      // A closed seam can curve while upper and lower lips remain coincident.
       const transform=p=>[p[0],p[1]-lift*Math.pow((p[0]-center)/half,2)];
       for(const index of [0,4,1,9])result[index]=transform(source[index]);
       // Transform endpoint derivatives, not each handle's coordinates. A
@@ -1648,7 +1670,7 @@ THE SOFTWARE.
       // These are visible phonetic families, not one oval scaled by openness.
       // Profile entries are half-width, cavity height and the source's normal
       // opening. Actual source openness still controls closure continuously.
-      const profiles={A:[29,27,.86],AA:[29,27,.86],I:[35,8.8,.23],IH:[33,9.2,.28],E:[32,15,.44],EH:[32,15,.44],AE:[32,15,.44],AX:[27,10,.35],O:[15,23,.59],OH:[15,23,.59],OE:[18,19,.43],U:[10.5,14,.27],UH:[12.5,14,.27],UE:[12.5,14,.27],W:[11,11.5,.27],L:[29,11.5,.32],R:[23,11,.32],ER:[24,12,.34],TH:[29,9.5,.19],DH:[29,9.5,.19],F:[30,8.8,.12],V:[30,8.8,.12],S:[31,8.8,.15],Z:[31,8.8,.15],TS:[31,8.8,.15]};
+      const profiles={A:[29,27,.86],AA:[29,27,.86],I:[35,10,.23],IH:[30,13,.28],E:[32,15,.44],EH:[31,17,.5],AE:[33,22,.64],AX:[27,10,.35],O:[15,23,.59],OH:[20,24,.67],OE:[18,19,.43],U:[10.5,14,.27],UH:[16,16,.37],UE:[12.5,14,.27],W:[11,11.5,.27],L:[29,11.5,.32],R:[23,11,.32],ER:[24,12,.34],TH:[29,9.5,.19],DH:[29,9.5,.19],F:[30,8.8,.12],V:[30,8.8,.12],S:[31,8.8,.15],Z:[31,8.8,.15],TS:[31,8.8,.15],T:[27.5,10.8,.18],D:[27.5,10.8,.18],N:[27.5,10.8,.18],K:[25,17,.34],G:[25,17,.34],NG:[25,17,.34],KS:[25,17,.34],H:[27,21,.43],SH:[21,13.5,.23],ZH:[21,13.5,.23],CH_DE:[21,13.5,.23],ACH:[21,13.5,.23]};
       const profile=active?profiles[consonant]:null;
       const halfWidth=profile?profile[0]:clamp(30+wide*9-round*14-tension*2,15,40);
       const xLeft=50-halfWidth,xRight=50+halfWidth;
@@ -1700,11 +1722,17 @@ THE SOFTWARE.
         for(let i=0;i<points.length;i++)for(let axis=0;axis<2;axis++)points[i][axis]+=blend*(rest[i][axis]-points[i][axis]);
       }
       if(active&&this.singingSmile>0){
-        const requested=3*(1-.7*round)*(fv?.65:1)*this.singingSmile*(1-restBlend),height=Math.max(0,points[9][1]-points[4][1]),limit=(1-k)*height*.45;
-        // Flat vowels need a smaller bend: keep their upper lip softly convex
-        // instead of creating two humps. Closed seals may smile while their
-        // matching upper/lower curves remain exactly coincident.
-        singingSmileLift=height>1e-7?limit*Math.tanh(requested/limit):requested*.55;
+        const requested=6*(1-.72*round)*(fv?.75:1)*this.singingSmile*(1-restBlend),height=Math.max(0,points[9][1]-points[4][1]);
+        const cornerClearance=Math.max(0,Math.min(points[0][1],points[1][1])-points[4][1]);
+        const aspect=(points[1][0]-points[0][0])/Math.max(.1,height),flatMix=clamp((aspect-4.5)/.75,0,1),flatness=flatMix**3*(10+flatMix*(-15+6*flatMix));
+        // Flat vowels and contact consonants need room for a visible rounded
+        // corner. Their side tangents must not collapse into a pointed wedge.
+        // Blend the reserve continuously; open A/E retain the stronger smile.
+        const roundingReserve=.96-.31*flatness,limit=Math.min(height*.46,cornerClearance*roundingReserve);
+        // The corner's clearance, not the old oval's curvature, limits the lift.
+        // A short shared side tangent lets narrow vowels visibly smile while
+        // the upper outline stays a single convex arc and seals stay closed.
+        singingSmileLift=height>1e-7?(limit>1e-7?limit*Math.tanh(requested/limit):0):requested*.55;
         const smiling=this.smilingContour(points,singingSmileLift);
         for(let i=0;i<points.length;i++){points[i][0]=smiling[i][0];points[i][1]=smiling[i][1]}
       }
@@ -1788,8 +1816,8 @@ THE SOFTWARE.
         const cue={source,start:source.start,end:source.end,duration:source.end-source.start,sealed:["M","B","P"].includes(source.phone)||source.shape?.seal===1,lipContact:["F","V"].includes(source.phone)};
         cue.geometry=this.geometry(this.rig.render({...source.shape,phone:source.phone,active:true,restBlend:0,timing:source.timing},{},{playing:true}));cue.geometry.phone=source.phone;cue.geometry.emotionWeight=.08;cue.details=this.detailChannels(cue.geometry);cues.push(cue);
       }
-      // Brief non-bilabial consonants contribute an accent around the nearby vowel,
-      // rather than forcing another extreme target for one video frame.
+      // Keep clear consonant targets: the overlapping flow kernels below do
+      // coarticulation, rather than damping every short cue twice.
       const vowelNear=(index,direction)=>{
         let previous=cues[index];
         for(let n=index+direction;n>=0&&n<cues.length&&Math.abs(n-index)<=4;n+=direction){const current=cues[n],a=direction>0?previous:current,b=direction>0?current:previous,distance=direction>0?current.start-cues[index].end:cues[index].start-current.end;if(!this.connected(a,b)||distance>300)break;if(current.source.vowel)return current;previous=current}
@@ -1801,17 +1829,18 @@ THE SOFTWARE.
         const left=vowelNear(i,-1),right=vowelNear(i,1);if(!left&&!right)continue;
         let baseline=left?.geometry||right.geometry;
         if(left&&right){const l=(left.start+left.end)/2,r=(right.start+right.end)/2,at=(cue.start+cue.end)/2;baseline=this.interpolate(left.geometry,right.geometry,this.clamp((at-l)/Math.max(1,r-l)))}
-        let strength=phone==="H"?.08:["F","V"].includes(phone)?.9:this.clamp(cue.duration/210,.18,.6);
+        let strength=1;
         // A longer estimated ending consonant must not undo a held O/U by
         // suddenly widening its lips. Keep its small jaw accent, not a grin.
         const baselineWidth=baseline.points[1][0]-baseline.points[0][0],ownWidth=cue.geometry.points[1][0]-cue.geometry.points[0][0];
-        if(!cue.lipContact&&baselineWidth<38&&ownWidth>baselineWidth*1.45)strength=Math.min(strength,baselineWidth*.45/(ownWidth-baselineWidth));
-        cue.geometry=this.interpolate(baseline,cue.geometry,strength);Object.assign(cue.geometry,cue.details);cue.geometry.phone=phone;cue.geometry.emotionWeight=.08;cue.strength=strength;
+        if(phone==="H"){strength=.08;cue.geometry=this.interpolate(baseline,cue.geometry,strength)}
+        else if(!cue.lipContact&&baselineWidth<38&&ownWidth>baselineWidth*1.45){strength=baselineWidth*.45/(ownWidth-baselineWidth);const width=baselineWidth*1.45,center=(cue.geometry.points[0][0]+cue.geometry.points[1][0])/2,scale=width/ownWidth;cue.geometry=this.finish(cue.geometry.points.map(p=>[center+(p[0]-center)*scale,p[1]]),cue.geometry.strokeWidth,{...cue.geometry,points:undefined,path:undefined,bounds:undefined})}
+        Object.assign(cue.geometry,cue.details);cue.geometry.phone=phone;cue.geometry.emotionWeight=.08;cue.strength=strength;
       }
       for(const cue of cues)cue.quiet=this.closed(cue.geometry);
       const phases=[],rest=this.restGeometry;
       const add=(start,end,from,to,kind,extra={})=>{if(end>start+1e-8)phases.push({start,end,from,to,kind,...extra})};
-      if(!cues.length)return {cues,phases,detailPhases:[],boundaries:[],start:0,end:0,source:plan};
+      if(!cues.length)return {cues,phases,flows:[],contacts:{pulses:[],dense:false},detailPhases:[],boundaries:[],start:0,end:0,source:plan};
       const first=cues[0];let cursor;
       if(first.sealed&&first.start>0){const preparation=Math.min(90,first.start);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.geometry,"prepare-seal");cursor=first.start}
       else if(first.start>0){const preparation=Math.min(140,first.start),attack=Math.min(110,first.duration*.4);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.quiet,"prepare-quiet");add(first.start,first.start+attack,first.quiet,first.geometry,"attack");cursor=first.start+attack}
@@ -1824,14 +1853,14 @@ THE SOFTWARE.
           const start=a.end-pre,end=b.start+post;
           add(cursor,start,a.geometry,a.geometry,"hold");add(start,end,a.geometry,b.geometry,b.sealed?"seal":a.sealed?"release-seal":"coarticulate");cursor=end;
         }else{
-          const close=a.sealed?0:Math.min(110,a.duration*.4),closeStart=a.end-close,gap=b.start-a.end;
+          const close=a.sealed?0:Math.min(110,a.duration*.6),closeStart=a.end-close,gap=b.start-a.end;
           add(cursor,closeStart,a.geometry,a.geometry,"hold");add(closeStart,a.end,a.geometry,a.quiet,"close");
           if(gap<220)add(a.end,b.start,a.quiet,b.quiet,"quiet-gap");
           else{const preparation=Math.min(90,gap*.35);add(a.end,b.start,a.quiet,b.quiet,"rest-recovery",{recovery:this.recoveryFrom(a.quiet),prepareAt:b.start-preparation})}
           const attack=b.sealed?0:Math.min(110,b.duration*.4);add(b.start,b.start+attack,b.quiet,b.geometry,"attack");cursor=b.start+attack;
         }
       }
-      const last=cues.at(-1),close=last.sealed?0:Math.min(110,last.duration*.4);
+      const last=cues.at(-1),close=last.sealed?0:Math.min(110,last.duration*.6);
       add(cursor,last.end-close,last.geometry,last.geometry,"hold");add(last.end-close,last.end,last.geometry,last.quiet,"close");add(last.end,last.end+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,last.quiet,rest,"rest-recovery",{recovery:this.recoveryFrom(last.quiet)});
       // Small oral contacts need a readable peak even while the larger jaw
       // keeps its slower coarticulation. Each detail boundary is still C2.
@@ -1849,8 +1878,59 @@ THE SOFTWARE.
         }
       }
       const detailClose=last.end-flank(last);addDetail(detailCursor,detailClose,last.details,last.details);addDetail(detailClose,last.end,last.details,zero);
-      const boundaries=[...new Set([...phases.flatMap(p=>[p.start,p.end,...(p.recovery?[p.start+this.settleMs,p.start+this.settleMs+this.relaxedHoldMs,p.start+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,p.prepareAt].filter(t=>t>p.start&&t<p.end):[])]),...detailPhases.flatMap(p=>[p.start,p.end])])].sort((a,b)=>a-b);
-      return {cues,phases,detailPhases,boundaries,start:phases[0]?.start??first.start,end:phases.at(-1)?.end??last.end,source:plan};
+      const flows=this.compileFlows(cues),contacts=this.compileContacts(cues);
+      const boundaries=[...new Set([...phases.flatMap(p=>[p.start,p.end,...(p.recovery?[p.start+this.settleMs,p.start+this.settleMs+this.relaxedHoldMs,p.start+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,p.prepareAt].filter(t=>t>p.start&&t<p.end):[])]),...detailPhases.flatMap(p=>[p.start,p.end]),...flows.flatMap(flow=>[flow.start,flow.start+flow.enter,flow.end-flow.exit,flow.end,...flow.knots.flatMap(t=>[t-flow.radius,t+flow.radius]).filter(t=>t>flow.start&&t<flow.end)]),...contacts.pulses.flatMap(p=>[p.start,p.attackEnd,p.releaseStart,p.end])])].sort((a,b)=>a-b);
+      return {cues,phases,flows,contacts,detailPhases,boundaries,start:phases[0]?.start??first.start,end:phases.at(-1)?.end??last.end,source:plan};
+    }
+    compileFlows(cues){
+      const flows=[];let run=[],firstIndex=0,lastIndex=0;
+      const flush=()=>{
+        if(run.length<2){run=[];return}
+        const radius=110,knots=run.slice(1).map((cue,i)=>(run[i].end+cue.start)/2);let left=0,dense=false;
+        for(let i=0;i<knots.length;i++){while(knots[i]-knots[left]>2*radius)left++;if(i-left>=95){dense=true;break}}
+        // Pathological sub-frame sources retain the bounded constraint sampler.
+        // Normal speech evaluates at most 96 nearby intents, never the song.
+        if(!dense){const first=run[0],last=run.at(-1),previous=cues[firstIndex-1],next=cues[lastIndex+1],fromSeal=previous?.sealed&&this.connected(previous,first),toSeal=next?.sealed&&this.connected(last,next),start=fromSeal?previous.end:first.start,end=toSeal?next.start:last.end,entry=Math.min(first.start===0?180:110,Math.max(first.duration*.4,Math.min(80,first.duration*.75)));flows.push({start,end,enter:first.start-start+entry,exit:end-last.end+Math.min(110,last.duration*.6),entryFrom:fromSeal?previous.geometry:first.start===0?this.restGeometry:first.quiet,exitTo:toSeal?next.geometry:last.quiet,radius,knots,cues:run})}
+        run=[];
+      };
+      for(let i=0;i<cues.length;i++){const cue=cues[i];if(cue.sealed){flush();continue}if(run.length&&!this.connected(run.at(-1),cue))flush();if(!run.length)firstIndex=i;run.push(cue);lastIndex=i}flush();return flows;
+    }
+    flowCdf(distance,radius){return this.ease((distance+radius)/(2*radius))}
+    compileContacts(cues){
+      const pulses=[];let run=[];
+      const flush=()=>{if(run.length){const start=run[0].start,end=run.at(-1).end;for(const cue of run)if(cue.lipContact){const flank=Math.min(60,cue.duration*.18);pulses.push({start:Math.max(start,cue.start-60),attackEnd:cue.start+flank,releaseStart:cue.end-flank,end:Math.min(end,cue.end+60)})}}run=[]};
+      for(const cue of cues){if(cue.sealed){flush();continue}if(run.length&&!this.connected(run.at(-1),cue))flush();run.push(cue)}flush();
+      let left=0,dense=false;for(let i=0;i<pulses.length;i++){while(pulses[left].end<=pulses[i].start)left++;if(i-left>=95){dense=true;break}}
+      return {pulses,dense};
+    }
+    sampleContact(trajectory,at,fallback){
+      const contacts=trajectory?.contacts;if(!contacts||contacts.dense)return fallback;
+      const pulses=contacts.pulses;let low=0,high=pulses.length-1,index=-1;
+      while(low<=high){const mid=(low+high)>>1;if(pulses[mid].start<=at){index=mid;low=mid+1}else high=mid-1}
+      let open=1;for(let i=index;i>=0&&pulses[i].end>at;i--){const p=pulses[i],weight=this.ease((at-p.start)/(p.attackEnd-p.start))*this.ease((p.end-at)/(p.end-p.releaseStart));open*=1-weight}
+      return 1-open;
+    }
+    sampleFlow(trajectory,at,base){
+      const flows=trajectory?.flows||[];let low=0,high=flows.length-1,index=-1;
+      while(low<=high){const mid=(low+high)>>1;if(flows[mid].start<=at){index=mid;low=mid+1}else high=mid-1}
+      const flow=flows[index];if(!flow||at>=flow.end)return {geometry:base};
+      const entering=this.ease((at-flow.start)/flow.enter),exiting=this.ease((flow.end-at)/flow.exit),amount=entering*exiting;
+      low=0;high=flow.knots.length;
+      while(low<high){const mid=(low+high)>>1;if(flow.knots[mid]<at-flow.radius)low=mid+1;else high=mid}
+      const points=Array.from({length:12},()=>[0,0]);let total=0,stroke=0,emotion=0;
+      for(let i=low;i<flow.cues.length;i++){
+        const left=i===0?1:this.flowCdf(at-flow.knots[i-1],flow.radius),right=i===flow.knots.length?0:this.flowCdf(at-flow.knots[i],flow.radius),weight=Math.max(0,left-right),g=flow.cues[i].geometry;
+        if(weight>0){total+=weight;stroke+=g.strokeWidth*weight;emotion+=g.emotionWeight*weight;for(let p=0;p<12;p++){points[p][0]+=g.points[p][0]*weight;points[p][1]+=g.points[p][1]*weight}}
+        if(right===0)break;
+      }
+      if(total===0)return {geometry:base};
+      for(const p of points){p[0]/=total;p[1]/=total}
+      const target=this.finish(points,stroke/total,{emotionWeight:emotion/total});
+      // Constraint phases own exact seals, silence and phrase endings. Inside
+      // a connected open run, nonnegative C2 kernel weights carry velocity
+      // through short targets instead of parking at every phoneme.
+      const entered=entering===1?target:this.interpolate(flow.entryFrom,target,entering),geometry=exiting===1?entered:this.interpolate(flow.exitTo,entered,exiting);
+      return {geometry,flow,amount};
     }
     sampleDetails(trajectory,at){
       const phases=trajectory?.detailPhases||[];let low=0,high=phases.length-1,index=-1;
@@ -1861,8 +1941,9 @@ THE SOFTWARE.
     oralContact(rendered){
       const amount=this.clamp(rendered.contact),gap=rendered.points[9][1]-rendered.points[4][1];
       if(amount===0||gap<=3.6)return rendered;
-      const g=this.geometry(rendered),lift=4*Math.tanh((gap-3.6)/4)*this.ease((gap-3.6)/.5)*amount;
-      // Only a small central lower-lip gesture follows the fast contact cue.
+      const g=this.geometry(rendered),lift=(gap-3.6)*this.ease((gap-3.6)/.5)*amount;
+      // Only the central lower lip follows the fast contact cue; the large
+      // jaw and corner flow keeps moving. Never lift past the paired upper lip.
       // Move both center handles with the midpoint: its tangent remains flat,
       // while the side handles retain their shared vertical tangents.
       for(const index of [8,9,10])g.points[index][1]-=lift;
@@ -1883,7 +1964,9 @@ THE SOFTWARE.
       let rendered,phase;
       if(index<0||at>=trajectory.end){rendered=this.finish(this.restGeometry.points.map(p=>p.slice()),this.restGeometry.strokeWidth,{emotionWeight:1});phase={kind:"idle",start:at,end:at,progress:1,blend:1}}
       else{const current=phases[index],progress=this.clamp((at-current.start)/(current.end-current.start));let blend=this.ease(progress),kind=current.kind;if(current.recovery){const sampled=this.sampleRecovery(current.recovery,at-current.start);rendered=sampled.geometry;kind=sampled.kind;if(Number.isFinite(current.prepareAt)&&at>=current.prepareAt){blend=this.ease((at-current.prepareAt)/(current.end-current.prepareAt));rendered=this.interpolate(rendered,current.to,blend);kind="prepare"}}else rendered=this.interpolate(current.from,current.to,blend);phase={kind,start:current.start,end:current.end,progress,blend,fromPhone:current.from.phone||"REST",toPhone:current.to.phone||"REST"}}
-      rendered=this.oralContact({...rendered,...this.sampleDetails(trajectory,at)});const result=this.emotion(rendered,expression);return {...result,phase};
+      const flowing=this.sampleFlow(trajectory,at,rendered);rendered=flowing.geometry;if(flowing.flow)phase={...phase,kind:"flow",flowStart:flowing.flow.start,flowEnd:flowing.flow.end,flowWeight:flowing.amount};
+      const details=this.sampleDetails(trajectory,at);details.contact=this.sampleContact(trajectory,at,details.contact);
+      rendered=this.oralContact({...rendered,...details});const result=this.emotion(rendered,expression);return {...result,phase};
     }
   }
   // Shared by the player and the silent comparison: CSS cannot turn a cavity
