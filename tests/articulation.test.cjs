@@ -75,6 +75,35 @@ const finitePose=pose=>{for(const key of ['open','round','wide','seal','tension'
       assert.equal(h.run('testRig.details(readableMouth).teeth.opacity'),0,'The contact introduces no teeth');
     }else assert(h.run('readableMouth.aperture-readableMouth.strokeWidth')>4,'A narrow '+phone+' retains visible negative space at its actual stroke width');
   }
+  h.run('var familyRigPoses={};var neutralFamilyRig=new MouthRig({singingSmile:0});var neutralRigPoses={};for(var familyPhone of ["M","B","P","F","V","T","D","N","K","G","NG","H","S","Z","SH","ZH","CH_DE","R","L","TH","A","I","IH","E","AE","AX","O","OH","U","UH"]){var familySpeech={...testArticulation.shape(familyPhone),active:true,phone:familyPhone,timing:"word"};familyRigPoses[familyPhone]=testRig.render(familySpeech,{},{playing:true});neutralRigPoses[familyPhone]=neutralFamilyRig.render(familySpeech,{},{playing:true})}');
+  const familyPoses=h.run('familyRigPoses'),neutralPoses=h.run('neutralRigPoses');
+  const familyWidth=pose=>pose.points[1][0]-pose.points[0][0];
+  const familyDistance=(a,b)=>a.points.reduce((sum,point,i)=>sum+Math.hypot(point[0]-b.points[i][0],point[1]-b.points[i][1]),0)/a.points.length;
+  for(const pair of [['M','B'],['B','P'],['F','V'],['T','D'],['D','N'],['K','G'],['G','NG'],['S','Z'],['SH','ZH'],['SH','CH_DE']])near(familyDistance(familyPoses[pair[0]],familyPoses[pair[1]]),0);
+  for(const pair of [['T','K'],['K','H'],['S','SH'],['L','R'],['I','IH'],['E','AE'],['O','OH'],['U','UH']])assert(familyDistance(familyPoses[pair[0]],familyPoses[pair[1]])>1.2,'Visible '+pair.join('/')+' families differ in actual lip geometry');
+  assert(familyWidth(familyPoses.SH)<familyWidth(familyPoses.S)*.8,'SH/CH purses the lips while S/Z remains spread');
+  assert(familyPoses.H.aperture>familyPoses.K.aperture*1.2,'The breath family has a more released jaw than a velar contact');
+  assert(familyPoses.AE.aperture>familyPoses.E.aperture*1.4,'AE has its own lower-jaw opening instead of reusing E');
+  assert(familyWidth(familyPoses.OH)>familyWidth(familyPoses.O)*1.25&&familyWidth(familyPoses.UH)>familyWidth(familyPoses.U)*1.4,'Lax rounded vowels keep visibly distinct widths');
+  assert(familyPoses.A.singingSmileLift>5&&familyPoses.I.singingSmileLift>2.4&&familyPoses.E.singingSmileLift>4,'The default singing smile is materially stronger across open and spread vowels');
+  for(const [phone,oldLift]of [['A',2.697245743390633],['I',1.6566702046224822],['E',2.255842535792821]])assert(familyPoses[phone].singingSmileLift>oldLift*1.8,'The '+phone+' corner lift improves on the previous saturated smile');
+  assert(familyPoses.F.singingSmileLift>.7186260008879396*1.5,'F/V retains a stronger smile while making room for the rounded lip contact');
+  assert(familyPoses.I.singingSmileLift>=2.8&&familyPoses.I.singingSmileLift<=3.2,'Spread I remains happy without lifting its corners into a wedge');
+  for(const phone of ['I','AX','S','F','V']){const p=familyPoses[phone].points,height=p[9][1]-p[4][1],sideReach=p[0][1]-p[2][1];assert(sideReach>=height*.08,'The '+phone+' corner keeps a substantial shared rounding tangent');}
+  for(const [phone,pose]of Object.entries(familyPoses)){
+    near(neutralPoses[phone].singingSmileLift,0);near(pose.aperture,neutralPoses[phone].aperture);
+    assert.equal(pose.teeth,0,'No phonetic family draws teeth');if(!['L','TH'].includes(phone))assert.equal(pose.tongue,0,'Tongue detail is absent on '+phone);
+    if(['M','B','P'].includes(phone)){assert.equal(pose.aperture,0);continue}
+    const y=(points,t)=>points[0][1]*(1-t)**3+3*points[1][1]*(1-t)**2*t+3*points[2][1]*(1-t)*t*t+points[3][1]*t**3,p=pose.points;
+    let previous=Infinity;
+    for(let step=0;step<=100;step++){
+      const t=step/100,upper=y([p[0],p[2],p[3],p[4]],t),lower=y([p[0],p[11],p[10],p[9]],t);
+      assert(upper<=previous+1e-7,'The smiling '+phone+' upper lip remains one convex arc without side humps');assert(lower>=upper-1e-7,'The '+phone+' contour never turns inside out');previous=upper;
+    }
+    near(p[2][0]-p[0][0],p[0][0]-p[11][0]);near(p[2][1]-p[0][1],p[0][1]-p[11][1]);
+    near(p[1][0]-p[6][0],p[7][0]-p[1][0]);near(p[1][1]-p[6][1],p[7][1]-p[1][1]);
+  }
+  assert(familyPoses.O.singingSmileLift<familyPoses.A.singingSmileLift*.6&&familyPoses.U.singingSmileLift<familyPoses.A.singingSmileLift*.5,'Rounded vowels preserve their pucker within the happier smile');
   h.run('var longPlan=testArticulation.compile([{word:"Ooh",start:0,end:8000,index:0,timing:"word",explicitEnd:true,confidence:.95}],"en")');
   const held1=h.run('testArticulation.sample(longPlan,2000)'),held2=h.run('testArticulation.sample(longPlan,5000)');assert.equal(held1.long,true);near(held1.open,held2.open);near(held1.round,held2.round);
   h.run('var joinedPlan=testArticulation.compile([{word:"ah",start:0,end:400,index:0,timing:"word"},{word:"ooh",start:400,end:800,index:1,timing:"word"}],"en")');
