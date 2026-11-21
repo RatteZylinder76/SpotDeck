@@ -657,7 +657,7 @@
     @keyframes steamFloat{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:.7;transform:translateY(-3px)}}
     @keyframes sweatSlide{0%,100%{transform:translateY(0)}60%{transform:translateY(5px)}}
     .vibe-face[data-motion="reduced"] .expression-props g{animation:none}
-    #faceMouthPath{fill:rgba(255,255,255,.94)}
+    #faceMouthPath{fill:rgba(5,10,18,.82)}
     .face-scene{position:absolute;inset:-12%;pointer-events:none;opacity:0;transition:opacity .65s ease;z-index:3}
     .face-scene.visible{opacity:1}
     .scene-prop{position:absolute;font-size:clamp(20px,4.5vh,46px);filter:drop-shadow(0 3px 8px #0003);animation:propDrift 5s ease-in-out infinite}
@@ -1083,7 +1083,9 @@
             <div class="face-eye left" id="faceEyeLeft"></div>
             <div class="face-eye right" id="faceEyeRight"></div>
             <svg class="face-mouth" id="faceMouth" viewBox="0 0 100 50" aria-hidden="true">
+              <defs><clipPath id="faceMouthOpening"><path id="faceMouthClip" d="M 0 0 Z"></path></clipPath></defs>
               <path id="faceMouthPath" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path>
+              <g clip-path="url(#faceMouthOpening)"><path id="faceMouthTongue" d="M 0 0 Z" opacity="0"></path></g>
             </svg>
             <svg class="scene-gear scene-snorkel" viewBox="0 0 100 100" aria-hidden="true">
               <path d="M 19 38 H 25 M 75 38 H 81" fill="none" stroke="#5bd8d6" stroke-width="2.5" stroke-linecap="round"/>
@@ -1255,7 +1257,7 @@
         <option value="system">Systemstandard</option><option value="reduced">Reduzierte Bewegung</option>
         <option value="normal">Normale Animation</option><option value="lively">Lebhafte Animation</option>
       </select>
-      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html?v=mouth-rest-20261120" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
+      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html?v=visemes-20261121" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <section class="party-section" aria-labelledby="partyTitle">
@@ -1382,6 +1384,11 @@ THE SOFTWARE.
       };
       this.deClues=new Set('ich bin hier frei du und der das ein eine nicht mein wir ihr sie sind für auf auch mich dich sich euch weil schön über wieder heute liebe herz leben traum tanzen musik gefühl glück jetzt bist habe haben hat hast gehen geht'.split(' '));
       this.enClues=new Set('i you the and are this that these those we he she they my your our with without not will would could should love life here free tonight baby hello dream feel know one only where what why who through though think yeah hey'.split(' '));
+      // Closed-class words are often unstressed. This is a weak text prior, not measured prosody.
+      this.functionWords={
+        de:new Set('ich du er sie es wir ihr der die das ein eine einer einen einem eines und oder aber als an am auf aus bei im in mit nach von vor für zum zur zu des dem den ist sind war waren bin bist hat haben wird werden'.split(' ')),
+        en:new Set('i you he she it we they the a an and or but as at by for from in of on to with is are am was were be been has have had do does did will would can could should my your our their its'.split(' '))
+      };
       for(const [word,phones]of Object.entries(this.lexicons.en))this.lexicons.en[word.toLowerCase()]=phones.replace(/\bU\b(?!:)/g,'AX');
       Object.assign(this.lexicons.en,{have:'H AE V',has:'H AE Z',had:'H AE D',give:'G IH V',given:'G IH V AX N',some:'S AX M',done:'D AX N',move:'M U: V',lose:'L U: Z',close:'K L OU Z',make:'M EI K',take:'T EI K',name:'N EI M',same:'S EI M',late:'L EI T',hate:'H EI T',home:'H OU M',hope:'H OU P',alone:'AX L OU N',phone:'F OU N',use:'Y U: Z',true:'T R U:',snow:'S N OU',show:'SH OU',grow:'G R OU',flow:'F L OU',lie:'L AI'});
       this.phoneIds=new Set(['REST','P','B','M','F','V','T','D','K','G','N','NG','L','R','S','Z','SH','ZH','CH_DE','ACH','TH','DH','H','W','Y','TS','KS','AI','AU','OY','EI','OU',...this.vowels]);
@@ -1476,12 +1483,23 @@ THE SOFTWARE.
       const text=String(row.text??'').slice(0,10000);if(/^\s*[\[(].*[\])]\s*$/.test(text))return [];
       const matches=[...text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)].slice(0,1000);if(!matches.length)return [];
       const pronunciations=matches.map(m=>this.pronounce(m[0],lang));
-      const weights=pronunciations.map(p=>p.syllables+(p.elongated?3:0)),sum=weights.reduce((a,b)=>a+b,0);
-      const gaps=matches.map((m,i)=>{const tail=text.slice(m.index+m[0].length,matches[i+1]?.index??text.length);return /[.!?]/.test(tail)?180:/[,;:]/.test(tail)?105:18});
-      const available=Math.max(0,lineEnd-row.time),nominal=sum*650+gaps.reduce((a,b)=>a+b,0);
-      const span=Number.isFinite(row.end)||available<=14000?available:Math.min(available,Math.max(900,nominal));
-      const gapScale=Math.min(1,span*.12/Math.max(1,gaps.reduce((a,b)=>a+b,0))),speech=Math.max(0,span-gaps.reduce((a,b)=>a+b*gapScale,0));let cursor=row.time;
-      return matches.map((m,i)=>{const duration=speech*weights[i]/sum,token={word:m[0],start:cursor,end:cursor+duration,index:i,timing:'estimated',confidence:available>span*1.5?.25:.5,explicitEnd:false,language:lang,pronunciation:pronunciations[i]};cursor+=duration+gaps[i]*gapScale;return token});
+      const reduced=matches.map((m,i)=>i<matches.length-1&&this.functionWords[lang]?.has(this.normalize(m[0])));
+      const weights=pronunciations.map((p,i)=>p.syllables*(reduced[i]?.65:1)+(p.elongated?3:0)+(i===matches.length-1?.2:0)),sum=weights.reduce((a,b)=>a+b,0);
+      const suppliedEnd=Number.isFinite(row.end)&&row.end>=row.time,isolated=matches.length===1;
+      const gaps=matches.map((m,i)=>{const tail=text.slice(m.index+m[0].length,matches[i+1]?.index??text.length);if(i===matches.length-1&&(suppliedEnd||isolated))return 0;return /[.!?]/.test(tail)?180:/[,;:]/.test(tail)?105:i===matches.length-1?140:28});
+      const available=Math.max(0,lineEnd-row.time),syllables=pronunciations.reduce((n,p)=>n+p.syllables,0),consonants=pronunciations.reduce((n,p)=>n+p.phones.filter(phone=>!phone.vowel).length,0);
+      const nominal=Math.max(900,syllables*500+consonants*35+matches.length*45+gaps.reduce((a,b)=>a+b,0)),allowance=this.bounded(syllables*175,650,1800);
+      // A line timestamp marks an onset, not singing throughout the next instrumental gap.
+      // Saturate continuously rather than jumping to a new duration at a fixed gap threshold.
+      // Explicit ends and isolated sustained utterances retain their supplied span.
+      const span=suppliedEnd||isolated||available<=nominal?available:nominal+allowance*(1-Math.exp(-(available-nominal)/allowance));
+      const gapScale=Math.min(1,span*.14/Math.max(1,gaps.reduce((a,b)=>a+b,0))),speech=Math.max(0,span-gaps.reduce((a,b)=>a+b*gapScale,0));
+      const durations=weights.map(weight=>speech*weight/sum);let surplus=0;
+      durations.forEach((duration,i)=>{if(reduced[i]&&duration>420){surplus+=duration-420;durations[i]=420}});
+      const contentWeight=weights.reduce((n,weight,i)=>n+(reduced[i]?0:weight),0);
+      durations.forEach((duration,i)=>{if(!reduced[i]&&contentWeight)durations[i]+=surplus*weights[i]/contentWeight});
+      let cursor=row.time;
+      return matches.map((m,i)=>{const duration=durations[i],token={word:m[0],start:cursor,end:cursor+duration,index:i,timing:'estimated',confidence:available>span*1.5?.25:.5,explicitEnd:false,language:lang,pronunciation:pronunciations[i]};cursor+=duration+gaps[i]*gapScale;return token});
     }
     shape(phone){
       if(['M','B','P'].includes(phone))return this.shapes.seal;
@@ -1522,9 +1540,9 @@ THE SOFTWARE.
           inferredTokens++;
           const phones=pronunciation.phones;if(!phones.length)continue;
           const vowels=phones.filter(p=>p.vowel),consonants=phones.filter(p=>!p.vowel),vowelWeight=vowels.reduce((a,p)=>a+p.weight,0);
-          const consonantBudget=vowels.length?Math.min(duration*.38,consonants.length*65):duration;
-          const consonantWeights=consonants.reduce((a,p)=>a+(['M','B','P'].includes(p.id)?1.2:1),0);let cursor=token.start;
-          phones.forEach((phone,i)=>{const d=phone.vowel?(duration-consonantBudget)*phone.weight/Math.max(1,vowelWeight):consonantBudget*(['M','B','P'].includes(phone.id)?1.2:1)/Math.max(1,consonantWeights),end=i===phones.length-1?token.end:cursor+d;append(phone,cursor,end,token.timing||'estimated');cursor=end});
+          const contactDuration=phone=>['M','B','P'].includes(phone.id)?95:['F','V'].includes(phone.id)?90:phone.id==='H'?65:85;
+          const consonantWeights=consonants.reduce((a,p)=>a+contactDuration(p),0),consonantBudget=vowels.length?Math.min(duration*.44,consonantWeights):duration;let cursor=token.start;
+          phones.forEach((phone,i)=>{const d=phone.vowel?(duration-consonantBudget)*phone.weight/Math.max(1,vowelWeight):consonantBudget*contactDuration(phone)/Math.max(1,consonantWeights),end=i===phones.length-1?token.end:cursor+d;append(phone,cursor,end,token.timing||'estimated');cursor=end});
         }
         hasEstimated ||= token.timing!=='word';
       }
@@ -1588,16 +1606,22 @@ THE SOFTWARE.
       const lower=active?number(speech.lower,-1,1):0;
       const corners=active?number(speech.corners,-1,1):0;
       const fv=active&&(consonant?["F","V"].includes(consonant):["FV","F","V"].includes(viseme));
-      // A 9px resting stroke would swallow narrow articulated openings entirely.
-      const articulatedStroke=fv?5.5:6.25;
+      // Keep a readable cavity in flat/narrow vowels without turning every
+      // consonant into a large open oval. The original idle stroke remains 9.
+      const articulatedStroke=fv?4.2:["I","IH"].includes(consonant)?4.3:4.5;
       const strokeWidth=active?articulatedStroke+(9-articulatedStroke)*restBlend:9;
+      const oralLevel=active?(1-seal)*(1-restBlend)*clamp(opening/.1,0,1):0;
+      // Teeth are intentionally absent. F/V uses the white lip contour itself.
+      const teeth=0,contact=oralLevel*(fv?1:0);
+      const tongue=oralLevel*(consonant==="L"?.9:["TH","DH"].includes(consonant)?.85:0);
+      const tongueFront=oralLevel*(consonant==="L"?.25:["TH","DH"].includes(consonant)?.9:0);
       const points=[];
       const point=(x,y)=>{const p=[clamp(x,5,95),clamp(y,5,45)];points.push(p);return p};
       const finish=(path,aperture=0)=>{
         let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
         for(const [x,y]of points){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y)}
         return {path,transform:"translateX(0px) rotate(0deg)",opening:opening*(1-restBlend),seal,viseme,active,
-          aperture,strokeWidth,upper,lower,round,wide,corners,tension,restBlend,
+          aperture,strokeWidth,upper,lower,round,wide,corners,tension,restBlend,teeth,contact,tongue,tongueFront,
           points,bounds:{left:left-strokeWidth/2,right:right+strokeWidth/2,top:top-strokeWidth/2,bottom:bottom+strokeWidth/2}};
       };
       if(!active&&opening===0){
@@ -1606,16 +1630,22 @@ THE SOFTWARE.
         point(8,corner);point(18,curve);point(82,curve);point(92,corner);
         return finish(emotionSmile===0?mouthRigRestPath:`M 8 ${corner.toFixed(2)} C 18 ${curve.toFixed(2)} 82 ${curve.toFixed(2)} 92 ${corner.toFixed(2)} C 82 ${curve.toFixed(2)} 18 ${curve.toFixed(2)} 8 ${corner.toFixed(2)} Z`);
       }
-      const halfWidth=clamp(30+wide*9-round*14-tension*2,15,40);
+      // These are visible phonetic families, not one oval scaled by openness.
+      // Profile entries are half-width, cavity height and the source's normal
+      // opening. Actual source openness still controls closure continuously.
+      const profiles={A:[29,27,.86],AA:[29,27,.86],I:[35,8.8,.23],IH:[33,9.2,.28],E:[32,15,.44],EH:[32,15,.44],AE:[32,15,.44],AX:[27,10,.35],O:[15,23,.59],OH:[15,23,.59],OE:[18,19,.43],U:[10.5,14,.27],UH:[12.5,14,.27],UE:[12.5,14,.27],W:[11,11.5,.27],L:[29,11.5,.32],R:[23,11,.32],ER:[24,12,.34],TH:[29,9.5,.19],DH:[29,9.5,.19],F:[30,8.8,.12],V:[30,8.8,.12],S:[31,8.8,.15],Z:[31,8.8,.15],TS:[31,8.8,.15]};
+      const profile=active?profiles[consonant]:null;
+      const halfWidth=profile?profile[0]:clamp(30+wide*9-round*14-tension*2,15,40);
       const xLeft=50-halfWidth,xRight=50+halfWidth;
       const smileBias=clamp(emotionSmile*.035,-1.2,.65);
       const yCorner=clamp(23-corners*1.6-smileBias,18,29);
       const yCenter=clamp(24+lower*.6-smileBias*.45,21,27);
       let aperture=opening*(28+round*5-wide*7)*(fv?.5:1);
+      if(profile)aperture=profile[1]*clamp(opening/profile[2],0,1.15);
       if(active&&seal<.9){
         // Preserve visible negative space at native phone size. The weight goes
         // continuously to zero during a true closure; an actual seal stays exact.
-        const readable=fv?10.5:viseme==="FLAT"||["I","IH"].includes(consonant)?12.5:round>.65?11.5:9.5;
+        const readable=profile?Math.min(profile[1],8.8):round>.65?10.5:9.5;
         const weight=clamp(opening/.12,0,1)*(1-seal);
         aperture=Math.max(aperture,readable*weight);
       }
@@ -1626,19 +1656,23 @@ THE SOFTWARE.
       // A seal is one pressed seam. It need not become the large resting smile.
       const sealedCenter=yCorner+2.2-tension*.8;
       const topMid=seal>=.9?sealedCenter:top;
-      const bottomMid=seal>=.9?sealedCenter:bottom;
-      const lift=aperture*(fv?.055:.35),drop=aperture*(fv?.15:.36);
-      const edgeLeft=point(xLeft,yCorner),edgeRight=point(xRight,yCorner);
-      const uL1=point(xLeft+halfWidth*.2,yCorner-lift);
-      const uL2=point(50-halfWidth*.4,topMid);
+      const bottomMid=seal>=.9?sealedCenter:fv?Math.min(bottom,top+3.6):bottom;
+      // Four genuine ellipse quarters: side handles are vertical, central
+      // handles horizontal. Both derivatives and curvature agree at each join.
+      // The previous inset side handles made the closed contour cusp at its
+      // left/right tips and look like a rounded rectangle rather than a lip.
+      const k=.5522847498307936,center=(topMid+bottomMid)/2,radius=(bottomMid-topMid)/2;
+      const edgeLeft=point(xLeft,center),edgeRight=point(xRight,center);
+      const uL1=point(xLeft,center-k*radius);
+      const uL2=point(50-k*halfWidth,topMid);
       const uMid=point(50,topMid);
-      const uR1=point(50+halfWidth*.4,topMid);
-      const uR2=point(xRight-halfWidth*.2,yCorner-lift*(1+upper*.08));
-      const lR1=point(xRight-halfWidth*.2,yCorner+drop*(1+lower*.1));
-      const lR2=point(50+halfWidth*.4,bottomMid);
+      const uR1=point(50+k*halfWidth,topMid);
+      const uR2=point(xRight,center-k*radius);
+      const lR1=point(xRight,center+k*radius);
+      const lR2=point(50+k*halfWidth,bottomMid);
       const lMid=point(50,bottomMid);
-      const lL1=point(50-halfWidth*.4,bottomMid);
-      const lL2=point(xLeft+halfWidth*.2,yCorner+drop);
+      const lL1=point(50-k*halfWidth,bottomMid);
+      const lL2=point(xLeft,center+k*radius);
       // All x controls are monotone. Paired upper controls stay above lower ones.
       // This keeps even extreme mixed poses from turning the contour inside out.
       if(seal>=.9){lR1[1]=uR2[1];lR2[1]=uR1[1];lMid[1]=uMid[1];lL1[1]=uL2[1];lL2[1]=uL1[1]}
@@ -1652,7 +1686,18 @@ THE SOFTWARE.
       }
       const xy=p=>p.map(v=>v.toFixed(2)).join(" ");
       const path=`M ${xy(edgeLeft)} C ${xy(uL1)} ${xy(uL2)} ${xy(uMid)} C ${xy(uR1)} ${xy(uR2)} ${xy(edgeRight)} C ${xy(lR1)} ${xy(lR2)} ${xy(lMid)} C ${xy(lL1)} ${xy(lL2)} ${xy(edgeLeft)} Z`;
-      return finish(blend===1&&emotionSmile===0?mouthRigRestPath:path,seal>=.9?0:aperture*(1-blend));
+      return finish(blend===1&&emotionSmile===0?mouthRigRestPath:path,seal>=.9?0:(fv?bottomMid-topMid:aperture)*(1-blend));
+    }
+    details(pose={}){
+      const p=pose.points,clamp=(v,a,b)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:a));
+      if(!Array.isArray(p)||p.length!==12)return {teeth:{path:"M 50 25 Z",opacity:0},tongue:{path:"M 50 25 Z",opacity:0}};
+      const center=(p[0][0]+p[1][0])/2,span=Math.max(0,p[1][0]-p[0][0]),top=p[4][1],bottom=p[9][1],gap=Math.max(0,bottom-top),front=clamp(pose.tongueFront,0,1);
+      const tongueHalf=8*Math.tanh(span*(.085+front*.08)/8),tip=bottom-10*Math.tanh(gap*(.88-front*.35)/10);
+      const n=value=>value.toFixed(4);
+      const tonguePath=`M ${n(center-tongueHalf)} ${n(bottom+1)} Q ${n(center-tongueHalf)} ${n(tip)} ${n(center)} ${n(tip)} Q ${n(center+tongueHalf)} ${n(tip)} ${n(center+tongueHalf)} ${n(bottom+1)} Z`;
+      // Callers clip the subtle tongue to the current mouth contour. Deriving
+      // their coordinates here makes a scrub/resume use the actual geometry.
+      return {teeth:{path:"M 50 25 Z",opacity:0},tongue:{path:tonguePath,opacity:clamp(pose.tongue,0,1)}};
     }
   }
   // Geometry, rather than categorical pose flags, is interpolated on the song clock.
@@ -1661,6 +1706,8 @@ THE SOFTWARE.
     constructor(rig=new MouthRig()){this.rig=rig;this.maxCues=50000;this.settleMs=220;this.relaxedHoldMs=1000;this.smileReturnMs=1600;this.restGeometry=this.geometry(rig.render({}, {}, {playing:false}));this.restGeometry.emotionWeight=1;this.restGeometry.phone="REST"}
     clamp(value,min=0,max=1){return Math.max(min,Math.min(max,Number.isFinite(value)?value:min))}
     ease(t){t=this.clamp(t);return t*t*t*(t*(t*6-15)+10)}
+    detailChannels(rendered={}){return {teeth:0,contact:this.clamp(rendered.contact),tongue:this.clamp(rendered.tongue),tongueFront:this.clamp(rendered.tongueFront)}}
+    blendDetails(a,b,weight){const from=this.detailChannels(a),to=this.detailChannels(b),t=this.clamp(weight);return Object.fromEntries(Object.keys(from).map(key=>[key,from[key]+(to[key]-from[key])*t]))}
     geometry(rendered){
       let points=rendered?.points;
       if(points?.length===4){
@@ -1669,7 +1716,7 @@ THE SOFTWARE.
         points=[p0,p3,a,d,f,e,c,c,e,f,d,a];
       }
       if(points?.length!==12)throw Error("Mouth geometry requires a closed four-curve contour.");
-      return {...rendered,points:points.map(p=>[p[0],p[1]]),strokeWidth:this.clamp(rendered.strokeWidth||9,1,9),emotionWeight:rendered.emotionWeight??.08};
+      return {...rendered,...this.detailChannels(rendered),points:points.map(p=>[p[0],p[1]]),strokeWidth:this.clamp(rendered.strokeWidth||9,1,9),emotionWeight:rendered.emotionWeight??.08};
     }
     finish(points,strokeWidth,metadata={}){
       const pair=[[2,11],[3,10],[4,9],[5,8],[6,7]],sealed=pair.every(([a,b])=>Math.abs(points[a][1]-points[b][1])<1e-7&&Math.abs(points[a][0]-points[b][0])<1e-7);
@@ -1677,12 +1724,12 @@ THE SOFTWARE.
       const xy=p=>p.map(v=>v.toFixed(4)).join(" ");
       const path=`M ${xy(points[0])} C ${xy(points[2])} ${xy(points[3])} ${xy(points[4])} C ${xy(points[5])} ${xy(points[6])} ${xy(points[1])} C ${xy(points[7])} ${xy(points[8])} ${xy(points[9])} C ${xy(points[10])} ${xy(points[11])} ${xy(points[0])} Z`;
       const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]),r=strokeWidth/2;
-      return {...metadata,path,points,strokeWidth,aperture,opening:this.clamp(aperture/28),seal:sealed?1:0,transform:"translateX(0px) rotate(0deg)",bounds:{left:Math.min(...xs)-r,right:Math.max(...xs)+r,top:Math.min(...ys)-r,bottom:Math.max(...ys)+r}};
+      return {...metadata,...this.detailChannels(metadata),path,points,strokeWidth,aperture,opening:this.clamp(aperture/28),seal:sealed?1:0,transform:"translateX(0px) rotate(0deg)",bounds:{left:Math.min(...xs)-r,right:Math.max(...xs)+r,top:Math.min(...ys)-r,bottom:Math.max(...ys)+r}};
     }
     interpolate(renderedA,renderedB,weight){
       const a=this.geometry(renderedA),b=this.geometry(renderedB),t=this.clamp(weight);
       const points=a.points.map((p,i)=>[p[0]+(b.points[i][0]-p[0])*t,p[1]+(b.points[i][1]-p[1])*t]);
-      return this.finish(points,a.strokeWidth+(b.strokeWidth-a.strokeWidth)*t,{emotionWeight:a.emotionWeight+(b.emotionWeight-a.emotionWeight)*t});
+      return this.finish(points,a.strokeWidth+(b.strokeWidth-a.strokeWidth)*t,{...this.blendDetails(a,b,t),emotionWeight:a.emotionWeight+(b.emotionWeight-a.emotionWeight)*t});
     }
     closed(rendered){
       const g=this.geometry(rendered),points=g.points;
@@ -1714,8 +1761,8 @@ THE SOFTWARE.
       for(const source of candidates){
         while(cues.length&&cues.at(-1).start===source.start)cues.pop();
         const previous=cues.at(-1);if(previous&&previous.end>source.start){previous.end=source.start;previous.duration=previous.end-previous.start;if(previous.duration<=0)cues.pop()}
-        const cue={source,start:source.start,end:source.end,duration:source.end-source.start,sealed:["M","B","P"].includes(source.phone)||source.shape?.seal===1};
-        cue.geometry=this.geometry(this.rig.render({...source.shape,phone:source.phone,active:true,restBlend:0,timing:source.timing},{},{playing:true}));cue.geometry.phone=source.phone;cue.geometry.emotionWeight=.08;cues.push(cue);
+        const cue={source,start:source.start,end:source.end,duration:source.end-source.start,sealed:["M","B","P"].includes(source.phone)||source.shape?.seal===1,lipContact:["F","V"].includes(source.phone)};
+        cue.geometry=this.geometry(this.rig.render({...source.shape,phone:source.phone,active:true,restBlend:0,timing:source.timing},{},{playing:true}));cue.geometry.phone=source.phone;cue.geometry.emotionWeight=.08;cue.details=this.detailChannels(cue.geometry);cues.push(cue);
       }
       // Brief non-bilabial consonants contribute an accent around the nearby vowel,
       // rather than forcing another extreme target for one video frame.
@@ -1730,16 +1777,21 @@ THE SOFTWARE.
         const left=vowelNear(i,-1),right=vowelNear(i,1);if(!left&&!right)continue;
         let baseline=left?.geometry||right.geometry;
         if(left&&right){const l=(left.start+left.end)/2,r=(right.start+right.end)/2,at=(cue.start+cue.end)/2;baseline=this.interpolate(left.geometry,right.geometry,this.clamp((at-l)/Math.max(1,r-l)))}
-        const strength=phone==="H"?.08:["F","V"].includes(phone)?.9:this.clamp(cue.duration/210,.18,.6);
-        cue.geometry=this.interpolate(baseline,cue.geometry,strength);cue.geometry.phone=phone;cue.geometry.emotionWeight=.08;cue.strength=strength;
+        let strength=phone==="H"?.08:["F","V"].includes(phone)?.9:this.clamp(cue.duration/210,.18,.6);
+        // A longer estimated ending consonant must not undo a held O/U by
+        // suddenly widening its lips. Keep its small jaw accent, not a grin.
+        const baselineWidth=baseline.points[1][0]-baseline.points[0][0],ownWidth=cue.geometry.points[1][0]-cue.geometry.points[0][0];
+        if(!cue.lipContact&&baselineWidth<38&&ownWidth>baselineWidth*1.45)strength=Math.min(strength,baselineWidth*.45/(ownWidth-baselineWidth));
+        cue.geometry=this.interpolate(baseline,cue.geometry,strength);Object.assign(cue.geometry,cue.details);cue.geometry.phone=phone;cue.geometry.emotionWeight=.08;cue.strength=strength;
       }
       for(const cue of cues)cue.quiet=this.closed(cue.geometry);
       const phases=[],rest=this.restGeometry;
       const add=(start,end,from,to,kind,extra={})=>{if(end>start+1e-8)phases.push({start,end,from,to,kind,...extra})};
-      if(!cues.length)return {cues,phases,boundaries:[],start:0,end:0,source:plan};
+      if(!cues.length)return {cues,phases,detailPhases:[],boundaries:[],start:0,end:0,source:plan};
       const first=cues[0];let cursor;
       if(first.sealed&&first.start>0){const preparation=Math.min(90,first.start);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.geometry,"prepare-seal");cursor=first.start}
-      else{add(0,first.start,rest,rest,"idle");const attack=Math.min(110,first.duration*.4);add(first.start,first.start+attack,rest,first.geometry,"attack");cursor=first.start+attack}
+      else if(first.start>0){const preparation=Math.min(140,first.start),attack=Math.min(110,first.duration*.4);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.quiet,"prepare-quiet");add(first.start,first.start+attack,first.quiet,first.geometry,"attack");cursor=first.start+attack}
+      else{const attack=Math.min(180,first.duration*.4);add(first.start,first.start+attack,rest,first.geometry,"attack");cursor=first.start+attack}
       for(let i=0;i<cues.length-1;i++){
         const a=cues[i],b=cues[i+1];
         if(this.connected(a,b)){
@@ -1757,8 +1809,40 @@ THE SOFTWARE.
       }
       const last=cues.at(-1),close=last.sealed?0:Math.min(110,last.duration*.4);
       add(cursor,last.end-close,last.geometry,last.geometry,"hold");add(last.end-close,last.end,last.geometry,last.quiet,"close");add(last.end,last.end+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,last.quiet,rest,"rest-recovery",{recovery:this.recoveryFrom(last.quiet)});
-      const boundaries=[...new Set(phases.flatMap(p=>[p.start,p.end,...(p.recovery?[p.start+this.settleMs,p.start+this.settleMs+this.relaxedHoldMs,p.start+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,p.prepareAt].filter(t=>t>p.start&&t<p.end):[])]))].sort((a,b)=>a-b);
-      return {cues,phases,boundaries,start:phases[0]?.start??first.start,end:phases.at(-1)?.end??last.end,source:plan};
+      // Small oral contacts need a readable peak even while the larger jaw
+      // keeps its slower coarticulation. Each detail boundary is still C2.
+      const detailPhases=[],zero=this.detailChannels(),addDetail=(start,end,from,to)=>{if(end>start+1e-8)detailPhases.push({start,end,from,to})};
+      const flank=cue=>Math.min(60,cue.duration*.18);
+      addDetail(0,first.start,zero,zero);let detailCursor=first.start+flank(first);addDetail(first.start,detailCursor,zero,first.details);
+      for(let i=0;i<cues.length-1;i++){
+        const a=cues[i],b=cues[i+1];
+        if(this.connected(a,b)){
+          const pre=a.sealed?0:flank(a),post=b.sealed?0:flank(b),start=a.end-pre,end=b.start+post;
+          addDetail(detailCursor,start,a.details,a.details);addDetail(start,end,a.details,b.details);detailCursor=end;
+        }else{
+          const closeStart=a.end-flank(a);addDetail(detailCursor,closeStart,a.details,a.details);addDetail(closeStart,a.end,a.details,zero);addDetail(a.end,b.start,zero,zero);
+          detailCursor=b.start+flank(b);addDetail(b.start,detailCursor,zero,b.details);
+        }
+      }
+      const detailClose=last.end-flank(last);addDetail(detailCursor,detailClose,last.details,last.details);addDetail(detailClose,last.end,last.details,zero);
+      const boundaries=[...new Set([...phases.flatMap(p=>[p.start,p.end,...(p.recovery?[p.start+this.settleMs,p.start+this.settleMs+this.relaxedHoldMs,p.start+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,p.prepareAt].filter(t=>t>p.start&&t<p.end):[])]),...detailPhases.flatMap(p=>[p.start,p.end])])].sort((a,b)=>a-b);
+      return {cues,phases,detailPhases,boundaries,start:phases[0]?.start??first.start,end:phases.at(-1)?.end??last.end,source:plan};
+    }
+    sampleDetails(trajectory,at){
+      const phases=trajectory?.detailPhases||[];let low=0,high=phases.length-1,index=-1;
+      while(low<=high){const mid=(low+high)>>1;if(phases[mid].start<=at){index=mid;low=mid+1}else high=mid-1}
+      if(index<0||at>=phases[index].end)return this.detailChannels();
+      const current=phases[index];return this.blendDetails(current.from,current.to,this.ease((at-current.start)/(current.end-current.start)));
+    }
+    oralContact(rendered){
+      const amount=this.clamp(rendered.contact),gap=rendered.points[9][1]-rendered.points[4][1];
+      if(amount===0||gap<=3.6)return rendered;
+      const g=this.geometry(rendered),lift=4*Math.tanh((gap-3.6)/4)*this.ease((gap-3.6)/.5)*amount;
+      // Only a small central lower-lip gesture follows the fast contact cue.
+      // Move both center handles with the midpoint: its tangent remains flat,
+      // while the side handles retain their shared vertical tangents.
+      for(const index of [8,9,10])g.points[index][1]-=lift;
+      return this.finish(g.points,g.strokeWidth,{...g,points:undefined,path:undefined,bounds:undefined});
     }
     emotion(geometry,expression){
       const amount=geometry.emotionWeight??.08;
@@ -1775,7 +1859,31 @@ THE SOFTWARE.
       let rendered,phase;
       if(index<0||at>=trajectory.end){rendered=this.finish(this.restGeometry.points.map(p=>p.slice()),this.restGeometry.strokeWidth,{emotionWeight:1});phase={kind:"idle",start:at,end:at,progress:1,blend:1}}
       else{const current=phases[index],progress=this.clamp((at-current.start)/(current.end-current.start));let blend=this.ease(progress),kind=current.kind;if(current.recovery){const sampled=this.sampleRecovery(current.recovery,at-current.start);rendered=sampled.geometry;kind=sampled.kind;if(Number.isFinite(current.prepareAt)&&at>=current.prepareAt){blend=this.ease((at-current.prepareAt)/(current.end-current.prepareAt));rendered=this.interpolate(rendered,current.to,blend);kind="prepare"}}else rendered=this.interpolate(current.from,current.to,blend);phase={kind,start:current.start,end:current.end,progress,blend,fromPhone:current.from.phone||"REST",toPhone:current.to.phone||"REST"}}
-      const result=this.emotion(rendered,expression);return {...result,phase};
+      rendered=this.oralContact({...rendered,...this.sampleDetails(trajectory,at)});const result=this.emotion(rendered,expression);return {...result,phase};
+    }
+  }
+  // Shared by the player and the silent comparison: CSS cannot turn a cavity
+  // back into a white blob or paint a visible stroke around the clipping path.
+  const mouthSvgPaint={cavity:"rgba(5,10,18,.82)",ink:"rgba(255,255,255,.94)",tongue:"#efb3bd"};
+  class MouthSvgRenderer{
+    constructor(rig,nodes){
+      this.rig=rig;this.nodes=nodes;
+      const style=(node,values)=>{if(node)for(const [key,value]of Object.entries(values))node.style.setProperty(key,value)};
+      style(nodes.outline,{fill:mouthSvgPaint.cavity,stroke:mouthSvgPaint.ink,"stroke-linecap":"round","stroke-linejoin":"round"});
+      style(nodes.clip,{fill:"#000",stroke:"none"});
+      style(nodes.tongue,{fill:mouthSvgPaint.tongue,stroke:"none","stroke-width":"0",opacity:"0"});
+    }
+    render(pose){
+      if(!pose||!this.nodes.outline)return;
+      const nodes=this.nodes,details=this.rig.details(pose);
+      nodes.outline.setAttribute("d",pose.path);
+      nodes.outline.style.setProperty("stroke-width",String(pose.strokeWidth||9));
+      nodes.clip?.setAttribute("d",pose.path);
+      for(const name of ["tongue"]){
+        const node=nodes[name],detail=details[name];if(!node)continue;
+        node.setAttribute("d",detail?.path||"M 0 0 Z");
+        node.style.setProperty("opacity",String(.85*Math.max(0,Math.min(1,detail?.opacity||0))));
+      }
     }
   }
   // END ARTICULATION MODULE
@@ -1814,6 +1922,7 @@ THE SOFTWARE.
   const volumeSlider = $("volumeSlider"), volumeValue = $("volumeValue"), settingsDevice = $("settingsDevice");
   const logoutBtn = $("logoutBtn"), fsBtn = $("fsBtn"), track = $("track"), toast = $("toast");
   const vibeFace = $("vibeFace"), faceMouth = $("faceMouth"), faceMouthPath = $("faceMouthPath");
+  const mouthSvg=new MouthSvgRenderer(mouthRig,{outline:faceMouthPath,clip:$("faceMouthClip"),tongue:$("faceMouthTongue")});
   const faceScene=$("faceScene");
   const reducedFaceMotion=matchMedia("(prefers-reduced-motion: reduce)");
   const motionSetting=$("motionSetting"), motionStatus=$("motionStatus"), faceSoundSetting=$("faceSoundSetting");
@@ -2799,19 +2908,31 @@ THE SOFTWARE.
 
   function parseLrc(text){
     if(typeof text!=="string"||!text)return [];
-    const rows=[];
-    const re=/\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?\]\s*(.*)/;
-    for(const raw of text.split(/\r?\n/)){
-      const m=raw.match(re);
-      if(!m) continue;
-      const min=Number(m[1]);
-      const sec=Number(m[2]);
-      const frac=m[3] ? Number("0."+m[3].padEnd(3,"0").slice(0,3)) : 0;
-      const time=(min*60+sec+frac)*1000;
-      const text=m[4].trim();
-      if(text) rows.push({time,text});
+    const events=[];
+    for(const raw of text.slice(0,1000000).split(/\r?\n/).slice(0,10000)){
+      const stamps=[...raw.matchAll(/\[(\d{1,3}):(\d{2})(?:\.(\d{1,3}))?\]/g)];
+      if(!stamps.length)continue;
+      const text=raw.slice(stamps.at(-1).index+stamps.at(-1)[0].length).trim();
+      for(const stamp of stamps){
+        const seconds=Number(stamp[2]);if(seconds>=60)continue;
+        const fraction=stamp[3]?Number("0."+stamp[3].padEnd(3,"0").slice(0,3)):0;
+        events.push({time:(Number(stamp[1])*60+seconds+fraction)*1000,text});
+        if(events.length>=20000)break;
+      }
+      if(events.length>=20000)break;
     }
-    return rows.sort((a,b)=>a.time-b.time);
+    events.sort((a,b)=>a.time-b.time||Number(!!a.text)-Number(!!b.text));
+    const rows=[];let restAt=Infinity;
+    // Empty timestamps are source-provided ends, not visible blank lyric rows.
+    // Traverse backwards so repeated timestamps and multiple rests stay bounded.
+    for(let i=events.length-1;i>=0;i--){
+      const event=events[i];
+      if(!event.text){restAt=event.time;continue}
+      const row={time:event.time,text:event.text};
+      if(restAt>row.time&&restAt<Infinity)row.end=restAt;
+      rows.push(row);restAt=Infinity;
+    }
+    return rows.reverse();
   }
 
   function lyricSource(result){return result?.record?.lyricSource==="lrc.red"||result?.source==="lrc.red"?"lrc.red":"LRCLIB"}
@@ -3525,7 +3646,7 @@ THE SOFTWARE.
     mouth=mouthTrajectory.geometry(mouth);if(actualPlaying)lastRenderedMouth=mouth;
     lastMouthFrame=mouth;mouthWasPlaying=actualPlaying;
     vibeMouthBlend=mouth.opening;vibeMouthRound=vibeSpeech.round||0;vibeMouthWide=vibeSpeech.wide||0;runtime.lastMouth=now;
-    faceMouthPath.setAttribute("d",mouth.path);faceMouthPath.style.setProperty("stroke-width",String(mouth.strokeWidth||9));if(faceMouth)faceMouth.style.transform=mouth.transform;
+    mouthSvg.render(mouth);if(faceMouth)faceMouth.style.transform=mouth.transform;
   }
 
   function startVibeFace(){

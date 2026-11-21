@@ -4,11 +4,15 @@ const restPoints=[[8,8],[92,8],[13,25],[31.5,33.5],[50,33.5],[68.5,33.5],[87,25]
 const points=pose=>pose.points.length===12?pose.points:restPoints;
 const displacement=(a,b)=>Math.max(...points(a).map((p,i)=>Math.hypot(p[0]-points(b)[i][0],p[1]-points(b)[i][1])));
 const width=pose=>pose.points[1][0]-pose.points[0][0];
+const detailKeys=['contact','tongue','tongueFront'];
+const detailDistance=(a,b)=>Math.max(...detailKeys.map(key=>Math.abs((a[key]||0)-(b[key]||0))));
 const cubic=(a,b,c,d,t)=>{const u=1-t;return [0,1].map(k=>u*u*u*a[k]+3*u*u*t*b[k]+3*u*t*t*c[k]+t*t*t*d[k]);};
 function validate(pose){
   assert.equal(pose.points.length,12,'Rest and speech use the same interpolatable geometry');
   assert(!/NaN|Infinity/.test(pose.path));assert(Number.isFinite(pose.strokeWidth)&&pose.strokeWidth>0&&pose.strokeWidth<=9);
   assert(pose.points.every(p=>p.length===2&&p.every(Number.isFinite)));
+  assert.equal(pose.teeth,0,'The original smile does not acquire visible teeth');
+  for(const key of detailKeys)assert(Number.isFinite(pose[key])&&pose[key]>=0&&pose[key]<=1,key+' is a continuous bounded channel');
   assert(pose.bounds.left>=-1e-6&&pose.bounds.top>=-1e-6&&pose.bounds.right<=100+1e-6&&pose.bounds.bottom<=50+1e-6,'Stroke stays within the mouth viewport');
   const p=pose.points;
   for(let i=0;i<=16;i++){
@@ -26,6 +30,18 @@ function accelerationDifference(a,b,c,d,e,h){
   const pa=points(a),pb=points(b),pc=points(c),pd=points(d),pe=points(e);
   return Math.max(...pc.map((p,i)=>{const left=p.map((v,k)=>(v-2*pb[i][k]+pa[i][k])/(h*h)),right=p.map((v,k)=>(pe[i][k]-2*pd[i][k]+v)/(h*h));return Math.hypot(left[0]-right[0],left[1]-right[1])}));
 }
+function smoothContour(pose,label){
+  const p=pose.points,curves=[[p[0],p[2],p[3],p[4]],[p[4],p[5],p[6],p[1]],[p[1],p[7],p[8],p[9]],[p[9],p[10],p[11],p[0]]];
+  const derivative=(curve,end)=>[0,1].map(k=>3*(end?curve[3][k]-curve[2][k]:curve[1][k]-curve[0][k]));
+  const acceleration=(curve,end)=>[0,1].map(k=>6*(end?curve[3][k]-2*curve[2][k]+curve[1][k]:curve[0][k]-2*curve[1][k]+curve[2][k]));
+  const curvature=(v,a)=>(v[0]*a[1]-v[1]*a[0])/Math.pow(Math.hypot(...v),3);
+  for(let i=0;i<4;i++){
+    const a=curves[i],b=curves[(i+1)%4],incoming=derivative(a,true),outgoing=derivative(b,false);
+    assert(Math.hypot(...incoming)>1e-6&&Math.hypot(...outgoing)>1e-6,label+' has nondegenerate tangents at join '+i);
+    assert(Math.hypot(incoming[0]-outgoing[0],incoming[1]-outgoing[1])<1e-7,label+' has a C1 contour at join '+i);
+    assert(Math.abs(curvature(incoming,acceleration(a,true))-curvature(outgoing,acceleration(b,false)))<1e-7,label+' has matching curvature at join '+i);
+  }
+}
 (async()=>{
   const h=harness({preferences:{season:'off',surprises:false,tempoLookup:false}});
   const explicit=(phone,start,end)=>({word:phone,start,end,timing:'word',explicitEnd:true,phones:[{phone,start,end}]});
@@ -37,6 +53,7 @@ function accelerationDifference(a,b,c,d,e,h){
     {name:'re-entry during smile recovery',tokens:[explicit('UH',100,500),explicit('I',2100,2600)]},
     {name:'long rest and re-entry',tokens:[explicit('UH',100,500),explicit('B',4500,4600),explicit('I',4600,5000)]},
     {name:'initial and final bilabial',tokens:[explicit('B',100,210),explicit('A',210,700),explicit('M',700,820)]},
+    {name:'short initial L with closed preparation',tokens:[explicit('L',100,185),explicit('AX',185,900)]},
   ];
   const metrics=[];
   for(const fixture of fixtures){
@@ -52,6 +69,7 @@ function accelerationDifference(a,b,c,d,e,h){
       assert(fine<.005,fixture.name+' contains a position jump at '+boundary+': '+fine);
       assert(fine<=coarse*.08+1e-6,fixture.name+' does not converge toward a continuous position at '+boundary);
       assert(Math.abs(before.strokeWidth-after.strokeWidth)<.001,fixture.name+' contains an abrupt stroke-width switch');
+      assert(detailDistance(before,after)<.001,fixture.name+' contains a sudden oral-contact/detail switch');
       const delta=.001,left=sample(boundary-delta),center=sample(boundary),right=sample(boundary+delta);
       assert(velocityDifference(left,center,right,delta)<.003,fixture.name+' contains a velocity corner at '+boundary);
       const accelerationStep=.01;
@@ -62,6 +80,7 @@ function accelerationDifference(a,b,c,d,e,h){
     for(const segment of Array.from(plan.segments).filter(s=>['B','P','M'].includes(s.phone))){
       const middle=(segment.start+segment.end)/2,pose=sample(middle,{open:1,smile:20}),p=pose.points;
       assert(pose.aperture<1e-6,'A visible closed-lip consonant survives its surrounding smooth movement');
+      assert.equal(pose.contact+pose.tongue+pose.tongueFront,0,'Closed consonants hide every interior detail and contact hint');
       for(const [a,b]of [[p[0],p[0]],[p[2],p[11]],[p[3],p[10]],[p[4],p[9]],[p[5],p[8]],[p[6],p[7]]])assert(Math.hypot(a[0]-b[0],a[1]-b[1])<1e-6,'A closed consonant uses genuinely coincident lip curves');
     }
     const at=plan.start+(plan.end-plan.start)*.53,first=sample(at),later=sample(at+300);sample(plan.start);assert.equal(sample(at).path,first.path,'Sampling/seeking is independent of previous calls');assert(Number.isFinite(later.aperture));
@@ -72,6 +91,56 @@ function accelerationDifference(a,b,c,d,e,h){
         assert(maximum<legacyMaximum*.65,'The actual '+fps+' Hz frame movement must improve substantially, not just pass a mathematical boundary test');metrics.push({fps,before:+legacyMaximum.toFixed(3),after:+maximum.toFixed(3)});
       }
     }
+  }
+  h.run('var familyPoses=Object.fromEntries(["A","I","E","O","U","M","B","P","F","V","L","R","TH"].map(phone=>[phone,mouthRig.render({...articulationEngine.shape(phone),phone,active:true},{},{playing:true})]));');
+  const families=h.run('familyPoses');
+  for(const [phone,pose]of Object.entries(families).filter(([phone])=>!['M','B','P'].includes(phone))){
+    smoothContour(pose,phone);
+    const p=pose.points,cx=(p[0][0]+p[1][0])/2,cy=(p[4][1]+p[9][1])/2,rx=(p[1][0]-p[0][0])/2,ry=(p[9][1]-p[4][1])/2;
+    for(const curve of [[p[0],p[2],p[3],p[4]],[p[4],p[5],p[6],p[1]],[p[1],p[7],p[8],p[9]],[p[9],p[10],p[11],p[0]]])for(let i=0;i<=16;i++){const q=cubic(...curve,i/16),ellipse=Math.pow((q[0]-cx)/rx,2)+Math.pow((q[1]-cy)/ry,2);assert(Math.abs(ellipse-1)<.0006,phone+' is an organic ellipse rather than a rounded rectangle');}
+  }
+  assert(families.A.aperture>families.I.aperture*2.4,'Open A and spread I have clearly different jaw openings');
+  assert(families.E.aperture>families.I.aperture*1.5,'E is not just another flat I');
+  assert(width(families.O)/families.O.aperture<1.5,'O has a recognizably round cavity');
+  assert(width(families.U)<width(families.O)*.8,'U is a smaller pucker than O');
+  assert(displacement(families.L,families.R)>4,'L and R do not reuse an identical contour');
+  assert(families.L.tongue>.8&&families.R.tongue===0,'The small L tongue does not appear on R');
+  assert(families.TH.tongueFront>families.L.tongueFront+.5,'TH has a distinguishable forward tongue placement');
+  for(const phone of ['F','V']){assert(families[phone].contact>.99,'F/V preserve their lip-contact target');assert(families[phone].aperture<families[phone].strokeWidth,'F/V has a central white-lip contact without drawing teeth');}
+  for(const phone of ['A','I','E','O','U','M','B','P','F','V','R'])assert.equal(families[phone].tongue,0,'Tongue details are phonetic, not permanent '+phone+' decoration');
+  for(const phone of ['M','B','P'])assert.equal(families[phone].contact+families[phone].tongue+families[phone].tongueFront,0,'A bilabial seal contains no interior hint');
+  h.context.contactTokens=[explicit('A',100,500),explicit('F',500,565),explicit('A',565,900),explicit('L',900,965),explicit('A',965,1300),explicit('TH',1300,1365),explicit('M',1365,1450),explicit('A',1450,1800)];
+  h.run('var contactMotion=mouthTrajectory.compile(articulationEngine.compile(contactTokens))');
+  const contactAt=at=>h.run(`mouthTrajectory.sample(contactMotion,${at},{},{playing:true})`);
+  for(const at of [470,500,515,530,550,570,600]){const pose=contactAt(at);smoothContour(pose,'Interpolated F/V at '+at);validate(pose);}
+  const contactPhases=Array.from(h.run('contactMotion.detailPhases'));
+  for(const [start,end,key,peak]of [[500,565,'contact',.95],[900,965,'tongue',.85],[1300,1365,'tongue',.8]]){
+    const holds=contactPhases.filter(p=>p.start>=start&&p.end<=end&&p.from[key]>=peak&&p.to[key]>=peak),hold=holds.reduce((sum,p)=>sum+p.end-p.start,0);
+    assert(hold>=35&&hold<=46,'A 65 ms '+key+' cue has a visible 35–45 ms peak instead of 13 ms');
+    for(const fps of [30,60])for(let offset=0;offset<1000/fps;offset+=3){let seen=0;for(let at=offset;at<end;at+=1000/fps)if(at>=start)seen=Math.max(seen,contactAt(at)[key]);assert(seen>=peak,'The '+key+' peak survives '+fps+' Hz sampling at every tested frame alignment');}
+  }
+  for(const boundary of Array.from(h.run('contactMotion.boundaries'))){
+    const before=contactAt(boundary-.001),center=contactAt(boundary),after=contactAt(boundary+.001);
+    assert(detailDistance(before,after)<.001,'Detail channels remain continuous at '+boundary);
+    for(const key of detailKeys){const left=(center[key]-before[key])/.001,right=(after[key]-center[key])/.001;assert(Math.abs(left-right)<.003,'Detail channels preserve velocity at '+boundary);}
+    const detail=h.run(`mouthRig.details(mouthTrajectory.sample(contactMotion,${boundary},{},{playing:true}))`);
+    for(const part of [detail.teeth,detail.tongue]){assert(!/NaN|Infinity/.test(part.path));assert(Number.isFinite(part.opacity)&&part.opacity>=0&&part.opacity<=1);}
+    assert.equal(detail.teeth.opacity,0,'No contact phase draws a tooth bar');
+  }
+  const tonguePose=contactAt(930),idlePose=h.run('mouthTrajectory.restGeometry');h.context.tonguePose=tonguePose;
+  const halfway=h.run('mouthTrajectory.interpolate(tonguePose,mouthTrajectory.restGeometry,.5)');
+  assert(Math.abs(halfway.tongue-tonguePose.tongue*.5)<1e-9,'Pause/resume blends the tongue rather than switching a flag');
+  assert.equal(idlePose.tongue,0);assert.equal(idlePose.contact,0);assert.equal(idlePose.strokeWidth,9);assert(displacement(idlePose,{points:restPoints})<1e-6,'The exact original resting smile is retained');
+  h.context.entryTokens=[explicit('L',100,185),explicit('AX',185,900)];h.run('var entryMotion=mouthTrajectory.compile(articulationEngine.compile(entryTokens))');
+  const entry=at=>h.run(`mouthTrajectory.sample(entryMotion,${at},{},{playing:true})`);
+  for(const at of [0,25,50,75,99.999]){const pose=entry(at);assert.equal(pose.aperture,0,'First-cue preparation is closed throughout the real lead-in');assert.equal(pose.tongue+pose.contact,0,'Preparation never starts singing or tongue details early');}
+  assert(width(entry(99.999))<65,'The large idle smile is already prepared before a short initial L');
+  assert(entry(125).aperture>0&&entry(125).tongue>.8,'The short initial L still opens and shows its small phonetic gesture at the supplied cue');
+  const threshold=gap=>{h.context.thresholdGap=gap;return h.run('var thresholdPose=mouthTrajectory.geometry(familyPoses.F);var thresholdChange=thresholdGap-(thresholdPose.points[9][1]-thresholdPose.points[4][1]);for(var pointIndex of [8,9,10])thresholdPose.points[pointIndex][1]+=thresholdChange;thresholdPose.contact=.8;mouthTrajectory.oralContact(thresholdPose)')};
+  for(const step of [.001,.0001]){
+    const a=threshold(3.6-2*step),b=threshold(3.6-step),c=threshold(3.6),d=threshold(3.6+step),e=threshold(3.6+2*step);
+    assert(velocityDifference(b,c,d,step)<.001,'Crossing the lip-contact threshold has no velocity corner');
+    assert(accelerationDifference(a,b,c,d,e,step)<.01,'Crossing the lip-contact threshold has no acceleration corner');
   }
   h.run('var holdPlan=articulationEngine.compile([{word:"Ooh",start:100,end:8100,timing:"word",explicitEnd:true}],"en");var holdMotion=mouthTrajectory.compile(holdPlan)');
   const held=at=>h.run(`mouthTrajectory.sample(holdMotion,${at},{},{playing:true})`);

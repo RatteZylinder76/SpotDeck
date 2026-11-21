@@ -4,11 +4,11 @@
 *{box-sizing:border-box}body{margin:0;background:#091713;color:#f2f7f2;font:16px/1.5 system-ui,-apple-system,sans-serif}main{width:min(920px,100%);margin:auto;padding:30px max(20px,env(safe-area-inset-left)) 44px}a{color:#a6e8cb}header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}h1{font-size:clamp(24px,5vw,36px);margin:10px 0}p{color:#b7c9bf;margin:8px 0 22px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:30px}.side{text-align:center;background:linear-gradient(180deg,#14302666,transparent);border-radius:24px;padding:18px 12px 12px}.side h2{font-size:16px;margin:0;color:#a9c4b6}.face{position:relative;width:min(100%,280px);aspect-ratio:1;margin:auto}.eye{position:absolute;top:35%;width:12.2%;aspect-ratio:1;border-radius:50%;background:#f4f7f5}.eye.left{left:24%}.eye.right{right:24%}.mouth{position:absolute;left:21%;top:52%;width:58%;height:24%;overflow:visible}.mouth path{fill:none;stroke:#f4f7f5;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}.word{min-height:28px;font-size:19px;font-weight:650}.phase{font-size:13px;min-height:22px;color:#b6ccbf}label{display:block;color:#b6ccbf;font-size:14px}select,input[type=text]{width:100%;min-height:46px;font:inherit;color:inherit;background:#193328;border:1px solid #355146;border-radius:10px;padding:10px}.fields{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin:24px 0 16px}button{font:inherit;color:inherit;background:#264c3a;border:1px solid #476e59;border-radius:24px;min-height:44px;padding:9px 20px;cursor:pointer}button.primary{background:#b3edb9;color:#112216;border-color:transparent}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d0ffe6;outline-offset:3px}.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.time{margin-left:auto;font-variant-numeric:tabular-nums;font-size:14px;color:#b7c9bf}input[type=range]{width:100%;margin:18px 0 6px;accent-color:#b3edb9;min-height:34px}.phrase{text-align:center;font-size:clamp(17px,3vw,24px);min-height:38px;color:#dbece1;margin-top:22px}.phrase span{display:inline-block;padding:1px 5px}.phrase .active{color:#b3edb9;font-weight:750;text-decoration:underline;text-underline-offset:6px}.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.jump button{font-size:14px;background:transparent}.note{font-size:13px;margin-top:26px}.custom{margin-top:16px}.custom input{margin:6px 0 10px}footer{margin-top:30px;font-size:13px;color:#9bb3a5}@media(max-width:520px){main{padding-top:16px}.comparison{gap:10px}.side{padding:14px 6px 10px;border-radius:16px}.fields{grid-template-columns:1fr}.word{font-size:16px}.time{margin-left:0}.face{min-width:0}h1{line-height:1.2}}
 </style></head><body><main>
 <header><h1>Mundbewegungen vergleichen</h1><a href="./">Zurück zu SpotDeck</a></header>
-<p>Fließende Lautformen und ein entspannter Ausklang. Stumme Textdemo mit geschätzten Wort- und Lautzeiten.</p>
-<div class="comparison"><section class="side"><h2>Vorher · direkte Lautformen</h2><div class="face" role="img" aria-label="Bisherige Mundbewegung"><div class="eye left"></div><div class="eye right"></div><svg class="mouth" viewBox="0 0 100 50" aria-hidden="true"><path id="oldMouth" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path></svg></div><div class="word" id="oldWord">—</div><div class="phase" id="oldPhase">Direkte Mundformen</div></section>
-<section class="side"><h2>Neu · fließende Übergänge</h2><div class="face" role="img" aria-label="Neue Mundbewegung"><div class="eye left"></div><div class="eye right"></div><svg class="mouth" viewBox="0 0 100 50" aria-hidden="true"><path id="newMouth" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path></svg></div><div class="word" id="newWord">—</div><div class="phase" id="newPhase">Durchgehende Bewegung</div></section></div>
+<p>Bisherige Darstellung und neue Lautformen im direkten Vergleich. Stumme Demo mit vorgegebenen oder geschätzten Zeiten.</p>
+<div class="comparison"><section class="side"><h2>Vorher · bisherige Darstellung</h2><div class="face" role="img" aria-label="Bisherige Mundbewegung"><div class="eye left"></div><div class="eye right"></div><svg class="mouth" viewBox="0 0 100 50" aria-hidden="true"><path id="oldMouth" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path></svg></div><div class="word" id="oldWord">—</div><div class="phase" id="oldPhase">Direkte Mundformen</div></section>
+<section class="side"><h2>Neu · deutlichere Lautformen</h2><div class="face" role="img" aria-label="Neue Mundbewegung"><div class="eye left"></div><div class="eye right"></div><svg class="mouth" viewBox="0 0 100 50" aria-hidden="true"><defs><clipPath id="newMouthOpening"><path id="newMouthClip" d="M 0 0 Z"></path></clipPath></defs><path id="newMouth" d="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z"></path><g clip-path="url(#newMouthOpening)"><path id="newMouthTongue" d="M 0 0 Z" opacity="0"></path></g></svg></div><div class="word" id="newWord">—</div><div class="phase" id="newPhase">Durchgehende Bewegung</div></section></div>
 <div class="phrase" id="phrase" aria-label="Beispieltext"></div>
-<div class="fields"><label>Beispiel<select id="example"><option value="german">Ich bin hier, ich bin frei</option><option value="english">We are free tonight</option><option value="good">Langer Ausklang · good</option><option value="vowels">Lange Vokale und Lippenverschluss</option><option value="custom">Eigener kurzer Text</option></select></label><label>Aussprache<select id="language"><option value="auto">Automatisch · Deutsch/Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></label></div>
+<div class="fields"><label>Beispiel<select id="example"><option value="german">Ich bin hier, ich bin frei</option><option value="english">We are free tonight</option><option value="love">Love is gone · Lautvergleich</option><option value="contacts">Einzellaute · M / F / L / R / TH / A / I / O / U</option><option value="good">Langer Ausklang · good</option><option value="vowels">Lange Vokale und Lippenverschluss</option><option value="custom">Eigener kurzer Text</option></select></label><label>Aussprache<select id="language"><option value="auto">Automatisch · Deutsch/Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select></label></div>
 <div class="custom" id="customBox" hidden><label for="customText">Eigener Text · bis 180 Zeichen</label><input id="customText" type="text" maxlength="180" value="ich bin hier, ich bin frei"><button id="applyText">Text übernehmen</button></div>
 <div class="actions"><button class="primary" id="play">Vergleich abspielen</button><button id="restart">Anfang</button><label>Tempo<select id="speed"><option value="1">Normal</option><option value="0.5">Halbes Tempo</option><option value="0.25">Zeitlupe</option></select></label><span class="time" id="time">0,00 / 6,40 s</span></div>
 <label for="position">Zeitpunkt zum Prüfen verschieben</label><input id="position" type="range" min="0" max="6400" step="10" value="0">
@@ -17,6 +17,535 @@
 <footer id="status" role="status" aria-live="polite">Bereit. Mit dem Zeitregler kannst du die Mundformen einzeln ansehen.</footer>
 </main><script>
   // Pure pronunciation and singing-articulation planning. No audio is analysed here.
+  // All shape channels are 0..1 except upper/lower/corners, which are -1..1.
+  class ArticulationEngine{
+    constructor(){
+      this.cache=new Map();this.cacheLimit=512;
+      this.vowels=new Set(['I','IH','E','EH','AE','A','AA','O','OH','U','UH','OE','UE','AX','ER']);
+      this.shapes={
+        rest:{viseme:'rest',open:0,round:0,wide:0,seal:0,upper:0,lower:0,corners:0,tension:0},
+        seal:{viseme:'seal',open:0,round:0,wide:.35,seal:1,upper:0,lower:0,corners:0,tension:.8},
+        fv:{viseme:'fv',open:.12,round:0,wide:.38,seal:0,upper:.35,lower:-.45,corners:.05,tension:.65},
+        dental:{viseme:'dental',open:.19,round:.04,wide:.35,seal:0,upper:.08,lower:.08,corners:.05,tension:.3},
+        sibilant:{viseme:'sibilant',open:.15,round:.08,wide:.6,seal:0,upper:.08,lower:.03,corners:.15,tension:.65},
+        palatal:{viseme:'palatal',open:.23,round:.3,wide:.2,seal:0,upper:.13,lower:.1,corners:-.04,tension:.4},
+        tongue:{viseme:'tongue',open:.32,round:.08,wide:.34,seal:0,upper:.15,lower:.2,corners:.05,tension:.35},
+        flat:{viseme:'flat',open:.23,round:0,wide:.94,seal:0,upper:.04,lower:.12,corners:.4,tension:.45},
+        mid:{viseme:'mid',open:.44,round:.04,wide:.66,seal:0,upper:.16,lower:.4,corners:.2,tension:.2},
+        open:{viseme:'open',open:.86,round:.02,wide:.42,seal:0,upper:.23,lower:.86,corners:.08,tension:.1},
+        round:{viseme:'round',open:.59,round:.84,wide:.04,seal:0,upper:.27,lower:.48,corners:-.25,tension:.3},
+        pucker:{viseme:'pucker',open:.27,round:1,wide:0,seal:0,upper:.2,lower:.2,corners:-.4,tension:.6}
+      };
+      this.lexicons={
+        de:{ich:'IH CH_DE',bin:'B IH N',hier:'H I: ER',frei:'F R AI',du:'D U:',und:'U N T',der:'D E: ER',die:'D I:',das:'D A S',ein:'AI N',eine:'AI N AX',einer:'AI N ER',einen:'AI N AX N',es:'EH S',ist:'IH S T',nicht:'N IH CH_DE T',mein:'M AI N',meine:'M AI N AX',dein:'D AI N',deine:'D AI N AX',sein:'Z AI N',seine:'Z AI N AX',wir:'V I: ER',ihr:'I: ER',sie:'Z I:',sind:'Z IH N T',mit:'M IH T',für:'F UE: ER',von:'F O N',auf:'AU F',aus:'AU S',auch:'AU ACH',noch:'N O ACH',doch:'D O ACH',mich:'M IH CH_DE',dich:'D IH CH_DE',sich:'Z IH CH_DE',uns:'U N S',euch:'OY CH_DE',was:'V A S',wer:'V E: ER',wie:'V I:',wo:'V O:',war:'V A: ER',wenn:'V EH N',weil:'V AI L',dann:'D A N',denn:'D EH N',nur:'N U: ER',so:'Z O:',schon:'SH O: N',schön:'SH OE: N',über:'UE: B ER',immer:'IH M ER',wieder:'V I: D ER',alle:'A L AX',alles:'A L AX S',jetzt:'Y EH T S T',heute:'H OY T AX',nacht:'N A ACH T',tag:'T A: K',zeit:'TS AI T',leben:'L E: B AX N',liebe:'L I: B AX',lieben:'L I: B AX N',liebst:'L I: P S T',liebt:'L I: P T',liebstes:'L I: P S T AX S',herz:'H EH R TS',herzen:'H EH R TS AX N',welt:'V EH L T',weit:'V AI T',weiß:'V AI S',weiss:'V AI S',bleib:'B L AI P',bleiben:'B L AI B AX N',bleibt:'B L AI P T',bleibe:'B L AI B AX',komm:'K O M',kommen:'K O M AX N',kommt:'K O M T',gehen:'G E: AX N',geht:'G E: T',sehen:'Z E: AX N',sag:'Z A: K',sagen:'Z A: G AX N',sagt:'Z A: K T',träume:'T R OY M AX',traum:'T R AU M',träumen:'T R OY M AX N',tanzen:'T A N TS AX N',musik:'M U Z I: K',gefühle:'G AX F UE: L AX',gefühl:'G AX F UE: L',glück:'G L UE K',glücklich:'G L UE K L IH CH_DE',ohne:'O: N AX',kann:'K A N',können:'K OE N AX N',will:'V IH L',wollen:'V O L AX N',muss:'M U S',müssen:'M UE S AX N',habe:'H A: B AX',haben:'H A: B AX N',hat:'H A T',hast:'H A S T',bist:'B IH S T',sein:'Z AI N',warum:'V A R U M',zusammen:'TS U Z A M AX N',allein:'A L AI N',zuhause:'TS U H AU Z AX',feuer:'F OY ER',wasser:'V A S ER',licht:'L IH CH_DE T',schnee:'SH N E:',sonne:'Z O N AX',sterne:'SH T EH R N AX',stern:'SH T EH R N',engel:'EH NG AX L',himmel:'H IH M AX L',heilig:'H AI L IH CH_DE',weihnachten:'V AI N ACH T AX N',ja:'Y A:',nein:'N AI N',bitte:'B IH T AX',danke:'D A NG K AX',am:'A M',an:'A N',im:'IH M',in:'IH N',zu:'TS U:',zum:'TS U M',zur:'TS U: ER'},
+        en:{i:'AI',you:'Y U:',the:'DH AX',a:'AX',an:'AE N',and:'AE N D',are:'AA R',is:'IH Z',it:'IH T',its:'IH T S',this:'DH IH S',that:'DH AE T',these:'DH I: Z',those:'DH OU Z',we:'W I:',he:'H I:',she:'SH I:',they:'DH EI',me:'M I:',my:'M AI',mine:'M AI N',your:'Y O R',our:'AU ER',us:'U S',to:'T U:',too:'T U:',two:'T U:',of:'AX V',for:'F O R',from:'F R U M',with:'W IH DH',without:'W IH DH AU T',not:'N O T',no:'N OU',yes:'Y EH S',be:'B I:',been:'B IH N',being:'B I: IH NG',am:'AE M',was:'W U Z',were:'W ER',will:'W IH L',would:'W UH D',could:'K UH D',should:'SH UH D',can:'K AE N',cant:'K AE N T',cannot:'K AE N O T',dont:'D OU N T',doesnt:'D U Z AX N T',didnt:'D IH D AX N T',im:'AI M',ive:'AI V',youre:'Y O R',youve:'Y U: V',well:'W EH L',were:'W ER',ill:'AI L',its:'IH T S',thats:'DH AE T S',theres:'DH EH R Z',love:'L U V',loved:'L U V D',loves:'L U V Z',loving:'L U V IH NG',life:'L AI F',live:'L IH V',lives:'L IH V Z',alive:'AX L AI V',die:'D AI',time:'T AI M',night:'N AI T',light:'L AI T',right:'R AI T',high:'H AI',free:'F R I:',here:'H I: R',hear:'H I: R',heart:'H AA R T',world:'W ER L D',hello:'H EH L OU',goodbye:'G UH D B AI',good:'G UH D',bye:'B AI',baby:'B EI B I',beautiful:'B Y U: T IH F AX L',tonight:'T AX N AI T',today:'T AX D EI',tomorrow:'T AX M O R OU',yesterday:'Y EH S T ER D EI',dream:'D R I: M',dreams:'D R I: M Z',dreaming:'D R I: M IH NG',dance:'D AE N S',dancing:'D AE N S IH NG',feel:'F I: L',feeling:'F I: L IH NG',feelings:'F I: L IH NG Z',fire:'F AI ER',water:'W O T ER',sun:'S U N',sunshine:'S U N SH AI N',moon:'M U: N',stars:'S T AA R Z',star:'S T AA R',never:'N EH V ER',ever:'EH V ER',forever:'F ER EH V ER',always:'O: L W EI Z',stay:'S T EI',away:'AX W EI',come:'K U M',comes:'K U M Z',go:'G OU',gone:'G O N',know:'N OU',knows:'N OU Z',knew:'N U:',knee:'N I:',knew:'N U:',one:'W U N',once:'W U N S',only:'OU N L I',all:'O: L',everything:'EH V R I TH IH NG',something:'S U M TH IH NG',nothing:'N U TH IH NG',somebody:'S U M B O D I',everybody:'EH V R I B O D I',every:'EH V R I',when:'W EH N',where:'W EH R',what:'W U T',why:'W AI',who:'H U:',how:'H AU',there:'DH EH R',their:'DH EH R',through:'TH R U:',though:'DH OU',thought:'TH O: T',think:'TH IH NG K',eyes:'AI Z',eye:'AI',smile:'S M AI L',oh:'OU',ooh:'U:',ah:'A:',yeah:'Y AE',hey:'H EI',Christmas:'K R IH S M AX S'}
+      };
+      this.deClues=new Set('ich bin hier frei du und der das ein eine nicht mein wir ihr sie sind für auf auch mich dich sich euch weil schön über wieder heute liebe herz leben traum tanzen musik gefühl glück jetzt bist habe haben hat hast gehen geht'.split(' '));
+      this.enClues=new Set('i you the and are this that these those we he she they my your our with without not will would could should love life here free tonight baby hello dream feel know one only where what why who through though think yeah hey'.split(' '));
+      // Closed-class words are often unstressed. This is a weak text prior, not measured prosody.
+      this.functionWords={
+        de:new Set('ich du er sie es wir ihr der die das ein eine einer einen einem eines und oder aber als an am auf aus bei im in mit nach von vor für zum zur zu des dem den ist sind war waren bin bist hat haben wird werden'.split(' ')),
+        en:new Set('i you he she it we they the a an and or but as at by for from in of on to with is are am was were be been has have had do does did will would can could should my your our their its'.split(' '))
+      };
+      for(const [word,phones]of Object.entries(this.lexicons.en))this.lexicons.en[word.toLowerCase()]=phones.replace(/\bU\b(?!:)/g,'AX');
+      Object.assign(this.lexicons.en,{have:'H AE V',has:'H AE Z',had:'H AE D',give:'G IH V',given:'G IH V AX N',some:'S AX M',done:'D AX N',move:'M U: V',lose:'L U: Z',close:'K L OU Z',make:'M EI K',take:'T EI K',name:'N EI M',same:'S EI M',late:'L EI T',hate:'H EI T',home:'H OU M',hope:'H OU P',alone:'AX L OU N',phone:'F OU N',use:'Y U: Z',true:'T R U:',snow:'S N OU',show:'SH OU',grow:'G R OU',flow:'F L OU',lie:'L AI'});
+      this.phoneIds=new Set(['REST','P','B','M','F','V','T','D','K','G','N','NG','L','R','S','Z','SH','ZH','CH_DE','ACH','TH','DH','H','W','Y','TS','KS','AI','AU','OY','EI','OU',...this.vowels]);
+    }
+    bounded(value,a=0,b=1){return Math.max(a,Math.min(b,Number.isFinite(value)?value:0))}
+    normalize(word){return String(word??'').normalize('NFKC').toLowerCase().replace(/[’']/g,'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,'').slice(0,128)}
+    detectLanguage(text){
+      const words=(String(text??'').toLowerCase().match(/[\p{L}]+/gu)||[]).slice(0,1000);let de=0,en=0;
+      for(const w of words){if(this.deClues.has(w))de+=2;if(this.enClues.has(w))en+=2;if(/[äöüß]/.test(w))de+=4;if(this.lexicons.de[w]&&!this.lexicons.en[w])de+=.5;if(this.lexicons.en[w]&&!this.lexicons.de[w])en+=.5}
+      return de>en?'de':'en';
+    }
+    expand(raw){
+      const out=[];let group=0;
+      const diphthongs={AI:['A','I'],AU:['A','U'],OY:['O','I'],EI:['E','I'],OU:['O','U']};
+      for(const [phoneIndex,rawPhone]of raw.slice(0,80).entries()){
+        const long=/:$/.test(rawPhone),id=rawPhone.replace(/:$/,'');
+        if(diphthongs[id]){const parts=diphthongs[id];parts.forEach((part,i)=>out.push({id:part,vowel:true,long:i===0,group,weight:i===0?3:1}));group++}
+        else{const vowel=this.vowels.has(id),release=id==='ER'&&out.at(-1)?.vowel&&phoneIndex===raw.length-1;out.push({id,vowel,long,group:release?out.at(-1).group:vowel?group++:-1,weight:release?.3:vowel?(long?1.8:1):1})}
+      }
+      return out;
+    }
+    rules(word,lang){
+      const phones=[];let i=0;
+      const push=(phone,n=1)=>{phones.push(phone);i+=n};
+      while(i<word.length&&phones.length<64){
+        const rest=word.slice(i),c=word[i],prev=word[i-1]||'';
+        if(lang==='de'){
+          if(rest.startsWith('sch')){push('SH',3);continue}
+          if(rest.startsWith('tsch')){phones.push('T');push('SH',4);continue}
+          if(rest.startsWith('ch')){push(/[aou]/.test(prev)?'ACH':'CH_DE',2);continue}
+          if(rest.startsWith('ck')){push('K',2);continue}
+          if(/^(ei|ai|ey|ay)/.test(rest)){push('AI',2);continue}
+          if(/^(eu|äu)/.test(rest)){push('OY',2);continue}
+          if(rest.startsWith('au')){push('AU',2);continue}
+          if(rest.startsWith('ie')){push('I:',2);continue}
+          if(rest.startsWith('qu')){phones.push('K');push('V',2);continue}
+          if(rest.startsWith('ph')){push('F',2);continue}
+          if(rest.startsWith('ng')){push('NG',2);continue}
+          if(rest.startsWith('er')&&i===word.length-2){push('ER',2);continue}
+          if((c==='s')&&i===0&&/[pt]/.test(word[i+1])){push('SH');continue}
+          if(c==='h'&&/[aeiouäöü]/.test(prev)){i++;continue}
+          const map={a:'A',e:i===word.length-1?'AX':'EH',i:'IH',o:'O',u:'U',ä:'EH',ö:'OE',ü:'UE',y:'UE',b:'B',p:'P',m:'M',f:'F',v:'F',w:'V',t:'T',d:'D',k:'K',c:'K',g:'G',n:'N',l:'L',r:'R',s:i===0&&/[aeiouäöü]/.test(word[i+1])?'Z':'S',ß:'S',z:'TS',j:'Y',h:'H',x:'KS',q:'K'};
+          if(map[c]){if(map[c]==='TS')phones.push('T','S');else if(map[c]==='KS')phones.push('K','S');else phones.push(map[c]);if(c===word[i+1]&&/[aeiouäöü]/.test(c)){phones[phones.length-1]+=':';i++}else if(c===word[i+1]&&/[bdfgklmnprst]/.test(c))i++}
+          i++;
+        }else{
+          if(i===0&&/^(kn|gn)/.test(rest)){i++;continue}
+          if(i===0&&rest.startsWith('wr')){i++;continue}
+          if(rest.startsWith('tion')){phones.push('SH','AX');push('N',4);continue}
+          if(rest.startsWith('igh')){push('AI',3);continue}
+          if(rest.startsWith('tch')){phones.push('T');push('SH',3);continue}
+          if(rest.startsWith('ch')){phones.push('T');push('SH',2);continue}
+          if(rest.startsWith('sh')){push('SH',2);continue}
+          if(rest.startsWith('th')){push('TH',2);continue}
+          if(rest.startsWith('ph')){push('F',2);continue}
+          if(rest.startsWith('ng')){push('NG',2);continue}
+          if(/^(ee|ea)/.test(rest)){push('I:',2);continue}
+          if(rest.startsWith('oo')){push('U:',2);continue}
+          if(/^(ai|ay|ey)/.test(rest)){push('EI',2);continue}
+          if(/^(oi|oy)/.test(rest)){push('OY',2);continue}
+          if(/^(ow|ou)/.test(rest)){push(rest==='ow'?'OU':'AU',2);continue}
+          if(rest.startsWith('oa')){push('OU',2);continue}
+          if(rest.startsWith('qu')){phones.push('K');push('W',2);continue}
+          if(/^[aeiou][bcdfghjklmnpqrstvwxz]e$/.test(rest)){const longVowels={a:'EI',e:'I:',i:'AI',o:'OU',u:'U:'};push(longVowels[c]);continue}
+          if(c==='e'&&i===word.length-1&&word.length>3){i++;continue}
+          const map={a:'AE',e:'EH',i:'IH',o:'O',u:'U',y:i===0?'Y':'I',b:'B',p:'P',m:'M',f:'F',v:'V',w:'W',t:'T',d:'D',k:'K',c:/[eiy]/.test(word[i+1]||'')?'S':'K',g:/[eiy]/.test(word[i+1]||'')?'ZH':'G',n:'N',l:'L',r:'R',s:'S',z:'Z',j:'ZH',h:'H',x:'KS',q:'K'};
+          if(map[c]){if(map[c]==='KS')phones.push('K','S');else phones.push(map[c]);if(c===word[i+1]&&/[bdfgklmnprst]/.test(c))i++}i++;
+        }
+      }
+      return phones.length?phones:['UNK'];
+    }
+    pronounce(word,language='auto'){
+      const normalized=this.normalize(word),preferred=['de','en'].includes(language)?language:this.detectLanguage(normalized),key=preferred+':'+normalized;
+      if(this.cache.has(key))return this.cache.get(key);
+      let lang=preferred,source='rules',raw;
+      if(this.lexicons[lang][normalized]){raw=this.lexicons[lang][normalized].split(' ');source='lexicon'}
+      else{const other=lang==='de'?'en':'de';if(this.lexicons[other][normalized]){lang=other;raw=this.lexicons[other][normalized].split(' ');source='lexicon'}}
+      if(!raw&&lang==='en'&&normalized.endsWith('ing')){const base=normalized.slice(0,-3),entry=this.lexicons.en[base]||this.lexicons.en[base+'e'];if(entry){raw=[...entry.split(' '),'IH','NG'];source='lexicon'}}
+      if(!raw){if(Array.from(normalized).some(c=>/\p{L}/u.test(c)&&!/\p{Script=Latin}/u.test(c))){raw=['UNK'];source='fallback'}else if(/^(?:o{2,}h*|u{2,}h*|a{2,}h*|o+h+|u+h+|a+h+)$/i.test(normalized)){raw=[/^a/.test(normalized)?'A:':/^u/.test(normalized)?'U:':'U:'];source='lexicon'}else raw=this.rules(normalized,lang)}
+      const phones=this.expand(raw),groups=new Set(phones.filter(p=>p.vowel).map(p=>p.group));if(raw.length===1&&raw[0]==='UNK')source='fallback';
+      const result=Object.freeze({language:lang,phones:Object.freeze(phones.map(p=>Object.freeze(p))),syllables:Math.max(1,groups.size),source,elongated:/([aeiouäöü])\1{2,}/i.test(normalized)});
+      if(this.cache.size>=this.cacheLimit)this.cache.delete(this.cache.keys().next().value);this.cache.set(key,result);return result;
+    }
+    buildWords(row,nextTime,language='auto'){
+      if(!row||!Number.isFinite(row.time))return [];
+      const lang=['de','en'].includes(language)?language:['de','en'].includes(row.language)?row.language:this.detectLanguage(row.text);
+      const next=Number.isFinite(nextTime)&&nextTime>=row.time?nextTime:row.time+5000;
+      const lineEnd=Number.isFinite(row.end)&&row.end>=row.time?row.end:next;
+      if(Array.isArray(row.words)&&row.words.length){
+        const words=row.words.slice(0,5000).filter(w=>typeof w.word==='string'&&w.word.trim()&&Number.isFinite(w.start)&&w.start>=0).slice().sort((a,b)=>a.start-b.start);
+        return words.map((w,i)=>{const suppliedEnd=Number.isFinite(w.end)&&w.end>=w.start;const end=suppliedEnd?w.end:Math.max(w.start,words[i+1]?.start??Math.max(w.start,lineEnd)),wordLanguage=['de','en'].includes(w.language)?w.language:lang;return {...w,end,index:i,timing:'word',confidence:suppliedEnd?.95:.75,explicitEnd:suppliedEnd,language:wordLanguage,pronunciation:this.pronounce(w.word,wordLanguage)}});
+      }
+      const text=String(row.text??'').slice(0,10000);if(/^\s*[\[(].*[\])]\s*$/.test(text))return [];
+      const matches=[...text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu)].slice(0,1000);if(!matches.length)return [];
+      const pronunciations=matches.map(m=>this.pronounce(m[0],lang));
+      const reduced=matches.map((m,i)=>i<matches.length-1&&this.functionWords[lang]?.has(this.normalize(m[0])));
+      const weights=pronunciations.map((p,i)=>p.syllables*(reduced[i]?.65:1)+(p.elongated?3:0)+(i===matches.length-1?.2:0)),sum=weights.reduce((a,b)=>a+b,0);
+      const suppliedEnd=Number.isFinite(row.end)&&row.end>=row.time,isolated=matches.length===1;
+      const gaps=matches.map((m,i)=>{const tail=text.slice(m.index+m[0].length,matches[i+1]?.index??text.length);if(i===matches.length-1&&(suppliedEnd||isolated))return 0;return /[.!?]/.test(tail)?180:/[,;:]/.test(tail)?105:i===matches.length-1?140:28});
+      const available=Math.max(0,lineEnd-row.time),syllables=pronunciations.reduce((n,p)=>n+p.syllables,0),consonants=pronunciations.reduce((n,p)=>n+p.phones.filter(phone=>!phone.vowel).length,0);
+      const nominal=Math.max(900,syllables*500+consonants*35+matches.length*45+gaps.reduce((a,b)=>a+b,0)),allowance=this.bounded(syllables*175,650,1800);
+      // A line timestamp marks an onset, not singing throughout the next instrumental gap.
+      // Saturate continuously rather than jumping to a new duration at a fixed gap threshold.
+      // Explicit ends and isolated sustained utterances retain their supplied span.
+      const span=suppliedEnd||isolated||available<=nominal?available:nominal+allowance*(1-Math.exp(-(available-nominal)/allowance));
+      const gapScale=Math.min(1,span*.14/Math.max(1,gaps.reduce((a,b)=>a+b,0))),speech=Math.max(0,span-gaps.reduce((a,b)=>a+b*gapScale,0));
+      const durations=weights.map(weight=>speech*weight/sum);let surplus=0;
+      durations.forEach((duration,i)=>{if(reduced[i]&&duration>420){surplus+=duration-420;durations[i]=420}});
+      const contentWeight=weights.reduce((n,weight,i)=>n+(reduced[i]?0:weight),0);
+      durations.forEach((duration,i)=>{if(!reduced[i]&&contentWeight)durations[i]+=surplus*weights[i]/contentWeight});
+      let cursor=row.time;
+      return matches.map((m,i)=>{const duration=durations[i],token={word:m[0],start:cursor,end:cursor+duration,index:i,timing:'estimated',confidence:available>span*1.5?.25:.5,explicitEnd:false,language:lang,pronunciation:pronunciations[i]};cursor+=duration+gaps[i]*gapScale;return token});
+    }
+    shape(phone){
+      if(['M','B','P'].includes(phone))return this.shapes.seal;
+      if(['F','V'].includes(phone))return this.shapes.fv;
+      if(['S','Z','TS'].includes(phone))return this.shapes.sibilant;
+      if(['SH','ZH','CH_DE','ACH'].includes(phone))return this.shapes.palatal;
+      if(['L','R','ER'].includes(phone))return phone==='ER'?{...this.shapes.mid,open:.34,round:.14}:this.shapes.tongue;
+      if(['I','IH'].includes(phone))return phone==='IH'?{...this.shapes.flat,open:.28,wide:.7}:this.shapes.flat;
+      if(['E','EH','AE','AX'].includes(phone))return phone==='AX'?{...this.shapes.mid,open:.35,wide:.28}:this.shapes.mid;
+      if(['A','AA'].includes(phone))return this.shapes.open;
+      if(['O','OH','OE'].includes(phone))return phone==='OE'?{...this.shapes.round,open:.43,round:.65,wide:.22}:this.shapes.round;
+      if(['U','UH','UE','W'].includes(phone))return phone==='UE'?{...this.shapes.pucker,round:.75,wide:.22}:this.shapes.pucker;
+      if(phone==='REST')return this.shapes.rest;return this.shapes.dental;
+    }
+    cuePhone(value){
+      const aliases={'ɪ':'IH','i':'I','iː':'I','ɛ':'EH','e':'E','eː':'E','a':'A','aː':'A','ɑ':'AA','o':'O','oː':'O','ɔ':'OH','u':'U','uː':'U','ʊ':'UH','y':'UE','yː':'UE','ø':'OE','øː':'OE','œ':'OE','ə':'AX','ɐ':'ER','aɪ':'AI','aʊ':'AU','ɔʏ':'OY','ç':'CH_DE','x':'ACH','ʃ':'SH','ʒ':'ZH','ŋ':'NG','j':'Y','v':'V','r':'R','ʁ':'R','ʀ':'R'};
+      const text=String(value??'').replace(/^\/+|\/+$/g,'');return aliases[text]||({AH:'AX',EE:'I',EY:'EI',OW:'OU',AW:'AU',CH:'SH',SIL:'REST',SP:'REST'}[text.toUpperCase().replace(/[012]$/,'')]||text.toUpperCase().replace(/[012]$/,''));
+    }
+    isPhone(value){return this.phoneIds.has(this.cuePhone(value))}
+    compile(tokens,language='auto'){
+      const segments=[];let confidence=1,providedTokens=0,inferredTokens=0,hasEstimated=false;
+      for(const token of (Array.isArray(tokens)?tokens:[]).slice(0,5000)){
+        if(segments.length>=50000)break;if(typeof token.word!=='string'||!token.word.trim()||/^\s*[\[(].*[\])]\s*$/.test(token.word)||!Number.isFinite(token.start)||!Number.isFinite(token.end)||token.start<0||token.end<=token.start)continue;
+        const pronunciation=token.pronunciation||this.pronounce(token.word,token.language||language),duration=token.end-token.start;
+        let supplied=null;
+        if(Array.isArray(token.phones)&&token.phones.length&&token.phones.length<=512){
+          const sorted=token.phones.slice().sort((a,b)=>a.start-b.start);let last=token.start;
+          if(sorted.every(p=>this.isPhone(p.phone??p.id)&&Number.isFinite(p.start)&&Number.isFinite(p.end)&&p.start>=last&&p.start>=token.start&&p.end>p.start&&p.end<=token.end&&(last=p.end)))supplied=sorted;
+        }
+        const append=(phone,start,end,timing,weight=1)=>{
+          if(segments.length>=50000||end<=start)return;const shape=this.shape(phone.id);
+          const quality=timing==='phoneme'?1:Math.min(token.confidence??.5,pronunciation.source==='lexicon'?.8:.55);confidence=Math.min(confidence,quality);
+          segments.push({start,end,phone:phone.id,vowel:phone.vowel,wordIndex:token.index??0,word:token.word,timing,confidence:quality,phonemeTiming:timing==='phoneme'?'provided':'inferred',shape,long:!!phone.vowel&&end-start>280,wordTiming:token.timing||'estimated',wordEndTiming:token.explicitEnd?'provided':'inferred',weight});
+        };
+        if(supplied){
+          providedTokens++;for(const cue of supplied){const phones=this.expand([this.cuePhone(cue.phone??cue.id)]),sum=phones.reduce((a,p)=>a+p.weight,0);let cursor=cue.start;phones.forEach((phone,i)=>{const end=i===phones.length-1?cue.end:cursor+(cue.end-cue.start)*phone.weight/sum;append(phone,cursor,end,'phoneme');cursor=end})}
+        }else{
+          inferredTokens++;
+          const phones=pronunciation.phones;if(!phones.length)continue;
+          const vowels=phones.filter(p=>p.vowel),consonants=phones.filter(p=>!p.vowel),vowelWeight=vowels.reduce((a,p)=>a+p.weight,0);
+          const contactDuration=phone=>['M','B','P'].includes(phone.id)?95:['F','V'].includes(phone.id)?90:phone.id==='H'?65:85;
+          const consonantWeights=consonants.reduce((a,p)=>a+contactDuration(p),0),consonantBudget=vowels.length?Math.min(duration*.44,consonantWeights):duration;let cursor=token.start;
+          phones.forEach((phone,i)=>{const d=phone.vowel?(duration-consonantBudget)*phone.weight/Math.max(1,vowelWeight):consonantBudget*contactDuration(phone)/Math.max(1,consonantWeights),end=i===phones.length-1?token.end:cursor+d;append(phone,cursor,end,token.timing||'estimated');cursor=end});
+        }
+        hasEstimated ||= token.timing!=='word';
+      }
+      segments.sort((a,b)=>a.start-b.start||a.end-b.end);
+      return {segments,start:segments[0]?.start??0,end:segments.reduce((max,s)=>Math.max(max,s.end),0),timing:providedTokens&&!inferredTokens?'phoneme':hasEstimated?'estimated':'word',phonemeTiming:providedTokens?(inferredTokens?'mixed':'provided'):'inferred',providedTokens,inferredTokens,confidence:segments.length?confidence:0};
+    }
+    rest(){return {...this.shapes.rest,restBlend:1,active:false,long:false,phone:'REST',wordIndex:-1,timing:'none',phonemeTiming:'none',confidence:0}}
+    mix(a,b,t){
+      const out={...a};for(const key of ['open','round','wide','seal','upper','lower','corners','tension'])out[key]=a[key]+(b[key]-a[key])*t;return out;
+    }
+    sample(plan,positionMs){
+      const segments=plan?.segments;if(!segments?.length||!Number.isFinite(positionMs))return this.rest();
+      let low=0,high=segments.length-1,index=-1;while(low<=high){const mid=(low+high)>>1;if(segments[mid].start<=positionMs){index=mid;low=mid+1}else high=mid-1}
+      if(index<0)return this.rest();const current=segments[index],next=segments[index+1],previous=segments[index-1];
+      if(positionMs>=current.end){
+        const gap=next?next.start-current.end:Infinity;
+        if(next&&gap>0&&gap<=45&&current.wordTiming==='estimated'&&next.wordTiming==='estimated'&&current.phonemeTiming!=='provided'&&next.phonemeTiming!=='provided'&&current.shape.seal===0&&next.shape.seal===0){const f=(positionMs-current.end)/gap;return {...this.mix(current.shape,next.shape,f),restBlend:0,active:true,long:false,phone:current.phone,wordIndex:current.wordIndex,timing:'estimated',phonemeTiming:'inferred',confidence:Math.min(current.confidence,next.confidence)}}
+        return this.rest();
+      }
+      if(current.phone==='REST')return {...this.rest(),wordIndex:current.wordIndex,timing:current.timing,phonemeTiming:current.phonemeTiming,confidence:current.confidence};
+      let pose=current.shape;
+      // A bilabial seal is a constraint, not an opening value to be low-pass filtered away.
+      if(current.shape.seal!==1){
+        const duration=current.end-current.start,at=positionMs-current.start;
+        if(previous&&current.start-previous.end<=35&&current.start>=previous.end&&(current.start===previous.end||(current.wordTiming==='estimated'&&previous.wordTiming==='estimated'&&current.phonemeTiming!=='provided'&&previous.phonemeTiming!=='provided'))){const window=Math.min(45,duration*.25,(previous.end-previous.start)*.3);if(window>0&&at<window){const f=at/window,t=f*f*(3-2*f);pose=this.mix(previous.shape,pose,t)}}
+        if(next&&next.start-current.end<=35&&next.start>=current.end&&(next.start===current.end||(current.wordTiming==='estimated'&&next.wordTiming==='estimated'&&current.phonemeTiming!=='provided'&&next.phonemeTiming!=='provided'))){const window=Math.min(65,duration*.28,(next.end-next.start)*.35),left=current.end-positionMs;if(window>0&&left<window){const f=1-left/window,t=f*f*(3-2*f);pose=this.mix(pose,next.shape,t)}}
+      }
+      const release=Math.min(100,(current.end-current.start)*.25),farNext=!next||next.start-current.end>=140,f=farNext&&current.shape.seal!==1&&release>0?this.bounded(1-(current.end-positionMs)/release):0;
+      return {...pose,viseme:current.shape.viseme,restBlend:f*f*(3-2*f),active:true,long:current.long,phone:current.phone,wordIndex:current.wordIndex,timing:current.timing,phonemeTiming:current.phonemeTiming,wordEndTiming:current.wordEndTiming,confidence:current.confidence};
+    }
+  }
+  // The same white outline, articulated with independent upper/lower lip curves.
+  // Pose inputs: open/round/wide/seal/tension in [0,1]; upper/lower/corners in [-1,1].
+  // Optional speech.restBlend in [0,1] releases a cue to the original smile.
+  // No history or wall-clock oscillation is used: seek and replay sample the same shape.
+  const mouthRigRestPath="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z";
+  class MouthRig{
+    render(speech={},expression={},options={}){
+      speech=speech&&typeof speech==="object"?speech:{};
+      expression=expression&&typeof expression==="object"?expression:{};
+      options=options&&typeof options==="object"?options:{};
+      const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+      const number=(v,a,b,f=0)=>typeof v==="number"&&Number.isFinite(v)?clamp(v,a,b):f;
+      const rawOpen=number(speech.open,0,1),playing=options.playing!==false;
+      const active=playing&&(speech.active===true||(speech.active==null&&rawOpen>0));
+      const timed=playing&&["phoneme","word","estimated"].includes(speech.timing);
+      const viseme=String(active?(speech.viseme||speech.phone||"OPEN"):"REST").slice(0,24).toUpperCase();
+      const consonant=String(speech.phone||"").toUpperCase();
+      const forcedSeal=active&&(consonant?["M","B","P"].includes(consonant):["M","B","P","MBP","CLOSED","SEAL"].includes(viseme));
+      const seal=active?Math.max(number(speech.seal,0,1),forcedSeal?1:0):0;
+      const expressionOpen=number(expression.open,0,1);
+      const emotionSmile=number(expression.smile,-60,20);
+      const restBlend=active?number(speech.restBlend,0,1):0;
+      // Speech can borrow a little corner emotion; emotion cannot undo articulation.
+      let opening=active?rawOpen*(1-seal):timed?0:expressionOpen;
+      if(seal>=.9)opening=0;
+      const round=active?number(speech.round,0,1):0;
+      const wide=active?number(speech.wide,0,1):0;
+      const tension=active?number(speech.tension,0,1):0;
+      const upper=active?number(speech.upper,-1,1):0;
+      const lower=active?number(speech.lower,-1,1):0;
+      const corners=active?number(speech.corners,-1,1):0;
+      const fv=active&&(consonant?["F","V"].includes(consonant):["FV","F","V"].includes(viseme));
+      // Keep a readable cavity in flat/narrow vowels without turning every
+      // consonant into a large open oval. The original idle stroke remains 9.
+      const articulatedStroke=fv?4.2:["I","IH"].includes(consonant)?4.3:4.5;
+      const strokeWidth=active?articulatedStroke+(9-articulatedStroke)*restBlend:9;
+      const oralLevel=active?(1-seal)*(1-restBlend)*clamp(opening/.1,0,1):0;
+      // Teeth are intentionally absent. F/V uses the white lip contour itself.
+      const teeth=0,contact=oralLevel*(fv?1:0);
+      const tongue=oralLevel*(consonant==="L"?.9:["TH","DH"].includes(consonant)?.85:0);
+      const tongueFront=oralLevel*(consonant==="L"?.25:["TH","DH"].includes(consonant)?.9:0);
+      const points=[];
+      const point=(x,y)=>{const p=[clamp(x,5,95),clamp(y,5,45)];points.push(p);return p};
+      const finish=(path,aperture=0)=>{
+        let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
+        for(const [x,y]of points){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y)}
+        return {path,transform:"translateX(0px) rotate(0deg)",opening:opening*(1-restBlend),seal,viseme,active,
+          aperture,strokeWidth,upper,lower,round,wide,corners,tension,restBlend,teeth,contact,tongue,tongueFront,
+          points,bounds:{left:left-strokeWidth/2,right:right+strokeWidth/2,top:top-strokeWidth/2,bottom:bottom+strokeWidth/2}};
+      };
+      if(!active&&opening===0){
+        // Preserve the exact familiar smile when no expression changes it.
+        const curve=clamp(42+emotionSmile*.65,5,45),corner=8+clamp(-emotionSmile/53,0,1)*20;
+        point(8,corner);point(18,curve);point(82,curve);point(92,corner);
+        return finish(emotionSmile===0?mouthRigRestPath:`M 8 ${corner.toFixed(2)} C 18 ${curve.toFixed(2)} 82 ${curve.toFixed(2)} 92 ${corner.toFixed(2)} C 82 ${curve.toFixed(2)} 18 ${curve.toFixed(2)} 8 ${corner.toFixed(2)} Z`);
+      }
+      // These are visible phonetic families, not one oval scaled by openness.
+      // Profile entries are half-width, cavity height and the source's normal
+      // opening. Actual source openness still controls closure continuously.
+      const profiles={A:[29,27,.86],AA:[29,27,.86],I:[35,8.8,.23],IH:[33,9.2,.28],E:[32,15,.44],EH:[32,15,.44],AE:[32,15,.44],AX:[27,10,.35],O:[15,23,.59],OH:[15,23,.59],OE:[18,19,.43],U:[10.5,14,.27],UH:[12.5,14,.27],UE:[12.5,14,.27],W:[11,11.5,.27],L:[29,11.5,.32],R:[23,11,.32],ER:[24,12,.34],TH:[29,9.5,.19],DH:[29,9.5,.19],F:[30,8.8,.12],V:[30,8.8,.12],S:[31,8.8,.15],Z:[31,8.8,.15],TS:[31,8.8,.15]};
+      const profile=active?profiles[consonant]:null;
+      const halfWidth=profile?profile[0]:clamp(30+wide*9-round*14-tension*2,15,40);
+      const xLeft=50-halfWidth,xRight=50+halfWidth;
+      const smileBias=clamp(emotionSmile*.035,-1.2,.65);
+      const yCorner=clamp(23-corners*1.6-smileBias,18,29);
+      const yCenter=clamp(24+lower*.6-smileBias*.45,21,27);
+      let aperture=opening*(28+round*5-wide*7)*(fv?.5:1);
+      if(profile)aperture=profile[1]*clamp(opening/profile[2],0,1.15);
+      if(active&&seal<.9){
+        // Preserve visible negative space at native phone size. The weight goes
+        // continuously to zero during a true closure; an actual seal stays exact.
+        const readable=profile?Math.min(profile[1],8.8):round>.65?10.5:9.5;
+        const weight=clamp(opening/.12,0,1)*(1-seal);
+        aperture=Math.max(aperture,readable*weight);
+      }
+      const topShare=fv?.18:clamp(.38+upper*.09-lower*.035,.23,.55);
+      const top=clamp(yCenter-aperture*topShare,5,45);
+      const bottom=clamp(yCenter+aperture*(1-topShare),top,45);
+      aperture=bottom-top;
+      // A seal is one pressed seam. It need not become the large resting smile.
+      const sealedCenter=yCorner+2.2-tension*.8;
+      const topMid=seal>=.9?sealedCenter:top;
+      const bottomMid=seal>=.9?sealedCenter:fv?Math.min(bottom,top+3.6):bottom;
+      // Four genuine ellipse quarters: side handles are vertical, central
+      // handles horizontal. Both derivatives and curvature agree at each join.
+      // The previous inset side handles made the closed contour cusp at its
+      // left/right tips and look like a rounded rectangle rather than a lip.
+      const k=.5522847498307936,center=(topMid+bottomMid)/2,radius=(bottomMid-topMid)/2;
+      const edgeLeft=point(xLeft,center),edgeRight=point(xRight,center);
+      const uL1=point(xLeft,center-k*radius);
+      const uL2=point(50-k*halfWidth,topMid);
+      const uMid=point(50,topMid);
+      const uR1=point(50+k*halfWidth,topMid);
+      const uR2=point(xRight,center-k*radius);
+      const lR1=point(xRight,center+k*radius);
+      const lR2=point(50+k*halfWidth,bottomMid);
+      const lMid=point(50,bottomMid);
+      const lL1=point(50-k*halfWidth,bottomMid);
+      const lL2=point(xLeft,center+k*radius);
+      // All x controls are monotone. Paired upper controls stay above lower ones.
+      // This keeps even extreme mixed poses from turning the contour inside out.
+      if(seal>=.9){lR1[1]=uR2[1];lR2[1]=uR1[1];lMid[1]=uMid[1];lL1[1]=uL2[1];lL2[1]=uL1[1]}
+      const blend=active?restBlend:1-clamp(expressionOpen*3,0,1);
+      if(blend>0){
+        // De Casteljau halves of the original cubic give a matching four-curve target.
+        const end=8+clamp(-emotionSmile/53,0,1)*20,curve=clamp(42+emotionSmile*.65,5,45);
+        const side=(end+curve)/2,mid=(end+curve*3)/4;
+        const rest=[[8,end],[92,end],[13,side],[31.5,mid],[50,mid],[68.5,mid],[87,side],[87,side],[68.5,mid],[50,mid],[31.5,mid],[13,side]];
+        for(let i=0;i<points.length;i++)for(let axis=0;axis<2;axis++)points[i][axis]+=blend*(rest[i][axis]-points[i][axis]);
+      }
+      const xy=p=>p.map(v=>v.toFixed(2)).join(" ");
+      const path=`M ${xy(edgeLeft)} C ${xy(uL1)} ${xy(uL2)} ${xy(uMid)} C ${xy(uR1)} ${xy(uR2)} ${xy(edgeRight)} C ${xy(lR1)} ${xy(lR2)} ${xy(lMid)} C ${xy(lL1)} ${xy(lL2)} ${xy(edgeLeft)} Z`;
+      return finish(blend===1&&emotionSmile===0?mouthRigRestPath:path,seal>=.9?0:(fv?bottomMid-topMid:aperture)*(1-blend));
+    }
+    details(pose={}){
+      const p=pose.points,clamp=(v,a,b)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:a));
+      if(!Array.isArray(p)||p.length!==12)return {teeth:{path:"M 50 25 Z",opacity:0},tongue:{path:"M 50 25 Z",opacity:0}};
+      const center=(p[0][0]+p[1][0])/2,span=Math.max(0,p[1][0]-p[0][0]),top=p[4][1],bottom=p[9][1],gap=Math.max(0,bottom-top),front=clamp(pose.tongueFront,0,1);
+      const tongueHalf=8*Math.tanh(span*(.085+front*.08)/8),tip=bottom-10*Math.tanh(gap*(.88-front*.35)/10);
+      const n=value=>value.toFixed(4);
+      const tonguePath=`M ${n(center-tongueHalf)} ${n(bottom+1)} Q ${n(center-tongueHalf)} ${n(tip)} ${n(center)} ${n(tip)} Q ${n(center+tongueHalf)} ${n(tip)} ${n(center+tongueHalf)} ${n(bottom+1)} Z`;
+      // Callers clip the subtle tongue to the current mouth contour. Deriving
+      // their coordinates here makes a scrub/resume use the actual geometry.
+      return {teeth:{path:"M 50 25 Z",opacity:0},tongue:{path:tonguePath,opacity:clamp(pose.tongue,0,1)}};
+    }
+  }
+  // Geometry, rather than categorical pose flags, is interpolated on the song clock.
+  // Every boundary owns one eased transition; closed projections keep real gaps silent.
+  class MouthTrajectory{
+    constructor(rig=new MouthRig()){this.rig=rig;this.maxCues=50000;this.settleMs=220;this.relaxedHoldMs=1000;this.smileReturnMs=1600;this.restGeometry=this.geometry(rig.render({}, {}, {playing:false}));this.restGeometry.emotionWeight=1;this.restGeometry.phone="REST"}
+    clamp(value,min=0,max=1){return Math.max(min,Math.min(max,Number.isFinite(value)?value:min))}
+    ease(t){t=this.clamp(t);return t*t*t*(t*(t*6-15)+10)}
+    detailChannels(rendered={}){return {teeth:0,contact:this.clamp(rendered.contact),tongue:this.clamp(rendered.tongue),tongueFront:this.clamp(rendered.tongueFront)}}
+    blendDetails(a,b,weight){const from=this.detailChannels(a),to=this.detailChannels(b),t=this.clamp(weight);return Object.fromEntries(Object.keys(from).map(key=>[key,from[key]+(to[key]-from[key])*t]))}
+    geometry(rendered){
+      let points=rendered?.points;
+      if(points?.length===4){
+        const [p0,p1,p2,p3]=points,mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+        const a=mid(p0,p1),b=mid(p1,p2),c=mid(p2,p3),d=mid(a,b),e=mid(b,c),f=mid(d,e);
+        points=[p0,p3,a,d,f,e,c,c,e,f,d,a];
+      }
+      if(points?.length!==12)throw Error("Mouth geometry requires a closed four-curve contour.");
+      return {...rendered,...this.detailChannels(rendered),points:points.map(p=>[p[0],p[1]]),strokeWidth:this.clamp(rendered.strokeWidth||9,1,9),emotionWeight:rendered.emotionWeight??.08};
+    }
+    finish(points,strokeWidth,metadata={}){
+      const pair=[[2,11],[3,10],[4,9],[5,8],[6,7]],sealed=pair.every(([a,b])=>Math.abs(points[a][1]-points[b][1])<1e-7&&Math.abs(points[a][0]-points[b][0])<1e-7);
+      const aperture=sealed?0:Math.max(0,points[9][1]-points[4][1]);
+      const xy=p=>p.map(v=>v.toFixed(4)).join(" ");
+      const path=`M ${xy(points[0])} C ${xy(points[2])} ${xy(points[3])} ${xy(points[4])} C ${xy(points[5])} ${xy(points[6])} ${xy(points[1])} C ${xy(points[7])} ${xy(points[8])} ${xy(points[9])} C ${xy(points[10])} ${xy(points[11])} ${xy(points[0])} Z`;
+      const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]),r=strokeWidth/2;
+      return {...metadata,...this.detailChannels(metadata),path,points,strokeWidth,aperture,opening:this.clamp(aperture/28),seal:sealed?1:0,transform:"translateX(0px) rotate(0deg)",bounds:{left:Math.min(...xs)-r,right:Math.max(...xs)+r,top:Math.min(...ys)-r,bottom:Math.max(...ys)+r}};
+    }
+    interpolate(renderedA,renderedB,weight){
+      const a=this.geometry(renderedA),b=this.geometry(renderedB),t=this.clamp(weight);
+      const points=a.points.map((p,i)=>[p[0]+(b.points[i][0]-p[0])*t,p[1]+(b.points[i][1]-p[1])*t]);
+      return this.finish(points,a.strokeWidth+(b.strokeWidth-a.strokeWidth)*t,{...this.blendDetails(a,b,t),emotionWeight:a.emotionWeight+(b.emotionWeight-a.emotionWeight)*t});
+    }
+    closed(rendered){
+      const g=this.geometry(rendered),points=g.points;
+      for(const [a,b]of [[2,11],[3,10],[4,9],[5,8],[6,7]]){const x=(points[a][0]+points[b][0])/2,y=(points[a][1]+points[b][1])/2;points[a]=[x,y];points[b]=[x,y]}
+      return this.finish(points,g.strokeWidth,{phone:g.phone,emotionWeight:g.emotionWeight,kind:"quiet"});
+    }
+    recoveryFrom(rendered){
+      const quiet=this.closed(rendered),width=this.clamp(quiet.points[1][0]-quiet.points[0][0],34,50),scale=width/84;
+      // A shallow, closed smile keeps the recent articulation's width. The
+      // character's exact broad smile returns only after a genuine longer rest.
+      const points=this.restGeometry.points.map(p=>[50+(p[0]-50)*scale,23+(p[1]-8)*.2]);
+      const relaxed=this.finish(points,Math.min(quiet.strokeWidth,6.25),{phone:"REST",emotionWeight:.08});
+      return {quiet,relaxed};
+    }
+    sampleRecovery(recovery,elapsedMs){
+      const elapsed=Math.max(0,elapsedMs),returnAt=this.settleMs+this.relaxedHoldMs;
+      if(elapsed<this.settleMs)return {geometry:this.interpolate(recovery.quiet,recovery.relaxed,this.ease(elapsed/this.settleMs)),kind:"settle"};
+      if(elapsed<returnAt)return {geometry:recovery.relaxed,kind:"relaxed-rest"};
+      if(elapsed<returnAt+this.smileReturnMs)return {geometry:this.interpolate(recovery.relaxed,this.restGeometry,this.ease((elapsed-returnAt)/this.smileReturnMs)),kind:"recover-smile"};
+      return {geometry:this.restGeometry,kind:"idle"};
+    }
+    connected(a,b){
+      const gap=b.start-a.end;
+      return gap<=1e-6||(gap>0&&gap<=45&&a.source.wordTiming==="estimated"&&b.source.wordTiming==="estimated"&&a.source.phonemeTiming!=="provided"&&b.source.phonemeTiming!=="provided");
+    }
+    compile(plan){
+      const candidates=(plan?.segments||[]).slice(0,this.maxCues).filter(s=>s&&s.phone!=="REST"&&Number.isFinite(s.start)&&Number.isFinite(s.end)&&s.start>=0&&s.end>s.start).slice().sort((a,b)=>a.start-b.start||a.end-b.end);
+      const cues=[];
+      for(const source of candidates){
+        while(cues.length&&cues.at(-1).start===source.start)cues.pop();
+        const previous=cues.at(-1);if(previous&&previous.end>source.start){previous.end=source.start;previous.duration=previous.end-previous.start;if(previous.duration<=0)cues.pop()}
+        const cue={source,start:source.start,end:source.end,duration:source.end-source.start,sealed:["M","B","P"].includes(source.phone)||source.shape?.seal===1,lipContact:["F","V"].includes(source.phone)};
+        cue.geometry=this.geometry(this.rig.render({...source.shape,phone:source.phone,active:true,restBlend:0,timing:source.timing},{},{playing:true}));cue.geometry.phone=source.phone;cue.geometry.emotionWeight=.08;cue.details=this.detailChannels(cue.geometry);cues.push(cue);
+      }
+      // Brief non-bilabial consonants contribute an accent around the nearby vowel,
+      // rather than forcing another extreme target for one video frame.
+      const vowelNear=(index,direction)=>{
+        let previous=cues[index];
+        for(let n=index+direction;n>=0&&n<cues.length&&Math.abs(n-index)<=4;n+=direction){const current=cues[n],a=direction>0?previous:current,b=direction>0?current:previous,distance=direction>0?current.start-cues[index].end:cues[index].start-current.end;if(!this.connected(a,b)||distance>300)break;if(current.source.vowel)return current;previous=current}
+        return null;
+      };
+      for(let i=0;i<cues.length;i++){
+        const cue=cues[i],phone=cue.source.phone;
+        if(cue.sealed||cue.source.vowel||cue.duration>=160)continue;
+        const left=vowelNear(i,-1),right=vowelNear(i,1);if(!left&&!right)continue;
+        let baseline=left?.geometry||right.geometry;
+        if(left&&right){const l=(left.start+left.end)/2,r=(right.start+right.end)/2,at=(cue.start+cue.end)/2;baseline=this.interpolate(left.geometry,right.geometry,this.clamp((at-l)/Math.max(1,r-l)))}
+        let strength=phone==="H"?.08:["F","V"].includes(phone)?.9:this.clamp(cue.duration/210,.18,.6);
+        // A longer estimated ending consonant must not undo a held O/U by
+        // suddenly widening its lips. Keep its small jaw accent, not a grin.
+        const baselineWidth=baseline.points[1][0]-baseline.points[0][0],ownWidth=cue.geometry.points[1][0]-cue.geometry.points[0][0];
+        if(!cue.lipContact&&baselineWidth<38&&ownWidth>baselineWidth*1.45)strength=Math.min(strength,baselineWidth*.45/(ownWidth-baselineWidth));
+        cue.geometry=this.interpolate(baseline,cue.geometry,strength);Object.assign(cue.geometry,cue.details);cue.geometry.phone=phone;cue.geometry.emotionWeight=.08;cue.strength=strength;
+      }
+      for(const cue of cues)cue.quiet=this.closed(cue.geometry);
+      const phases=[],rest=this.restGeometry;
+      const add=(start,end,from,to,kind,extra={})=>{if(end>start+1e-8)phases.push({start,end,from,to,kind,...extra})};
+      if(!cues.length)return {cues,phases,detailPhases:[],boundaries:[],start:0,end:0,source:plan};
+      const first=cues[0];let cursor;
+      if(first.sealed&&first.start>0){const preparation=Math.min(90,first.start);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.geometry,"prepare-seal");cursor=first.start}
+      else if(first.start>0){const preparation=Math.min(140,first.start),attack=Math.min(110,first.duration*.4);add(0,first.start-preparation,rest,rest,"idle");add(first.start-preparation,first.start,rest,first.quiet,"prepare-quiet");add(first.start,first.start+attack,first.quiet,first.geometry,"attack");cursor=first.start+attack}
+      else{const attack=Math.min(180,first.duration*.4);add(first.start,first.start+attack,rest,first.geometry,"attack");cursor=first.start+attack}
+      for(let i=0;i<cues.length-1;i++){
+        const a=cues[i],b=cues[i+1];
+        if(this.connected(a,b)){
+          let pre=Math.min(110,a.duration*.4),post=Math.min(110,b.duration*.4);
+          if(b.sealed)post=0;else if(a.sealed)pre=0;
+          const start=a.end-pre,end=b.start+post;
+          add(cursor,start,a.geometry,a.geometry,"hold");add(start,end,a.geometry,b.geometry,b.sealed?"seal":a.sealed?"release-seal":"coarticulate");cursor=end;
+        }else{
+          const close=a.sealed?0:Math.min(110,a.duration*.4),closeStart=a.end-close,gap=b.start-a.end;
+          add(cursor,closeStart,a.geometry,a.geometry,"hold");add(closeStart,a.end,a.geometry,a.quiet,"close");
+          if(gap<220)add(a.end,b.start,a.quiet,b.quiet,"quiet-gap");
+          else{const preparation=Math.min(90,gap*.35);add(a.end,b.start,a.quiet,b.quiet,"rest-recovery",{recovery:this.recoveryFrom(a.quiet),prepareAt:b.start-preparation})}
+          const attack=b.sealed?0:Math.min(110,b.duration*.4);add(b.start,b.start+attack,b.quiet,b.geometry,"attack");cursor=b.start+attack;
+        }
+      }
+      const last=cues.at(-1),close=last.sealed?0:Math.min(110,last.duration*.4);
+      add(cursor,last.end-close,last.geometry,last.geometry,"hold");add(last.end-close,last.end,last.geometry,last.quiet,"close");add(last.end,last.end+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,last.quiet,rest,"rest-recovery",{recovery:this.recoveryFrom(last.quiet)});
+      // Small oral contacts need a readable peak even while the larger jaw
+      // keeps its slower coarticulation. Each detail boundary is still C2.
+      const detailPhases=[],zero=this.detailChannels(),addDetail=(start,end,from,to)=>{if(end>start+1e-8)detailPhases.push({start,end,from,to})};
+      const flank=cue=>Math.min(60,cue.duration*.18);
+      addDetail(0,first.start,zero,zero);let detailCursor=first.start+flank(first);addDetail(first.start,detailCursor,zero,first.details);
+      for(let i=0;i<cues.length-1;i++){
+        const a=cues[i],b=cues[i+1];
+        if(this.connected(a,b)){
+          const pre=a.sealed?0:flank(a),post=b.sealed?0:flank(b),start=a.end-pre,end=b.start+post;
+          addDetail(detailCursor,start,a.details,a.details);addDetail(start,end,a.details,b.details);detailCursor=end;
+        }else{
+          const closeStart=a.end-flank(a);addDetail(detailCursor,closeStart,a.details,a.details);addDetail(closeStart,a.end,a.details,zero);addDetail(a.end,b.start,zero,zero);
+          detailCursor=b.start+flank(b);addDetail(b.start,detailCursor,zero,b.details);
+        }
+      }
+      const detailClose=last.end-flank(last);addDetail(detailCursor,detailClose,last.details,last.details);addDetail(detailClose,last.end,last.details,zero);
+      const boundaries=[...new Set([...phases.flatMap(p=>[p.start,p.end,...(p.recovery?[p.start+this.settleMs,p.start+this.settleMs+this.relaxedHoldMs,p.start+this.settleMs+this.relaxedHoldMs+this.smileReturnMs,p.prepareAt].filter(t=>t>p.start&&t<p.end):[])]),...detailPhases.flatMap(p=>[p.start,p.end])])].sort((a,b)=>a-b);
+      return {cues,phases,detailPhases,boundaries,start:phases[0]?.start??first.start,end:phases.at(-1)?.end??last.end,source:plan};
+    }
+    sampleDetails(trajectory,at){
+      const phases=trajectory?.detailPhases||[];let low=0,high=phases.length-1,index=-1;
+      while(low<=high){const mid=(low+high)>>1;if(phases[mid].start<=at){index=mid;low=mid+1}else high=mid-1}
+      if(index<0||at>=phases[index].end)return this.detailChannels();
+      const current=phases[index];return this.blendDetails(current.from,current.to,this.ease((at-current.start)/(current.end-current.start)));
+    }
+    oralContact(rendered){
+      const amount=this.clamp(rendered.contact),gap=rendered.points[9][1]-rendered.points[4][1];
+      if(amount===0||gap<=3.6)return rendered;
+      const g=this.geometry(rendered),lift=4*Math.tanh((gap-3.6)/4)*this.ease((gap-3.6)/.5)*amount;
+      // Only a small central lower-lip gesture follows the fast contact cue.
+      // Move both center handles with the midpoint: its tangent remains flat,
+      // while the side handles retain their shared vertical tangents.
+      for(const index of [8,9,10])g.points[index][1]-=lift;
+      return this.finish(g.points,g.strokeWidth,{...g,points:undefined,path:undefined,bounds:undefined});
+    }
+    emotion(geometry,expression){
+      const amount=geometry.emotionWeight??.08;
+      if(!expression?.smile)return geometry;
+      const emotional=this.geometry(this.rig.render({}, {...expression,open:0}, {playing:false})),base=this.restGeometry,r=geometry.strokeWidth/2;
+      const points=geometry.points.map((p,i)=>[this.clamp(p[0]+(emotional.points[i][0]-base.points[i][0])*amount,r+.01,100-r-.01),this.clamp(p[1]+(emotional.points[i][1]-base.points[i][1])*amount,r+.01,50-r-.01)]);
+      return this.finish(points,geometry.strokeWidth,{...geometry,points:undefined,path:undefined,bounds:undefined,emotionWeight:amount});
+    }
+    sample(trajectory,positionMs,expression={},options={playing:true}){
+      if(options.playing===false)return {...this.geometry(this.rig.render({},expression,{playing:false})),phase:{kind:"idle",start:0,end:0,progress:1,blend:1}};
+      const phases=trajectory?.phases||[],at=Number.isFinite(positionMs)?positionMs:0;
+      if(!phases.length)return {...this.geometry(this.rig.render({},expression,{playing:false})),phase:{kind:"idle",start:0,end:0,progress:1,blend:1}};
+      let low=0,high=phases.length-1,index=-1;while(low<=high){const mid=(low+high)>>1;if(phases[mid].start<=at){index=mid;low=mid+1}else high=mid-1}
+      let rendered,phase;
+      if(index<0||at>=trajectory.end){rendered=this.finish(this.restGeometry.points.map(p=>p.slice()),this.restGeometry.strokeWidth,{emotionWeight:1});phase={kind:"idle",start:at,end:at,progress:1,blend:1}}
+      else{const current=phases[index],progress=this.clamp((at-current.start)/(current.end-current.start));let blend=this.ease(progress),kind=current.kind;if(current.recovery){const sampled=this.sampleRecovery(current.recovery,at-current.start);rendered=sampled.geometry;kind=sampled.kind;if(Number.isFinite(current.prepareAt)&&at>=current.prepareAt){blend=this.ease((at-current.prepareAt)/(current.end-current.prepareAt));rendered=this.interpolate(rendered,current.to,blend);kind="prepare"}}else rendered=this.interpolate(current.from,current.to,blend);phase={kind,start:current.start,end:current.end,progress,blend,fromPhone:current.from.phone||"REST",toPhone:current.to.phone||"REST"}}
+      rendered=this.oralContact({...rendered,...this.sampleDetails(trajectory,at)});const result=this.emotion(rendered,expression);return {...result,phase};
+    }
+  }
+  // Shared by the player and the silent comparison: CSS cannot turn a cavity
+  // back into a white blob or paint a visible stroke around the clipping path.
+  const mouthSvgPaint={cavity:"rgba(5,10,18,.82)",ink:"rgba(255,255,255,.94)",tongue:"#efb3bd"};
+  class MouthSvgRenderer{
+    constructor(rig,nodes){
+      this.rig=rig;this.nodes=nodes;
+      const style=(node,values)=>{if(node)for(const [key,value]of Object.entries(values))node.style.setProperty(key,value)};
+      style(nodes.outline,{fill:mouthSvgPaint.cavity,stroke:mouthSvgPaint.ink,"stroke-linecap":"round","stroke-linejoin":"round"});
+      style(nodes.clip,{fill:"#000",stroke:"none"});
+      style(nodes.tongue,{fill:mouthSvgPaint.tongue,stroke:"none","stroke-width":"0",opacity:"0"});
+    }
+    render(pose){
+      if(!pose||!this.nodes.outline)return;
+      const nodes=this.nodes,details=this.rig.details(pose);
+      nodes.outline.setAttribute("d",pose.path);
+      nodes.outline.style.setProperty("stroke-width",String(pose.strokeWidth||9));
+      nodes.clip?.setAttribute("d",pose.path);
+      for(const name of ["tongue"]){
+        const node=nodes[name],detail=details[name];if(!node)continue;
+        node.setAttribute("d",detail?.path||"M 0 0 Z");
+        node.style.setProperty("opacity",String(.85*Math.max(0,Math.min(1,detail?.opacity||0))));
+      }
+    }
+  }
+const previousMouth=(()=>{
+// Pure pronunciation and singing-articulation planning. No audio is analysed here.
   // All shape channels are 0..1 except upper/lower/corners, which are -1..1.
   class ArticulationEngine{
     constructor(){
@@ -438,13 +967,16 @@
       const result=this.emotion(rendered,expression);return {...result,phase};
     }
   }
+const engine=new ArticulationEngine(),rig=new MouthRig();return {engine,rig,trajectoryEngine:new MouthTrajectory(rig)};
+})();
 const engine=new ArticulationEngine(),rig=new MouthRig(),trajectoryEngine=new MouthTrajectory(rig),$=id=>document.getElementById(id);
-const examples={german:{text:'ich bin hier, ich bin frei',end:6400,words:[['ich',100,600],['bin',600,1100],['hier',1100,2800],['ich',3100,3600],['bin',3600,4100],['frei',4100,6300]]},english:{text:'We are free tonight',end:5200,words:[['We',100,700],['are',700,1200],['free',1200,2900],['tonight',3200,4900]]},good:{text:'I am feeling good',end:7200,words:[['I',100,450],['am',450,900],['feeling',900,2000],['good',2000,4000]]},vowels:{text:'Mmm Ooh Aah',end:7200,words:[['Mmm',100,1200],['Ooh',1500,3900],['Aah',4300,6900]]}};
-let words=[],plan=null,trajectory=null,position=0,end=6400,frame=null,last=0,playing=false,phraseNodes=[];
-function draw(){const token=words.find(w=>position>=w.start&&position<w.end),speech=engine.sample(plan,position),before=rig.render(speech,{},{playing:true}),result=trajectoryEngine.sample(trajectory,position,{},{playing:true});$('oldMouth').setAttribute('d',before.path);$('oldMouth').style.setProperty('stroke-width',String(before.strokeWidth||9));$('newMouth').setAttribute('d',result.path);$('newMouth').style.setProperty('stroke-width',String(result.strokeWidth||9));$('oldWord').textContent=$('newWord').textContent=token?.word||'—';$('oldPhase').textContent='Direkte Zielpose';$('newPhase').textContent=speech.active?'Laut: '+speech.phone+' · '+(speech.seal>.9?'Lippen geschlossen':speech.long?'Vokal halten':'Fließender Übergang'):'Sanfter Ruheübergang';$('position').value=String(Math.round(position));$('time').textContent=(position/1000).toFixed(2).replace('.',',')+' / '+(end/1000).toFixed(2).replace('.',',')+' s';phraseNodes.forEach((n,i)=>n.classList.toggle('active',words[i]===token));}
+const mouthSvg=new MouthSvgRenderer(rig,{outline:$("newMouth"),clip:$("newMouthClip"),tongue:$("newMouthTongue")});
+const examples={german:{text:'ich bin hier, ich bin frei',end:6400,words:[['ich',100,600],['bin',600,1100],['hier',1100,2800],['ich',3100,3600],['bin',3600,4100],['frei',4100,6300]]},english:{text:'We are free tonight',end:5200,words:[['We',100,700],['are',700,1200],['free',1200,2900],['tonight',3200,4900]]},love:{text:'love is gone',end:5300,words:[['love',100,900],['is',900,1300],['gone',1300,2300]]},contacts:{text:'M F L R TH A I O U',end:8200,phones:['M','F','L','R','TH','A','I','O','U']},good:{text:'I am feeling good',end:7200,words:[['I',100,450],['am',450,900],['feeling',900,2000],['good',2000,4000]]},vowels:{text:'Mmm Ooh Aah',end:7200,words:[['Mmm',100,1200],['Ooh',1500,3900],['Aah',4300,6900]]}};
+let words=[],plan=null,trajectory=null,previousTrajectory=null,position=0,end=6400,frame=null,last=0,playing=false,phraseNodes=[];
+function draw(){const token=words.find(w=>position>=w.start&&position<w.end),speech=engine.sample(plan,position),before=previousMouth.trajectoryEngine.sample(previousTrajectory,position,{},{playing:true}),result=trajectoryEngine.sample(trajectory,position,{},{playing:true});$('oldMouth').setAttribute('d',before.path);$('oldMouth').style.setProperty('stroke-width',String(before.strokeWidth||9));$('oldMouth').style.setProperty('fill','rgba(255,255,255,.94)');mouthSvg.render(result);$('oldWord').textContent=$('newWord').textContent=token?.word||'—';$('oldPhase').textContent='Bisheriger Stand · gefüllter Mund';$('newPhase').textContent=speech.active?'Laut: '+speech.phone+' · '+(speech.seal>.9?'Lippen geschlossen':result.tongue>.3?'Zungenspitze':speech.long?'Vokal halten':'Fließender Übergang'):'Sanfter Ruheübergang';$('position').value=String(Math.round(position));$('time').textContent=(position/1000).toFixed(2).replace('.',',')+' / '+(end/1000).toFixed(2).replace('.',',')+' s';phraseNodes.forEach((n,i)=>n.classList.toggle('active',words[i]===token));}
 function stop(){playing=false;if(frame!==null)cancelAnimationFrame(frame);frame=null;last=0;$('play').textContent='Vergleich abspielen';}
 function tick(now){frame=null;if(!playing)return;const dt=last?Math.min(100,now-last):0;last=now;position=Math.min(end,position+dt*Number($('speed').value));draw(dt);if(position>=end){stop();$('status').textContent='Vergleich beendet. Du kannst ihn erneut abspielen oder eine Stelle auswählen.';}else frame=requestAnimationFrame(tick)}
-function load(){stop();const key=$('example').value;let data=examples[key];$('customBox').hidden=key!=='custom';if(!data){const text=$('customText').value.trim().slice(0,180)||'ich bin frei';data={text,end:Math.min(15000,Math.max(2500,text.split(/\s+/).length*680))}}end=data.end;const row={time:0,end,text:data.text};if(data.words)row.words=data.words.map(([word,start,end])=>({word,start,end}));words=engine.buildWords(row,end,$('language').value);plan=engine.compile(words,$('language').value);trajectory=trajectoryEngine.compile(plan);end=Math.max(end,trajectory.end+200);position=0;$('position').max=String(end);$('phrase').replaceChildren();phraseNodes=words.map(w=>{const n=document.createElement('span');n.textContent=w.word;$('phrase').append(n);return n});draw(34,true);$('status').textContent='Textdemo bereit · Zeitpunkte sind für den Vergleich vorgegeben oder geschätzt.';}
+function load(){stop();const key=$('example').value;let data=examples[key];$('customBox').hidden=key!=='custom';if(!data){const text=$('customText').value.trim().slice(0,180)||'ich bin frei';data={text,end:Math.min(15000,Math.max(2500,text.split(/\s+/).length*680))}}end=data.end;const row={time:0,end,text:data.text};if(data.words)row.words=data.words.map(([word,start,end])=>({word,start,end}));if(data.phones)row.words=data.phones.map((phone,i)=>({word:phone,start:200+i*600,end:700+i*600,phones:[{phone,start:200+i*600,end:700+i*600}]}));words=engine.buildWords(row,end,$('language').value);plan=engine.compile(words,$('language').value);trajectory=trajectoryEngine.compile(plan);previousTrajectory=previousMouth.trajectoryEngine.compile(previousMouth.engine.compile(previousMouth.engine.buildWords(row,end,$('language').value),$('language').value));end=Math.max(end,trajectory.end+200,previousTrajectory.end+200);position=0;$('position').max=String(end);$('phrase').replaceChildren();phraseNodes=words.map(w=>{const n=document.createElement('span');n.textContent=w.word;$('phrase').append(n);return n});draw(34,true);$('status').textContent='Textdemo bereit · Zeitpunkte sind für den Vergleich vorgegeben oder geschätzt.';}
 $('play').addEventListener('click',()=>{if(playing){stop();$('status').textContent='Angehalten. Die aktuelle Mundform bleibt sichtbar.';}else{if(position>=end)position=0;playing=true;$('play').textContent='Anhalten';$('status').textContent='Vergleich läuft.';frame=requestAnimationFrame(tick)}});$('restart').addEventListener('click',()=>{stop();position=0;draw(34,true)});$('position').addEventListener('input',()=>{stop();position=Number($('position').value);draw(34,true)});$('example').addEventListener('change',load);$('language').addEventListener('change',load);$('applyText').addEventListener('click',load);
 for(const b of document.querySelectorAll('[data-jump]'))b.addEventListener('click',()=>{if($('example').value!=='german'){$('example').value='german';load()}stop();const token=words.find(w=>w.word===({b:'bin',i:'hier',ai:'frei'})[b.dataset.jump]);position=token.start+(token.end-token.start)*({b:.045,i:.5,ai:.77})[b.dataset.jump];draw(34,true);$('status').textContent='Ausgewählte Mundphase angehalten.'});document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')stop()});load();
 </script></body></html>
