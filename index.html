@@ -1257,7 +1257,7 @@
         <option value="system">Systemstandard</option><option value="reduced">Reduzierte Bewegung</option>
         <option value="normal">Normale Animation</option><option value="lively">Lebhafte Animation</option>
       </select>
-      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html?v=visemes-20261121" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
+      <p class="setting-note" id="motionStatus"></p><h4>Mitsingen</h4><label class="label" for="articulationLanguage">Aussprache für den Mund</label><select class="setting-field" id="articulationLanguage"><option value="auto">Automatisch · Deutsch / Englisch</option><option value="de">Deutsch</option><option value="en">Englisch</option></select><p class="setting-note" id="articulationStatus" role="status">Synchronisierte Lyrics laden, um mitzusingen.</p><a class="setting-action glass glass-clear" style="display:block;text-align:center;text-decoration:none" href="./mouth-preview.html?v=singing-smile-20261121" target="_blank" rel="noopener noreferrer">Mundbewegungen vergleichen</a>
       <label class="setting-row"><span>Leise Fantasiegeräusche</span><input type="checkbox" id="faceSoundSetting"></label>
       <p class="setting-note">Standardmäßig aus. Kleine Laute nur bei Interaktionen; keine Veränderung der Spotify-Musik.</p>
       <section class="party-section" aria-labelledby="partyTitle">
@@ -1580,6 +1580,20 @@ THE SOFTWARE.
   // No history or wall-clock oscillation is used: seek and replay sample the same shape.
   const mouthRigRestPath="M 8 8 C 18 42 82 42 92 8 C 82 42 18 42 8 8 Z";
   class MouthRig{
+    constructor(options={}){this.singingSmile=Number.isFinite(options?.singingSmile)?Math.max(0,Math.min(1,options.singingSmile)):1}
+    smilingContour(points,lift){
+      const source=points.map(p=>p.slice()),result=source.map(p=>p.slice()),center=(source[0][0]+source[1][0])/2,half=Math.max(1,(source[1][0]-source[0][0])/2);
+      const transform=p=>[p[0],p[1]-lift*Math.pow((p[0]-center)/half,2)];
+      for(const index of [0,4,1,9])result[index]=transform(source[index]);
+      // Transform endpoint derivatives, not each handle's coordinates. A
+      // pointwise quadratic offset would create opposite slopes at the upper
+      // and lower midpoint. Shared Jacobians retain the original C1 joins.
+      for(const [handle,endpoint]of [[2,0],[11,0],[3,4],[5,4],[6,1],[7,1],[8,9],[10,9]]){
+        const dx=source[handle][0]-source[endpoint][0],dy=source[handle][1]-source[endpoint][1],slope=-2*lift*(source[endpoint][0]-center)/(half*half);
+        result[handle]=[result[endpoint][0]+dx,result[endpoint][1]+dy+slope*dx];
+      }
+      return result;
+    }
     render(speech={},expression={},options={}){
       speech=speech&&typeof speech==="object"?speech:{};
       expression=expression&&typeof expression==="object"?expression:{};
@@ -1615,13 +1629,14 @@ THE SOFTWARE.
       const teeth=0,contact=oralLevel*(fv?1:0);
       const tongue=oralLevel*(consonant==="L"?.9:["TH","DH"].includes(consonant)?.85:0);
       const tongueFront=oralLevel*(consonant==="L"?.25:["TH","DH"].includes(consonant)?.9:0);
+      let singingSmileLift=0;
       const points=[];
       const point=(x,y)=>{const p=[clamp(x,5,95),clamp(y,5,45)];points.push(p);return p};
       const finish=(path,aperture=0)=>{
         let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
         for(const [x,y]of points){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y)}
         return {path,transform:"translateX(0px) rotate(0deg)",opening:opening*(1-restBlend),seal,viseme,active,
-          aperture,strokeWidth,upper,lower,round,wide,corners,tension,restBlend,teeth,contact,tongue,tongueFront,
+          aperture,strokeWidth,upper,lower,round,wide,corners,tension,restBlend,teeth,contact,tongue,tongueFront,singingSmileLift,
           points,bounds:{left:left-strokeWidth/2,right:right+strokeWidth/2,top:top-strokeWidth/2,bottom:bottom+strokeWidth/2}};
       };
       if(!active&&opening===0){
@@ -1683,6 +1698,15 @@ THE SOFTWARE.
         const side=(end+curve)/2,mid=(end+curve*3)/4;
         const rest=[[8,end],[92,end],[13,side],[31.5,mid],[50,mid],[68.5,mid],[87,side],[87,side],[68.5,mid],[50,mid],[31.5,mid],[13,side]];
         for(let i=0;i<points.length;i++)for(let axis=0;axis<2;axis++)points[i][axis]+=blend*(rest[i][axis]-points[i][axis]);
+      }
+      if(active&&this.singingSmile>0){
+        const requested=3*(1-.7*round)*(fv?.65:1)*this.singingSmile*(1-restBlend),height=Math.max(0,points[9][1]-points[4][1]),limit=(1-k)*height*.45;
+        // Flat vowels need a smaller bend: keep their upper lip softly convex
+        // instead of creating two humps. Closed seals may smile while their
+        // matching upper/lower curves remain exactly coincident.
+        singingSmileLift=height>1e-7?limit*Math.tanh(requested/limit):requested*.55;
+        const smiling=this.smilingContour(points,singingSmileLift);
+        for(let i=0;i<points.length;i++){points[i][0]=smiling[i][0];points[i][1]=smiling[i][1]}
       }
       const xy=p=>p.map(v=>v.toFixed(2)).join(" ");
       const path=`M ${xy(edgeLeft)} C ${xy(uL1)} ${xy(uL2)} ${xy(uMid)} C ${xy(uR1)} ${xy(uR2)} ${xy(edgeRight)} C ${xy(lR1)} ${xy(lR2)} ${xy(lMid)} C ${xy(lL1)} ${xy(lL2)} ${xy(edgeLeft)} Z`;

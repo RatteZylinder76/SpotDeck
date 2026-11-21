@@ -92,13 +92,22 @@ function smoothContour(pose,label){
       }
     }
   }
-  h.run('var familyPoses=Object.fromEntries(["A","I","E","O","U","M","B","P","F","V","L","R","TH"].map(phone=>[phone,mouthRig.render({...articulationEngine.shape(phone),phone,active:true},{},{playing:true})]));');
-  const families=h.run('familyPoses');
+  h.run('var familyPhones=["A","I","E","O","U","M","B","P","F","V","L","R","TH"];var familyPoses=Object.fromEntries(familyPhones.map(phone=>[phone,mouthRig.render({...articulationEngine.shape(phone),phone,active:true},{},{playing:true})]));var neutralRig=new MouthRig({singingSmile:0});var neutralPoses=Object.fromEntries(familyPhones.map(phone=>[phone,neutralRig.render({...articulationEngine.shape(phone),phone,active:true},{},{playing:true})]));');
+  const families=h.run('familyPoses'),neutralFamilies=h.run('neutralPoses');
   for(const [phone,pose]of Object.entries(families).filter(([phone])=>!['M','B','P'].includes(phone))){
     smoothContour(pose,phone);
-    const p=pose.points,cx=(p[0][0]+p[1][0])/2,cy=(p[4][1]+p[9][1])/2,rx=(p[1][0]-p[0][0])/2,ry=(p[9][1]-p[4][1])/2;
+    const neutral=neutralFamilies[phone],p=neutral.points,cx=(p[0][0]+p[1][0])/2,cy=(p[4][1]+p[9][1])/2,rx=(p[1][0]-p[0][0])/2,ry=(p[9][1]-p[4][1])/2;
     for(const curve of [[p[0],p[2],p[3],p[4]],[p[4],p[5],p[6],p[1]],[p[1],p[7],p[8],p[9]],[p[9],p[10],p[11],p[0]]])for(let i=0;i<=16;i++){const q=cubic(...curve,i/16),ellipse=Math.pow((q[0]-cx)/rx,2)+Math.pow((q[1]-cy)/ry,2);assert(Math.abs(ellipse-1)<.0006,phone+' is an organic ellipse rather than a rounded rectangle');}
+    assert(pose.points[0][1]<neutral.points[0][1]&&pose.points[1][1]<neutral.points[1][1],phone+' lifts both singing mouth corners gently');
+    assert(Math.abs(pose.points[4][1]-neutral.points[4][1])<1e-9&&Math.abs(pose.points[9][1]-neutral.points[9][1])<1e-9,phone+' keeps its phonetic opening while smiling');
+    assert(Math.abs(pose.aperture-neutral.aperture)<1e-9,'The smile never substitutes for '+phone+' articulation');
   }
+  assert(families.A.singingSmileLift>2&&families.A.singingSmileLift<4,'Open singing has a mild, visible smile');
+  assert(families.O.singingSmileLift<families.A.singingSmileLift*.6&&families.U.singingSmileLift<families.A.singingSmileLift*.5,'Rounded vowels retain their pucker instead of becoming wide smiles');
+  assert(families.F.singingSmileLift<families.A.singingSmileLift*.5,'The F/V contact gets a more restrained corner lift');
+  assert.equal(h.run('neutralRig.render({}, {}, {playing:false}).path'),h.run('mouthRig.render({}, {}, {playing:false}).path'),'Enabling the singing smile preserves the exact original idle face');
+  h.run('var singleSmileMotion=mouthTrajectory.compile(articulationEngine.compile([{word:"A",start:100,end:900,timing:"word",phones:[{phone:"A",start:100,end:900}]}]));');
+  assert(displacement(h.run('mouthTrajectory.sample(singleSmileMotion,500)'),families.A)<1e-8,'Trajectory uses the smiling raw target once without applying a second lift');
   assert(families.A.aperture>families.I.aperture*2.4,'Open A and spread I have clearly different jaw openings');
   assert(families.E.aperture>families.I.aperture*1.5,'E is not just another flat I');
   assert(width(families.O)/families.O.aperture<1.5,'O has a recognizably round cavity');

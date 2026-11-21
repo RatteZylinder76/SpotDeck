@@ -13,7 +13,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   const run=code=>vm.runInContext(code,context),click=id=>nodes.get(id).events.click();
   function step(ms){for(const until=time+ms;time<until;){time=Math.min(until,time+1000/60);const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(time))}}
   assert.equal(run('words.length'),6);assert.equal(frames.size,0,'Comparison waits for an explicit play action');
-  assert(nodes.get('newMouth').d.includes('M '));assert.equal(nodes.get('newMouth').style.fill,'rgba(5,10,18,.82)','The comparison uses production cavity paint');assert.equal(nodes.get('oldMouth').style.fill,'rgba(255,255,255,.94)','The baseline reproduces the former production fill, not an unrelated outline demo');assert.equal(nodes.get('newMouthClip').d,nodes.get('newMouth').d);assert.equal(nodes.get('phrase').children.length,6);
+  assert(nodes.get('newMouth').d.includes('M '));assert.equal(nodes.get('newMouth').style.fill,'rgba(5,10,18,.82)','The comparison uses production cavity paint');assert.equal(nodes.get('oldMouth').style.fill,'rgba(5,10,18,.82)','Both smile variants use the same production cavity paint');assert.equal(nodes.get('oldMouthClip').d,nodes.get('oldMouth').d);assert.equal(nodes.get('newMouthClip').d,nodes.get('newMouth').d);assert.equal(nodes.get('phrase').children.length,6);
   click('play');assert.equal(frames.size,1);step(1300);assert(run('position')>1100);assert.equal(nodes.get('newWord').textContent,'hier');
   assert.equal(frames.size,1,'Two compared faces share one preview clock');click('play');assert.equal(frames.size,0);
   const paused=run('position');step(1000);assert.equal(run('position'),paused,'Pausing freezes the inspected mouth shape');
