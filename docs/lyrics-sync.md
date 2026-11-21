@@ -1,6 +1,22 @@
 # Matching synchronized lyrics before plain text
 
-Based on main b01f40bf7991c1d958ddbb1b9a5b2c4d8a5aa08d.
+## Automatic word-timing improvements
+
+The player displays a matching lyric result as soon as it is usable, then checks for a better timing source in the background. Timing quality comes from the parsed rows: supplied phoneme intervals, supplied word starts and ends, word starts with inferred ends, and finally line timestamps. A word-sync flag or the presence of a YAML document alone is not evidence of complete word timing. Matching recording/version and duration checks still apply before any timeline can drive singing.
+
+This is a general source-selection change, not a special case for individual songs. A background improvement must not replace a manual selection, install a stale result after a track change, erase useful cached timing during an outage, or make the initial lyric display wait for the second provider. Text and timing structure are checked before a replacement is accepted. Existing provider identification, attribution, request spacing, independent cooldowns and cache bounds remain in use.
+
+On 2026-11-21, live data for Bella Napoli by Roy Bianco & Die Abbrunzati Boys demonstrated the distinction. The inspected LRCLIB word-synchronized records contained 297 word starts without explicit word ends. The matching lrc.red recording contained 300 word segments with both starts and ends, ranging from about 0.1 to 3.9 seconds. Both documents were accepted by the existing SpotDeck parser. The counts differ, so source replacement also requires a compatible normalized text structure. No full song lyrics are shipped in tests. These were metadata/timing inspections, not an audible alignment measurement. See the [LRCLIB API](https://lrclib.net/docs.txt) and [lrc.red recording](https://lrc.red/s/DEUM72118621).
+
+Supplied word ends constrain singing and preserve pauses; internal pronunciation remains estimated unless actual phoneme cues are supplied. Word intervals alone cannot identify exactly where a held vowel ends and its final consonant begins. No microphone, additional user account, audio analysis or audio upload is introduced.
+
+Playback-clock corrections address a different problem. Pausing preserves the current extrapolated position, and seeking invalidates in-flight snapshots so an older response cannot undo the seek. Small poll corrections on the same playing track and device settle at up to 80 ms/s when their difference is at most 300 ms. Explicit seek commands, SDK state events, larger corrections, pause and track/device changes anchor immediately. An unmarked external Connect seek within that small tolerance cannot be distinguished from poll jitter and follows the same gradual correction. The existing beat clock still receives the original reported progress. None of this measures the physical latency of a remote speaker or Bluetooth headphones.
+
+Browser preflight requests from the GitHub Pages origin succeeded for both providers during verification. LRCLIB explicitly allowed the documented public `X-User-Agent` client header, and lrc.red allowed `X-Client-ID`. These checks establish cross-origin header support at the time of testing, not ongoing provider availability or audible synchronization on a physical device.
+
+The public Bella Napoli documents were also fed through the actual player in the offline harness: the initial LRCLIB result rendered 297 word starts immediately, followed by an automatic lrc.red replacement containing 300 complete word intervals. That flow used three provider requests: initial lyrics, recording metadata and the structured timing file. Separate articulation checks preserved all 300 supplied word ends, found no phoneme escaping its word interval and kept 47 checked source pauses closed. The synthetic visual comparison uses the same current face and trajectory on both sides; it illustrates supplied versus inferred word ends, without claiming alignment to commercial audio.
+
+The full twenty-suite offline regression set includes the new lyric-quality, playback-clock and word-boundary singing suites. It covers parsed quality tiers, bounded structured data, identity/text compatibility, asynchronous upgrades, manual-choice and cache retention, late responses, provider backoff, transport races and supplied word boundaries. Real lyrics are excluded from repository fixtures.
 
 ## Source limitation and resulting behavior
 

@@ -55,7 +55,14 @@
       this.phoneIds=new Set(['REST','P','B','M','F','V','T','D','K','G','N','NG','L','R','S','Z','SH','ZH','CH_DE','ACH','TH','DH','H','W','Y','TS','KS','AI','AU','OY','EI','OU',...this.vowels]);
     }
     bounded(value,a=0,b=1){return Math.max(a,Math.min(b,Number.isFinite(value)?value:0))}
-    normalize(word){return String(word??'').normalize('NFKC').toLowerCase().replace(/[’']/g,'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,'').slice(0,128)}
+    normalize(word){
+      let normalized=String(word??'').normalize('NFKC').toLowerCase().replace(/[’']/g,'').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,'').slice(0,128);
+      // Some word-synced sources copy Cyrillic е into otherwise Latin words.
+      // Repair that proven lookalike only; genuine non-Latin text stays unknown.
+      const letters=[...normalized].filter(c=>/\p{L}/u.test(c));
+      if(letters.filter(c=>/\p{Script=Latin}/u.test(c)).length>=2&&letters.every(c=>/\p{Script=Latin}/u.test(c)||c==='\u0435'))normalized=normalized.replace(/\u0435/g,'e');
+      return normalized;
+    }
     detectLanguage(text){
       const words=(String(text??'').toLowerCase().match(/[\p{L}]+/gu)||[]).slice(0,1000);let de=0,en=0;
       for(const w of words){if(this.deClues.has(w))de+=2;if(this.enClues.has(w))en+=2;if(/[äöüß]/.test(w))de+=4;if(this.lexicons.de[w]&&!this.lexicons.en[w])de+=.5;if(this.lexicons.en[w]&&!this.lexicons.de[w])en+=.5}
